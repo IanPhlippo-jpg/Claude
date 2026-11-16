@@ -20,27 +20,63 @@
 //     IR-leds via de MCP23017 en stuurt de pulsen met de RMT op GPIO47;
 //   - IR ontvangen: main.cpp geeft elk frame van een ontvanger in ns (irFrame); leren (10 s) of herkennen, dan een
 //     melding bij het punt van die ontvanger (bussen.h) en de haltes (halte.h);
-//   - ingangen: 40 (1..16 GPIO, 17..24 MCP23017 0x20, 25..40 MCP23017 0x21 als die er is: ingangAanwezig); een ingang die
+//   - ingangen: 37 (1..16 GPIO, 17..23 MCP23017 0x20, 25..38 MCP23017 0x21 als die er is: ingangAanwezig); een ingang die
 //     actief wordt en aan een punt hangt, geeft een melding;
 //   - geluidskastjes (kastjes.h): een stap "geluid" zet een HTTP-opdracht in de rij; main.cpp stuurt ze.
+// Firmware 2.1.0 erbij (Fable 5.2):
+//   - ingangen: printSoort per print (E3): omkeerMasker keert de ingangen om met print "gnd" en polariteit "npn";
+//     37 ingangen (E7), 17..23 voor reflexsensoren (E2);
+//   - ontvangerNiveau (E2): main.cpp geeft elke 5 ms het niveau van de ontvangerpinnen 2..4: laag > 50 ms = een
+//     melding "ftr" op het punt van die ontvanger (aanwezigheid), weer hoog = einde (ontvangerBezet);
+//   - IR: continu-codes (F1, continuLeds), de zelftest via -B1 (E4, zelftestStart), "code te lang" bij leren (F17);
+//   - servo's wachten zolang meer dan 12 lichtgroepen aan staan (E14) en gaan bij het opstarten één voor één (E8);
+//   - haltes: meldingen van de haltes (F12) in logicaMelding().
 #pragma once
 #include <string>
 
 #include "functies.h"
 #include "ingangen.h"
+#include "irzend.h"
 #include "licht.h"
 #include "opslag.h"
 
 namespace trein {
 
-constexpr const char *FW_VERSIE = "2.0.0";
+constexpr const char *FW_VERSIE = "2.1.0";
 constexpr uint32_t LEER_MS = 10000;   // zo lang wacht leren op een code
 constexpr int MAX_IR_RIJ = 8;
+constexpr int SERVO_REM_GROEPEN = 12; // E14: meer lichtgroepen aan = de servo's wachten
+constexpr uint32_t ZELFTEST_MS = 3000; // E4: zo lang wacht de IR-zelftest op -B1
+constexpr uint16_t ZELFTEST_ADRES = 0x7E, ZELFTEST_COMMANDO = 0x5A;
 
-struct IrZend {
-  int8_t code = -1; // index
-  uint8_t leds = 0; // bit k = IR-led k+1
+/** E4: IR-zelftest: een NEC-testcode via één IR-led, -B1 (de leerontvanger) leest mee */
+struct IrZelftest {
+  bool loopt = false, ok = false, gedaan = false;
+  bool ongemoduleerd = false; // -B1 zag licht zonder draaggolf (F1)
+  int8_t led = -1;
+  uint32_t start = 0;
+  int khzTiende = 0;
+  char code[IR_TEKST_LEN] = {0};
+  const char *fout = "";
 };
+
+/** de testcode van de zelftest (NEC, 38 kHz) */
+inline IrCode zelftestCode() {
+  IrCode c;
+  c.gebruikt = true;
+  strcpy(c.naam, "Zelftest");
+  c.soort = IR_NEC;
+  c.khz = 38;
+  c.adres = ZELFTEST_ADRES;
+  c.commando = ZELFTEST_COMMANDO;
+  return c;
+}
+
+inline int telBits(uint32_t m) {
+  int n = 0;
+  for (; m; m &= m - 1) n++;
+  return n;
+}
 
 /** leren: loopt, of het resultaat van de laatste keer */
 struct Leren {
@@ -77,8 +113,12 @@ class Baan : public Uitvoerder, public HalteUit {
   Kastjes kastjes;
   Leren leren;
   IngangMasker ingangRuw = 0;
-  IngangMasker ingangAanwezig = (IngangMasker)((1ull << INGANGEN_MCP1) - 1); // 25..40 pas als de tweede MCP23017 er is
-  bool pnpOmkeren = false; // de ingangsprint geeft bij PNP actief HOOG (-DTREIN_PNP_KEERT_OM): pnp-ingangen omkeren
+  IngangMasker ingangAanwezig = INGANGEN_GPIO | INGANGEN_MCP1; // 25..38 pas als de tweede MCP23017 er is
+  IrZelftest zelftest;
+  NiveauWacht niveau[IR_ONTVANGERS]; // E2: lang laag op een ontvangerpin
+  // IR zenden: main.cpp vult dit in (IrZender)
+  uint32_t irNietVerzonden = 0;
+  const char *irLaatsteFout = "";
   uint32_t msNu = 0;       // de tijd van de laatste tick
   uint32_t cfgRev = 1, standRev = 1;
   std::string melding; // voor het dashboard (instellingen hersteld, chip niet gevonden, ...)
@@ -108,12 +148,11 @@ class Baan : public Uitvoerder, public HalteUit {
     cfgRev++;
   }
 
-  /** de ingangen die de Baan omkeert (pnp met pnpOmkeren) */
+  /** de ingangen die de Baan omkeert (print "gnd" met een npn-sensor, E3) */
   IngangMasker omkeerMasker() const {
-    if (!pnpOmkeren) return 0;
     IngangMasker m = 0;
     for (int i = 0; i < N_INGANGEN; i++)
-      if (cfg.ingang[i].polariteit == POL_PNP) m |= ingangBit(i);
+      if (ingangOmgekeerd(cfg.inst, cfg.ingang[i], i)) m |= ingangBit(i);
     return m;
   }
 
@@ -142,10 +181,18 @@ class Baan : public Uitvoerder, public HalteUit {
     seq.stap(cfg.functie, *this, nu);
     dagnachtStap(nu);
     haltes.stap(cfg.halte, ingangen.actiefMasker(), *this, nu);
+    servos.geremd = telBits(lampen.uitgang) > SERVO_REM_GROEPEN; // E14 (de stand van de vorige tick)
     servos.stap(cfg.servo, nu);
     if (leren.loopt && nu - leren.start >= LEER_MS) {
       leren.loopt = false;
       leren.fout = "Er kwam geen code binnen (10 s).";
+    }
+    if (zelftest.loopt && nu - zelftest.start >= ZELFTEST_MS) {
+      zelftest.loopt = false;
+      zelftest.gedaan = true;
+      zelftest.fout = zelftest.ongemoduleerd
+                          ? "-B1 zag licht zonder draaggolf: de IR-led brandt, maar de modulatie (-Q3, GPIO47) werkt niet."
+                          : "-B1 zag niets: houd IR-led n voor het venster van -B1 en kijk -Q3, -Q4 en de draden na.";
     }
     lampen.stap(nu);
     if (testSoort != TEST_GEEN) {
@@ -174,9 +221,74 @@ class Baan : public Uitvoerder, public HalteUit {
   }
 
   // ------------------------------------------------------------------------------------------------------- IR
-  /** IR-code (index) zenden via de IR-leds in het masker (0 = alle). false = onbekende code of de rij is vol */
+  /** IR-code (index) zenden via de IR-leds in het masker (0 = alle). false = onbekende code of de rij is vol.
+   *  Een continu-code (F1) brandt IR_CONTINU_PROEF_MS lang zonder draaggolf. */
   bool irZenden(int code, uint8_t leds) {
     if (code < 0 || code >= MAX_IR_CODES || !cfg.ir[code].gebruikt) return false;
+    if (cfg.ir[code].soort == IR_CONTINU) {
+      proefLeds_ = leds ? leds : 0xFF;
+      proefTot_ = msNu + IR_CONTINU_PROEF_MS;
+      return true;
+    }
+    return irRij(code, leds);
+  }
+  /** de IR-leds die nu zonder draaggolf moeten branden: haltes met een continu-stopcode die een bus vasthouden, en
+   *  een continu-code die met de hand gezonden werd */
+  uint8_t continuLeds(uint32_t nu) const {
+    uint8_t m = 0;
+    for (int h = 0; h < MAX_HALTES; h++) {
+      const HalteCfg &c = cfg.halte[h];
+      if (c.gebruikt && c.stopCode >= 0 && cfg.ir[c.stopCode].gebruikt && cfg.ir[c.stopCode].soort == IR_CONTINU &&
+          haltes.houdt(h))
+        m |= c.stopLeds ? c.stopLeds : 0xFF;
+    }
+    if (proefLeds_ && !voorbij(nu, proefTot_)) m |= proefLeds_;
+    return m;
+  }
+  /** de code bij een opdracht uit de rij (ook de testcode van de zelftest) */
+  bool irCodeVoor(const IrZend &z, IrCode &c) const {
+    if (z.code == IR_ZELFTEST) { c = zelftestCode(); return true; }
+    if (z.code < 0 || z.code >= MAX_IR_CODES || !cfg.ir[z.code].gebruikt) return false;
+    c = cfg.ir[z.code];
+    return true;
+  }
+  /** E4: de IR-zelftest starten met IR-led led (0..7). "" = gestart, anders waarom niet */
+  const char *zelftestStart(int led, uint32_t nu) {
+    if (led < 0 || led >= IR_LEDS) return "Welke IR-led? Geef \"led\" van 1 tot 8.";
+    if (leren.loopt) return "Er wordt een code geleerd: wacht tot dat klaar is.";
+    if (zelftest.loopt) return "De zelftest loopt al.";
+    if (!irRij(IR_ZELFTEST, (uint8_t)(1u << led))) return "De doos is nog bezig met zenden. Probeer zo dadelijk opnieuw.";
+    zelftest = IrZelftest();
+    zelftest.loopt = true;
+    zelftest.led = (int8_t)led;
+    zelftest.start = nu;
+    return "";
+  }
+  /** E2: het niveau van ontvangerpin o (0..3), elke tick: laag langer dan 50 ms = een ftr-melding (aanwezigheid) */
+  void ontvangerNiveau(int o, bool laag, uint32_t nu) {
+    if (o < 0 || o >= IR_ONTVANGERS) return;
+    if (niveau[o].stap(laag, nu) != 1) return;
+    const Melding *m = volg.ontvangen(o, "", cfg.punt, cfg.bus, nu);
+    if (m) haltes.melding(cfg.halte, m->punt, m->bus, *this, nu);
+  }
+  /** meldingen van de logica voor het dashboard (F12: een halte gaf toch groen) */
+  std::string logicaMelding() const {
+    std::string m;
+    for (int h = 0; h < MAX_HALTES; h++) {
+      if (!cfg.halte[h].gebruikt || !haltes.t[h].teLang) continue;
+      if (!m.empty()) m += " ";
+      m += "Halte \"" + std::string(cfg.halte[h].naam) + "\": het verkeer bleef langer dan " +
+           std::to_string(cfg.halte[h].maxVerkeerS) + " s bezet; de bus kreeg toch groen. Kijk de vrij-ingangen na.";
+    }
+    return m;
+  }
+  /** de servo's: per kanaal van de PCA9685 op 0x42 de tellen (een kanaal met meer servo's: de laatste telt) */
+  void servoTellen(uint16_t *tellen) const {
+    for (int k = 0; k < 16; k++) tellen[k] = 0;
+    for (int i = 0; i < MAX_SERVOS; i++)
+      if (cfg.servo[i].gebruikt) tellen[cfg.servo[i].kanaal & 15] = servos.tellen(i);
+  }
+  bool irRij(int code, uint8_t leds) {
     if (nIrRij_ >= MAX_IR_RIJ) return false;
     irRij_[nIrRij_].code = (int8_t)code;
     irRij_[nIrRij_].leds = leds ? leds : 0xFF;
@@ -200,14 +312,23 @@ class Baan : public Uitvoerder, public HalteUit {
   }
 
   /** een frame van ontvanger o (0..3): duren in ns, aan/uit om beurten, begint met aan (leerontvanger: met de
-   *  draaggolf; de andere: al gedemoduleerd) */
-  void irFrame(int o, const uint32_t *ns, int n, uint32_t nu) {
+   *  draaggolf; de andere: al gedemoduleerd). afgekapt: het frame was langer dan de buffer (F17) */
+  void irFrame(int o, const uint32_t *ns, int n, uint32_t nu, bool afgekapt = false) {
     if (o < 0 || o >= IR_ONTVANGERS || n <= 0) return;
     static Leerresultaat r; // 0,5 kB: niet op de stapel
     if (!leerUitDraaggolf(ns, n, r)) return;
     IrGelezen g;
     bool code = irHerken(r.us, r.n, g);
+    if (zelftest.loopt && o == 0) {
+      zelftestFrame(r, code, g);
+      return;
+    }
     if (leren.loopt && leren.ontvanger == o) {
+      if (afgekapt || r.afgekapt) { // F17: niet stil een half frame bewaren
+        leren.loopt = false;
+        leren.fout = "De code is te lang om te leren (meer dan 256 tijden): kies een kortere knop of stuur hem als raw.";
+        return;
+      }
       if (!code || g.herhaling) return; // een stoorpuls of een herhaalcode: verder wachten
       int plaats = -1;
       for (int i = 0; i < MAX_IR_CODES && plaats < 0; i++)
@@ -245,7 +366,11 @@ class Baan : public Uitvoerder, public HalteUit {
   }
 
   // HalteUit
-  void halteIr(int code, uint8_t leds, uint32_t) override { irZenden(code, leds); }
+  void halteIr(int code, uint8_t leds, uint32_t) override {
+    // een continu-code brandt via continuLeds zolang de halte vasthoudt (F1)
+    if (code >= 0 && code < MAX_IR_CODES && cfg.ir[code].gebruikt && cfg.ir[code].soort == IR_CONTINU) return;
+    irZenden(code, leds);
+  }
   void halteLicht(int g, bool aan, uint32_t nu) override {
     if (g >= 0 && g < N_GROEPEN && lampen.stand[g].aan != aan) zetAan(g, aan, nu);
   }
@@ -380,12 +505,22 @@ class Baan : public Uitvoerder, public HalteUit {
     return true;
   }
 
-  /** een ingang een andere polariteit geven. Keert de Baan pnp om (pnpOmkeren), dan begint hij opnieuw: de huidige
+  /** een ingang een andere polariteit geven. Keert de Baan hem daardoor anders om, dan begint hij opnieuw: de huidige
    *  lezing is rust (anders zou het omkeren hem meteen laten "drukken") */
   void zetPolariteit(int i, uint8_t p) {
     if (i < 0 || i >= N_INGANGEN || cfg.ingang[i].polariteit == p) return;
+    bool voor = ingangOmgekeerd(cfg.inst, cfg.ingang[i], i);
     cfg.ingang[i].polariteit = p;
-    if (pnpOmkeren) ingangen.herbegin(i);
+    if (voor != ingangOmgekeerd(cfg.inst, cfg.ingang[i], i)) ingangen.herbegin(i);
+  }
+  /** een print (0..4) een andere soort geven (E3); de ingangen die daardoor anders omgekeerd worden, beginnen opnieuw */
+  void zetPrintSoort(int p, uint8_t s) {
+    if (p < 0 || p >= N_PRINTEN || cfg.inst.printSoort[p] == s) return;
+    IngangMasker voor = omkeerMasker();
+    cfg.inst.printSoort[p] = s;
+    IngangMasker anders = voor ^ omkeerMasker();
+    for (int i = 0; i < N_INGANGEN; i++)
+      if (anders >> i & 1) ingangen.herbegin(i);
   }
 
   // ---------------------------------------------------------------------------------------------- dag/nacht
@@ -434,16 +569,17 @@ class Baan : public Uitvoerder, public HalteUit {
     if (s.dagnachtLoopt) dagnachtStart(nu, DAG, (int32_t)s.dagnachtPosMs);
     for (int f = 0; f < MAX_FUNCTIES; f++)
       if (s.functies >> f & 1 && cfg.functie[f].herhalen) functieStart(f, nu);
-    servosOpStand(s.servosB);
+    servosOpStand(s.servosB, nu);
     standRev++;
   }
 
   /** alle servo's meteen (zonder beweging) op hun stand: bit s = B, anders A */
-  void servosOpStand(uint16_t b) {
+  void servosOpStand(uint16_t b, uint32_t nu = 0) {
     for (int i = 0; i < MAX_SERVOS; i++) {
       if (!cfg.servo[i].gebruikt) { servos.vergeet(i); continue; }
       bool naarB = b >> i & 1;
-      servos.zetMeteen(i, naarB ? cfg.servo[i].b : cfg.servo[i].a, naarB ? STAND_B : STAND_A);
+      // E8: niet allemaal tegelijk, maar door de rij (één nieuwe servo per 300 ms)
+      servos.naarStart(i, naarB ? cfg.servo[i].b : cfg.servo[i].a, naarB ? STAND_B : STAND_A, nu);
     }
   }
 
@@ -516,6 +652,27 @@ class Baan : public Uitvoerder, public HalteUit {
   bool dnVorig_[N_GROEPEN];
   IrZend irRij_[MAX_IR_RIJ];
   int nIrRij_ = 0;
+  uint8_t proefLeds_ = 0;
+  uint32_t proefTot_ = 0;
+
+  void zelftestFrame(const Leerresultaat &r, bool code, const IrGelezen &g) {
+    if (!r.khz) { // licht zonder draaggolf: onthouden, verder wachten op een gemoduleerd frame
+      zelftest.ongemoduleerd = true;
+      return;
+    }
+    if (!code || g.herhaling) return;
+    zelftest.loopt = false;
+    zelftest.gedaan = true;
+    zelftest.khzTiende = r.khzTiende;
+    irTekst(g, zelftest.code, sizeof zelftest.code);
+    uint8_t verwacht[4];
+    necBytes(ZELFTEST_ADRES, ZELFTEST_COMMANDO, verwacht);
+    bool zelfde = g.soort == IR_NEC && memcmp(g.bytes, verwacht, 4) == 0;
+    bool khzGoed = r.khzTiende >= 370 && r.khzTiende <= 390; // 38 kHz, binnen 1 kHz
+    zelftest.ok = zelfde && khzGoed;
+    zelftest.fout = zelfde ? (khzGoed ? "" : "De draaggolf wijkt meer dan 1 kHz af van 38 kHz.")
+                           : "-B1 las een andere code dan de testcode (storing, of een ander toestel zendt).";
+  }
 
   void zetAan(int g, bool aan, uint32_t nu) {
     GroepStand s = lampen.stand[g];

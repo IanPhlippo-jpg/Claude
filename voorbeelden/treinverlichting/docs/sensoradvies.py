@@ -46,8 +46,15 @@ def op(pts, s_cum, d):
 
 def maak():
     plan = json.loads((PLAN / 'plan.json').read_text(encoding='utf8'))
-    pxm = plan['schaal']['px_per_m']
-    stap = STAP_M * SCHAAL_MODEL * pxm  # px tussen 2 sensoren op een lang stuk
+    # Fable 5.2 V3: een modelbaan is bijna altijd ingekort. Staat er in plan.json een gemeten "mm_op_de_baan_per_px" (2 punten
+    # op de echte baan opgemeten), dan rekent het advies daarmee; anders met de schaal van de foto en H0 (AANNAME)
+    if plan.get('mm_op_de_baan_per_px'):
+        stap = STAP_M * 1000 / plan['mm_op_de_baan_per_px']
+        bron_schaal = f"gemeten: {plan['mm_op_de_baan_per_px']} mm op de baan per px"
+    else:
+        pxm = plan['schaal']['px_per_m']
+        stap = STAP_M * SCHAAL_MODEL * pxm  # px tussen 2 sensoren op een lang stuk
+        bron_schaal = f'H0 1:{SCHAAL_MODEL:.0f} = {stap:.0f} px, AANNAME: 2 punten op de baan opmeten (mm_op_de_baan_per_px)'
     banen = {b['id']: b for b in plan['rijbanen']}
     for b in banen.values():
         b['_s'] = lengtes(b['punten'])
@@ -68,10 +75,12 @@ def maak():
     for w in plan['wissels']:
         zet('hall', w['afbuigen'], 40, f'net na {w["id"]} op de afbuigende tak: de bus nam deze kant', f'HW{w["id"][1:]}')
     for s in plan['stoppunten']:
-        zet('ftr', s['baan'], s['afstand_px'] - 12, f'reflexsensor aan {s["id"]}: de bus staat aan de halte', f'FTR_{s["id"][5:]}')
+        # Fable 5.2 S2: aan het stoppunt volstaat een doorritsensor (de halte weet dan dat de bus er staat)
+        zet('hall', s['baan'], s['afstand_px'] - 12, f'hallsensor aan {s["id"]}: de bus komt aan de halte (aankomstpunt)', f'HS_{s["id"][5:]}')
     for b in banen.values():
         if b['soort'] == 'bus' and (b.get('eind') or {}).get('voegt_in_op'):
-            zet('hall', b['id'], b['_s'][-1] - 25, 'vlak voor de invoeging: de bus is vertrokken', f'HV_{b["id"][6:]}')
+            # Fable 5.2 S2: aan de invoeging een sensor die aanwezigheid ziet (een stilstaande auto): reflexsensor
+            zet('ftr', b['id'], b['_s'][-1] - 25, 'reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken', f'FTR_{b["id"][6:]}')
     # de lange stukken: om de 50 cm (model), tussen de vaste punten op dezelfde baan
     for b in banen.values():
         if b['id'].startswith('halte_'):
@@ -112,21 +121,21 @@ def maak():
         x, y = s['x'] * f, s['y'] * f
         r = 13 if s['soort'] != 'ir' else 16
         dr.ellipse([x - r, y - r, x + r, y + r], fill=kleur[s['soort']], outline=(0, 0, 0) if not s['bestaat'] else (255, 255, 255), width=4)
-        links = x > im.width - 260 or s['id'].startswith('HV_')
+        links = x > im.width - 260 or s['id'].startswith('FTR_')
         tx = x - 16 - dr.textlength(s['id'], font=font) if links else x + 16
         dr.text((tx, y - 30), s['id'], font=font, fill=(255, 255, 255), stroke_width=3, stroke_fill=(0, 0, 0))
     n = {k: sum(1 for s in sensoren if s['soort'] == k) for k in kleur}
     nieuw = sum(1 for s in sensoren if not s['bestaat'])
     leg = [f'Sensoradvies: {nieuw} nieuwe sensoren (+ hallsensor 1 die er al is)',
-           f'geel = hallsensor ({n["hall"]}), blauw = reflexsensor FTR aan het stoppunt ({n["ftr"]}), paars = IR-ontvanger ({n["ir"]})',
-           'om de ± 50 cm op de baan (H0 1:87 = 217 px, AANNAME), bij elke wissel, elk stoppunt en elke invoeging']
+           f'geel = hallsensor omnipolair ({n["hall"]}), blauw = reflexsensor aan de invoeging ({n["ftr"]}), paars = IR-ontvanger ({n["ir"]})',
+           f'om de ± 50 cm ({bron_schaal}), bij elke wissel, elk stoppunt en elke invoeging']
     dr.rectangle([20, 20, 1460, 20 + 40 * len(leg) + 16], fill=(255, 255, 255))
     for i, t in enumerate(leg):
         dr.text((36, 30 + 40 * i), t, font=klein, fill=(20, 20, 20))
     im.save(HIER / 'Sensoradvies.png', optimize=True)
     for s in sensoren:
         s.pop('_s', None)
-    (HIER / 'sensoradvies.json').write_text(json.dumps({'schaal_model': f'1:{SCHAAL_MODEL:.0f} (AANNAME)', 'stap_px': round(stap, 1),
+    (HIER / 'sensoradvies.json').write_text(json.dumps({'schaal': bron_schaal, 'stap_px': round(stap, 1),
                                                        'sensoren': sensoren}, ensure_ascii=False, indent=1), encoding='utf8')
     print(f'{len(sensoren)} sensoren ({nieuw} nieuw): {n}; stap {stap:.1f} px')
     for s in sensoren:

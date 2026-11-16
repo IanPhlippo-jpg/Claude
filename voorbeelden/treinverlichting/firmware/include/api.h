@@ -28,7 +28,7 @@
 //   POST /api/update           (main.cpp) de nieuwe firmware (.bin) als multipart-upload; daarna herstart de doos
 // Firmware 2.0.0 erbij (zie README, "API"):
 //   POST /api/ingang           ook {"nr":5,"polariteit":"pnp"} en {"groep":1,"polariteit":"pnp"} (groep 1..5 = ingang
-//                              1-8, 9-16, 17-24, 25-32, 33-40)
+//                              1-8, 9-16, 17-23, 25-31, 32-38: de printen, sinds 2.1.0)
 //   POST /api/ir               {"actie":"leren","naam":"Stop bus","ontvanger":1}  (10 s; resultaat in "leren")
 //                              {"actie":"bewaren","nr":3,"code":{"naam":..,"soort":"nec"|"rc5"|"raw","khz":38,"adres":0,
 //                                "commando":18,"raw":[9000,4500,...],"herhaal":1}}   (zonder nr: nieuw)
@@ -49,6 +49,20 @@
 //   GET  /api/meldingen?sinds=812   de meldingen van de meetpunten na volgnummer 812 (apiMeldingen)
 //   GET/PUT /api/plan, POST /api/plan/beeld, GET /plan.jpg, GET /tv, GET /tv/<bestand>, POST /api/tv/bestand?naam=
 //                              (main.cpp, bestanden in LittleFS; planNakijken controleert de plan-JSON)
+// Firmware 2.1.0 erbij (Fable 5.2; zie README, "Nieuw in 2.1.0"):
+//   POST /api/instellingen     {"printSoort":["vcc","gnd","apart"]}  (1 tot 5 printen: 1-8, 9-16, 17-23, 25-31, 32-38;
+//                              "vcc" geweigerd zolang er een pnp-ingang op die print staat)  {"irLedActiefLaag":true}
+//                              {"irDuty":33|50}
+//   POST /api/ingang           polariteit "pnp" op een print "vcc": geweigerd (400). {"groep":g,...}: g = print 1..5
+//   POST /api/ir               {"actie":"zelftest","led":5}  (NEC-testcode via IR-led 5, -B1 leest mee; resultaat in
+//                              "zelftest" van /api/staat); soort "continu"; "adres16"/"commando16" (NEC); een code
+//                              die met haar herhalingen te lang wordt: geweigerd
+//   POST /api/servo            "pulsUitS": 0 (altijd puls) of 1..10
+//   POST /api/punt             "alleenBus": true|false
+//   POST /api/halte            "herhalen": true|false, "maxVerkeerS": 0..3600 (0 = geen grens)
+//   GET  /api/zelftest         (main.cpp, apiZelftest) I2C-scan, PCA9685 teruglezen, MCP23017, LittleFS, stapels, wifi
+//   Toegang (main.cpp, toegang()): elke POST/PUT alleen van de hotspot (192.168.4.x) of met de kop
+//   X-Treinbaan-Wachtwoord = het wifi-wachtwoord (anders 401); een Origin die niet de doos zelf is: 403.
 // Antwoord: {"ok":true} (eventueel met "nr"), of HTTP 400 met {"ok":false,"fout":"uitleg in gewone taal"}.
 // Groepen, scènes, functies en ingangen hebben in de API nummers vanaf 1 (zoals op het dashboard).
 #pragma once
@@ -163,10 +177,26 @@ inline void staatErbij(JsonObject o, const Baan &b, uint32_t nu, bool kort) {
     x["fase"] = halteFaseId(b.haltes.t[i].fase);
     x["bus"] = b.haltes.t[i].bus + 1;
     x["resterendS"] = b.haltes.resterendS(i, b.cfg.halte[i], nu);
+    // F3: de wachtende bus (nummer), 0 = een onbekende bus wacht, -1 = niemand
+    x["wachtend"] = b.haltes.t[i].heeftWachtend ? b.haltes.t[i].wachtendBus + 1 : -1;
+    if (b.haltes.t[i].teLang) x["teLang"] = true;
     if (!kort) schrijfHalte(x, b.cfg.halte[i]);
   }
+  o["servoWachtLampen"] = b.servos.geremd && b.servos.wachtend() > 0; // E14
+  JsonArray ob = o["ontvangerBezet"].to<JsonArray>();                  // E2: lang laag op ontvanger 1..4
+  for (int i = 0; i < IR_ONTVANGERS; i++) ob.add(b.niveau[i].bezet);
+  JsonObject zt = o["zelftest"].to<JsonObject>(); // E4
+  zt["loopt"] = b.zelftest.loopt;
+  zt["ok"] = b.zelftest.ok;
+  if (b.zelftest.led >= 0) zt["led"] = b.zelftest.led + 1;
+  zt["khz"] = b.zelftest.khzTiende / 10.0;
+  zt["code"] = b.zelftest.code;
+  zt["fout"] = b.zelftest.fout;
+  zt["ongemoduleerd"] = b.zelftest.ongemoduleerd;
+  JsonObject ir = o["ir"].to<JsonObject>(); // F5
+  ir["nietVerzonden"] = b.irNietVerzonden;
+  ir["laatsteFout"] = b.irLaatsteFout;
   if (kort) return;
-  JsonObject ir = o["ir"].to<JsonObject>();
   JsonArray codes = ir["codes"].to<JsonArray>();
   for (int i = 0; i < MAX_IR_CODES; i++) {
     if (!b.cfg.ir[i].gebruikt) continue;
@@ -204,7 +234,6 @@ inline void staatErbij(JsonObject o, const Baan &b, uint32_t nu, bool kort) {
       y["s"] = k.geluid[j].ds / 10.0;
     }
   }
-  o["pnpOmkeren"] = b.pnpOmkeren;
 }
 
 inline std::string apiStaat(const Baan &b, uint32_t nu, bool kort) {
@@ -403,6 +432,10 @@ inline Antwoord apiFunctie(Baan &b, const char *body, size_t len, uint32_t nu) {
 }
 
 // ---------------------------------------------------------------------------------------------------- ingang
+constexpr const char *PNP_OP_VCC =
+    "PNP kan niet op een print met gemeenschappelijke VCC: kies voor die print \"gnd\" of \"apart\" (Instellingen, "
+    "soort print; nameten volgens TRN-22, stap optocouplerprint).";
+
 inline Antwoord apiIngang(Baan &b, const char *body, size_t len, uint32_t nu) {
   JsonDocument d;
   Antwoord a;
@@ -415,15 +448,19 @@ inline Antwoord apiIngang(Baan &b, const char *body, size_t len, uint32_t nu) {
   int polNr = pol.isNull() ? -1 : (pol.is<const char *>() ? polariteitVanId(pol.as<const char *>()) : -2);
   if (polNr == -2 || (!pol.isNull() && polNr < 0)) return fout("Polariteit: kies \"npn\" of \"pnp\".");
   if (!d["groep"].isNull()) {
-    int g = index(d["groep"], N_INGANG_GROEPEN);
-    if (g < 0) return foutN("Welke groep ingangen? Geef \"groep\" van 1 tot %d (groep 1 = ingang 1-8).", N_INGANG_GROEPEN);
-    if (polNr < 0) return fout("Geef de polariteit voor de groep: \"npn\" of \"pnp\".");
-    for (int k = g * INGANG_GROEP; k < (g + 1) * INGANG_GROEP; k++) b.zetPolariteit(k, (uint8_t)polNr);
+    int g = index(d["groep"], N_PRINTEN);
+    if (g < 0) return foutN("Welke print? Geef \"groep\" van 1 tot %d (1 = ingang 1-8, 2 = 9-16, 3 = 17-23, 4 = 25-31, 5 = 32-38).", N_PRINTEN);
+    if (polNr < 0) return fout("Geef de polariteit voor de print: \"npn\" of \"pnp\".");
+    if (!polariteitMag(b.cfg.inst.printSoort[g], (uint8_t)polNr)) return fout(PNP_OP_VCC);
+    for (int k = 0; k < N_INGANGEN; k++)
+      if (printVanIngang(k) == g) b.zetPolariteit(k, (uint8_t)polNr);
     b.instellingenGewijzigd(nu);
     return goed(g + 1);
   }
   int i = index(d["nr"], N_INGANGEN);
   if (i < 0) return foutN("Welke ingang? Geef \"nr\" van 1 tot %d.", N_INGANGEN);
+  if (polNr >= 0 && printVanIngang(i) >= 0 && !polariteitMag(b.cfg.inst.printSoort[printVanIngang(i)], (uint8_t)polNr))
+    return fout(PNP_OP_VCC);
   if (d["tellerNul"].is<bool>() && d["tellerNul"].as<bool>()) {
     b.ingangen.tellerNul(i);
     if (d.as<JsonObjectConst>().size() == 2) return goed(i + 1); // alleen de teller: geen instellingen gewijzigd
@@ -482,6 +519,32 @@ inline Antwoord apiInstellingen(Baan &b, const char *body, size_t len, uint32_t 
     if (!tw.isNull() && (!tw.is<const char *>() || !thuisWachtwoordGeldig(tw.as<const char *>())))
       return fout("Het wachtwoord van het thuisnet is leeg (open netwerk) of heeft 8 tot 63 gewone tekens.");
   }
+  JsonVariantConst ps = r["printSoort"];
+  uint8_t soorten[N_PRINTEN];
+  int nPs = 0;
+  if (!ps.isNull()) {
+    if (!ps.is<JsonArrayConst>() || ps.size() < 1 || ps.size() > (size_t)N_PRINTEN)
+      return foutN("printSoort: een lijst van 1 tot %d printen, elk \"vcc\", \"gnd\" of \"apart\".", N_PRINTEN);
+    for (JsonVariantConst x : ps.as<JsonArrayConst>()) {
+      int s = x.is<const char *>() ? printSoortVanId(x.as<const char *>()) : -1;
+      if (s < 0) return fout("printSoort: kies per print \"vcc\", \"gnd\" of \"apart\".");
+      soorten[nPs++] = (uint8_t)s;
+    }
+    for (int i = 0; i < N_INGANGEN; i++) {
+      int p = printVanIngang(i);
+      if (p >= 0 && p < nPs && !polariteitMag(soorten[p], b.cfg.ingang[i].polariteit)) {
+        char t[200];
+        snprintf(t, sizeof t, "Print %d kan geen \"vcc\" zijn: ingang %d staat op pnp. %s", p + 1, i + 1, PNP_OP_VCC);
+        return fout(t);
+      }
+    }
+  }
+  JsonVariantConst ia = r["irLedActiefLaag"];
+  if (!ia.isNull() && !ia.is<bool>()) return fout("irLedActiefLaag: true of false.");
+  JsonVariantConst du = r["irDuty"];
+  if (!du.isNull() && (!du.is<int>() || (du.as<int>() != 33 && du.as<int>() != 50)))
+    return fout("irDuty: 33 of 50 (% van de periode dat de IR-led aan is).");
+  for (int p = 0; p < nPs; p++) b.zetPrintSoort(p, soorten[p]);
   char oud[64], oudSsid[33], oudThuis[64];
   strcpy(oud, b.cfg.inst.wachtwoord);
   strcpy(oudSsid, b.cfg.inst.thuisSsid);
@@ -592,13 +655,21 @@ inline Antwoord apiIr(Baan &b, const char *body, size_t len, uint32_t nu) {
     b.lerenStart(ont, d["naam"] | "", nu);
     return goed();
   }
+  if (strcmp(actie, "zelftest") == 0) {
+    int led = index(d["led"], IR_LEDS);
+    const char *f = b.zelftestStart(led, nu);
+    if (f[0]) return fout(f);
+    return goed(led + 1);
+  }
   if (strcmp(actie, "bewaren") == 0) {
     if (!d["nr"].isNull() && i < 0) return foutN("Onbekende code: \"nr\" van 1 tot %d.", MAX_IR_CODES);
     JsonVariantConst c = d["code"];
     if (!c.is<JsonObjectConst>()) return fout("De code ontbreekt.");
     JsonVariantConst so = c["soort"];
     int soort = so.is<const char *>() ? irSoortVanId(so.as<const char *>()) : (bestaat && so.isNull() ? b.cfg.ir[i].soort : -1);
-    if (soort < 0) return fout("Soort: kies \"nec\", \"rc5\" of \"raw\".");
+    if (soort < 0) return fout("Soort: kies \"nec\", \"rc5\", \"raw\" of \"continu\".");
+    for (const char *k : {"adres16", "commando16"})
+      if (!c[k].isNull() && !c[k].is<bool>()) return fout("adres16 en commando16: true of false.");
     if (!getalOk(c["khz"], IR_KHZ_MIN, IR_KHZ_MAX)) return fout("Draaggolf: 30 tot 56 kHz.");
     if (!getalOk(c["herhaal"], 1, IR_HERHAAL_MAX)) return fout("Herhalen: 1 tot 10 keer.");
     if (!getalOk(c["adres"], 0, soort == IR_RC5 ? 31 : 65535)) return fout(soort == IR_RC5 ? "Adres: 0 tot 31 (RC5)." : "Adres: 0 tot 65535.");
@@ -622,6 +693,11 @@ inline Antwoord apiIr(Baan &b, const char *body, size_t len, uint32_t nu) {
     nieuw.soort = (uint8_t)soort;
     if (soort == IR_RAW && nieuw.nRaw < 2) return fout("Een raw-code heeft minstens 2 tijden nodig (aan en uit).");
     if (soort != IR_RAW && raw.isNull()) nieuw.nRaw = 0;
+    if (!irPast(nieuw)) { // F5: anders wordt ze later stil niet verzonden
+      int m = irMaxHerhaal(nieuw);
+      return m > 0 ? foutN("Deze code is met haar herhalingen te lang om in één keer te zenden: hoogstens %d keer herhalen.", m)
+                   : fout("Deze code is te lang om te zenden (te veel of te lange tijden).");
+    }
     b.cfg.ir[plaats] = nieuw;
     b.cfgRev++;
     return goed(plaats + 1);
@@ -652,7 +728,7 @@ inline Antwoord apiIr(Baan &b, const char *body, size_t len, uint32_t nu) {
     b.cfgRev++;
     return goed(i + 1);
   }
-  return fout("IR: kies \"leren\", \"bewaren\", \"zenden\", \"wissen\" of \"hernoemen\".");
+  return fout("IR: kies \"leren\", \"bewaren\", \"zenden\", \"wissen\", \"hernoemen\" of \"zelftest\".");
 }
 
 // ------------------------------------------------------------------------------------------------------- bus
@@ -725,6 +801,7 @@ inline Antwoord apiPunt(Baan &b, const char *body, size_t len, uint32_t nu) {
   JsonVariantConst vo = d["volgende"];
   if (!vo.isNull() && (!vo.is<const char *>() || (vo.as<const char *>()[0] && !puntIdGeldig(vo.as<const char *>()))))
     return fout("\"volgende\": de id van een ander punt (of leeg).");
+  if (!d["alleenBus"].isNull() && !d["alleenBus"].is<bool>()) return fout("alleenBus: true of false.");
   if (i < 0)
     for (int x = 0; x < MAX_PUNTEN && i < 0; x++)
       if (!b.cfg.punt[x].gebruikt) i = x;
@@ -781,6 +858,7 @@ inline Antwoord apiServo(Baan &b, const char *body, size_t len, uint32_t nu) {
   if (!getalOk(d["a"], SERVO_MIN_US, SERVO_MAX_US) || !getalOk(d["b"], SERVO_MIN_US, SERVO_MAX_US))
     return fout("Eindstanden A en B: 500 tot 2500 µs.");
   if (!getalOk(d["snelheid"], 0, SERVO_MAX_SNELHEID)) return fout("Snelheid: 0 (meteen) tot 20000 µs per seconde.");
+  if (!getalOk(d["pulsUitS"], 0, SERVO_MAX_PULS_UIT_S)) return fout("pulsUitS: 0 (altijd een puls) of 1 tot 10 s.");
   JsonVariantConst so = d["soort"];
   if (!so.isNull() && (!so.is<const char *>() || servoSoortVanId(so.as<const char *>()) < 0))
     return fout("Soort: \"wissel\", \"slagboom\" of \"armsein\".");
@@ -818,8 +896,9 @@ inline Antwoord apiHalte(Baan &b, const char *body, size_t len, uint32_t nu) {
   if (!verwijzingOk(d["stopCode"], MAX_IR_CODES, irBestaat, b) || !verwijzingOk(d["rijdCode"], MAX_IR_CODES, irBestaat, b))
     return fout("Stop- of rijdcode: het nummer van een bewaarde IR-code (0 = geen).");
   if (!verwijzingOk(d["servo"], MAX_SERVOS, servoBestaat, b)) return fout("Servo: het nummer van een servo (0 = geen).");
-  for (const char *k : {"wachtS", "vrijMinS", "groenS"})
+  for (const char *k : {"wachtS", "vrijMinS", "groenS", "maxVerkeerS"})
     if (!getalOk(d[k], 0, HALTE_MAX_S)) return fout("Tijden van de halte: 0 tot 3600 s.");
+  if (!d["herhalen"].isNull() && !d["herhalen"].is<bool>()) return fout("herhalen: true of false.");
   JsonVariantConst l = d["licht"];
   if (!l.isNull()) {
     if (!l.is<JsonObjectConst>()) return fout("Licht: {\"rood\":9,\"oranje\":10,\"groen\":11} (lichtgroepen, 0 = geen).");
@@ -920,6 +999,88 @@ inline uint32_t sindsVan(const char *t) {
   if (!t) return 0;
   for (; *t >= '0' && *t <= '9'; t++) v = v * 10 + (uint32_t)(*t - '0');
   return v;
+}
+
+// --------------------------------------------------------------------------------------------- toegang (F6)
+/** mag dit verzoek iets wijzigen? 0 = ja, 401 = wachtwoord nodig, 403 = een andere webpagina (Origin).
+ *  clientIp: het IP van de client ("192.168.4.23"); kop: X-Treinbaan-Wachtwoord; origin/host: de koppen Origin en Host;
+ *  thuisIp: het IP van de doos op het thuisnet ("" = niet verbonden). Regels (Fable 5.2, F6):
+ *    - een Origin die niet de doos zelf is (http://192.168.4.1, http://treinbaan.local, http://<thuisIp> of http://<Host>)
+ *      = een formulier of script van een andere pagina: altijd 403;
+ *    - van de eigen hotspot (192.168.4.x): goed;
+ *    - anders (thuisnet) alleen met het wifi-wachtwoord in de kop. */
+inline int toegang(const char *clientIp, const char *kop, const char *origin, const char *host, const char *thuisIp,
+                   const char *wachtwoord) {
+  if (origin && origin[0]) {
+    auto is = [origin](const char *h) {
+      if (!h || !h[0]) return false;
+      return strncmp(origin, "http://", 7) == 0 && strcmp(origin + 7, h) == 0;
+    };
+    if (!is("192.168.4.1") && !is("treinbaan.local") && !is(thuisIp) && !is(host)) return 403;
+  }
+  if (clientIp && strncmp(clientIp, "192.168.4.", 10) == 0) return 0;
+  if (kop && wachtwoord && wachtwoord[0] && strcmp(kop, wachtwoord) == 0) return 0;
+  return 401;
+}
+
+inline Antwoord geweigerd(int code) {
+  Antwoord a = fout(code == 403 ? "Geweigerd: dit verzoek komt van een andere webpagina."
+                                : "Wachtwoord nodig: vul in het dashboard het wifi-wachtwoord van de doos in (alleen op het thuisnet nodig).");
+  a.code = code;
+  return a;
+}
+
+// -------------------------------------------------------------------------------------------- zelftest (Q1)
+/** wat main.cpp op het bord nakijkt voor GET /api/zelftest */
+struct ZelftestHw {
+  bool i2c[5] = {false, false, false, false, false}; // 0x20, 0x21, 0x40, 0x41, 0x42 gevonden
+  bool pcaTerug = false;      // de PCA9685 (0x40) gaf terug wat de doos schreef
+  uint16_t pcaGeschreven = 0, pcaGelezen = 0;
+  bool mcp1 = false, mcp2 = false, servo = false;
+  bool fs = false;
+  uint32_t fsTotaal = 0, fsGebruikt = 0;
+  uint32_t stapelLicht = 0, stapelIr = 0, stapelKastjes = 0, stapelLoop = 0; // vrije bytes (hoogwatermerk, F15)
+  int wifiClients = 0;
+  uint32_t vrijGeheugen = 0, vrijPsram = 0;
+};
+
+inline std::string apiZelftest(const ZelftestHw &z) {
+  JsonDocument d;
+  static const uint8_t ADRES[5] = {0x20, 0x21, 0x40, 0x41, 0x42};
+  static const char *WAT[5] = {"MCP23017 (IR-leds, ingang 17-23)", "MCP23017 (ingang 25-38, optioneel)",
+                               "PCA9685 (groep 1-16)", "PCA9685 (groep 17-32, optioneel)", "PCA9685 (servo's)"};
+  JsonArray i2c = d["i2c"].to<JsonArray>();
+  for (int i = 0; i < 5; i++) {
+    JsonObject x = i2c.add<JsonObject>();
+    char a[8];
+    snprintf(a, sizeof a, "0x%02X", ADRES[i]);
+    x["adres"] = a;
+    x["wat"] = WAT[i];
+    x["gevonden"] = z.i2c[i];
+  }
+  JsonObject p = d["pca9685"].to<JsonObject>();
+  p["ok"] = z.pcaTerug;
+  p["geschreven"] = z.pcaGeschreven;
+  p["gelezen"] = z.pcaGelezen;
+  d["mcp23017"] = z.mcp1;
+  d["mcp23017b"] = z.mcp2;
+  d["servoPca"] = z.servo;
+  JsonObject f = d["littlefs"].to<JsonObject>();
+  f["ok"] = z.fs;
+  f["totaal"] = z.fsTotaal;
+  f["gebruikt"] = z.fsGebruikt;
+  JsonObject s = d["stapelVrij"].to<JsonObject>();
+  s["licht"] = z.stapelLicht;
+  s["ir"] = z.stapelIr;
+  s["kastjes"] = z.stapelKastjes;
+  s["loop"] = z.stapelLoop;
+  d["wifiClients"] = z.wifiClients;
+  d["vrijGeheugen"] = z.vrijGeheugen;
+  d["vrijPsram"] = z.vrijPsram;
+  d["ok"] = z.i2c[0] && z.i2c[2] && z.i2c[4] && z.pcaTerug && z.mcp1 && z.servo && z.fs;
+  std::string t;
+  serializeJson(d, t);
+  return t;
 }
 
 // ------------------------------------------------------------------------------------------------------ plan

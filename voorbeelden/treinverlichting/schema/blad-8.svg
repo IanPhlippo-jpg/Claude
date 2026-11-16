@@ -37,8 +37,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">5</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-15</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">6</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-16</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -61,7 +61,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Treinbaan</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 5</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 6</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -73,7 +73,7 @@
 <polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Servo's</text>
-<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">extra ingangen, NPN/PNP</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">reflexsensoren, ingangsprint</text>
 <text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
 <text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EFS  Schema</text>
 <polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">5 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">6 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -99,9 +99,9 @@
 <polyline points="25,236 405,236" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="25,236 27.2,234.9 27.2,237.1" fill="#000"/><text x="28" y="234.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="28" y="239.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
 <circle cx="35" cy="28" r="0.6" fill="#000"/>
 <polyline points="35,28 35,48" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="35,48 40,48" fill="none" stroke="#000" stroke-width="0.25"/><rect x="40" y="46" width="10" height="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="40,48 50,48" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="50,48 55,48" fill="none" stroke="#000" stroke-width="0.25"/><text x="45" y="44.5" font-size="2.8" text-anchor="middle" fill="#000">-F19</text><text x="45" y="54" font-size="2.3" text-anchor="middle" fill="#000">ATO 3 A</text>
+<polyline points="35,48 40,48" fill="none" stroke="#000" stroke-width="0.25"/><rect x="40" y="46" width="10" height="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="40,48 50,48" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="50,48 55,48" fill="none" stroke="#000" stroke-width="0.25"/><text x="45" y="44.5" font-size="2.8" text-anchor="middle" fill="#000">-F19</text><text x="45" y="54" font-size="2.3" text-anchor="middle" fill="#000">T 3,15 A (5 x 20)</text>
 <polyline points="55,48 62,48" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="62" y="40" width="46" height="30" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="62" y="38.4" font-size="2.8" text-anchor="start" fill="#000">-T3</text><text x="71" y="45" font-size="2.3" text-anchor="start" fill="#000"></text><text x="71" y="48.4" font-size="2.3" text-anchor="start" fill="#000"></text><text x="71" y="51.8" font-size="2.3" text-anchor="start" fill="#000">XL4015-module</text><text x="71" y="55.2" font-size="2.3" text-anchor="start" fill="#000">12 → 5,5 V, 5 A</text><text x="71" y="58.6" font-size="2.3" text-anchor="start" fill="#000">(eerst instellen!)</text><circle cx="62" cy="48" r="0.5" fill="#000"/><text x="63.6" y="46.8" font-size="2.1" text-anchor="start" fill="#000">IN+</text><circle cx="62" cy="64" r="0.5" fill="#000"/><text x="63.6" y="62.8" font-size="2.1" text-anchor="start" fill="#000">IN−</text><circle cx="108" cy="48" r="0.5" fill="#000"/><text x="106.4" y="46.8" font-size="2.1" text-anchor="end" fill="#000">OUT+</text><circle cx="108" cy="64" r="0.5" fill="#000"/><text x="106.4" y="62.8" font-size="2.1" text-anchor="end" fill="#000">OUT−</text>
+<rect x="62" y="40" width="46" height="30" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="62" y="38.4" font-size="2.8" text-anchor="start" fill="#000">-T3</text><text x="71" y="45" font-size="2.3" text-anchor="start" fill="#000"></text><text x="71" y="48.4" font-size="2.3" text-anchor="start" fill="#000"></text><text x="71" y="51.8" font-size="2.3" text-anchor="start" fill="#000">XL4015 CC/CV</text><text x="71" y="55.2" font-size="2.3" text-anchor="start" fill="#000">12 → 5,5 V, grens 3 A</text><text x="71" y="58.6" font-size="2.3" text-anchor="start" fill="#000">(eerst instellen!)</text><circle cx="62" cy="48" r="0.5" fill="#000"/><text x="63.6" y="46.8" font-size="2.1" text-anchor="start" fill="#000">IN+</text><circle cx="62" cy="64" r="0.5" fill="#000"/><text x="63.6" y="62.8" font-size="2.1" text-anchor="start" fill="#000">IN−</text><circle cx="108" cy="48" r="0.5" fill="#000"/><text x="106.4" y="46.8" font-size="2.1" text-anchor="end" fill="#000">OUT+</text><circle cx="108" cy="64" r="0.5" fill="#000"/><text x="106.4" y="62.8" font-size="2.1" text-anchor="end" fill="#000">OUT−</text>
 <polyline points="62,64 48,64 48,76" fill="none" stroke="#000" stroke-width="0.25"/>
 <polygon points="48,78 46.9,75.8 49.1,75.8" fill="#000"/><text x="48" y="81.2" font-size="2.2" text-anchor="middle" fill="#000">M</text>
 <polyline points="108,48 395,48" fill="none" stroke="#000" stroke-width="0.35"/>
@@ -109,7 +109,7 @@
 <polyline points="108,64 116,64 116,76" fill="none" stroke="#000" stroke-width="0.25"/>
 <polygon points="116,78 114.9,75.8 117.1,75.8" fill="#000"/><text x="116" y="81.2" font-size="2.2" text-anchor="middle" fill="#000">M</text>
 <circle cx="130" cy="48" r="0.6" fill="#000"/>
-<polyline points="130,48 130,55" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="126.5,55 133.5,55" fill="none" stroke="#000" stroke-width="0.5"/><rect x="126.5" y="56.4" width="7" height="0.9" fill="#000" stroke="#000" stroke-width="0.35"/><text x="125.5" y="54.5" font-size="2.4" text-anchor="end" fill="#000">+</text><polyline points="130,57.3 130,64" fill="none" stroke="#000" stroke-width="0.25"/><text x="135" y="55.5" font-size="2.8" text-anchor="start" fill="#000">-C5</text><text x="135" y="58.7" font-size="2.3" text-anchor="start" fill="#000">1000 µF 10 V</text>
+<polyline points="130,48 130,55" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="126.5,55 133.5,55" fill="none" stroke="#000" stroke-width="0.5"/><rect x="126.5" y="56.4" width="7" height="0.9" fill="#000" stroke="#000" stroke-width="0.35"/><text x="125.5" y="54.5" font-size="2.4" text-anchor="end" fill="#000">+</text><polyline points="130,57.3 130,64" fill="none" stroke="#000" stroke-width="0.25"/><text x="135" y="55.5" font-size="2.8" text-anchor="start" fill="#000">-C5</text><text x="135" y="58.7" font-size="2.3" text-anchor="start" fill="#000">1000 µF 25 V</text>
 <polyline points="130,64 130,76" fill="none" stroke="#000" stroke-width="0.25"/>
 <polygon points="130,78 128.9,75.8 131.1,75.8" fill="#000"/><text x="130" y="81.2" font-size="2.2" text-anchor="middle" fill="#000">M</text>
 <rect x="150" y="74" width="255" height="28" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="150" y="72.4" font-size="2.8" text-anchor="start" fill="#000">-K7</text><text x="152.5" y="79" font-size="2.3" text-anchor="start" fill="#000">Servoprint PCA9685, 16 kanalen, I2C 0x42 (A1 dicht), 50 Hz, puls 500-2500 µs</text><text x="152.5" y="82.4" font-size="2.3" text-anchor="start" fill="#000">VCC = L3, GND = M, OE = OE van -K2 (zelfde GPIO10: bij reset geen pulsen, de servo's blijven staan) /6.3</text><text x="152.5" y="85.8" font-size="2.3" text-anchor="start" fill="#000">V+ (schroefklem) = V6; per kanaal 3 pinnen: PWM, V+, GND</text>
@@ -161,24 +161,35 @@
 <circle cx="347" cy="102" r="0.5" fill="#000"/><text x="348.6" y="100.8" font-size="2.1" text-anchor="start" fill="#000"></text>
 <text x="333" y="156" font-size="1.9" text-anchor="start" fill="#000">wissel W4</text>
 <text x="315" y="140" font-size="5" text-anchor="start" fill="#000">…</text>
-<text x="150" y="162" font-size="2.2" text-anchor="start" fill="#000">-M1..-M16: servo SG90 of MG90S (4,8-6 V); per servo 2 eindstanden en een snelheid in het dashboard; hoogstens 4 tegelijk in beweging (firmware).</text>
-<rect x="26" y="172" width="120" height="40" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="26" y="170.4" font-size="2.8" text-anchor="start" fill="#000">-K6</text><text x="28.5" y="177" font-size="2.3" text-anchor="start" fill="#000"></text><text x="28.5" y="180.4" font-size="2.3" text-anchor="start" fill="#000"></text><text x="28.5" y="183.8" font-size="2.3" text-anchor="start" fill="#000">Optocouplerprint 3, 8 kanalen (ingangen 17..24)</text><text x="28.5" y="187.2" font-size="2.3" text-anchor="start" fill="#000">zoals -K3 (NPN) of een PNP-/bipolaire versie</text><text x="28.5" y="190.6" font-size="2.3" text-anchor="start" fill="#000">OUT1..8 → GPB0..7 van -K5 /7.1</text><text x="28.5" y="194" font-size="2.3" text-anchor="start" fill="#000">VCC uitgang = L3, GND = M (pull-up op de print)</text>
-<rect x="26" y="222" width="120" height="10" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="26" y="220.4" font-size="2.8" text-anchor="start" fill="#000">-K8</text><text x="28.5" y="227" font-size="2.3" text-anchor="start" fill="#000">Optioneel: MCP23017 0x21 (A0 aan L3) + -K9, -K10: ingangen 25..40</text>
-<text x="162" y="172" font-size="2.3" text-anchor="start" fill="#000" font-weight="700">NPN (zoals nu)</text>
-<text x="162" y="176" font-size="1.9" text-anchor="start" fill="#000">COM = +12 V (S12)</text>
-<text x="162" y="179.5" font-size="1.9" text-anchor="start" fill="#000">sensor trekt IN naar 0 V</text>
+<text x="150" y="162" font-size="2.2" text-anchor="start" fill="#000">-M1..-M16: servo SG90 of MG90S; hoogstens 4 tegelijk in beweging, bij het opstarten één per 0,3 s, puls uit na aankomst (instelbaar); kabels ≥ 0,25 mm².</text>
+<rect x="26" y="176" width="52" height="30" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="26" y="174.4" font-size="2.8" text-anchor="start" fill="#000">-B5</text><text x="28.5" y="181" font-size="2.3" text-anchor="start" fill="#000"></text><text x="28.5" y="184.4" font-size="2.3" text-anchor="start" fill="#000">TCRT5000-module</text><text x="28.5" y="187.8" font-size="2.3" text-anchor="start" fill="#000">(LM393), stoppunt</text><circle cx="78" cy="182" r="0.5" fill="#000"/><text x="76.4" y="180.8" font-size="2.1" text-anchor="end" fill="#000">VCC</text><circle cx="78" cy="190" r="0.5" fill="#000"/><text x="76.4" y="188.8" font-size="2.1" text-anchor="end" fill="#000">GND</text><circle cx="78" cy="200" r="0.5" fill="#000"/><text x="76.4" y="198.8" font-size="2.1" text-anchor="end" fill="#000">DO</text>
+<polyline points="78,182 92,182" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="93" y="183" font-size="1.8" text-anchor="start" fill="#000">B3V3 (-X12)</text>
+<polyline points="78,190 92,190" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="93" y="191" font-size="1.8" text-anchor="start" fill="#000">M (-X13)</text>
+<polyline points="78,200 84,200" fill="none" stroke="#000" stroke-width="0.25"/><rect x="84" y="198.5" width="8" height="3" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="92,200 98,200" fill="none" stroke="#000" stroke-width="0.25"/><text x="88" y="197" font-size="2.8" text-anchor="middle" fill="#000">-R28</text><text x="88" y="205" font-size="2.3" text-anchor="middle" fill="#000">1 kΩ</text>
+<polyline points="98,200 112,200" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="112,200 109.8,198.9 109.8,201.1" fill="#000"/><text x="109" y="198.6" font-size="2.5" text-anchor="end" fill="#000">GPB0</text><text x="109" y="203.2" font-size="2.3" text-anchor="end" fill="#000">/7.1</text>
+<text x="26" y="214" font-size="1.9" text-anchor="start" fill="#000">-B5..-B8 en -R28..-R31: ingang 17..20 (stoppunten), interne pull-up, actief laag.</text>
+<text x="26" y="217.5" font-size="1.9" text-anchor="start" fill="#000">-K6 (optocouplerprint voor 12 V-sensoren op 17-23) alleen als er geen reflexsensoren zijn.</text>
+<rect x="26" y="224" width="120" height="8" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="26" y="222.4" font-size="2.8" text-anchor="start" fill="#000">-K8</text><text x="28.5" y="229" font-size="2.3" text-anchor="start" fill="#000">Optioneel: MCP23017 0x21 (A0 aan L3) + 2 optocouplerprints: ingangen 25..38</text>
+<text x="162" y="172" font-size="2.3" text-anchor="start" fill="#000" font-weight="700">printSoort "vcc"</text>
+<text x="162" y="176" font-size="1.9" text-anchor="start" fill="#000">gemeenschappelijke VCC = S12</text>
+<text x="162" y="179.5" font-size="1.9" text-anchor="start" fill="#000">NPN/contact trekt IN naar 0 V</text>
 <polyline points="170,182 170,188" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="171.5" y="186" font-size="1.7" text-anchor="start" fill="#000">COM</text>
+<text x="171.5" y="186" font-size="1.7" text-anchor="start" fill="#000">VCC</text>
 <polyline points="170,188 170,194" fill="none" stroke="#000" stroke-width="0.25"/><rect x="168.5" y="194" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="170,202 170,208" fill="none" stroke="#000" stroke-width="0.25"/>
 <rect x="166" y="210" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="170,208 170,213.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="168,213.5 172,213.5 170,217" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="168,217 172,217" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="170,217 170,224" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="173,214.5 175,215.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="173,216.5 175,217.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="176.5,213 176.5,219" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="176.5,214.5 179,212 179,208" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="176.5,217.5 179,220 179,224" fill="none" stroke="#000" stroke-width="0.25"/><text x="169" y="209.4" font-size="1.7" text-anchor="end" fill="#000"></text><text x="169" y="224.2" font-size="1.7" text-anchor="end" fill="#000"></text><text x="180" y="209.4" font-size="1.7" text-anchor="start" fill="#000"></text><text x="180" y="224.2" font-size="1.7" text-anchor="start" fill="#000"></text>
 <polyline points="170,224 170,228" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="171.5" y="227" font-size="1.7" text-anchor="start" fill="#000">IN</text>
-<polyline points="152,210 152,214" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="152,214 148.8,220" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="152,220 152,224" fill="none" stroke="#000" stroke-width="0.25"/><text x="153.5" y="218" font-size="1.8" text-anchor="start" fill="#000">NPN</text><polyline points="152,224 152,228 170,228" fill="none" stroke="#000" stroke-width="0.25"/><text x="152" y="208" font-size="1.8" text-anchor="middle" fill="#000">0 V</text>
-<text x="242" y="172" font-size="2.3" text-anchor="start" fill="#000" font-weight="700">PNP-print</text>
-<text x="242" y="176" font-size="1.9" text-anchor="start" fill="#000">COM = 0 V (M)</text>
-<text x="242" y="179.5" font-size="1.9" text-anchor="start" fill="#000">sensor geeft +12 V op IN</text>
+<polyline points="152,210 152,214" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="152,214 148.8,220" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="152,220 152,224" fill="none" stroke="#000" stroke-width="0.25"/><text x="153.5" y="218" font-size="1.8" text-anchor="start" fill="#000">NPN</text>
+<polyline points="152,224 152,228 170,228" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="152" y="208" font-size="1.8" text-anchor="middle" fill="#000">0 V</text>
+<text x="242" y="172" font-size="2.3" text-anchor="start" fill="#000" font-weight="700">printSoort "gnd"</text>
+<text x="242" y="176" font-size="1.9" text-anchor="start" fill="#000">gemeenschappelijke GND = M</text>
+<text x="242" y="179.5" font-size="1.9" text-anchor="start" fill="#000">contact of PNP geeft 12 V op IN</text>
 <polyline points="250,182 250,188" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="251.5" y="186" font-size="1.7" text-anchor="start" fill="#000">COM</text>
+<text x="251.5" y="186" font-size="1.7" text-anchor="start" fill="#000">IN</text>
 <polyline points="250,188 250,194" fill="none" stroke="#000" stroke-width="0.25"/><rect x="248.5" y="194" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="250,202 250,208" fill="none" stroke="#000" stroke-width="0.25"/>
 <rect x="246" y="210" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="250,208 250,213.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="248,213.5 252,213.5 250,217" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="248,217 252,217" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="250,217 250,224" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="253,214.5 255,215.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="253,216.5 255,217.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="256.5,213 256.5,219" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="256.5,214.5 259,212 259,208" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="256.5,217.5 259,220 259,224" fill="none" stroke="#000" stroke-width="0.25"/><text x="249" y="209.4" font-size="1.7" text-anchor="end" fill="#000"></text><text x="249" y="224.2" font-size="1.7" text-anchor="end" fill="#000"></text><text x="260" y="209.4" font-size="1.7" text-anchor="start" fill="#000"></text><text x="260" y="224.2" font-size="1.7" text-anchor="start" fill="#000"></text>
 <rect x="247.4" y="212.9" width="5.2" height="4.7" fill="#fff" stroke="none"/>
@@ -187,24 +198,21 @@
 <polyline points="250,212.9 250,213.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <polyline points="250,217 250,217.6" fill="none" stroke="#000" stroke-width="0.25"/>
 <polyline points="250,224 250,228" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="251.5" y="227" font-size="1.7" text-anchor="start" fill="#000">IN</text>
-<polyline points="232,210 232,214" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="232,214 228.8,220" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="232,220 232,224" fill="none" stroke="#000" stroke-width="0.25"/><text x="233.5" y="218" font-size="1.8" text-anchor="start" fill="#000">PNP</text><polyline points="232,224 232,228 250,228" fill="none" stroke="#000" stroke-width="0.25"/><text x="232" y="208" font-size="1.8" text-anchor="middle" fill="#000">+12 V</text>
-<text x="322" y="172" font-size="2.3" text-anchor="start" fill="#000" font-weight="700">bipolair (PC814)</text>
-<text x="322" y="176" font-size="1.9" text-anchor="start" fill="#000">COM = 5 V (L5)</text>
-<text x="322" y="179.5" font-size="1.9" text-anchor="start" fill="#000">per ingang NPN of PNP</text>
+<text x="251.5" y="227" font-size="1.7" text-anchor="start" fill="#000">GND</text>
+<polyline points="232,184 232,188" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="232,188 228.8,194" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="232,194 232,198" fill="none" stroke="#000" stroke-width="0.25"/><text x="233.5" y="192" font-size="1.8" text-anchor="start" fill="#000">PNP</text>
+<polyline points="232,182 250,182" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="232" y="201" font-size="1.8" text-anchor="middle" fill="#000">+12 V</text>
+<text x="322" y="172" font-size="2.3" text-anchor="start" fill="#000" font-weight="700">printSoort "apart"</text>
+<text x="322" y="176" font-size="1.9" text-anchor="start" fill="#000">per kanaal IN+ en IN−</text>
+<text x="322" y="179.5" font-size="1.9" text-anchor="start" fill="#000">NPN of PNP per ingang</text>
 <polyline points="330,182 330,188" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="331.5" y="186" font-size="1.7" text-anchor="start" fill="#000">COM</text>
+<text x="331.5" y="186" font-size="1.7" text-anchor="start" fill="#000">IN+</text>
 <polyline points="330,188 330,194" fill="none" stroke="#000" stroke-width="0.25"/><rect x="328.5" y="194" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="330,202 330,208" fill="none" stroke="#000" stroke-width="0.25"/>
 <rect x="326" y="210" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="330,208 330,213.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="328,213.5 332,213.5 330,217" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="328,217 332,217" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="330,217 330,224" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="333,214.5 335,215.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="333,216.5 335,217.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="336.5,213 336.5,219" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="336.5,214.5 339,212 339,208" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="336.5,217.5 339,220 339,224" fill="none" stroke="#000" stroke-width="0.25"/><text x="329" y="209.4" font-size="1.7" text-anchor="end" fill="#000"></text><text x="329" y="224.2" font-size="1.7" text-anchor="end" fill="#000"></text><text x="340" y="209.4" font-size="1.7" text-anchor="start" fill="#000"></text><text x="340" y="224.2" font-size="1.7" text-anchor="start" fill="#000"></text>
-<polygon points="321,214 325,214 323,210.5" fill="none" stroke="#000" stroke-width="0.35"/>
-<polyline points="321,210.5 325,210.5" fill="none" stroke="#000" stroke-width="0.5"/>
-<polyline points="323,210.5 323,208.5 330,208.5" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="323,214 323,220 330,220" fill="none" stroke="#000" stroke-width="0.25"/>
 <polyline points="330,224 330,228" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="331.5" y="227" font-size="1.7" text-anchor="start" fill="#000">IN</text>
-
-<text x="25" y="244" font-size="2.2" text-anchor="start" fill="#000">NPN/PNP per groep van 8: bij een NPN-print gaat COM (de klem VCC aan de ingangskant) aan +12 V, bij een PNP-print aan 0 V. Per ingang: een print met bipolaire optocouplers (PC814, 2 leds</text>
-<text x="25" y="248.5" font-size="2.2" text-anchor="start" fill="#000">antiparallel) met COM aan 5 V: NPN geeft 5 V over de led, PNP 7 V andersom. De firmware kiest per ingang of per groep "npn" of "pnp" (firmware/README.md). Printtypes: AANNAME, na te kijken.</text>
-<text x="25" y="253" font-size="2.2" text-anchor="start" fill="#000">-T3: XL4015 eerst zonder servo's op 5,5 V zetten (multimeter); -F19 3 A in de 12 V naar -T3. Servo-0 V (V6−) en M zijn verbonden in -T3 (gemeenschappelijke min: geen optocoupler nodig).</text>
-<text x="25" y="257.5" font-size="2.2" text-anchor="start" fill="#000" font-weight="700">LET OP: nooit een gewone (NPN-)print met COM aan 0 V: een PNP-sensor zet dan 12 V in sperrichting over de led (PC817: hoogstens 6 V). Berekeningen §9.</text>
+<text x="331.5" y="227" font-size="1.7" text-anchor="start" fill="#000">IN−</text>
+<text x="25" y="244" font-size="2.2" text-anchor="start" fill="#000">Optocouplerprint: welke schakeling hij heeft, beslist de meting (TRN-22 stap A) en niet de verkoper. "gnd": een NPN-sensor of open-collector-hallsensor krijgt 2,2 kΩ van IN naar S12</text>
+<text x="25" y="248.5" font-size="2.2" text-anchor="start" fill="#000">en de firmware keert die ingang om; "apart": per ingang NPN (IN+ aan S12, IN− aan de sensor) of PNP (IN+ aan de sensor, IN− aan 0 V). PNP op een print "vcc" weigert de firmware.</text>
+<text x="25" y="253" font-size="2.2" text-anchor="start" fill="#000">-T3: XL4015 CC/CV eerst zonder servo's op 5,5 V en 3 A zetten (TRN-22 E); -F19 T 3,15 A in de 12 V. Servo-0 V en M zijn verbonden in -T3; geen GND-dupont tussen -K2 en -K7.</text>
+<text x="25" y="257.5" font-size="2.2" text-anchor="start" fill="#000" font-weight="700">LET OP: nooit PNP (12 V op IN) op een print "vcc": dan staat er 12 V in sperrichting over de led (PC817: hoogstens 6 V). Berekeningen §9.</text>
 </svg>

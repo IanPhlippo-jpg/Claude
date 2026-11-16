@@ -85,7 +85,7 @@ void test_heen_en_terug() {
   TEST_ASSERT_EQUAL(30000u, c.functie[0].stap[0].wachtMs);
   TEST_ASSERT_EQUAL(SOORT_PULS, c.ingang[6].soort);
   TEST_ASSERT_EQUAL(750, c.ingang[6].vasthoudMs);
-  TEST_ASSERT_TRUE(j.find("\"versie\":3") != std::string::npos);
+  TEST_ASSERT_TRUE(j.find("\"versie\":4") != std::string::npos);
   TEST_ASSERT_TRUE(j.find("helderheid") == std::string::npos);
 }
 
@@ -113,7 +113,7 @@ void test_te_groot_bestand() {
 }
 
 void test_onbekende_versie() {
-  const char *v[] = {"{\"versie\":4}", "{\"versie\":0}", "{\"versie\":\"1\"}", "{\"versie\":1.5}",
+  const char *v[] = {"{\"versie\":5}", "{\"versie\":0}", "{\"versie\":\"1\"}", "{\"versie\":1.5}",
                      "{\"groepen\":[]}"};
   for (const char *k : v) {
     std::string m;
@@ -136,7 +136,9 @@ void test_onderdeel_van_het_verkeerde_soort() {
 
 void test_alleen_versie_is_standaard() {
   std::string m;
-  TEST_ASSERT_EQUAL(Laad::OK, laad("{\"versie\":3}", m));
+  TEST_ASSERT_EQUAL(Laad::OK, laad("{\"versie\":4}", m));
+  TEST_ASSERT_TRUE(isStandaard(c));
+  TEST_ASSERT_EQUAL(Laad::OMGEZET, laad("{\"versie\":3}", m)); // firmware 2.0.0: wordt als versie 4 bewaard
   TEST_ASSERT_TRUE(isStandaard(c));
   TEST_ASSERT_EQUAL(Laad::OMGEZET, laad("{\"versie\":2}", m)); // firmware 1.3.0: wordt als versie 3 bewaard
   TEST_ASSERT_TRUE(isStandaard(c));
@@ -231,9 +233,9 @@ void test_oude_config_met_helderheid_wordt_omgezet() {
   TEST_ASSERT_EQUAL(GEDRAG_DRUKKNOP, c.ingang[0].gedrag);
   TEST_ASSERT_EQUAL(SOORT_CONTACT, c.ingang[0].soort);       // oude ingangen: contact (30 ms ontdenderd)
   TEST_ASSERT_EQUAL(STD_VASTHOUD_MS, c.ingang[0].vasthoudMs);
-  // opnieuw bewaard (zoals main.cpp doet): versie 3 zonder helderheid, en dat laadt gewoon OK
+  // opnieuw bewaard (zoals main.cpp doet): versie 4 zonder helderheid, en dat laadt gewoon OK
   std::string nieuw = configNaarJson(c);
-  TEST_ASSERT_TRUE(nieuw.find("\"versie\":3") != std::string::npos);
+  TEST_ASSERT_TRUE(nieuw.find("\"versie\":4") != std::string::npos);
   TEST_ASSERT_TRUE(nieuw.find("helderheid") == std::string::npos);
   TEST_ASSERT_TRUE(nieuw.find("faduur") == std::string::npos);
   TEST_ASSERT_TRUE(nieuw.find("\"max\"") == std::string::npos);
@@ -382,8 +384,8 @@ void test_standaard_knop_alles_aan_uit() {
   TEST_ASSERT_EQUAL(ACT_WISSEL, c.functie[1].stap[0].actie);
 }
 
-// ------------------------------------------------------------------------------- firmware 2.0.0: versie 3
-void test_versie3_heen_en_terug() {
+// ------------------------------------------------------------------- firmware 2.0.0 en 2.1.0: versie 3 en 4
+void test_versie4_heen_en_terug() {
   Config x;
   standaard(x);
   IrCode &n = x.ir[2];
@@ -432,8 +434,23 @@ void test_versie3_heen_en_terug() {
   h.rood = 8;
   h.groen = 10;
   h.servo = 3;
+  x.inst.printSoort[2] = PRINT_GND;
+  x.inst.printSoort[4] = PRINT_APART;
   x.ingang[20].polariteit = POL_PNP;
-  x.ingang[39].polariteit = POL_PNP;
+  x.ingang[37].polariteit = POL_PNP;
+  // firmware 2.1.0
+  x.inst.irDuty = 50;
+  x.inst.irLedActiefLaag = false;
+  IrCode &k = x.ir[7];
+  k.gebruikt = true;
+  strcpy(k.naam, "Stop continu");
+  k.soort = IR_CONTINU;
+  n.adres = 0x0012;
+  n.adres16 = true; // F13
+  s.pulsUitS = 3;
+  p.alleenBus = true;
+  h.herhalen = false;
+  h.maxVerkeerS = 90;
   std::string j = configNaarJson(x), m;
   TEST_ASSERT_TRUE(j.size() < MAX_BESTAND);
   TEST_ASSERT_EQUAL(Laad::OK, laad(j, m));
@@ -449,9 +466,49 @@ void test_versie3_heen_en_terug() {
   TEST_ASSERT_EQUAL(33, c.punt[1].ingang);
   TEST_ASSERT_EQUAL_HEX64(ingangBit(6) | ingangBit(39), c.halte[0].vrijIngangen);
   TEST_ASSERT_EQUAL(-1, c.halte[0].oranje);
-  TEST_ASSERT_EQUAL(POL_PNP, c.ingang[39].polariteit);
+  TEST_ASSERT_EQUAL(POL_PNP, c.ingang[37].polariteit);
   TEST_ASSERT_EQUAL(POL_NPN, c.ingang[0].polariteit);
   TEST_ASSERT_FALSE(c.ir[0].gebruikt);
+  TEST_ASSERT_EQUAL(PRINT_GND, c.inst.printSoort[2]);
+  TEST_ASSERT_EQUAL(PRINT_APART, c.inst.printSoort[4]);
+  TEST_ASSERT_EQUAL(PRINT_VCC, c.inst.printSoort[0]);
+  TEST_ASSERT_EQUAL(50, c.inst.irDuty);
+  TEST_ASSERT_FALSE(c.inst.irLedActiefLaag);
+  TEST_ASSERT_EQUAL(IR_CONTINU, c.ir[7].soort);
+  TEST_ASSERT_TRUE(c.ir[2].adres16);
+  TEST_ASSERT_EQUAL(3, c.servo[3].pulsUitS);
+  TEST_ASSERT_TRUE(c.punt[0].alleenBus);
+  TEST_ASSERT_FALSE(c.punt[1].alleenBus);
+  TEST_ASSERT_FALSE(c.halte[0].herhalen);
+  TEST_ASSERT_EQUAL(90, c.halte[0].maxVerkeerS);
+}
+
+// E3: een bestand van firmware 2.0.0 (versie 3) met pnp-ingangen: die print wordt "gnd" (zo was hij bedraad: COM aan
+// 0 V, niets omkeren), de andere blijven "vcc". Negatieve proef: in een bestand van versie 4 is pnp op een print "vcc"
+// niet geldig: die ingang wordt npn, met een melding.
+void test_versie3_pnp_wordt_print_gnd() {
+  std::string m;
+  TEST_ASSERT_EQUAL(Laad::OMGEZET, laad(R"({"versie":3,"ingangen":[{},{},{},{},{},{},{},{},{},{"polariteit":"pnp"}]})", m));
+  TEST_ASSERT_EQUAL(POL_PNP, c.ingang[9].polariteit);
+  TEST_ASSERT_EQUAL(PRINT_VCC, c.inst.printSoort[0]);
+  TEST_ASSERT_EQUAL(PRINT_GND, c.inst.printSoort[1]);
+  TEST_ASSERT_FALSE(ingangOmgekeerd(c.inst, c.ingang[9], 9)); // pnp op "gnd": zoals vroeger niets omkeren
+  TEST_ASSERT_EQUAL(IR_DUTY_STD, c.inst.irDuty);
+  TEST_ASSERT_EQUAL(UITGANG_ACTIEF_LAAG, c.inst.irLedActiefLaag);
+  TEST_ASSERT_TRUE(c.halte[0].herhalen);
+  TEST_ASSERT_EQUAL(HALTE_MAX_VERKEER_STD_S, c.halte[0].maxVerkeerS);
+  // versie 4: pnp op "vcc" kan niet
+  Laad r = laad(R"({"versie":4,"instellingen":{"printSoort":["vcc","vcc"]},
+    "ingangen":[{},{},{},{},{},{},{},{},{},{"polariteit":"pnp"}]})", m);
+  TEST_ASSERT_EQUAL(Laad::HERSTELD, r);
+  TEST_ASSERT_EQUAL(POL_NPN, c.ingang[9].polariteit);
+  TEST_ASSERT_TRUE(m.find("1 waarde") != std::string::npos);
+  // foute waarden van 2.1.0
+  r = laad(R"({"versie":4,"instellingen":{"printSoort":["xx","gnd"],"irDuty":40,"irLedActiefLaag":"ja"}})", m);
+  TEST_ASSERT_EQUAL(Laad::HERSTELD, r);
+  TEST_ASSERT_EQUAL(PRINT_VCC, c.inst.printSoort[0]);
+  TEST_ASSERT_EQUAL(PRINT_GND, c.inst.printSoort[1]);
+  TEST_ASSERT_EQUAL(IR_DUTY_STD, c.inst.irDuty);
 }
 
 void test_versie2_laadt_met_standaard_voor_het_nieuwe() {
@@ -465,7 +522,7 @@ void test_versie2_laadt_met_standaard_voor_het_nieuwe() {
   TEST_ASSERT_EQUAL_STRING("Ingang 40", c.ingang[39].naam);
   for (int i = 0; i < MAX_IR_CODES; i++) TEST_ASSERT_FALSE(c.ir[i].gebruikt);
   for (int i = 0; i < MAX_HALTES; i++) TEST_ASSERT_FALSE(c.halte[i].gebruikt);
-  TEST_ASSERT_TRUE(configNaarJson(c).find("\"versie\":3") != std::string::npos);
+  TEST_ASSERT_TRUE(configNaarJson(c).find("\"versie\":4") != std::string::npos);
 }
 
 void test_versie3_foute_waarden_worden_hersteld() {
@@ -534,7 +591,8 @@ int main() {
   RUN_TEST(test_willekeurig_beschadigde_bestanden);
   RUN_TEST(test_thuisnet_heen_en_terug_en_oud_bestand);
   RUN_TEST(test_standaard_knop_alles_aan_uit);
-  RUN_TEST(test_versie3_heen_en_terug);
+  RUN_TEST(test_versie4_heen_en_terug);
+  RUN_TEST(test_versie3_pnp_wordt_print_gnd);
   RUN_TEST(test_versie2_laadt_met_standaard_voor_het_nieuwe);
   RUN_TEST(test_versie3_foute_waarden_worden_hersteld);
   RUN_TEST(test_stand_met_servos);

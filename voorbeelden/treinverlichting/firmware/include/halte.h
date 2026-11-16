@@ -9,8 +9,18 @@
 //   groen     groen aan, rood uit; rijdCode via de stopLeds (meteen en nog 2 keer om de 0,5 s); de servo (slagboom)
 //             naar B; de rijtijd van de bus telt vanaf nu; groenS seconden
 //   vertrek   groen uit, oranje 2 s; dan rood aan, oranje uit, servo terug naar A -> vrij
-// Een halte die bezig is, let niet op een tweede bus (die wacht in de rij van de busbaan zelf: hij krijgt geen
-// stopcode, Car System-bussen blijven dan staan bij het stoppunt ervoor als dat zo gebouwd is).
+// Firmware 2.1.0 (Fable 5.2):
+//   F2  "herhalen" (standaard aan): de stopcode elke 400 ms opnieuw in aankomst, stop, wachten en verkeer, voor een
+//       bus die alleen stilstaat zolang hij IR ziet. Uit: zoals vroeger (aankomst en stop, 2,5 s). Na het opstarten
+//       (en na het bewaren van een halte) zendt elke halte één keer haar rijdcode: een bus die de stopcode onthoudt en
+//       tijdens een stroomonderbreking aan de halte stond, rijdt dan weer.
+//   F3  een tweede bus die aankomt terwijl de halte bezet is, wordt onthouden (één wachtende per halte) en krijgt
+//       meteen de stopcode (met herhalen: elke 400 ms, en dan geen rijdcode meer in groen); is de halte weer vrij, dan
+//       begint ze meteen met die bus. Een melding van de bus die er al staat (of in aankomst..verkeer een onbekende)
+//       telt niet als tweede bus.
+//   F12 maxVerkeerS (standaard 60, 0 = geen grens): blijft een vrij-ingang langer bezet, dan toch groen, met een
+//       melding (teLang). Regel voor vrijMinS: minstens de afstand van de sensor tot de invoeging / traagste snelheid.
+// Codesoort "continu" (F1): de Baan laat de stopleds branden zolang de halte de bus vasthoudt (houdt()).
 // Alles wat naar buiten gaat (IR, lichtgroepen, servo, vertrek) loopt via HalteUit (de Baan; in de tests een nep).
 #pragma once
 #include <stdint.h>
@@ -23,6 +33,8 @@ namespace trein {
 
 constexpr int MAX_HALTES = 8;
 constexpr uint32_t HALTE_AANKOMST_MS = 500, HALTE_STOP_MS = 2000, HALTE_HERHAAL_MS = 500, HALTE_ORANJE_MS = 2000;
+constexpr uint32_t HALTE_VASTHOUD_MS = 400; // F2: stopcode herhalen
+constexpr uint16_t HALTE_MAX_VERKEER_STD_S = 60;
 constexpr int HALTE_RIJD_KEER = 3;
 constexpr uint16_t HALTE_MAX_S = 3600;
 
@@ -44,6 +56,8 @@ struct HalteCfg {
   int8_t rood = -1, oranje = -1, groen = -1; // lichtgroep (index), -1 = geen
   uint16_t groenS = 5;
   int8_t servo = -1;           // -1 = geen
+  bool herhalen = true;        // F2: stopcode elke 400 ms tot groen
+  uint16_t maxVerkeerS = HALTE_MAX_VERKEER_STD_S; // F12: 0 = geen grens
 };
 
 struct HalteUit {
@@ -63,6 +77,10 @@ class Haltes {
     uint32_t volgendeIr = 0; // stop/groen: wanneer de code opnieuw
     uint8_t rijdKeer = 0;
     uint32_t vrijSinds = 0;  // verkeer: sinds wanneer alles vrij is
+    uint32_t volgendeStop = 0; // F2/F3: wanneer de stopcode opnieuw
+    bool heeftWachtend = false; // F3: een tweede bus wacht
+    int8_t wachtendBus = -1;
+    bool teLang = false;     // F12: het verkeer bleef te lang bezet (toch groen gegeven)
   };
   Toestand t[MAX_HALTES];
 
@@ -73,15 +91,35 @@ class Haltes {
     t[h].sinds = nu;
     if (!c.gebruikt) return;
     licht(c, u, true, false, false, nu);
+    if (c.rijdCode >= 0) u.halteIr(c.rijdCode, c.stopLeds, nu); // F2: een bus die nog vastgehouden werd, mag rijden
   }
 
-  /** een melding bij punt id (bus = index of -1): start de haltes met dat aankomstpunt die vrij zijn */
+  /** een melding bij punt id (bus = index of -1): start de haltes met dat aankomstpunt die vrij zijn; een bezette
+   *  halte onthoudt een tweede bus (F3) */
   void melding(const HalteCfg *cfg, const char *id, int bus, HalteUit &u, uint32_t nu) {
     for (int h = 0; h < MAX_HALTES; h++) {
-      if (!cfg[h].gebruikt || t[h].fase != FASE_VRIJ || strcmp(cfg[h].aankomstPunt, id) != 0) continue;
-      t[h].bus = (int8_t)bus;
-      naarFase(h, cfg[h], FASE_AANKOMST, u, nu);
+      const HalteCfg &c = cfg[h];
+      Toestand &x = t[h];
+      if (!c.gebruikt || strcmp(c.aankomstPunt, id) != 0) continue;
+      if (x.fase == FASE_VRIJ) {
+        x.bus = (int8_t)bus;
+        naarFase(h, c, FASE_AANKOMST, u, nu);
+        continue;
+      }
+      if (bus >= 0 && bus == x.bus) continue;              // de bus die er al staat
+      if (bus < 0 && x.fase <= FASE_VERKEER) continue;      // onbekend terwijl een bus staat: waarschijnlijk dezelfde
+      if (x.heeftWachtend) continue;                        // hoogstens één wachtende
+      x.heeftWachtend = true;
+      x.wachtendBus = (int8_t)bus;
+      u.halteIr(c.stopCode, c.stopLeds, nu);
+      x.volgendeStop = nu + HALTE_VASTHOUD_MS;
     }
+  }
+
+  /** houdt de halte nu een bus vast (aankomst tot en met verkeer, of een wachtende bus)? */
+  bool houdt(int h) const {
+    const Toestand &x = t[h];
+    return (x.fase >= FASE_AANKOMST && x.fase <= FASE_VERKEER) || (x.fase != FASE_VRIJ && x.heeftWachtend);
   }
 
   /** elke tick; actief = de ingangen die nu actief zijn */
@@ -91,13 +129,20 @@ class Haltes {
       Toestand &x = t[h];
       if (!c.gebruikt) { x.fase = FASE_VRIJ; continue; }
       uint32_t in = nu - x.sinds;
+      // F2/F3: de stopcode herhalen zolang de halte een bus vasthoudt
+      bool vasthouden = (x.fase >= FASE_AANKOMST && x.fase <= FASE_VERKEER) || (x.fase != FASE_VRIJ && x.heeftWachtend);
+      if (c.herhalen && vasthouden && voorbij(nu, x.volgendeStop)) {
+        u.halteIr(c.stopCode, c.stopLeds, nu);
+        x.volgendeStop += HALTE_VASTHOUD_MS;
+        if (voorbij(nu, x.volgendeStop)) x.volgendeStop = nu + HALTE_VASTHOUD_MS; // te ver achter: niet inhalen
+      }
       switch (x.fase) {
         case FASE_AANKOMST:
           if (in >= HALTE_AANKOMST_MS) naarFase(h, c, FASE_STOP, u, nu);
           break;
         case FASE_STOP:
           if (in >= HALTE_STOP_MS) naarFase(h, c, FASE_WACHTEN, u, nu);
-          else if (voorbij(nu, x.volgendeIr)) {
+          else if (!c.herhalen && voorbij(nu, x.volgendeIr)) {
             u.halteIr(c.stopCode, c.stopLeds, nu);
             x.volgendeIr += HALTE_HERHAAL_MS;
           }
@@ -107,10 +152,15 @@ class Haltes {
           break;
         case FASE_VERKEER:
           if (actief & c.vrijIngangen) x.vrijSinds = nu;
-          if (!c.vrijIngangen || nu - x.vrijSinds >= (uint32_t)c.vrijMinS * 1000u) naarFase(h, c, FASE_GROEN, u, nu);
+          if (!c.vrijIngangen || nu - x.vrijSinds >= (uint32_t)c.vrijMinS * 1000u) {
+            naarFase(h, c, FASE_GROEN, u, nu);
+          } else if (c.maxVerkeerS && in >= (uint32_t)c.maxVerkeerS * 1000u) {
+            x.teLang = true; // F12: toch groen, de Baan meldt het
+            naarFase(h, c, FASE_GROEN, u, nu);
+          }
           break;
         case FASE_GROEN:
-          if (x.rijdKeer < HALTE_RIJD_KEER && voorbij(nu, x.volgendeIr)) {
+          if (!x.heeftWachtend && x.rijdKeer < HALTE_RIJD_KEER && voorbij(nu, x.volgendeIr)) {
             u.halteIr(c.rijdCode, c.stopLeds, nu);
             x.rijdKeer++;
             x.volgendeIr += HALTE_HERHAAL_MS;
@@ -124,6 +174,12 @@ class Haltes {
             x.fase = FASE_VRIJ;
             x.bus = -1;
             x.sinds = nu;
+            if (x.heeftWachtend) { // F3: meteen de volgende bus
+              x.heeftWachtend = false;
+              x.bus = x.wachtendBus;
+              x.wachtendBus = -1;
+              naarFase(h, c, FASE_AANKOMST, u, nu);
+            }
           }
           break;
         default:
@@ -171,18 +227,20 @@ class Haltes {
       case FASE_AANKOMST:
         licht(c, u, true, false, false, nu);
         u.halteIr(c.stopCode, c.stopLeds, nu);
+        x.volgendeStop = nu + HALTE_VASTHOUD_MS;
         break;
       case FASE_STOP:
-        x.volgendeIr = nu; // meteen nog eens, daarna elke 0,5 s
-        u.halteIr(c.stopCode, c.stopLeds, nu);
+        if (c.herhalen) break; // de stopcode loopt al elke 400 ms
+        u.halteIr(c.stopCode, c.stopLeds, nu); // meteen nog eens, daarna elke 0,5 s
         x.volgendeIr = nu + HALTE_HERHAAL_MS;
         break;
       case FASE_VERKEER:
         x.vrijSinds = nu;
+        x.teLang = false;
         break;
       case FASE_GROEN:
         licht(c, u, false, false, true, nu);
-        u.halteIr(c.rijdCode, c.stopLeds, nu);
+        if (!x.heeftWachtend) u.halteIr(c.rijdCode, c.stopLeds, nu);
         x.rijdKeer = 1;
         x.volgendeIr = nu + HALTE_HERHAAL_MS;
         if (c.servo >= 0) u.halteServo(c.servo, true, nu);

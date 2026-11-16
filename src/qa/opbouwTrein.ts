@@ -25,9 +25,10 @@ const KLEUR: Record<string, string> = { rood: '#c8202f', zwart: '#111111', oranj
 // de DC-bus in de achterwand van de rechterhelft, de zekeringhouder -F1 (met draden) ervoor op de bodem
 const VAST: Record<string, (k: string) => [number, number, number]> = {
   '-X5': () => [M.dcbus.x, M.dcbus.y, -(M.doos.binnen / 2)],
-  '-F1': (k) => [k === 'in' ? 214 : 200, 12, -84],
+  // Fable 5.2 D9: de zekeringhouders in de achterwand naast de DC-bus (de vlaksteeklippen ± 26 binnen de wand)
+  '-F1': () => [M.zekering.x[0], M.zekering.y, -(M.doos.binnen / 2) + 26],
   // versie 6 fase B: de zekeringhouder van de servo's (met draden) naast de regelaar, de leerontvanger in zijn houder
-  '-F19': (k) => [k === 'in' ? 205 : 207, 12, k === 'in' ? -60 : -16],
+  '-F19': () => [M.zekering.x[1], M.zekering.y, -(M.doos.binnen / 2) + 26],
   '-B1': () => [M.tsmp.x, M.tsmp.y + 10, M.doos.binnen / 2 - 3],
 };
 /** de plaats in de doos (x, y, z) van een eind van een draad */
@@ -40,8 +41,8 @@ export function plaats(e: Eind): [number, number, number] {
 export const lengte = (d: Draad) => { const a = plaats(d.van), b = plaats(d.naar); return Math.ceil((Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) + 60) / 10) * 10; };
 const eindTekst = (e: Eind) => {
   if (e[0] === '-X5') return `DC-bus ${e[1] === '+' ? 'pen (+)' : 'huls (−)'}`;
-  if (e[0] === '-F1') return `-F1 zekeringhouder (${e[1]})`;
-  if (e[0] === '-F19') return `-F19 zekeringhouder 3 A (${e[1]})`;
+  if (e[0] === '-F1') return `-F1 zekering T 8 A (${e[1]})`;
+  if (e[0] === '-F19') return `-F19 zekering T 3,15 A (${e[1]})`;
   if (e[0] === '-B1') return `-B1 TSMP58000 (${e[1]})`;
   const m = /^(-X[12])([ab])$/.exec(e[0]);
   if (m) return `${m[1]}:${(m[2] === 'b' ? 5 : 0) + +e[1]} (WAGO)`;
@@ -317,7 +318,7 @@ export function meetBlad(nr: string, blad: string, project: Project): string {
     ['7', '+12 V ingangen: -X3 – -X2 (S12, na -F18)', '11,4 .. 12,4 V'],
     ['8', 'Groep 1 "uit" in het dashboard: het bordje is uit*', 'uit'],
     ['9', 'IN01 los: het dashboard toont "rust"*', 'rust'],
-    ['10', 'Firmware: versie op het dashboard (Instellingen)', '1.3.0 of hoger'],
+    ['10', 'Firmware: versie op het dashboard (Instellingen); versie 6: ook TRN-22', '2.1.0 of hoger'],
     ['11', 'Wifi-wachtwoord gewijzigd; BOOT 5 s zet het terug (proef)', 'gedaan'],
     ['12', 'Hallsensor op IN n ("Hallsensor (korte puls)"): magneet 10 x snel langs**', 'teller +10'],
   ];
@@ -338,6 +339,62 @@ export function meetBlad(nr: string, blad: string, project: Project): string {
   return b.svg();
 }
 
+/** TRN-22 (A4, Fable 5.2 T1, E1, E3, E4, E5, E9, E11, E16, E18, F1): eerst één stuk van elke module kopen en op tafel
+ *  meten, en de stappen van versie 6. De metingen beslissen welke variant (printSoort, polariteit, IR-duty) je kiest. */
+export function meetBlad6(nr: string, blad: string, project: Project): string {
+  const b = new BladA4();
+  b.tekst([25, 280], 'Versie 6: eerst kopen en meten, dan bedraden', 5, 'start', { vet: true });
+  b.tekst([25, 274.5], 'Eén stuk van elke module op tafel (± € 24 tot € 37), vóór je print of bedradt. De uitkomst kies je in het dashboard (Instellingen › Hardware).', 2.3);
+  const stappen = [
+    ['A', '-K3/-K4 optocouplerprint, diodetest (multimeter): IN1 – elke gemeenschappelijke klem. Geleidt de led van de klem "VCC" naar IN1: "vcc"; van IN1 naar de klem "G/GND": "gnd"; per kanaal een eigen paar klemmen: "apart"', 'vcc / gnd / apart'],
+    ['B', '-K3 stroom in één ingang: 12 V (S12 van -X3) door een mA-meter op de ingang zoals bij A gevonden (vcc: IN naar 0 V; gnd: IN naar 12 V)', '3 .. 15 mA'],
+    ['C', '-Q1 (en -Q2, -Q4) polariteit: VCC 3,3 V, VIN+ 12 V, een led met 1 kΩ op kanaal 1. IN1 naar GND: led aan = actief laag (standaard). Anders actief hoog: -DTREIN_UITGANG_ACTIEF_HOOG en "IR-led actief laag" uit', 'laag / hoog'],
+    ['D', '-Q1 zonder ESP: VCC los (zoals bij het inschakelen), 12 V aan: blijft de led uit? Zo niet: de groepen flitsen bij elk inschakelen (README, E5)', 'uit'],
+    ['E', '-T3 XL4015 zonder -K7: 12 V aan IN, OUT+ – OUT− met de potmeter op 5,5 V zetten, een druppel lak erop; de elco -C5 is 25 V of meer', '5,4 .. 5,6 V'],
+    ['F', '-Q4 en -Q3: IR-led 1 gekozen in het dashboard: alleen kanaal 1 geleidt (n− – VIN− < 0,1 V), de andere 7 niet', 'alleen 1'],
+    ['G', 'IR-zelftest (-B1 TSMP58000, -Q3, -Q4): IR-led 1 voor het venster, knop "IR-zelftest": draaggolf en dezelfde code terug. Niet: duty op 50 %', '37 .. 39 kHz'],
+    ['H', 'Stopplaats van Ian: gsm-camera op de IR-led. Knippert ze in de camera niet maar brandt ze, of meldt de zelftest "ongemoduleerd": codesoort "continu"', 'gemoduleerd?'],
+    ['I', 'Zelftest (Instellingen › Zelftest): I2C -K5 0x20, -K2 0x40, -K7 0x42 gevonden; -X6 bord "v1.1" opgedrukt (GPIO48)', '3 gevonden'],
+    ['J', '-K7: één servo van a naar b; bij een herstart gaan de servo\'s één voor één naar hun stand', 'gedaan'],
+    ['K', '-X12 – -X13: 3,3 V naar de baan (na -F20 0,1 A, van -X7); een draadje -X12 naar 0 V: de ESP blijft draaien', '3,2 .. 3,35 V'],
+    ['L', 'OE met beide PCA9685 (-K2 en -K7) aangesloten, RESET ingedrukt (-X1/-X2 12 V aan, -T2 levert 5 V)', '≥ 2,5 V'],
+    ['M', 'Reflexsensor (TCRT5000) op ingang 17 (-K5 GPB0, 1 kΩ in serie): hand erboven = "actief", weg = "rust"', 'actief/rust'],
+  ];
+  // de tabel met afgebroken regels (de controles zijn lang): kolommen stap, meting, grens, gemeten, OK
+  const kol = [6, 112, 24, 24, 9], x0 = 25, bt = kol.reduce((q, w) => q + w, 0), lh = 3.0, breek = (t: string, n: number) => {
+    const uit: string[] = [];
+    let r = '';
+    for (const w of t.split(' ')) { if ((r + ' ' + w).trim().length > n) { uit.push(r.trim()); r = w; } else r += ' ' + w; }
+    if (r.trim()) uit.push(r.trim());
+    return uit;
+  };
+  let yt = 268;
+  b.rect(x0, yt - 6, bt, 6, 0.35);
+  ['', 'Meting of controle', 'Grens', 'Gemeten', 'OK'].reduce((xx, t, k) => { b.tekst([xx + 1, yt - 4.4], t, 2.1, 'start', { vet: true }); return xx + kol[k]; }, x0);
+  yt -= 6;
+  for (const [nrS, wat, grens] of stappen) {
+    const rg = breek(wat, 92), rg2 = breek(grens, 18), h = Math.max(rg.length, rg2.length) * lh + 2.2;
+    b.rect(x0, yt - h, bt, h, 0.2);
+    let xx = x0;
+    for (const w of kol.slice(0, -1)) { xx += w; b.lijn([xx, yt], [xx, yt - h], 0.18); }
+    b.tekst([x0 + 1, yt - 3.2], nrS, 2.1, 'start', { vet: true });
+    rg.forEach((t, k) => b.tekst([x0 + kol[0] + 1, yt - 3.2 - k * lh], t, 2.0));
+    rg2.forEach((t, k) => b.tekst([x0 + kol[0] + kol[1] + 1, yt - 3.2 - k * lh], t, 2.0));
+    yt -= h;
+  }
+  const y = yt - 6;
+  const regels = [
+    'Na A: Instellingen › Hardware › print 1..3: de gemeten variant. "gnd": per NPN-sensor of open-collector-hallsensor een weerstand',
+    '2,2 kΩ van IN naar S12 (-X3); de firmware keert die ingang om. "apart": per ingang NPN of PNP. PNP kan niet op een print "vcc".',
+    'Na C: bouwvlag en "IR-led actief laag" gelijk aan wat je mat (firmware/README.md). Na G niet goed: 1 Ω in de 0 V van -Q3 en een scoop.',
+    'Eerst kopen (één stuk): optocouplerprint (-K3), 8-kanaals MOSFET-module (-Q1), AOD4184 (-Q3), MCP23017 (-K5), XL4015 (-T3),',
+    'TSMP58000 (-B1), een IR-led en een TCRT5000: ± € 24 tot € 37 (bestellijst). Print pas daarna het proefstuk (TRN-08) en de helften.',
+  ];
+  regels.forEach((t, i) => b.tekst([25, y - i * 3.6], t, 2.1));
+  kaderA4(b, { nr, naam: 'Versie 6: eerst kopen en meten', soort: 'Meetblad', blad }, project);
+  return b.svg();
+}
+
 /** invulblad voor de namen van de groepen en de ingangen (A4, om bij de baan te hangen) */
 export function invulBlad(nr: string, blad: string, project: Project): string {
   const b = new BladA4();
@@ -350,7 +407,7 @@ export function invulBlad(nr: string, blad: string, project: Project): string {
   b.tekst([25, yi + 3], 'Ingangen (knoppen en sensoren)', 2.8, 'start', { vet: true });
   const i = Array.from({ length: 16 }, (_, k) => [`IN${String(k + 1).padStart(2, '0')}`, '', '', `-K${k < 8 ? 3 : 4}:IN${(k % 8) + 1}`, '']);
   invulTabel(b, 25, yi, [['Ingang', 14], ['Naam', 50], ['Soort (knop, schakelaar, reed, NPN)', 50], ['Klem', 20], ['Start functie', 36]], i, 6.3);
-  b.tekst([25, 37.5], 'Elke ingang: de knop of sensor tussen IN en 0 V (-X2). Een sensor krijgt +12 V van -X3. Geen sensor die zelf 12 V geeft (PNP).', 2.2);
+  b.tekst([25, 37.5], 'Elke ingang: de knop of sensor tussen IN en 0 V (-X2), +12 V van -X3. PNP alleen op een print "gnd" of "apart" (TRN-22 stap A).', 2.2);
   kaderA4(b, { nr, naam: 'Namen van groepen en ingangen', soort: 'Invulblad', blad }, project);
   return b.svg();
 }

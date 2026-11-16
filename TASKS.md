@@ -1471,6 +1471,6 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable 5.2 leest de fitnesscatalogus v5 na (Advies-Fable-5.2-v5.md: 12 x P1, 27 x P2, 11 x P3) (vormtaal, nieuwe reeksen FS/FM/FO/FX, varianten, EN 16630, prijzen)
 - [x] Fable 5.2 leest treindoos v6 na (Advies-Fable-5.2-v6.md: 3 x P1, 26 x P2, 33 x P3) (firmware 2.0, IR, servo's, NPN/PNP, geluidskastje, doos fase B, tv)
 - [x] Alle adviezen van fitness verwerken, met tests op de oude fouten (36 gedaan, 9 deels, 2 keuze Ian, 3 niet; commit 4597410, artifact v10)
-- [~] Alle adviezen van de treindoos verwerken, met tests op de oude fouten
+- [x] Alle adviezen van de treindoos verwerken, met tests op de oude fouten (57 gedaan, 5 deels; firmware 2.1.0, 159 tests, TRN-22 meetblad)
 - [x] Fitness: FS-nokken compact maken zoals bij de pro-merken (R ≤ 220 mm i.p.v. R 490, 2:1-takel op de stapel)
 - [ ] Web/app/artifacts bijwerken, foto's, commit en push

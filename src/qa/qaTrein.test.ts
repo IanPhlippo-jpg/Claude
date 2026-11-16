@@ -27,7 +27,9 @@ import { M, indeling, rechts, haakKlik, dekselKlik } from '../../voorbeelden/tre
 // @ts-expect-error: plain JavaScript
 import { tsmpHouder } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
 // @ts-expect-error: plain JavaScript
-import { MODULES, PLAATSING, voetafdruk, helft, controleerAlles, DRADEN } from '../../voorbeelden/treinverlichting/opbouw.mjs';
+import { proefMaten } from '../../voorbeelden/treinverlichting/proefstuk.mjs';
+// @ts-expect-error: plain JavaScript
+import { MODULES, PLAATSING, voetafdruk, helft, controleerAlles, DRADEN, oogjes, oogSleuven, MET_DUPONT } from '../../voorbeelden/treinverlichting/opbouw.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
 const open = (f: string): Document => parseDocument(readFileSync(`${DIR}/${f}`, 'utf8'));
@@ -35,10 +37,12 @@ const KEUZE = process.env.TREIN_DELEN?.split(',').map((s) => `${s.trim().replace
 const DELEN = readdirSync(DIR).filter((f) => f.endsWith('.kcad') && f !== 'Kabeldoos.kcad' && (!KEUZE || KEUZE.includes(f)));
 // printstand: de bakhelften met de bodem op het bed, de linkerhelft van het deksel met de buitenkant op het bed, de
 // rechterhelft met de binnenkant op het bed (de lip aan de naad ligt dan op het bed)
-const STL = { 'Kabeldoos-bak-links.kcad': 'rechtop', 'Kabeldoos-bak-rechts.kcad': 'rechtop', 'Kabeldoos-deksel-links.kcad': 'omgekeerd', 'Kabeldoos-deksel-rechts.kcad': 'rechtop', 'Hulpstukken.kcad': 'rechtop' } as const;
+// (het proefstuk van Fable 5.2 D1: rechtop, zoals de bakhelften)
+const STL = { 'Kabeldoos-bak-links.kcad': 'rechtop', 'Kabeldoos-bak-rechts.kcad': 'rechtop', 'Kabeldoos-deksel-links.kcad': 'omgekeerd', 'Kabeldoos-deksel-rechts.kcad': 'rechtop', 'Hulpstukken.kcad': 'rechtop', 'Proefstuk.kcad': 'rechtop' } as const;
 const PRINT = Object.keys(STL);
-/** het aantal lichamen: de hulpstukken hebben er 2 (de 2 werkhaken in één lichaam, de ribben in één extrusie, en de spatel) */
-const lichamen = (f: string) => (f === 'Hulpstukken.kcad' ? 2 : 1);
+/** het aantal lichamen: de hulpstukken hebben er 2 (de 2 werkhaken in één lichaam, de ribben in één extrusie, en de spatel),
+ *  het proefstuk ook (A uit de linkerhelft, B uit de rechterhelft) */
+const lichamen = (f: string) => (f === 'Hulpstukken.kcad' || f === 'Proefstuk.kcad' ? 2 : 1);
 type R = { bodies: { geometry: THREE.BufferGeometry }[]; brep?: Record<string, unknown> };
 const bouw = (f: string) => {
   const t0 = performance.now();
@@ -190,6 +194,16 @@ describe('kabeldoos, versie 6 fase B: de modules van de uitbreiding', () => {
     expect(x0 > u.x1 + 1 || x1 < u.x0 - 1).toBe(true);
     expect(th.top + 12).toBeLessThan(D.h); // de pootjes en de dupontbusjes onder het deksel
   });
+  it('de zekeringhouders (Fable 5.2 D9) zitten in de achterwand, vrij van de DC-bus en de tules, boven de WAGO-klemmen', () => {
+    const Zk = (M as any).zekering, dc = (M as any).dcbus, T = (M as any).rechts.tules.achter, r = (M as any).doos.invoer.tule.d / 2;
+    for (const x of Zk.x) {
+      expect(Math.abs(x - dc.x), `DC-bus ${x}`).toBeGreaterThan((Zk.flens + dc.flens) / 2);
+      for (const t of T) expect(Math.abs(x - t), `tule ${t}`).toBeGreaterThan(Zk.flens / 2 + r);
+      expect(Zk.y - Zk.lijf / 2, 'boven de WAGO-klemmen in hun houder').toBeGreaterThan(8.3 + 5);
+      expect(Zk.y + Zk.flens / 2, 'onder de bovenrand').toBeLessThan(D.h);
+    }
+    expect(Math.abs(Zk.x[0] - Zk.x[1])).toBeGreaterThan(Zk.flens);
+  });
   it('de servokabels hebben hun eigen tule (rechts, z 88) en de servoprint staat met zijn stekkers naar voren', () => {
     expect((M as any).rechts.tules.rechts).toContain(88);
     expect((PLAATSING as Record<string, { rot: number }>)['-K7'].rot).toBe(0);
@@ -224,9 +238,53 @@ describe('kabeldoos, naad tussen de helften (versie 5)', () => {
     expect(N.deksel.groef).toBeGreaterThan(N.deksel.nok.h - N.spleet);
     expect(N.deksel.buiten + N.spleet + N.deksel.lip).toBeCloseTo(D.deksel, 6);
   });
+  it('de bodemlippen: 0,3 speling rondom in hun uitsparing (Fable 5.2 D1: krimp van PETG), de lijmspleet 0,2', () => {
+    expect(N.lip.speling).toBeCloseTo(0.3, 6);
+    expect(N.spleet).toBeCloseTo(0.2, 6);
+    (P.lippen as number[][]).forEach((l, i) => {
+      const u = P.uitsparingen[i] as number[];
+      expect(l[0] - u[0], `lip ${i + 1} aan de punt`).toBeCloseTo(N.lip.speling, 6);
+      expect(l[1] - u[1], `lip ${i + 1} achter`).toBeCloseTo(N.lip.speling, 6);
+      expect(u[3] - l[3], `lip ${i + 1} voor`).toBeCloseTo(N.lip.speling, 6);
+      expect(u[2]).toBeGreaterThan(N.x); // de uitsparing loopt door tot de naad
+    });
+  });
   it('de naad van het deksel ligt niet boven die van de bak, de lip overlapt de naad van de bak', () => {
     expect(N.deksel.x).not.toBeCloseTo(N.x, 1);
     expect(N.deksel.x - N.deksel.lap).toBeLessThan(N.x - 5);
+  });
+});
+
+describe('kabeldoos, Fable 5.2: proefstuk (D1) en oogjes voor kabelbinders (D2/D8)', () => {
+  const D = (M as any).doos, O = (M as any).oog;
+  it('het proefstuk: bordje 3 met zijn 4 paaltjes, één lip met zijn uitsparing, één haak met zijn kuiltje; A en B raken elkaar niet', () => {
+    const Q = proefMaten() as any;
+    expect(Q.paaltjes.length).toBe(4);
+    const [ax0, az0, ax1, az1] = Q.A;
+    for (const p of Q.paaltjes) expect(p.x > ax0 && p.x < ax1 && p.z > az0 && p.z < az1, `paaltje ${p.x}, ${p.z}`).toBe(true);
+    expect(Q.uitsparing[1]).toBeGreaterThan(az0); expect(Q.uitsparing[3]).toBeLessThan(az1);
+    expect(Q.lip[3] - Q.lip[1]).toBeCloseTo((M as any).naad.lip.b, 6);
+    expect(az1 - az0 - D.wand).toBeGreaterThanOrEqual(30); // ± 30 mm naad
+    expect(Q.haak.prof[3][0] + Q.dx).toBeGreaterThan(ax1 + 1); // de punt van de haak van B ligt naast A, niet erboven
+    expect(Q.hw).toBeGreaterThan((M as any).naad.haak.top);
+    expect(Math.max(Q.B[2] + Q.dx - ax0, az1 - az0)).toBeLessThanOrEqual(BED.max);
+  });
+  it('een oogje bij elke tule en bij elke module met dupont (minstens -K2, -K7, -K5, -Q4), vrij en printbaar', () => {
+    const og = oogjes(indeling()) as { bij: string; helft: string; x: number; z: number; as: string; rect: number[] }[];
+    const tules = (indeling() as any).tules.length + Object.values((M as any).rechts.tules as Record<string, number[]>).flat().length;
+    expect(og.filter((o) => o.bij.startsWith('tule')).length).toBe(tules);
+    for (const r of ['-K2', '-K7', '-K5', '-Q4', ...MET_DUPONT()]) expect(og.some((o) => o.bij === r), r).toBe(true);
+    for (const o of og) {
+      // de sleuven: een binder 2,5 x 1,1 gaat erdoor; het brugje houdt (1,0 boven het kanaal), het kanaal is een brug van 3,0
+      const s = oogSleuven(o) as number[][];
+      expect(s.length).toBe(2);
+      for (const q of s) expect(Math.min(q[2] - q[0], q[3] - q[1])).toBeGreaterThanOrEqual(1.5);
+      expect(O.sleuf.b).toBeGreaterThanOrEqual(2.5 + 0.4);
+      expect(D.bodem - O.kanaal).toBeGreaterThanOrEqual(1.0);
+      expect(O.kanaal).toBeGreaterThanOrEqual(1.1 + 0.2);
+      expect(O.sleuf.b).toBeLessThanOrEqual(5); // brug onder het brugje: kort genoeg zonder support
+    }
+    expect(controleerAlles(indeling())).toEqual([]);
   });
 });
 

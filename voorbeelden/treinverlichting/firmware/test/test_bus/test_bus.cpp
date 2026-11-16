@@ -21,6 +21,7 @@ struct Proef {
     p[i].ingang = (int8_t)ingang;
     p[i].ontvanger = (int8_t)ontvanger;
     strcpy(p[i].volgende, volgende);
+    p[i].alleenBus = true; // alleen bussen (V1); test_alleen_bus kijkt het andere geval na
   }
   void bus(int i, const char *code) {
     b[i].gebruikt = true;
@@ -157,6 +158,29 @@ void test_ftr_lichtsluis() {
   TEST_ASSERT_NOT_NULL(t.v.ontvangen(3, "", t.p, t.b, 5200));
 }
 
+// V1: op een gedeelde strook (alleenBus uit) blijft een melding zonder code zonder bus; V2: zonder buscode volgt de
+// doos de volgorde van de bussen per strook (FIFO), en een code gaat altijd voor.
+void test_alleen_bus() {
+  Proef t;
+  t.punt(0, "P1", 0, -1);
+  t.punt(1, "P5", -1, 2, "P1");
+  t.punt(2, "P6", -1, 3, "P1");
+  t.p[0].alleenBus = false;
+  t.p[2].alleenBus = false;
+  t.bus(0, "nec:00FF12ED");
+  t.v.ontvangen(2, "nec:00FF12ED", t.p, t.b, 1000); // bus 1 op weg naar P1
+  const Melding *m = t.v.ingangActief(0, t.p, t.b, 5000);
+  TEST_ASSERT_EQUAL(-1, m->bus);                      // een auto kan het ook zijn
+  TEST_ASSERT_EQUAL_STRING("P1", t.v.bus[0].naar);    // de bus schuift niet op
+  m = t.v.ontvangen(3, "", t.p, t.b, 6000);           // lichtsluis op een gedeelde strook
+  TEST_ASSERT_EQUAL(-1, m->bus);
+  t.p[0].alleenBus = true;
+  m = t.v.ingangActief(0, t.p, t.b, 7000);
+  TEST_ASSERT_EQUAL(0, m->bus);
+  m = t.v.ontvangen(3, "nec:00FF12ED", t.p, t.b, 8000); // met code: altijd die bus
+  TEST_ASSERT_EQUAL(0, m->bus);
+}
+
 void test_staat_van_een_bus() {
   Proef t;
   t.punt(0, "A", 0, -1, "B");
@@ -192,6 +216,7 @@ int main() {
   RUN_TEST(test_bus_gezien_via_ingang_volgens_volgorde);
   RUN_TEST(test_volgende_punt_geleerd);
   RUN_TEST(test_ftr_lichtsluis);
+  RUN_TEST(test_alleen_bus);
   RUN_TEST(test_staat_van_een_bus);
   RUN_TEST(test_hulp_geldig);
   return UNITY_END();

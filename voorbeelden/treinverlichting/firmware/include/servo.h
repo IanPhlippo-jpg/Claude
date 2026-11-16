@@ -8,6 +8,13 @@
 // aanvraag in een rij. Een servo met snelheid 0 springt meteen naar zijn doel maar houdt 0,3 s een plaats bezet (zo lang
 // heeft hij nodig om er te geraken). Krijgt een servo die al beweegt of wacht een nieuw doel, dan houdt hij zijn plaats.
 // Een servo die nog nooit een stand kreeg, krijgt geen puls (kanaal 0 tellen = uit): hij blijft waar hij is.
+// Firmware 2.1.0 (Fable 5.2):
+//   E8  de eerste puls van een servo (na het opstarten: naarStart; of de eerste opdracht) gaat ook door de rij, en
+//       hoogstens één servo per 300 ms krijgt zijn eerste puls: bij het opstarten gaan ze één voor één naar hun stand
+//       in plaats van alle 16 samen (tot 16 x de blokkeerstroom op de 5,5 V).
+//   E14 geremd (de Baan zet het als meer dan 12 lichtgroepen aan staan): geen nieuwe beweging, de rij wacht.
+//   E19 pulsUitS per servo (0 = altijd een puls; 1..10): zoveel seconden na aankomst geen puls meer (een wissel die
+//       tegen zijn aanslag duwt, trekt dan geen blokkeerstroom meer). De volgende opdracht zet de puls weer aan.
 // Tellen voor de PCA9685: 25 MHz / (4096 x (121 + 1)) = 50,03 Hz, één tel = 122 / 25 MHz = 4,88 µs; 1500 µs = 307 tellen.
 #pragma once
 #include <stdint.h>
@@ -21,7 +28,8 @@ constexpr int MAX_SERVOS = 16;
 constexpr int SERVO_MAX_BEWEGEND = 4;
 constexpr uint16_t SERVO_MIN_US = 500, SERVO_MAX_US = 2500, SERVO_STD_US = 1500;
 constexpr uint16_t SERVO_MAX_SNELHEID = 20000; // µs per seconde
-constexpr uint32_t SERVO_SPRONG_MS = 300;
+constexpr uint32_t SERVO_SPRONG_MS = 300;       // een sprong duurt zo lang; ook: hoogstens één eerste puls per 300 ms
+constexpr uint8_t SERVO_MAX_PULS_UIT_S = 10;
 constexpr uint8_t PCA_SERVO_PRESCALE = 121;    // 50 Hz bij de interne oscillator van 25 MHz
 
 enum ServoSoort : uint8_t { SERVO_WISSEL, SERVO_SLAGBOOM, SERVO_ARMSEIN, N_SERVO_SOORTEN };
@@ -45,6 +53,7 @@ struct ServoCfg {
   uint16_t a = 1100, b = 1900; // µs
   uint16_t snelheid = 400;     // µs per seconde, 0 = meteen
   uint8_t soort = SERVO_WISSEL;
+  uint8_t pulsUitS = 0;        // E19: 0 = altijd puls, anders de puls uit zoveel s na aankomst
 };
 
 /** µs naar tellen van de PCA9685 bij 50 Hz (prescale 121) */
@@ -58,9 +67,11 @@ class Servos {
     uint16_t doel = 0;    // µs
     uint8_t stand = STAND_A; // de laatst gevraagde eindstand (proef: de dichtste)
     bool beweegt = false, wacht = false;
-    uint32_t sinds = 0, laatst = 0;
+    bool pulsUit = false;  // E19: na aankomst de puls uit
+    uint32_t sinds = 0, laatst = 0, aangekomen = 0;
   };
   Toestand t[MAX_SERVOS];
+  bool geremd = false; // E14: geen nieuwe bewegingen (te veel lampen aan)
 
   uint16_t us(int s) const { return (uint16_t)((t[s].mus + 500) / 1000); }
   bool onderweg(int s) const { return t[s].beweegt || t[s].wacht; }
@@ -73,7 +84,21 @@ class Servos {
   }
   int wachtend() const { return nRij_; }
 
-  /** meteen op een stand zetten zonder beweging (na het opstarten: de laatste stand) */
+  /** na het opstarten naar de laatste stand, zonder beweging maar door de rij (E8): de puls komt pas als de servo aan
+   *  de beurt is, één nieuwe servo per 300 ms */
+  void naarStart(int s, uint16_t usDoel, uint8_t stand, uint32_t nu) {
+    if (s < 0 || s >= MAX_SERVOS) return;
+    uitRij(s);
+    Toestand &x = t[s];
+    x = Toestand();
+    x.mus = (int32_t)usDoel * 1000;
+    x.doel = usDoel;
+    x.stand = stand;
+    vraagPlaats(s, nu, true);
+  }
+
+  /** meteen op een stand zetten zonder beweging en zonder de rij (alleen voor proeven; het opstarten gebruikt
+   *  naarStart) */
   void zetMeteen(int s, uint16_t usDoel, uint8_t stand) {
     if (s < 0 || s >= MAX_SERVOS) return;
     uitRij(s);
@@ -92,11 +117,11 @@ class Servos {
     usDoel = usDoel < SERVO_MIN_US ? SERVO_MIN_US : (usDoel > SERVO_MAX_US ? SERVO_MAX_US : usDoel);
     x.stand = stand;
     if (!x.actief) {
-      // de eerste keer: de echte stand is onbekend; meteen naar het doel (een servo springt dan toch)
-      x.actief = true;
+      // de eerste keer: de echte stand is onbekend; meteen naar het doel (een servo springt dan toch), maar door de
+      // rij: actief (= puls) pas in begin() (E8)
       x.mus = (int32_t)usDoel * 1000;
       x.doel = usDoel;
-      vraagPlaats(s, nu, true);
+      if (!x.beweegt && !x.wacht) vraagPlaats(s, nu, true);
       return;
     }
     x.doel = usDoel;
@@ -121,9 +146,18 @@ class Servos {
         else if (x.mus > doel) x.mus = x.mus - d < doel ? doel : x.mus - d;
       }
       bool klaar = x.mus == doel && (v != 0 || nu - x.sinds >= SERVO_SPRONG_MS);
-      if (klaar) x.beweegt = false;
+      if (klaar) {
+        x.beweegt = false;
+        x.aangekomen = nu;
+      }
     }
-    while (nRij_ > 0 && bewegend() < SERVO_MAX_BEWEGEND) {
+    for (int s = 0; s < MAX_SERVOS; s++) {
+      Toestand &x = t[s];
+      if (x.actief && !x.beweegt && !x.wacht && !x.pulsUit && cfg[s].pulsUitS &&
+          nu - x.aangekomen >= (uint32_t)cfg[s].pulsUitS * 1000u)
+        x.pulsUit = true;
+    }
+    while (nRij_ > 0 && bewegend() < SERVO_MAX_BEWEGEND && magBeginnen(rij_[0], nu)) {
       int s = rij_[0];
       memmove(rij_, rij_ + 1, (size_t)(nRij_ - 1));
       nRij_--;
@@ -133,7 +167,7 @@ class Servos {
   }
 
   /** puls in tellen voor de PCA9685 (0 = geen puls) */
-  uint16_t tellen(int s) const { return t[s].actief ? servoTellen(us(s)) : 0; }
+  uint16_t tellen(int s) const { return t[s].actief && !t[s].pulsUit ? servoTellen(us(s)) : 0; }
 
   /** een servo vergeten (gewist): geen puls meer */
   void vergeet(int s) {
@@ -145,15 +179,29 @@ class Servos {
  private:
   uint8_t rij_[MAX_SERVOS];
   int nRij_ = 0;
+  bool eersteGezet_ = false;
+  uint32_t eersteOm_ = 0; // wanneer de laatste servo zijn eerste puls kreeg
+
+  /** mag servo s nu beginnen? niet als geremd; een servo zonder puls pas 300 ms na de vorige eerste puls */
+  bool magBeginnen(int s, uint32_t nu) const {
+    if (geremd) return false;
+    return t[s].actief || !eersteGezet_ || nu - eersteOm_ >= SERVO_SPRONG_MS;
+  }
 
   void begin(int s, uint32_t nu, bool sprong) {
     Toestand &x = t[s];
+    if (!x.actief) {
+      x.actief = true;
+      eersteGezet_ = true;
+      eersteOm_ = nu;
+    }
+    x.pulsUit = false;
     x.beweegt = true;
     x.sinds = x.laatst = nu;
     if (sprong) x.mus = (int32_t)x.doel * 1000;
   }
   void vraagPlaats(int s, uint32_t nu, bool sprong) {
-    if (bewegend() < SERVO_MAX_BEWEGEND && nRij_ == 0) { begin(s, nu, sprong); return; }
+    if (bewegend() < SERVO_MAX_BEWEGEND && nRij_ == 0 && magBeginnen(s, nu)) { begin(s, nu, sprong); return; }
     t[s].wacht = true;
     rij_[nRij_++] = (uint8_t)s;
   }

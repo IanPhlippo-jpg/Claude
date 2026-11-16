@@ -2,7 +2,8 @@
  * Gedeelde hulp voor werktekeningen volgens de Europese normen: A3 liggend met kader, centreermerken en rasterverwijzing
  * (ISO 5457), titelblok met de velden van ISO 7200, Europese projectie met symbool (ISO 5456-2, eerste hoek), lijnen
  * volgens ISO 128 (zichtbare omtrek 0,35, maat- en hulplijnen 0,18, hartlijnen streep-punt 0,13), maten in mm volgens
- * ISO 129-1, algemene toleranties ISO 2768-m, letters volgens ISO 3098 (Arial). Aanzichten uit de tekenmodule (HLR) met
+ * ISO 129-1, algemene toleranties ISO 2768-m (of wat het project opgeeft: de geprinte kabeldoos ISO 2768-c), letters
+ * volgens ISO 3098 (Arial), schalen volgens ISO 5455. Aanzichten uit de tekenmodule (HLR) met
  * hartlijnen en arcering, en een werktekening per onderdeel. Gebruikt door tekeningenAfzuiging en tekeningenTrein.
  */
 import { readFileSync } from 'node:fs';
@@ -16,8 +17,13 @@ import { meshVolume } from '../core/features/solid';
 
 export const W = 420, H = 297; // A3 liggend
 export type P = [number, number];
-/** project, datum van uitgifte en revisie in het titelblok (ISO 7200) */
-export interface Project { naam: string; datum: string; revisie?: string; eigenaar?: string; goedgekeurd?: string }
+/** project, datum van uitgifte en revisie in het titelblok (ISO 7200); wijziging: de regel van de laatste revisie (boven het
+ *  titelblok); tolerantie: de algemene tolerantie (standaard ISO 2768-m) */
+export interface Project { naam: string; datum: string; revisie?: string; eigenaar?: string; goedgekeurd?: string; wijziging?: string; tolerantie?: string }
+/** de wijzigingsregel van de laatste revisie (ISO 7200), rechts uitgelijnd net boven het titelblok */
+function wijzigingsRegel(b: Blad, xr: number, y: number, project: Project) {
+  if (project.wijziging) b.tekst([xr - 1, y + 1.4], `Rev. ${project.revisie ?? '0'} (${project.datum}): ${project.wijziging}`, 2, 'end');
+}
 export const open = (f: string): Document => parseDocument(readFileSync(f, 'utf8'));
 export const getal = (v: number, dec = 1) => (Math.round(v * 10 ** dec) / 10 ** dec).toString().replace('.', ',');
 export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -81,10 +87,10 @@ export function iso5457(b: Blad) {
 }
 
 /** projectiesymbool Europese projectie (ISO 5456-2, eerste hoek): afgeknotte kegel links, cirkels rechts */
-export function projectieSymbool(b: Blad, sx: number, sy: number) {
-  b.lijn([sx, sy - 3], [sx + 9, sy - 1.5], 0.3); b.lijn([sx, sy + 3], [sx + 9, sy + 1.5], 0.3); b.lijn([sx, sy - 3], [sx, sy + 3], 0.3); b.lijn([sx + 9, sy - 1.5], [sx + 9, sy + 1.5], 0.3);
-  b.lijn([sx - 1.5, sy], [sx + 10.5, sy], 0.13, 'stroke-dasharray="3 0.8 0.6 0.8"');
-  b.cirkel([sx + 17, sy], 3, 0.3); b.cirkel([sx + 17, sy], 1.5, 0.3);
+export function projectieSymbool(b: Blad, sx: number, sy: number, k = 1) {
+  b.lijn([sx, sy - 3 * k], [sx + 9 * k, sy - 1.5 * k], 0.3); b.lijn([sx, sy + 3 * k], [sx + 9 * k, sy + 1.5 * k], 0.3); b.lijn([sx, sy - 3 * k], [sx, sy + 3 * k], 0.3); b.lijn([sx + 9 * k, sy - 1.5 * k], [sx + 9 * k, sy + 1.5 * k], 0.3);
+  b.lijn([sx - 1.5 * k, sy], [sx + 10.5 * k, sy], 0.13, 'stroke-dasharray="3 0.8 0.6 0.8"');
+  b.cirkel([sx + 17 * k, sy], 3 * k, 0.3); b.cirkel([sx + 17 * k, sy], 1.5 * k, 0.3);
 }
 
 export interface Titel { nr: string; naam: string; materiaal: string; maken: string; massa: string; schaal: string; blad: string; soort?: string }
@@ -120,9 +126,12 @@ export function kader(b: Blad, t: Titel, project: Project) {
   veld(X(0), 0, 'Opgesteld', 'Phlippo CAD', 2.3);
   veld(X(35), 0, 'Goedgekeurd', project.goedgekeurd ?? 'Ian', 2.3);
   veld(X(60), 0, 'Massa', t.massa, 2.3);
-  veld(X(105), 0, 'Maten en toleranties', 'mm · ISO 2768-m', 2.3);
+  veld(X(105), 0, 'Maten en toleranties', `mm · ${project.tolerantie ?? 'ISO 2768-m'}`, 2.3);
+  // het projectiesymbool (eerste hoek, ISO 5456-2) in zijn eigen vak, met het label erboven
   b.lijn([X(150), y0], [X(150), y0 + rh], 0.25);
-  projectieSymbool(b, X(154), y0 + 4.4);
+  b.tekst([X(151.2), y0 + rh - 2.2], 'Projectie: 1e hoek', 1.7, 'start', { kleur: '#555' });
+  projectieSymbool(b, X(157), y0 + 2.6, 0.7);
+  wijzigingsRegel(b, X(180), y0 + rh * 5, project);
 }
 
 /** smal titelblok (112 x 48 mm) met dezelfde velden van ISO 7200, voor een blad dat op ware grootte bijna vol staat (boormal) */
@@ -150,8 +159,9 @@ export function kaderSmal(b: Blad, t: Omit<Titel, 'massa' | 'materiaal' | 'maken
   veld(X(86), 2, 'Blad', t.blad, 2.4);
   veld(X(0), 1, 'Opgesteld', 'Phlippo CAD', 2.3);
   veld(X(40), 1, 'Goedgekeurd', project.goedgekeurd ?? 'Ian', 2.3);
-  veld(X(76), 1, 'Maten', 'mm', 2.3);
+  veld(X(76), 1, 'Maten', project.tolerantie ? `mm · ${project.tolerantie.replace('ISO ', '')}` : 'mm', 2.3);
   veld(X(0), 0, 'Normen', 'ISO 5457 · ISO 7200 · ISO 128 · ISO 129-1', 2.1);
+  wijzigingsRegel(b, X(w), y0 + rh * 6, project);
 }
 
 /** een aanzicht op het blad: lijnen, cirkels met hartlijnen, arcering; geeft het kader op het blad terug */
@@ -254,7 +264,7 @@ export function onderdeelBlad(d: Deel, blad: string, dir: string, project: Proje
   for (const r of d.maten) { ty -= 5.2; b.tekst([292, ty], r, 2.5); }
   // massa uit het volume
   const r = rebuildDocument(model) as unknown as { bodies: { geometry: THREE.BufferGeometry }[] };
-  const massa = meshVolume(r.bodies[0].geometry) * d.dichtheid * 1e-3; // mm³ -> cm³ -> g
+  const massa = r.bodies.reduce((a, q) => a + meshVolume(q.geometry), 0) * d.dichtheid * 1e-3; // mm³ -> cm³ -> g (alle lichamen)
   kader(b, { nr: d.nr, naam: d.naam, materiaal: d.materiaal, maken: d.maken, massa: `${getal(massa, 0)} g (massief)`, schaal: schaalTekst(schaal), blad }, project);
   return b.svg();
 }

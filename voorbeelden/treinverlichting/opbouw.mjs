@@ -173,9 +173,10 @@ export const MODULES = {
   // versie 6 fase B
   '-K7': pcaMod(true),
   '-T3': xl,
-  '-X12': wago('3V3'),
+  // Fable 5.2 E11: de 3,3 V naar de baan (ontvangers, reflexsensoren) achter de polyfuse -F20 (0,1 A): net B3V3
+  '-X12': wago('B3V3'),
   '-X13': wago('M'),
-  '-Q4': { ...mosfet('Q4', 0, (i) => `GPA${i}`, 'Q3D'), naam: '8-kanaals MOSFET-module met optocouplers (IR-leds kiezen)' },
+  '-Q4': (() => { const q = mosfet('Q4', 0, (i) => `GPA${i}`, 'Q3D'); return { ...q, naam: '8-kanaals MOSFET-module met optocouplers (IR-leds kiezen)', nets: { ...q.nets, VCC: 'B3V3' } }; })(),
   '-Q3': aod,
   '-K5': mcp('0x20'),
   '-K8': { ...mcp('0x21'), optioneel: true },
@@ -230,14 +231,87 @@ export function hindernissen() {
 /** wat in de linkerhelft geen module mag raken: de bordjes met hun draadzones (de draden komen uit de sleuf voor het
  *  bordje en gaan van voren in de klemstrook, de eindklemmen van opzij), de sleuven, de tules (links en vooraan), de
  *  sleutelgaten, de bussen en de naad (bodemlippen, kuiltjes) */
-export function hindernissenLinks(L) {
+export function hindernissenLinks(L, plat = false) {
   const B = M.bordje, D = M.doos, Z = D.binnen / 2, X = L.X, rt = D.invoer.gat / 2, ti = D.invoer.tule.l - D.invoer.tule.flens - D.wand + 0.3, SG = D.sleutelgat;
   const uit = [['naad (bodemlippen en haken)', N.x - 12, -Z, N.x + 1, Z]];
-  for (const d of L.rijen.flat().filter((q) => q.soort === 'bordje')) uit.push([`bordje ${d.nr} met draadzone`, d.cx - B.x / 2 - 8, d.cz - B.z / 2 - 2, d.cx + B.x / 2 + 8, d.cz + B.z / 2 + 10]);
+  // een plat oogje in de bodem (plat = true) houdt geen draad tegen: dan alleen het bordje met zijn klemmen (+ 1)
+  for (const d of L.rijen.flat().filter((q) => q.soort === 'bordje')) uit.push(plat ? [`bordje ${d.nr}`, d.cx - B.x / 2 - 1, d.cz - B.z / 2 - 1, d.cx + B.x / 2 + 1, d.cz + B.z / 2 + 1] : [`bordje ${d.nr} met draadzone`, d.cx - B.x / 2 - 8, d.cz - B.z / 2 - 2, d.cx + B.x / 2 + 8, d.cz + B.z / 2 + 10]);
   for (const s of L.bodem) uit.push(['draadsleuf', s[0], s[1], s[2], s[3]]);
   for (const t of L.tules) uit.push(t.wand === 'links' ? [`tule links ${t.c}`, -X, t.c - rt, -X + ti, t.c + rt] : [`tule voor ${t.c}`, t.c - rt, Z - ti, t.c + rt, Z]);
   for (const [x, z] of L.sleutelgaten) uit.push([`sleutelgat ${z.toFixed(1)}`, x - SG.kop / 2, z - SG.kop / 2, x + SG.kop / 2, z + SG.slag + 4]);
   for (const [x, z] of L.bussen) uit.push(['bus', x - D.bus.r, z - D.bus.r, x + D.bus.r, z + D.bus.r]);
+  return uit;
+}
+
+// ---------------------------------------------------------------- oogjes voor kabelbinders (Fable 5.2 D2/D8)
+/** de voetafdruk van een module zoals de controle hem ziet: met de klempaaltjes (MCP23017) */
+function voetMetPalen(r) {
+  const f = voetafdruk(r);
+  if (!MODULES[r].klem) return f;
+  const g = gatenDoos(r);
+  return [Math.min(f[0], ...g.map((q) => q[0] - 3)), Math.min(f[1], ...g.map((q) => q[1] - 3)), Math.max(f[2], ...g.map((q) => q[0] + 3)), Math.max(f[3], ...g.map((q) => q[1] + 3))];
+}
+/** de rechthoek [x0, z0, x1, z1] van een oogje met midden (x, z); as = de richting van sleuf naar sleuf */
+export function oogRect(x, z, as) {
+  const O = M.oog, l = 2 * O.sleuf.l + O.brug, b = O.sleuf.b;
+  return as === 'x' ? [x - l / 2, z - b / 2, x + l / 2, z + b / 2] : [x - b / 2, z - l / 2, x + b / 2, z + l / 2];
+}
+/** de 2 sleuven van een oogje (door de bodem): [x0, z0, x1, z1]; het kanaal eronder is de hele rechthoek */
+export function oogSleuven(o) {
+  const [x0, z0, x1, z1] = o.rect, l = M.oog.sleuf.l;
+  return o.as === 'x' ? [[x0, z0, x0 + l, z1], [x1 - l, z0, x1, z1]] : [[x0, z0, x1, z0 + l], [x0, z1 - l, x1, z1]];
+}
+const raakt = (a, b, m) => a[0] < b[2] + m && b[0] < a[2] + m && a[1] < b[3] + m && b[1] < a[3] + m;
+/** de modules met dupont (pinnen) die een oogje krijgen */
+export const MET_DUPONT = () => Object.keys(MODULES).filter((q) => !MODULES[q].optioneel && MODULES[q].klemmen.some((k) => k.soort === 'pin'));
+let oogCache;
+/**
+ * De oogjes voor een kabelbinder in de bodem (trekontlasting, Fable 5.2 D2/D8): eerst één bij elke module met dupont
+ * (zo dicht mogelijk bij haar pinnen), dan één bij elke tule aan de binnenkant (zo dicht mogelijk vóór de tule, de sleuven
+ * evenwijdig met de wand: de binder gaat om de kabel die uit de tule komt). Elk oogje 0,3 vrij van de modules (de
+ * WAGO-klemmen met hun klikhouder), van de bordjes met hun klemmen, de sleuven, tules, sleutelgaten, bussen, pilaren,
+ * de houder van de leerontvanger en de naad, en 1 vrij van een ander oogje. Geeft [{ bij, helft, x, z, as, rect }]
+ * (L = indeling() van de linkerhelft).
+ */
+export function oogjes(L) {
+  if (oogCache?.L === L) return oogCache.uit;
+  const D = M.doos, Z = D.binnen / 2, X = L.X, ti = D.invoer.tule.l - D.invoer.tule.flens - D.wand + 0.3, b = M.oog.sleuf.b;
+  const refs = Object.keys(MODULES), v = Object.fromEntries(refs.map((r) => [r, voetMetPalen(r)]));
+  const vast = { links: hindernissenLinks(L, true).map((h) => h.slice(1)), rechts: hindernissen().map((h) => h.slice(1)) };
+  for (const r of refs) vast[helft(r)].push(MODULES[r].wago ? [v[r][0] - 1.4, v[r][1] - 1.4, v[r][2] + 1.4, v[r][3] + 1.4] : v[r]);
+  const T = M.tsmp;
+  vast.rechts.push([T.x - T.blok[0] / 2, Z - T.blok[1], T.x + T.blok[0] / 2, Z]);
+  const binnen = { links: [-X, N.x], rechts: [N.x + N.spleet, R.x1] }, uit = [];
+  const vrij = (h, rc) => rc[0] >= binnen[h][0] + 0.3 && rc[2] <= binnen[h][1] - 0.3 && rc[1] >= -Z + 0.3 && rc[3] <= Z - 0.3
+    && !vast[h].some((q) => raakt(rc, q, 0.3)) && !uit.some((o) => raakt(rc, o.rect, 1.0));
+  /** het vrije oogje het dichtst bij (ax, az): een raster van 0,5 rond het anker; as: de voorkeur (de andere kost 3) */
+  const zoek = (bij, h, ax, az, voorkeur, straal) => {
+    let best = null;
+    for (let dx = -straal; dx <= straal; dx += 0.5) for (let dz = -straal; dz <= straal; dz += 0.5) for (const as of ['x', 'z']) {
+      const kost = Math.hypot(dx, dz) + (as === voorkeur ? 0 : 3);
+      if (best && kost >= best.kost) continue;
+      const rc = oogRect(ax + dx, az + dz, as);
+      if (vrij(h, rc)) best = { kost, bij, helft: h, x: ax + dx, z: az + dz, as, rect: rc };
+    }
+    if (best) { delete best.kost; uit.push(best); }
+    return best;
+  };
+  // de modules met dupont: het anker is het midden van de pinnen, de voorkeur de as langs de langste kant
+  for (const r of MET_DUPONT()) {
+    const p = MODULES[r].klemmen.filter((k) => k.soort === 'pin').map((k) => naarDoos(r, k.x, k.z));
+    const ax = p.reduce((a, q) => a + q[0], 0) / p.length, az = p.reduce((a, q) => a + q[1], 0) / p.length, f = v[r];
+    zoek(r, helft(r), ax, az, f[2] - f[0] > f[3] - f[1] ? 'x' : 'z', 60);
+  }
+  // de tules: het anker net vóór de tule (de binnenkant van het lijf + 0,3 + een halve breedte)
+  const nd = ti + 0.3 + b / 2;
+  const tules = [
+    ...L.tules.map((t) => ({ h: 'links', t, p: t.wand === 'links' ? [-X + nd, t.c] : [t.c, Z - nd], as: t.wand === 'links' ? 'z' : 'x' })),
+    ...R.tules.voor.map((c) => ({ h: 'rechts', t: { wand: 'voor', c }, p: [c, Z - nd], as: 'x' })),
+    ...R.tules.achter.map((c) => ({ h: 'rechts', t: { wand: 'achter', c }, p: [c, -Z + nd], as: 'x' })),
+    ...R.tules.rechts.map((c) => ({ h: 'rechts', t: { wand: 'rechts', c }, p: [R.x1 - nd, c], as: 'z' })),
+  ];
+  for (const q of tules) zoek(`tule ${q.t.wand} ${Math.round(q.t.c)}`, q.h, q.p[0], q.p[1], q.as, 30);
+  oogCache = { L, uit };
   return uit;
 }
 
@@ -272,8 +346,8 @@ export function klem(ref, naam) {
 const gpioKlem = (g) => { const i = J1.indexOf(String(g)); if (i >= 0) return ['-X6', `J1:${i + 1}`]; const j = J3.indexOf(String(g)); return ['-X6', `J3:${j + 1}`]; };
 export const DRADEN = [
   // voeding
-  { van: ['-X5', '+'], naar: ['-F1', 'in'], net: 'J+', mm2: 0.75, kleur: 'rood', wat: '12 V van de DC-bus (pen = +) naar de zekeringhouder (gesoldeerd aan de bus)' },
-  { van: ['-F1', 'uit'], naar: ['-X1a', '1'], net: 'L+', mm2: 0.75, kleur: 'rood', wat: 'L+ na de hoofdzekering 7,5 A' },
+  { van: ['-X5', '+'], naar: ['-F1', 'in'], net: 'J+', mm2: 0.75, kleur: 'rood', wat: '12 V van de DC-bus (pen = +, gesoldeerd) naar de zekeringhouder -F1 in de achterwand (vlaksteker 4,8)' },
+  { van: ['-F1', 'uit'], naar: ['-X1a', '1'], net: 'L+', mm2: 0.75, kleur: 'rood', wat: 'L+ na de hoofdzekering T 8 A (5 x 20, in de achterwand)' },
   { van: ['-X5', '−'], naar: ['-X2a', '1'], net: 'M', mm2: 0.75, kleur: 'zwart', wat: '0 V van de DC-bus (huls = −, gesoldeerd)' },
   { van: ['-X1a', '5'], naar: ['-X1b', '1'], net: 'L+', mm2: 0.75, kleur: 'rood', wat: 'brug L+ (2 WAGO-klemmen samen)' },
   { van: ['-X2a', '5'], naar: ['-X2b', '1'], net: 'M', mm2: 0.75, kleur: 'zwart', wat: 'brug 0 V' },
@@ -309,19 +383,19 @@ export const DRADEN = [
   ...Array.from({ length: 16 }, (_, k) => ({ van: [k < 8 ? '-K3' : '-K4', `OUT${(k % 8) + 1}`], naar: gpioKlem(INGANG_GPIO[k]), net: `IN${k + 1}`, mm2: 0.14, kleur: 'grijs', wat: `ingang ${k + 1} naar GPIO${INGANG_GPIO[k]}` })),
   // ---- versie 6 fase B: servoprint, servovoeding, IR-driver, MCP23017, leerontvanger
   // de servoprint aan de lichtprint geregen (dupont van de pinnen rechts van -K2 naar links van -K7; V+ niet)
-  ...['GND', 'OE', 'SCL', 'SDA', 'VCC'].map((n) => ({ van: ['-K2', `R:${n}`], naar: ['-K7', `L:${n}`], net: PCA_NET[n], mm2: 0.14, kleur: { GND: 'zwart', OE: 'blauw', SCL: 'groen', SDA: 'geel', VCC: 'oranje' }[n], wat: `${n} van de lichtprint naar de servoprint (dupont)` })),
+  // Fable 5.2 E17: geen GND-dupont: de 0 V van de servoprint komt via -T3 (de servostroom niet door de dunne draad)
+  ...['OE', 'SCL', 'SDA', 'VCC'].map((n) => ({ van: ['-K2', `R:${n}`], naar: ['-K7', `L:${n}`], net: PCA_NET[n], mm2: 0.14, kleur: { GND: 'zwart', OE: 'blauw', SCL: 'groen', SDA: 'geel', VCC: 'oranje' }[n], wat: `${n} van de lichtprint naar de servoprint (dupont)` })),
   // de MCP23017 in de linkerhelft aan de servoprint (2 dupontkabels van 30 cm aan elkaar, over de naad)
   ...['GND', 'SCL', 'SDA', 'VCC'].map((n) => ({ van: ['-K7', `R:${n}`], naar: ['-K5', n], net: PCA_NET[n], mm2: 0.14, kleur: { GND: 'zwart', SCL: 'groen', SDA: 'geel', VCC: 'oranje' }[n], wat: `${n} naar de MCP23017 (2 dupontkabels van 30 cm aan elkaar, over de naad)` })),
-  // de servovoeding: L+ door -F19 (3 A) naar de XL4015, 5,5 V naar de schroefklem V+ van de servoprint
-  { van: ['-X1b', '4'], naar: ['-F19', 'in'], net: 'L+', mm2: 0.75, kleur: 'rood', wat: 'L+ naar de zekeringhouder van de servo\'s (3 A)' },
+  // de servovoeding: L+ door -F19 (T 3,15 A) naar de XL4015, 5,5 V naar de schroefklem V+ van de servoprint
+  { van: ['-X1b', '4'], naar: ['-F19', 'in'], net: 'L+', mm2: 0.75, kleur: 'rood', wat: 'L+ naar de zekeringhouder -F19 van de servo\'s (T 3,15 A, in de achterwand)' },
   { van: ['-F19', 'uit'], naar: ['-T3', 'IN+'], net: 'L19', mm2: 0.75, kleur: 'rood', wat: '12 V na -F19 naar de regelaar van de servo\'s' },
   { van: ['-X2b', '4'], naar: ['-T3', 'IN−'], net: 'M', mm2: 0.75, kleur: 'zwart', wat: '0 V naar de regelaar van de servo\'s' },
   { van: ['-T3', 'OUT+'], naar: ['-K7', 'V+t'], net: 'V6', mm2: 0.75, kleur: 'rood', wat: '5,5 V voor de servo\'s (eerst instellen!)' },
   { van: ['-T3', 'OUT−'], naar: ['-K7', 'GNDt'], net: 'M', mm2: 0.75, kleur: 'zwart', wat: '0 V voor de servo\'s' },
   // 3,3 V en 0 V voor de IR-driver en de ontvangers op de baan (-X12, -X13; klem 3..5 naar de ontvangers -B2..-B4)
-  { van: ['-X7', '5'], naar: ['-X12', '1'], net: '3V3', mm2: 0.25, kleur: 'oranje', wat: '3,3 V naar de verdeelklem van de uitbreiding' },
   { van: ['-X2b', '2'], naar: ['-X13', '1'], net: 'M', mm2: 0.5, kleur: 'zwart', wat: '0 V naar de verdeelklem van de uitbreiding' },
-  { van: ['-X12', '2'], naar: ['-Q4', 'VCC'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V ingangskant IR-driver (over de naad)' },
+  { van: ['-X12', '2'], naar: ['-Q4', 'VCC'], net: 'B3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V ingangskant IR-driver (over de naad)' },
   { van: ['-X13', '2'], naar: ['-Q4', 'GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V ingangskant IR-driver (over de naad)' },
   // de IR-driver: L+ voor de IR-leds (via de klemmen n+), VIN− door de AOD4184 naar 0 V, de draaggolf van GPIO47
   { van: ['-X1b', '5'], naar: ['-Q4', 'VIN+'], net: 'L+', mm2: 0.5, kleur: 'rood', wat: '12 V voor de IR-leds (over de naad)' },
@@ -341,7 +415,8 @@ export const IN_KLEMMEN = [
   { ref: '-R1', wat: 'weerstand 1 kΩ 0,25 W (pull-up van OE)', a: ['-X6', 'J1:1'], b: gpioKlem(10) },
   { ref: '-R2', wat: 'Schottkydiode SB560 (ompoolbeveiliging): kathode (ring) aan L+, anode aan 0 V', a: ['-X1b', '3'], b: ['-X2b', '3'] },
   { ref: '-F18', wat: 'polyfuse Bourns MF-R050 (knoppen en sensoren)', a: ['-X1b', '2'], b: ['-X3', '1'] },
-  { ref: '-C5', wat: 'elco 1000 µF 10 V (servovoeding): + aan V+, − aan GND van de servoprint', a: ['-K7', 'V+t'], b: ['-K7', 'GNDt'] },
+  { ref: '-C5', wat: 'elco 1000 µF 25 V (servovoeding): + aan V+, − aan GND van de servoprint', a: ['-K7', 'V+t'], b: ['-K7', 'GNDt'] },
+  { ref: '-F20', wat: 'polyfuse 0,1 A (Bourns MF-R010): de 3,3 V naar de baan (Fable 5.2 E11)', a: ['-X7', '5'], b: ['-X12', '1'] },
 ];
 
 /** de draden van de groepen en de ingangen (naar de bordjes en de baan; de labels uit de README) */
@@ -408,8 +483,15 @@ export function controleerAlles(Llinks) {
       for (const k of m.klemmen) if (k.soort !== 'pin' && Math.abs(k.x - gx) < 2.5 + m.gat / 2 - 0.01 && Math.abs(k.z - gz) < 3.75 + m.gat / 2) fout.push(`${r}: gat (${gx}, ${gz}) onder klem ${k.naam}`);
     }
   }
+  // de oogjes voor de kabelbinders (Fable 5.2 D2/D8): één bij elke tule en bij elke module met dupont, vrij van de modules
+  if (Llinks) {
+    const og = oogjes(Llinks), nt = Llinks.tules.length + R.tules.voor.length + R.tules.achter.length + R.tules.rechts.length, bt = og.filter((o) => o.bij.startsWith('tule')).length;
+    if (bt !== nt) fout.push(`oogjes: ${bt} bij de tules in plaats van ${nt}`);
+    for (const r of MET_DUPONT()) if (!og.some((o) => o.bij === r)) fout.push(`geen oogje bij ${r}`);
+    for (const o of og) for (const r of refs) if (helft(r) === o.helft && raakt(o.rect, v[r], 0.3 - 1e-9)) fout.push(`oogje bij ${o.bij} onder ${r}`);
+  }
   // de elementen in de klemmen op hun net
-  const want = { '-R1': ['3V3', 'GPIO10'], '-R2': ['L+', 'M'], '-F18': ['L+', 'S12'], '-C5': ['V6', 'M'] };
+  const want = { '-R1': ['3V3', 'GPIO10'], '-R2': ['L+', 'M'], '-F18': ['L+', 'S12'], '-C5': ['V6', 'M'], '-F20': ['3V3', 'B3V3'] };
   for (const x of IN_KLEMMEN) { const n = [eindNet(x.a), eindNet(x.b)]; if (n.join() !== want[x.ref].join()) fout.push(`${x.ref} zit op ${n.join(' en ')}`); }
   // elke groep heeft een + (L+) en een − (drain), elke ingang een klem
   for (const g of GROEPEN) { if (eindNet(g.plus) !== 'L+') fout.push(`groep ${g.groep}: + niet op L+`); if (!/D\d$/.test(eindNet(g.min))) fout.push(`groep ${g.groep}: − niet op een drain`); }

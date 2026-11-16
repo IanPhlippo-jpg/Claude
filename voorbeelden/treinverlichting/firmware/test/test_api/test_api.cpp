@@ -553,7 +553,7 @@ void test_bus_en_punt() {
                           R"({"actie":"wissen","nr":5})", R"({"actie":"rijden"})"};
   for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, roep(apiBus, b, f).code, f);
   // punten
-  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P3","ingang":5,"volgende":"P4"})").code);
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P3","ingang":5,"volgende":"P4","alleenBus":true})").code);
   TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P4","ontvanger":2,"volgende":"P3"})").code);
   TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P4","soort":"ftr"})").code); // bijwerken: bron blijft
   TEST_ASSERT_EQUAL(1, b.cfg.punt[1].ontvanger);
@@ -721,23 +721,117 @@ void test_kastjes() {
 
 void test_ingang_polariteit_api() {
   Baan b;
+  // E3, negatieve proef: standaard is elke print "vcc" (gemeenschappelijke VCC): pnp kan daar niet
+  Antwoord a = ingang(b, R"({"nr":5,"polariteit":"pnp"})");
+  TEST_ASSERT_EQUAL(400, a.code);
+  TEST_ASSERT_TRUE(a.json.find("PNP kan niet") != std::string::npos);
+  TEST_ASSERT_EQUAL(POL_NPN, b.cfg.ingang[4].polariteit);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"groep":3,"polariteit":"pnp"})").code);
+  // print 1 "gnd", print 3 "apart": dan wel
+  TEST_ASSERT_EQUAL(200, inst(b, R"({"printSoort":["gnd","vcc","apart"]})").code);
   TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":5,"polariteit":"pnp"})").code);
   TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[4].polariteit);
-  TEST_ASSERT_EQUAL(200, ingang(b, R"({"groep":3,"polariteit":"pnp"})").code);
-  for (int i = 16; i < 24; i++) TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[i].polariteit);
-  TEST_ASSERT_EQUAL(POL_NPN, b.cfg.ingang[24].polariteit);
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"groep":3,"polariteit":"pnp"})").code); // print 3 = ingang 17..23
+  for (int i = 16; i < 23; i++) TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[i].polariteit);
+  TEST_ASSERT_EQUAL(POL_NPN, b.cfg.ingang[23].polariteit); // ingang 24 bestaat niet (E7)
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":12,"polariteit":"pnp"})").code); // print 2 bleef "vcc"
+  // print 1 terug naar "vcc" terwijl ingang 5 pnp is: geweigerd, met de ingang in de uitleg
+  a = inst(b, R"({"printSoort":["vcc"]})");
+  TEST_ASSERT_EQUAL(400, a.code);
+  TEST_ASSERT_TRUE(a.json.find("ingang 5") != std::string::npos);
+  TEST_ASSERT_EQUAL(PRINT_GND, b.cfg.inst.printSoort[0]);
+  // de tweede MCP23017: print 4 = 25..31, print 5 = 32..38
+  TEST_ASSERT_EQUAL(200, inst(b, R"({"printSoort":["gnd","vcc","apart","vcc","gnd"]})").code);
   TEST_ASSERT_EQUAL(200, ingang(b, R"({"groep":5,"polariteit":"pnp"})").code);
-  TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[39].polariteit);
-  TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":40,"naam":"Reflex 4","soort":"puls"})").code);
+  TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[31].polariteit);
+  TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[37].polariteit);
+  TEST_ASSERT_EQUAL(POL_NPN, b.cfg.ingang[30].polariteit);
+  TEST_ASSERT_EQUAL(POL_NPN, b.cfg.ingang[38].polariteit);
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":38,"naam":"Reflex 4","soort":"puls"})").code);
   const char *fouten[] = {R"({"nr":5,"polariteit":"PNP"})", R"({"groep":6,"polariteit":"pnp"})",
                           R"({"groep":1})", R"({"nr":5,"polariteit":1})"};
   for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, ingang(b, f).code, f);
+  const char *ifouten[] = {R"({"printSoort":"gnd"})", R"({"printSoort":[]})", R"({"printSoort":["GND"]})",
+                           R"({"printSoort":["vcc","vcc","vcc","vcc","vcc","vcc"]})", R"({"irDuty":40})",
+                           R"({"irDuty":"50"})", R"({"irLedActiefLaag":1})"};
+  for (const char *f : ifouten) TEST_ASSERT_EQUAL_MESSAGE(400, inst(b, f).code, f);
+  TEST_ASSERT_EQUAL(200, inst(b, R"({"irDuty":50,"irLedActiefLaag":false})").code);
   JsonDocument d = lees(apiStaat(b, 0, false));
   TEST_ASSERT_EQUAL_STRING("pnp", d["ingangen"][4]["polariteit"]);
   TEST_ASSERT_EQUAL_STRING("npn", d["ingangen"][0]["polariteit"]);
   TEST_ASSERT_TRUE(d["ingangen"][16]["aanwezig"].as<bool>());
+  TEST_ASSERT_TRUE(d["ingangen"][22]["aanwezig"].as<bool>());
+  TEST_ASSERT_FALSE(d["ingangen"][23]["aanwezig"].as<bool>()); // ingang 24 (GPB7) bestaat niet
   TEST_ASSERT_FALSE(d["ingangen"][30]["aanwezig"].as<bool>()); // geen tweede MCP23017
-  TEST_ASSERT_EQUAL_STRING("Reflex 4", d["ingangen"][39]["naam"]);
+  TEST_ASSERT_EQUAL_STRING("Reflex 4", d["ingangen"][37]["naam"]);
+  TEST_ASSERT_EQUAL_STRING("gnd", d["instellingen"]["printSoort"][0]);
+  TEST_ASSERT_EQUAL_STRING("apart", d["instellingen"]["printSoort"][2]);
+  TEST_ASSERT_EQUAL(5, (int)d["instellingen"]["printSoort"].size());
+  TEST_ASSERT_EQUAL(50, d["instellingen"]["irDuty"].as<int>());
+  TEST_ASSERT_FALSE(d["instellingen"]["irLedActiefLaag"].as<bool>());
+  TEST_ASSERT_TRUE(d["pnpOmkeren"].isNull());
+}
+
+// E3: print "gnd" met een npn-sensor (pull-up naar S12): in rust geleidt de optocoupler (pin laag) = NIET actief;
+// de sensor trekt IN naar 0 V, de optocoupler spert (pin hoog) = actief. Negatieve proef: dezelfde lezing op een print
+// "vcc" geeft het omgekeerde.
+void test_printsoort_keert_npn_om_op_gnd() {
+  Baan b;
+  b.cfg.ingang[2].soort = SOORT_CONTACT;
+  // print "vcc": pin laag = actief
+  for (uint32_t t = 0; t <= 100; t += 5) b.tick(t, 0);
+  for (uint32_t t = 105; t <= 200; t += 5) b.tick(t, ingangBit(2));
+  TEST_ASSERT_TRUE(b.ingangen.t[2].actief);
+  // naar "gnd": de ingang begint opnieuw (de huidige lezing is rust), dan keert de Baan hem om
+  TEST_ASSERT_EQUAL(200, inst(b, R"({"printSoort":["gnd"]})").code);
+  TEST_ASSERT_TRUE(b.omkeerMasker() & ingangBit(2));
+  for (uint32_t t = 205; t <= 300; t += 5) b.tick(t, ingangBit(2)); // in rust: optocoupler geleidt
+  TEST_ASSERT_FALSE(b.ingangen.t[2].actief);
+  for (uint32_t t = 305; t <= 400; t += 5) b.tick(t, 0);            // de sensor schakelt
+  TEST_ASSERT_TRUE(b.ingangen.t[2].actief);
+  // pnp op "gnd" of "apart": niets omkeren
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":3,"polariteit":"pnp"})").code);
+  TEST_ASSERT_FALSE(b.omkeerMasker() & ingangBit(2));
+  TEST_ASSERT_EQUAL(200, inst(b, R"({"printSoort":["apart"]})").code);
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":3,"polariteit":"npn"})").code);
+  TEST_ASSERT_EQUAL(0, (int)(b.omkeerMasker() & 0xFF));
+}
+
+// F6: toegang voor wijzigingen
+void test_toegang_f6() {
+  const char *ww = "treinbaan";
+  TEST_ASSERT_EQUAL(0, toegang("192.168.4.23", "", "", "192.168.4.1", "", ww));          // hotspot
+  TEST_ASSERT_EQUAL(0, toegang("192.168.4.23", "", "http://192.168.4.1", "192.168.4.1", "", ww));
+  TEST_ASSERT_EQUAL(401, toegang("192.168.1.30", "", "", "treinbaan.local", "192.168.1.50", ww)); // thuisnet
+  TEST_ASSERT_EQUAL(401, toegang("192.168.1.30", "fout", "", "treinbaan.local", "192.168.1.50", ww));
+  TEST_ASSERT_EQUAL(0, toegang("192.168.1.30", ww, "http://treinbaan.local", "treinbaan.local", "192.168.1.50", ww));
+  TEST_ASSERT_EQUAL(0, toegang("192.168.1.30", ww, "http://192.168.1.50", "192.168.1.50", "192.168.1.50", ww));
+  // een andere webpagina (CSRF): ook vanaf de hotspot en ook met het wachtwoord geweigerd
+  TEST_ASSERT_EQUAL(403, toegang("192.168.4.23", "", "http://kwaad.example", "192.168.4.1", "", ww));
+  TEST_ASSERT_EQUAL(403, toegang("192.168.1.30", ww, "null", "treinbaan.local", "192.168.1.50", ww));
+  TEST_ASSERT_EQUAL(403, toegang("192.168.1.30", ww, "https://treinbaan.local.example", "treinbaan.local", "", ww));
+  TEST_ASSERT_EQUAL(401, geweigerd(401).code);
+  TEST_ASSERT_EQUAL(403, geweigerd(403).code);
+}
+
+// Q1: de JSON van GET /api/zelftest
+void test_zelftest_json() {
+  ZelftestHw z;
+  z.i2c[0] = z.i2c[2] = z.i2c[4] = true;
+  z.pcaTerug = z.mcp1 = z.servo = z.fs = true;
+  z.pcaGeschreven = z.pcaGelezen = 0x0005;
+  z.stapelLicht = 3120;
+  z.wifiClients = 2;
+  JsonDocument d = lees(apiZelftest(z));
+  TEST_ASSERT_TRUE(d["ok"].as<bool>());
+  TEST_ASSERT_EQUAL(5, (int)d["i2c"].size());
+  TEST_ASSERT_EQUAL_STRING("0x42", d["i2c"][4]["adres"]);
+  TEST_ASSERT_FALSE(d["i2c"][1]["gevonden"].as<bool>());
+  TEST_ASSERT_EQUAL(3120, d["stapelVrij"]["licht"].as<int>());
+  TEST_ASSERT_EQUAL(2, d["wifiClients"].as<int>());
+  z.pcaTerug = false;
+  d = lees(apiZelftest(z));
+  TEST_ASSERT_FALSE(d["ok"].as<bool>());
 }
 
 void test_plan_en_hulp() {
@@ -783,6 +877,9 @@ int main() {
   RUN_TEST(test_halte_api_fouten);
   RUN_TEST(test_kastjes);
   RUN_TEST(test_ingang_polariteit_api);
+  RUN_TEST(test_printsoort_keert_npn_om_op_gnd);
+  RUN_TEST(test_toegang_f6);
+  RUN_TEST(test_zelftest_json);
   RUN_TEST(test_plan_en_hulp);
   return UNITY_END();
 }

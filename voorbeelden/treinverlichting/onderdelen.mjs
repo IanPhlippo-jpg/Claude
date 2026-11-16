@@ -232,6 +232,21 @@ export function dcBus() {
   return o.doc();
 }
 
+/** zekeringhouder 5 x 20 voor paneelmontage (Fable 5.2 D9): oorsprong op de buitenkant van de wand, langs +X naar buiten:
+ *  flens en kap buiten, het lijf met de 2 vlaksteeklippen naar binnen */
+export function zekeringhouder() {
+  const Z = M.zekering, o = deel('Zekeringhouder 5 x 20 paneelmontage', { name: 'PA, zwart', density: 1150, color: '#1d1f22' });
+  o.schets(vlak('f1', 'Plane flens', [0, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([0, 0, 0], Z.flens / 2));
+  o.extrude('boss', Z.flensDik, { naam: 'Flens' });
+  o.schets(vlak('f2', 'Plane kap', [Z.flensDik - 0.01, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([Z.flensDik - 0.01, 0, 0], Z.kap / 2));
+  o.extrude('boss', Z.kapL, { naam: 'Kap' });
+  o.schets(vlak('f3', 'Plane lijf', [0.01, 0, 0], [-1, 0, 0], 'reference'), (s) => s.cirkelW([0.01, 0, 0], Z.lijf / 2 - 0.05));
+  o.extrude('boss', Z.lijfL, { naam: 'Lijf' });
+  const xl = -Z.lijfL;
+  blokken(o, [[xl - Z.lip, -2.4, -2.6, xl + 0.01, 2.4, -2.2], [xl - Z.lip, -2.4, 2.2, xl + 0.01, 2.4, 2.6]], 'Vlaksteeklippen');
+  return o.doc();
+}
+
 // ---------------------------------------------------------------- assemblage
 /** verzonken schroef (90°): oorsprong boven op de kop, schacht langs -Y */
 export function schroefVerzonken(naam, d, kern, L) {

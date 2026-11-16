@@ -7,6 +7,9 @@
 // Spelen, stoppen en hernoemen gaan als HTTP-opdracht naar het kastje: de Baan zet ze in een rij (hoogstens 8), een
 // aparte taak in main.cpp stuurt ze (POST http://<ip>/speel {"geluid":"klok.wav","volume":80}, /stop, /naam).
 // Een kastje zoeken gaat op naam (hoofdletters tellen niet) of op id.
+// Firmware 2.1.0 (Fable 5.2, F16): één taak stuurt de opdrachten na elkaar, met een time-out van 400 ms (was 1,5 s).
+// Antwoordt een kastje niet, dan is het meteen offline (offlineIp) en vallen zijn andere opdrachten in de rij weg:
+// één kastje dat net uit staat, vertraagt de geluiden van de andere niet meer. De volgende aanmelding zet het terug.
 #pragma once
 #include <ArduinoJson.h>
 #include <ctype.h>
@@ -21,6 +24,7 @@ namespace trein {
 
 constexpr int MAX_KASTJES = 8, MAX_GELUIDEN = 24, KASTJE_ID_LEN = 16, IP_LEN = 16, KASTJE_VERSIE_LEN = 12;
 constexpr uint32_t KASTJE_ONLINE_MS = 90000;
+constexpr uint32_t KASTJE_TIMEOUT_MS = 400; // F16
 constexpr int MAX_HTTP_RIJ = 8, HTTP_PAD_LEN = 12, HTTP_BODY_LEN = 112;
 
 /** bestandsnaam van een geluid: 1..31 tekens, letters, cijfers, spatie, _ - . (geen / of ") */
@@ -73,6 +77,7 @@ struct Kastje {
   uint8_t nGeluiden = 0;
   Geluid geluid[MAX_GELUIDEN];
   uint32_t gezienMs = 0;
+  bool fout = false; // F16: antwoordde niet op een opdracht (offline tot de volgende aanmelding)
 };
 
 struct HttpOpdracht {
@@ -85,7 +90,21 @@ class Kastjes {
  public:
   Kastje k[MAX_KASTJES];
 
-  bool online(int i, uint32_t nu) const { return k[i].gebruikt && nu - k[i].gezienMs < KASTJE_ONLINE_MS; }
+  bool online(int i, uint32_t nu) const { return k[i].gebruikt && !k[i].fout && nu - k[i].gezienMs < KASTJE_ONLINE_MS; }
+
+  /** het kastje op dit IP antwoordde niet: offline, en zijn andere opdrachten uit de rij (F16). Geeft hoeveel weg. */
+  int offlineIp(const char *ip) {
+    for (int i = 0; i < MAX_KASTJES; i++)
+      if (k[i].gebruikt && strcmp(k[i].ip, ip) == 0) k[i].fout = true;
+    int w = 0, weg = 0;
+    for (int r = 0; r < nRij_; r++) {
+      if (strcmp(rij_[r].ip, ip) == 0) { weg++; continue; }
+      if (w != r) rij_[w] = rij_[r];
+      w++;
+    }
+    nRij_ = w;
+    return weg;
+  }
 
   int zoek(const char *naamOfId) const {
     if (!naamOfId || !naamOfId[0]) return -1;

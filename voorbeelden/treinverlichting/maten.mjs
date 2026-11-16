@@ -27,8 +27,8 @@ export const M = {
   // de naad tussen de helften (Ian, 2026-11-15: "De doos moet in elkaar kunnen klikken en nog kunnen lijmen"): het naadvlak
   // van de linkerhelft op x = 110, de rechterhelft begint 0,2 verder (lijmspleet, overal 0,2). Alles print rechtop zonder
   // support: alleen staande vlakken en 45° (docs/Berekeningen.md, hoofdstuk "Naad").
-  //  - lippen: 5 bodemlippen van de rechterhelft (16 breed, 5 lang) in uitsparingen in de bodem van de linkerhelft (0,2
-  //    rondom): uitlijnen in Z en lijmvlak;
+  //  - lippen: 5 bodemlippen van de rechterhelft (16 breed, 5 lang) in uitsparingen in de bodem van de linkerhelft (0,3
+  //    rondom, Fable 5.2 D1: PETG krimpt 0,3 tot 0,5 %, over de 230 mm van een helft tot 1 mm): uitlijnen in Z en lijmvlak;
   //  - haken: 2 klikhaken (achter en voor) van de rechterhelft, 14 lang en 1,6 dik, langs de binnenkant van de wand van de
   //    linkerhelft; onderkant 45° (print zonder support); een nok van 0,6 klikt in een kuiltje van 0,8 in de wand
   //    (inklikken: de haak buigt 0,6 naar binnen); bovenkant 26;
@@ -38,7 +38,7 @@ export const M = {
   //    is), in 4 vingers met een nok van 0,5 die in een groef van 0,6 klikt; de linkerhelft print met de buitenkant op het
   //    bed, de rechterhelft met de binnenkant op het bed (zo liggen lip en sponning allebei op het bed of erboven)
   naad: { x: 110, spleet: 0.2,
-    lip: { l: 5, b: 16, z: [-92, -52, -12, 28, 58] },
+    lip: { l: 5, b: 16, speling: 0.3, z: [-92, -52, -12, 28, 58] },
     haak: { l: 14, t: 1.6, top: 26, kuil: 0.8, nok: { d: 0.6, ramp: 1.2, l: 3.0, y0: 15, y1: 25 } },
     pilaar: { l: 9.8, d: 7.0 },
     deksel: { x: 112, lap: 12, buiten: 1.6, lip: 1.4, sleuven: [-111, -55.5, 0, 55.5, 111], sleuf: 1.5, nok: { h: 0.5, ramp: 1.2, l: 2.0, b: 20 }, groef: 0.6 } },
@@ -60,6 +60,11 @@ export const M = {
   // DC-chassisbus 5,5 x 2,5 (GlobTek JACK-L-PANEL-8A(R), 50 V / 8 A): flens Ø12,5 x 2,0, lijf 14,4 achter de flens,
   // soldeerlippen 9,7, moer 14 sleutelwijdte; draad afgelezen Ø11,3 -> gat Ø11,5 (AANNAME, na te meten); versie 5: in de
   // achterwand van de rechterhelft boven de WAGO-klemmen (x 223, y 26)
+  // Fable 5.2 D9: de 2 zekeringen (-F1 hoofdzekering, -F19 servo's) in een zekeringhouder 5 x 20 voor paneelmontage in de
+  // achterwand naast de DC-bus: van buiten te vervangen zonder de doos los te maken. Gat Ø12,5, flens Ø16 x 2 en kap Ø12
+  // x 12 buiten, lijf Ø12 x 24 binnen met 2 vlaksteeklippen 4,8 (AANNAME: gangbare houder, na te meten), op y 26 boven
+  // de WAGO-klemmen
+  zekering: { gat: 12.5, x: [245, 263], y: 26, flens: 16, flensDik: 2, kap: 12, kapL: 12, lijf: 12, lijfL: 24, lip: 6 },
   dcbus: { gat: 11.5, flens: 12.5, flensDik: 2.0, lijf: 14.4, draad: 11.3, lippen: 9.7, moer: 14, moerDik: 2.0, x: 223, y: 26 },
   // kader van een bordje: de ringwanden zelf (0,3 speling); bordje 16 heeft in zijn bredere ring 2 lage stroken
   kader: { speling: 0.3, h: 3 + 1.6 + 0.3 },
@@ -73,6 +78,11 @@ export const M = {
   // tot 0,4 boven de onderkant van de bodem: de schroef grijpt 6 - 1,6 = 4,4 diep, het paaltje heeft (5 - 1,6) / 2 = 1,7
   // wand (4 lijnen van 0,4)
   schroefpaal: { rand: 2.0, gat: 2.2, d: 5.0, voorgat: 1.6, schroef: { d: 2.0, l: 6, kern: 1.5, kop: 4.0, kopH: 1.4 } },
+  // Fable 5.2 D2/D8 (2026-11-16): oogjes voor een kabelbinder 2,5 x 100 (dikte tot 1,1) als trekontlasting, bij elke tule
+  // aan de binnenkant en bij elke module met dupont: 2 sleuven door de bodem (3,0 breed, 1,6 lang) met een brugje van 3,2
+  // ertussen en eronder een kanaal van 1,4 diep (de binder ligt verzonken: de bodem ligt tegen de baan). Plat: geen
+  // hindernis voor de draden; het kanaal is een brug van 3,0 (print zonder support)
+  oog: { sleuf: { b: 3.0, l: 1.6 }, brug: 3.2, kanaal: 1.4, binder: '2,5 x 100' },
   // elk geprint deel hoogstens 230 x 230 (het bed is 256 x 256, rechtsvoor 10 x 20 vrij voor het filamentmes, plus skirt)
   bed: { max: 230, hoog: 80 },
 };

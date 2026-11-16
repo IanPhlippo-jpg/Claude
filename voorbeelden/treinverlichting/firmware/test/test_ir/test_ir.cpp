@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "ir.h"
+#include "irrmt.h"
 
 using namespace trein;
 
@@ -246,7 +247,146 @@ void test_leren_rc5_en_raw_en_zonder_draaggolf() {
 void test_soort_namen() {
   TEST_ASSERT_EQUAL(IR_RC5, irSoortVanId("rc5"));
   TEST_ASSERT_EQUAL(-1, irSoortVanId("sony"));
+  TEST_ASSERT_EQUAL(IR_CONTINU, irSoortVanId("continu"));
   TEST_ASSERT_EQUAL_STRING("raw", irSoortId(IR_RAW));
+}
+
+// F13: een NEC-code met een uitgebreid adres waarvan de hoge byte 0 is: geleerd "12 00 34 CB" moet zo terug gezonden
+// worden (2.0.0 maakte er "12 ED 34 CB" van). Negatieve proef: zonder de vlag adres16 komt "12 ED".
+void test_nec_hoge_adresbyte_nul() {
+  uint8_t b[4] = {0x12, 0x00, 0x34, 0xCB};
+  std::vector<uint16_t> env;
+  env.push_back(9000);
+  env.push_back(4500);
+  for (int i = 0; i < 32; i++) {
+    env.push_back(560);
+    env.push_back(b[i / 8] >> (i % 8) & 1 ? 1690 : 560);
+  }
+  env.push_back(560);
+  std::vector<uint32_t> ns = draaggolf(env, 38.0);
+  Leerresultaat r;
+  TEST_ASSERT_TRUE(leerUitDraaggolf(ns.data(), (int)ns.size(), r));
+  IrCode c;
+  leerNaarCode(r, c);
+  TEST_ASSERT_EQUAL(IR_NEC, c.soort);
+  TEST_ASSERT_EQUAL_HEX16(0x0012, c.adres);
+  TEST_ASSERT_TRUE(c.adres16);
+  TEST_ASSERT_FALSE(c.commando16);
+  char t[IR_TEKST_LEN];
+  irCodeTekst(c, t, sizeof t);
+  TEST_ASSERT_EQUAL_STRING("nec:120034CB", t);
+  // zenden en weer herkennen: dezelfde 4 bytes
+  std::vector<uint16_t> p = pulsen(c);
+  IrGelezen g;
+  TEST_ASSERT_TRUE(necLees(p.data(), (int)p.size(), g));
+  TEST_ASSERT_EQUAL_STRING("nec:120034CB", tekst(g).c_str());
+  c.adres16 = false; // negatieve proef: zo deed 2.0.0 het
+  irCodeTekst(c, t, sizeof t);
+  TEST_ASSERT_EQUAL_STRING("nec:12ED34CB", t);
+}
+
+// F5: een raw-code van 255 tijden met "herhaal 5" past niet (1279 tijden): irPast zegt nee, irMaxHerhaal zegt hoeveel
+void test_raw_te_lang_met_herhalingen() {
+  IrCode c;
+  c.gebruikt = true;
+  c.soort = IR_RAW;
+  c.nRaw = 255;
+  for (int i = 0; i < 255; i++) c.raw[i] = (uint16_t)(400 + (i % 7) * 100);
+  c.herhaal = 1;
+  TEST_ASSERT_TRUE(irPast(c));
+  c.herhaal = 5;
+  static uint32_t us[MAX_IR_PULSEN];
+  TEST_ASSERT_EQUAL(0, irPulsen(c, us, MAX_IR_PULSEN)); // vroeger: stil niets gezonden
+  TEST_ASSERT_FALSE(irPast(c));
+  TEST_ASSERT_EQUAL(4, irMaxHerhaal(c));
+  // lange tijden (> 32767 µs) tellen dubbel in RMT-items: ook dan te lang
+  IrCode l = c;
+  for (int i = 0; i < 255; i++) l.raw[i] = 60000;
+  l.herhaal = 3;
+  int n = irPulsen(l, us, MAX_IR_PULSEN);
+  TEST_ASSERT_TRUE(n > 0);
+  TEST_ASSERT_TRUE(irItems(us, n) > IR_MAX_ITEMS);
+  TEST_ASSERT_FALSE(irPast(l));
+  TEST_ASSERT_EQUAL(2, irMaxHerhaal(l));
+  // NEC met 10 herhalingen past ruim; continu past altijd (geen pulsen)
+  TEST_ASSERT_TRUE(irPast(nec(0, 1, 10)));
+  IrCode k;
+  k.soort = IR_CONTINU;
+  TEST_ASSERT_EQUAL(0, irPulsen(k, us, MAX_IR_PULSEN));
+  TEST_ASSERT_TRUE(irPast(k));
+}
+
+// Q1: de RMT-items (zenden en ontvangen) zonder hardware
+void test_rmt_items_heen_en_terug() {
+  IrCode c = nec(0, 0x12, 2);
+  static uint32_t us[MAX_IR_PULSEN];
+  int n = irPulsen(c, us, MAX_IR_PULSEN);
+  static RmtItem it[IR_MAX_ITEMS];
+  int k = irNaarItems(us, n, it, IR_MAX_ITEMS);
+  TEST_ASSERT_EQUAL(irItems(us, n), k);
+  TEST_ASSERT_EQUAL(9000, it[0].duration0);
+  TEST_ASSERT_EQUAL(1, it[0].level0);
+  TEST_ASSERT_EQUAL(4500, it[0].duration1);
+  TEST_ASSERT_EQUAL(0, it[0].level1);
+  // de pauze tot de herhaalcode (> 32767 µs) is gesplitst: samen weer de hele pauze
+  uint32_t som = 0;
+  for (int i = 0; i < k; i++) som += it[i].duration0 + it[i].duration1;
+  uint32_t verwacht = 0;
+  for (int i = 0; i < n; i++) verwacht += us[i];
+  TEST_ASSERT_EQUAL_UINT32(verwacht, som);
+  // past niet: -1 en niets half (F5)
+  TEST_ASSERT_EQUAL(-1, irNaarItems(us, n, it, 10));
+  // ontvangen: een ontvanger is actief laag (niveau 0 = licht), tel 0,5 µs; eindmarkering = duur 0
+  RmtItem rx[3] = {{18000, 0, 9000, 1}, {1120, 0, 1120, 1}, {1120, 0, 0, 1}};
+  uint32_t ns[8];
+  bool afgekapt = true;
+  int m = itemsNaarNs(rx, 3, ns, 8, 500, afgekapt);
+  TEST_ASSERT_FALSE(afgekapt);
+  TEST_ASSERT_EQUAL(5, m);
+  TEST_ASSERT_EQUAL_UINT32(9000000, ns[0]);
+  TEST_ASSERT_EQUAL_UINT32(4500000, ns[1]);
+  TEST_ASSERT_EQUAL_UINT32(560000, ns[4]);
+  m = itemsNaarNs(rx, 3, ns, 3, 500, afgekapt); // te klein: afgekapt (F17)
+  TEST_ASSERT_EQUAL(3, m);
+  TEST_ASSERT_TRUE(afgekapt);
+}
+
+// E2: een frame met alleen een lang niveau (een lichtsluis die blijft onderbroken of een bus boven de reflexsensor):
+// de RMT geeft dan alleen een eindmarkering, dus 0 tijden. Het niveau van de pin (NiveauWacht) ziet het wel.
+void test_lang_niveau_geeft_geen_frame_maar_wel_niveau() {
+  RmtItem rx[1] = {{0, 0, 0, 0}};
+  uint32_t ns[4];
+  bool afgekapt;
+  TEST_ASSERT_EQUAL(0, itemsNaarNs(rx, 1, ns, 4, 500, afgekapt));
+  NiveauWacht w;
+  uint32_t t = 0;
+  int begin = 0, einde = 0;
+  for (; t < 45; t += 5) begin += w.stap(true, t) == 1;
+  TEST_ASSERT_EQUAL(0, begin); // 45 ms: nog geen aanwezigheid (negatieve proef: een korte flikkering telt niet)
+  for (; t < 1000; t += 5) begin += w.stap(true, t) == 1;
+  TEST_ASSERT_EQUAL(1, begin); // één keer, ook als het lang duurt
+  TEST_ASSERT_TRUE(w.bezet);
+  einde += w.stap(false, t) == -1;
+  TEST_ASSERT_EQUAL(1, einde);
+  TEST_ASSERT_FALSE(w.bezet);
+  // even laag, even hoog: telt opnieuw vanaf 0
+  w.stap(true, 2000);
+  w.stap(false, 2030);
+  TEST_ASSERT_EQUAL(0, w.stap(true, 2040));
+  TEST_ASSERT_EQUAL(0, w.stap(true, 2085));
+  TEST_ASSERT_EQUAL(1, w.stap(true, 2090));
+}
+
+// E4: de gemeten draaggolf in tienden van een kHz
+void test_draaggolf_in_tienden() {
+  std::vector<uint16_t> p = pulsen(nec(0x7E, 0x5A));
+  Leerresultaat r;
+  std::vector<uint32_t> ns = draaggolf(p, 38.0);
+  TEST_ASSERT_TRUE(leerUitDraaggolf(ns.data(), (int)ns.size(), r));
+  TEST_ASSERT_INT_WITHIN(3, 380, r.khzTiende);
+  ns = draaggolf(p, 36.4);
+  leerUitDraaggolf(ns.data(), (int)ns.size(), r);
+  TEST_ASSERT_INT_WITHIN(3, 364, r.khzTiende);
 }
 
 int main() {
@@ -259,5 +399,10 @@ int main() {
   RUN_TEST(test_leren_nec_uit_draaggolf);
   RUN_TEST(test_leren_rc5_en_raw_en_zonder_draaggolf);
   RUN_TEST(test_soort_namen);
+  RUN_TEST(test_nec_hoge_adresbyte_nul);
+  RUN_TEST(test_raw_te_lang_met_herhalingen);
+  RUN_TEST(test_rmt_items_heen_en_terug);
+  RUN_TEST(test_lang_niveau_geeft_geen_frame_maar_wel_niveau);
+  RUN_TEST(test_draaggolf_in_tienden);
   return UNITY_END();
 }

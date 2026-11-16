@@ -2,10 +2,100 @@
 
 ESP32-S3-DevKitC-1 v1.1 (N16R8, twee micro-USB-poorten "UART" en "USB") met een PCA9685 (16 lichtgroepen, uit te
 breiden tot 32) en 16 ingangen rechtstreeks op GPIO's. De doos maakt een eigen wifi-netwerk met een dashboard voor gsm
-en tablet, en meldt zich als je dat wilt ook aan op de wifi van het huis. Firmware **2.0.0**: daarbij **IR** zenden,
-leren en ontvangen, **servo's** (wissels, slagbomen, armseinen), **NPN of PNP** per ingang, tot **40 ingangen**,
+en tablet, en meldt zich als je dat wilt ook aan op de wifi van het huis. Firmware **2.1.0** (het advies van Fable 5.2
+verwerkt, zie hieronder); sinds 2.0.0: **IR** zenden,
+leren en ontvangen, **servo's** (wissels, slagbomen, armseinen), **NPN of PNP** per ingang, tot **37 ingangen**,
 **bussen** volgen langs meetpunten, de **bushalte**, **geluidskastjes** en een **tv-pagina**. De groepen zijn sinds
 1.3.0 alleen **aan of uit**, en de ingangen lezen ook de korte pulsen van **hallsensoren**.
+
+## Nieuw in 2.1.0 (2026-11-16, advies Fable 5.2 op versie 6)
+
+Versie 6 is nog niet op hardware gemeten. Waar het advies een aanname aanwijst, kiest de firmware niet zelf maar maakt
+ze **elke uitkomst instelbaar**; TRN-20 beslist. Nummers = de punten van `../docs/Advies-Fable-5.2-v6.md`.
+
+- **E3 Soort optocouplerprint** per print (`printSoort`, 5 printen: ingang 1-8, 9-16, 17-23, 25-31, 32-38): `"vcc"`
+  (gemeenschappelijke VCC, de sensor trekt IN naar 0 V; standaard, zoals getekend), `"gnd"` (gemeenschappelijke GND,
+  IN hoog = actief) of `"apart"` (per kanaal IN+ en IN-). De firmware keert een ingang om bij `"gnd"` met polariteit
+  `"npn"` (pull-up 2,2 kΩ van IN naar S12). **PNP op een print `"vcc"` wordt geweigerd** (HTTP 400 met uitleg). Zie
+  "NPN of PNP kiezen". De bouwvlag `-DTREIN_PNP_KEERT_OM` en `"pnpOmkeren"` in `/api/staat` bestaan niet meer.
+- **E1 Polariteit van de IR-leds** (-Q4) = die van de lichtgroepen (-Q1): standaard actief laag (bouwvlag
+  `-DTREIN_UITGANG_ACTIEF_HOOG` voor beide), en instelbaar (`irLedActiefLaag`). De MCP23017 zet bij het opstarten eerst
+  "alles uit" in OLATA en maakt pas dan GPA tot uitgang.
+- **E2 Reflexsensoren** op ingang **17-23** (MCP23017 0x20, GPB0..6): TCRT5000-module op de beveiligde 3,3 V, uitgang
+  met 1 kΩ in serie naar GPBn, interne pull-up, actief laag, soort `"contact"`, print 3 = `"vcc"` (niets omkeren). En de
+  ontvangerpinnen 2-4 (GPIO11, 39, 42) worden ook als **niveau** gelezen: laag langer dan 50 ms = een melding `"ftr"` op
+  het punt van die ontvanger (aanwezigheid), weer hoog = einde (`"ontvangerBezet"` in `/api/staat`). Reden: de RMT
+  negeert een niveau dat langer duurt dan zijn idle-drempel (ESP-IDF 4.4: "The receiver will ignore pulses longer than
+  this setting"), dus een bus die stilstaat boven een sensor gaf geen frame.
+- **E4 IR-driver**: duty van de draaggolf instelbaar (`irDuty` 33 of 50 %); **IR-zelftest**: `POST /api/ir
+  {"actie":"zelftest","led":n}` zendt een NEC-testcode via IR-led n, -B1 (TSMP58000) leest mee; resultaat in
+  `"zelftest"` van `/api/staat` (ok, kHz, code, fout, `"ongemoduleerd"`: licht zonder draaggolf).
+- **E6 I2C op 100 kHz**, time-out 10 ms; beide PCA9685's schrijven alleen de kanalen die veranderden; de MCP23017 op
+  0x20 leest alleen poort B (3 bytes, BANK = 1). **F11**: na een fout op de bus eerst 9 klokpulsen op SCL.
+- **E7** GPA7 en GPB7 van de MCP23017's zijn nooit ingang: 37 ingangen (24, 39 en 40 bestaan niet).
+- **E8** bij het opstarten krijgen de servo's hun eerste puls **één voor één, om de 300 ms** (door de rij), ook de eerste
+  opdracht aan een servo zonder stand. **E14** de servo's wachten zolang meer dan 12 lichtgroepen aan staan
+  (`"servoWachtLampen"` in `/api/staat`). **E19** `pulsUitS` per servo: zoveel s (1-10) na aankomst geen puls meer.
+- **E5, F9, F10, F14** commentaar en tekst rechtgezet (inschakelen met actief-lage modules, OE gedeeld met de
+  servoprint, INTF/INTCAP van de MCP23017, wat de update nakijkt).
+- **F1** IR-codesoort `"continu"`: de stopleds branden zonder draaggolf zolang de halte de bus vasthoudt.
+- **F2** halte: `"herhalen"` (standaard aan) = de stopcode elke 400 ms van aankomst tot groen; na het opstarten zendt
+  elke halte één keer haar rijdcode. **F3** een tweede bus wordt onthouden (`"wachtend"`) en krijgt meteen de
+  stopcode. **F12** `"maxVerkeerS"` (standaard 60 s): daarna toch groen, met een melding.
+- **F4** IR: leds kiezen, 10 ms wachten, zenden, 10 ms wachten, leds uit. **F5** een code die met haar herhalingen te
+  lang wordt, wordt geweigerd; `"ir":{"nietVerzonden","laatsteFout"}` in `/api/staat`. **F8** zenden op RMT-kanaal 1 met
+  144 items, niet bewaren tijdens het zenden. **F13** NEC: de 4 bytes zoals gelezen (`"adres16"`, `"commando16"`).
+  **F17** leerbuffer 48 kB, een te lange code geeft "te lang" in plaats van een halve code.
+- **F6 Toegang**: elke POST/PUT alleen van de eigen hotspot (192.168.4.x) of met het wifi-wachtwoord in de kop
+  `X-Treinbaan-Wachtwoord` (anders 401); een `Origin` van een andere pagina: 403 (ook vanaf de hotspot). Uitzondering:
+  de aanmelding van een geluidskastje. **V5** `Access-Control-Allow-Origin: *` op `GET /api/staat`, `/api/plan` en
+  `/api/meldingen`.
+- **F7** de hotspot laat **10 toestellen** toe (gsm, tablet, laptop van de tv en 7 kastjes). Meer kastjes: alles op het
+  thuisnet. Op het thuisnet volgt het kanaal van de hotspot dat van de router.
+- **F15** `/api/staat` en het bewaren bouwen hun JSON op een kopie, buiten het slot; de vrije stapel per taak staat in
+  `GET /api/zelftest` en één keer in de seriële monitor. **F16** geluidskastjes: time-out 400 ms, een kastje dat niet
+  antwoordt is meteen offline.
+- **V1** per punt `"alleenBus"` (standaard uit): een melding zonder code wordt alleen op zo'n punt aan een bus
+  toegeschreven. **V2** zonder buscode volgt de doos de volgorde per strook (FIFO); rechtzetten met
+  `{"actie":"gezien",...}`.
+- **Q1** de drivers (PCA9685, servo-PCA9685, MCP23017) staan in `include/i2c.h` en draaien in de tests tegen een nep-bus
+  met chipmodellen (`test/nep/nepwire.h`); de RMT-items (`include/irrmt.h`) en het zenden in stappen
+  (`include/irzend.h`) ook. `GET /api/zelftest` kijkt op het bord na wat de pc niet kan. **Q3** de ontbrekende gevallen
+  als tests (159 in plaats van 129).
+- **Instellingen versie 4**; bestanden van versie 1-3 laden nog (een print met een pnp-ingang wordt `"gnd"`).
+
+### Wat op de pc getest is en wat op hardware (Q2)
+
+"Getest op de pc" = de logica of een model van de chip, met `pio test -e native` en `-e native32`. Dat bevestigt dat
+de firmware doet wat ze moet doen ALS de aanname klopt; of de echte module zo werkt, zegt het niet. De kolom "gemeten op
+hardware" blijft leeg tot het op TRN-20 gemeten is.
+
+| Functie | Getest op de pc | Gemeten op hardware |
+|---|---|---|
+| Lichtgroepen aan/uit, effecten, scènes, functies, dag/nacht | ja (test_licht, test_functies, test_api) | |
+| PCA9685: alleen gewijzigde kanalen, teruglezen, na een dip opnieuw (E6) | ja, model (test_hw) | |
+| Polariteit -Q1 en -Q4, OLATA eerst uit (E1) | ja, model van -Q4 (test_hw) | |
+| Toestand na inschakelen met actief-lage modules (E5) | nee (alleen hardware) | |
+| Ingangen: contact, puls (1-10 ms), teller, gedrag | ja (test_ingangen) | |
+| Printsoort vcc/gnd/apart, omkeren, pnp op vcc geweigerd (E3) | ja (test_api, test_opslag, test_ingangen) | |
+| MCP23017: BANK = 1, alleen poort B, GPx7 nooit ingang, twee pinnen in één tick (E6, E7, F10) | ja, model (test_hw) | |
+| Reflexsensor op ingang 17-23 (E2) | ja, als gewone ingang | |
+| Lang niveau op een ontvangerpin = ftr-melding (E2) | ja, logica (test_ir, test_irzend); gpio_get_level op een RMT-pin: AANNAME | |
+| IR: NEC/RC5/raw coderen en herkennen, leren uit de draaggolf, NEC 4 bytes (F13) | ja (test_ir) | |
+| IR: RMT-items bouwen en lezen, te lang = niets (F5, F17) | ja (test_ir, test_irzend) | |
+| IR: leds kiezen, 2 ticks, zenden (F4), continu (F1) | ja, nep-hardware (test_irzend) | |
+| IR-zelftest via -B1 (E4) | ja, met een nagemaakt frame (test_irzend) | |
+| IR-driver -Q3/-Q4 op 38 kHz, duty 33/50 (E4) | nee (alleen hardware) | |
+| Servo's: snelheid, 4 tegelijk, één voor één bij opstarten (E8), wachten bij > 12 groepen (E14), puls uit (E19) | ja (test_servo) | |
+| Servo-PCA9685 50 Hz, alleen gewijzigde kanalen | ja, model (test_hw) | |
+| Bushalte: fasen, herhalen (F2), rijdcode na herstart, tweede bus (F3), maxVerkeer (F12), continu (F1) | ja (test_halte) | |
+| Of een bus van Ian met deze IR-codes stopt en rijdt (F1, F2) | nee (alleen op de baan) | |
+| Meetpunten, meldingen, rijtijd, alleenBus (V1), volgorde (V2) | ja (test_bus, test_interpolatie) | |
+| Instellingen bewaren en laden, versie 1-4 | ja (test_opslag) | |
+| Toegang: hotspot, wachtwoordkop, Origin (F6) | ja, de regel (test_api); de koppen van de webserver: nee | |
+| GET /api/zelftest (JSON) | ja (test_api); de I2C-scan zelf: nee | |
+| Wifi, hotspot (10 toestellen), mDNS, OTA, LittleFS, watchdog, stapels | nee (alleen hardware) | |
+| Geluidskastjes: rij, offline na een fout (F16) | ja, de rij (test_api); HTTP: nee | |
 
 ## Nieuw in 2.0.0 (2026-11-15, treindoos versie 6 fase A)
 
@@ -64,14 +154,16 @@ leren en ontvangen, **servo's** (wissels, slagbomen, armseinen), **NPN of PNP** 
 | bouwen en flashen (eerste keer, via de micro-USB "UART") | `python -m platformio run -e doos -t upload` |
 | bijwerken zonder kabel | dashboard, Instellingen, "Firmware bijwerken": kies `.pio/build/doos/firmware.bin` (of `http://192.168.4.1/update`) |
 | seriële monitor | `python -m platformio device monitor -e doos` |
-| tests op de pc (129) | `python -m platformio test -e native` |
-| dezelfde tests met 32 groepen (129) | `python -m platformio test -e native32` |
+| tests op de pc (159) | `python -m platformio test -e native` |
+| dezelfde tests met 32 groepen (159) | `python -m platformio test -e native32` |
 | proef op de pc | `python -m platformio run -e native`, dan `.pio/build/native/program.exe` |
 
-Flash en RAM (`doos`, 16 groepen, firmware 2.0.0, met dashboard en tv-pagina): 1 043 957 bytes van het app-slot van
-6 553 600 (15,9 %), RAM 120 888 van 327 680 bytes (36,9 %; de instellingen met 32 IR-codes van 256 tijden zitten in het
-geheugen). De partitietabel `default_16MB.csv` heeft twee app-slots (app0 en app1): een update gaat naar het vrije slot,
-pas na een geslaagde controle start de ESP daarvan; mislukt ze, dan blijft de oude firmware.
+Flash en RAM (`doos`, 16 groepen, firmware 2.1.0, met dashboard en tv-pagina): 1 070 313 bytes van het app-slot van
+6 553 600 (16,3 %), RAM 126 248 van 327 680 bytes (38,5 %; de instellingen met 32 IR-codes van 256 tijden zitten in het
+geheugen; de kopieën voor de JSON (F15) en de leerbuffer van 48 kB komen in PSRAM). De partitietabel
+`default_16MB.csv` heeft twee app-slots (app0 en app1): een update gaat naar het vrije slot; de oude firmware blijft tot
+de nieuwe **volledig en ongeschonden ontvangen** is (grootte, begin en controlesom). Een firmware die start en dan
+vastloopt, blijft herstarten: terug kan dan alleen met USB (F14).
 
 ## Dashboard
 
@@ -88,12 +180,12 @@ pas na een geslaagde controle start de ESP daarvan; mislukt ze, dan blijft de ou
 
 | ESP32-S3 | naar |
 |---|---|
-| GPIO8 | SDA van de PCA9685, 400 kHz |
+| GPIO8 | SDA van de I2C-chips, **100 kHz** (2.1.0, E6; time-out 10 ms, na een fout 9 klokpulsen) |
 | GPIO9 | SCL van de PCA9685 |
 | GPIO10 | OE van de PCA9685 (actief laag). **Pull-up 1 kΩ naar 3,3 V** (-R1): de gangbare PCA9685-breakouts trekken OE zelf naar GND (Adafruit: "pulled low by default"); met 1 kΩ tegen een pull-down van 10 kΩ blijft OE bij reset en flashen ≥ 3,0 V (hoog = alles uit). Meetpunt op het meetblad |
 | GPIO0 | BOOT-knop op het bord: 5 s vasthouden = wifi-wachtwoord terug naar `treinbaan` |
 | GPIO38 | RGB-led op het bord (DevKitC-1 v1.1) = statuslampje: groen = hotspot actief, rood = PCA9685 antwoordt niet, blauw = BOOT-knop vast (knippert: wachtwoord teruggezet) |
-| GPIO47 | **IR zenden** (RMT-kanaal 3, draaggolf, duty 33 %, hoog = leds aan) naar de snelle MOSFET-module (AOD4184-module zonder optocoupler) in de gemeenschappelijke retour van alle IR-leds |
+| GPIO47 | **IR zenden** (RMT-kanaal 1 met 3 geheugenblokken, draaggolf, duty 33 of 50 % (`irDuty`), hoog = leds aan; continu: vast hoog zonder draaggolf) naar de snelle MOSFET-module (AOD4184-module zonder optocoupler) in de gemeenschappelijke retour van alle IR-leds |
 | GPIO48 | **IR-ontvanger 1** = leerontvanger Vishay TSMP58000 (geeft de draaggolf door; RMT RX kanaal 4) |
 | GPIO11 | **IR-ontvanger 2** (TSOP38238 of fototransistor-module, actief laag; RMT RX kanaal 5) |
 | GPIO39 | **IR-ontvanger 3** (idem, kanaal 6) |
@@ -105,13 +197,15 @@ Geen vrije GPIO's meer: alles wat er nog bij komt, gaat over de I2C-bus.
 |---|---|---|
 | 0x40 | PCA9685 | lichtgroep 1..16 (alleen aan/uit) |
 | 0x41 | PCA9685 | **gereserveerd** voor groep 17..32 (`-DTREIN_GROEPEN=32`) |
-| 0x42 | PCA9685 (A1 hoog) | **servo 1..16**, 50 Hz (prescale 121), puls 500..2500 µs; eigen voeding 5-6 V; OE aan GND |
-| 0x20 | MCP23017 | GPA0..7 = IR-led 1..8 aan/uit (via een 8-kanaals MOSFET-module zoals -Q1, hoog = led doet mee); GPB0..7 = ingang 17..24 (actief laag, interne pull-up) |
-| 0x21 | MCP23017 (A0 hoog), **optioneel** | GPA0..7 = ingang 25..32, GPB0..7 = ingang 33..40 (2 extra optocouplerprints PC817). Bij het opstarten gezocht: niet gevonden = 25..40 afwezig (`"aanwezig":false` in `/api/staat`) |
+| 0x42 | PCA9685 (A1 hoog) | **servo 1..16**, 50 Hz (prescale 121), puls 500..2500 µs; eigen voeding 5-6 V; OE aan GPIO10, samen met de lichtchip (zo bedraad; een fout op de lichtchip stopt ook de servopulsen, F9) |
+| 0x20 | MCP23017 (BANK = 1) | GPA0..7 = IR-led 1..8 (via -Q4, dezelfde polariteit als -Q1: `irLedActiefLaag`, standaard actief laag); GPB0..6 = ingang 17..23 (reflexsensoren, actief laag, interne pull-up); GPB7 uitgang (E7) |
+| 0x21 | MCP23017 (A0 hoog), **optioneel** | GPA0..6 = ingang 25..31, GPB0..6 = ingang 32..38 (2 extra optocouplerprints: print 4 en 5); GPA7/GPB7 uitgang. Bij het opstarten gezocht: niet gevonden = 25..38 afwezig (`"aanwezig":false` in `/api/staat`) |
 
 De MCP23017's hebben hun INT-pin niet aangesloten (geen vrije GPIO): de lichttaak leest elke 5 ms ook INTF en INTCAP
-(interrupt-on-change op elke ingang), zodat een korte puls van een hallsensor op 17..40 ook tussen 2 lezingen gezien
-wordt. Antwoordt een chip niet, dan meldt het dashboard dat (alleen als er iets aan hangt) en probeert de doos elke 2 s
+(interrupt-on-change op elke ingang), zodat een korte puls van een hallsensor op 17..38 ook tussen 2 lezingen gezien
+wordt. Grens (F10): INTF en INTCAP bevriezen bij de eerste verandering op een poort tot ze gelezen zijn; een tweede
+puls korter dan 5 ms op een andere pin van dezelfde poort in dezelfde 5 ms gaat verloren. Hang de snelste sensoren dus
+aan ingang 1..16. Antwoordt een chip niet, dan meldt het dashboard dat (alleen als er iets aan hangt) en probeert de doos elke 2 s
 opnieuw.
 
 PCA9685 op adres 0x40 (A0..A5 aan GND): kanaal 0..15 = groep 1..16, **alleen volledig aan of uit** (het "full on"-
@@ -123,15 +217,17 @@ van de module heeft de led van de optocoupler tussen VCC en IN): MODE2 = OUTDRV 
 bouwen met `-DTREIN_UITGANG_ACTIEF_HOOG` (meetblad TRN-20, stap 8).
 
 De 16 ingangen gaan via 2 kant-en-klare **optocouplerprints PC817** (8 kanalen elk) naar GPIO's van de ESP32-S3
-(versie 4; daarvoor eigen AC-optocouplers LTV-844). Aan de ingangskant krijgt de print +12 V (VCC, na de polyfuse -F18);
-een knop, schakelaar, reed of NPN-sensor trekt IN n naar 0 V: de led brandt. Een +12 V op IN n doet niets (geen spanning
-over de led). Een sensor die zelf 12 V geeft (PNP): COM van de print aan 0 V in plaats van +12 V (zie "NPN of PNP
-kiezen"). Ingang 17..24 en 25..40 komen op dezelfde manier via optocouplerprints op de MCP23017's. Aan de uitgangskant
+(versie 4; daarvoor eigen AC-optocouplers LTV-844). Hoe de ingangskant van de print geschakeld is, is een AANNAME tot
+het meten op TRN-20 (E3): de firmware kent de 3 mogelijkheden (`printSoort`, zie "NPN of PNP kiezen"). Zoals getekend
+(`"vcc"`): de print krijgt +12 V (VCC, na de polyfuse -F18); een knop, schakelaar, reed of NPN-sensor trekt IN n naar
+0 V: de led brandt. Ingang 25..38 komen op dezelfde manier via optocouplerprints op de tweede MCP23017; ingang 17..23
+zijn bedoeld voor reflexsensoren rechtstreeks (E2). Aan de uitgangskant
 (VCC = 3,3 V van de ESP, jumper op pull-up) trekt de optocoupler OUT n naar GND = actief; in rust houdt de pull-up (op de
 print en INPUT_PULLUP) hem hoog. Geeft jouw print hoog als hij actief is: bouwen met `-DTREIN_INGANG_ACTIEF_HOOG`
 (INPUT_PULLDOWN).
 
-Lezen: elke ingang heeft een **GPIO-interrupt op de actief-flank** (FALLING; actief hoog: RISING). De ISR staat in
+Lezen: elke ingang heeft een **GPIO-interrupt op elke flank** (CHANGE; sinds 2.1.0, omdat de printsoort een ingang
+kan omkeren). De ISR staat in
 IRAM en zet alleen een vlag "er was een flank" voor die ingang (in een kritieke sectie); de lichttaak haalt elke 5 ms
 alle vlaggen in één keer op en zet ze op 0, en leest daarna het niveau van de 16 pinnen. Daarmee rekent
 `include/ingangen.h`:
@@ -152,20 +248,22 @@ blijft in de GPIO-hardware staan: hij gaat niet verloren.
 
 ## NPN of PNP kiezen
 
-Per ingang `"polariteit":"npn"` (standaard) of `"pnp"`, of voor een groep van 8 in één keer (groep 1 = ingang 1-8,
-2 = 9-16, 3 = 17-24, 4 = 25-32, 5 = 33-40), in het dashboard of met `POST /api/ingang`.
+Eerst de **soort print** (sinds 2.1.0, E3; per print, `POST /api/instellingen {"printSoort":["vcc","gnd","apart"]}`;
+1 tot 5 waarden voor print 1 = ingang 1-8, 2 = 9-16, 3 = 17-23, 4 = 25-31, 5 = 32-38). Meten op TRN-20: diodetest
+tussen IN en elke gemeenschappelijke klem van één print, vóór er iets bedraad wordt.
 
-- **NPN** (de sensor trekt zijn uitgang naar 0 V; ook knoppen, schakelaars, reed): de gemeenschappelijke klem (COM) van
-  de optocouplerprint aan **+12 V**, de sensor aan IN n.
-- **PNP** (de sensor geeft +12 V op zijn uitgang): COM van de optocouplerprint aan **0 V**, de sensor aan IN n.
+| print | wat de meting zegt | NPN (en knop, reed, open-collector-hallsensor) | PNP | firmware |
+|---|---|---|---|---|
+| `"vcc"` (standaard, zoals getekend) | gemeenschappelijke VCC, de led van IN naar die VCC | VCC aan S12, de sensor trekt IN naar 0 V | **kan niet** (geweigerd) | niets omkeren |
+| `"gnd"` | gemeenschappelijke GND, IN = anode | pull-up 2,2 kΩ van IN naar S12, de sensor aan IN; knop/reed tussen S12 en IN (kies dan `"pnp"`) | rechtstreeks aan IN | npn: **omkeren** (in rust geleidt de optocoupler) |
+| `"apart"` | per kanaal IN+ en IN- | IN+ aan S12, IN- aan de sensor | IN+ aan de sensor, IN- aan 0 V | niets omkeren |
 
-De print keert niet om: in **beide** gevallen loopt er stroom door de led van de optocoupler als de sensor actief is, en
-trekt de print zijn uitgang (OUT n) naar GND. De firmware hoeft dus niets om te keren; de keuze in het dashboard zegt
-welke bedrading er hangt (zo staat het ook op de tekeningen). Hoe Ian de print koopt en bedraadt (welke print, welke
-klem per groep van 8): zie de README van de doos (`../README.md`). Alleen een ingangsprint die bij PNP een **hoog**
-signaal geeft (bv. een niveau-omzetter zonder optocoupler), vraagt omkeren: bouwen met `-DTREIN_PNP_KEERT_OM`. Dan
-keert de doos de pnp-ingangen om, kijkt ze naar elke flank (GPIO-interrupt CHANGE, INTF van de MCP23017), en begint een
-ingang die van polariteit verandert opnieuw (zijn huidige lezing is rust: er start niets vanzelf).
+Dan per ingang `"polariteit":"npn"` (standaard) of `"pnp"`, of voor een hele print in één keer (`{"groep":g,...}`,
+g = print 1..5), in het dashboard of met `POST /api/ingang`. **PNP op een print `"vcc"` wordt geweigerd** (HTTP 400):
+eerst de print op `"gnd"` of `"apart"` zetten; omgekeerd kan een print niet `"vcc"` worden zolang er een pnp-ingang op
+staat. Een ingang die daardoor anders omgekeerd wordt, begint opnieuw (zijn huidige lezing is rust: er start niets
+vanzelf). Een bestand van firmware 2.0.0 met pnp-ingangen krijgt voor die print `"gnd"` (zo bedraadde 2.0.0 PNP: COM
+aan 0 V, niets omkeren). Hoe Ian de print koopt en bedraadt: zie de README van de doos (`../README.md`).
 
 ## IR, meetpunten en bussen
 
@@ -173,13 +271,18 @@ ingang die van polariteit verandert opnieuw (zijn huidige lezing is rust: er sta
    richt ze binnen 10 s op de TSMP58000 en druk één keer. Of typ een NEC- of RC5-code in. Elke code krijgt een tekst
    zoals een ontvanger ze leest (`nec:00FF12ED` = adres 0, commando 0x12; `rc5:0510`; `raw:XXXXXXXX`, een vingerafdruk
    van de vorm van de pulsen).
-2. **Zenden**: `{"actie":"zenden","nr":3,"leds":[5,6]}`: de doos zet IR-led 5 en 6 aan (MCP23017), zendt de code en zet
-   de leds weer uit. Hoogstens 8 opdrachten in de rij.
+2. **Zenden**: `{"actie":"zenden","nr":3,"leds":[5,6]}`: de doos zet IR-led 5 en 6 aan (MCP23017), wacht 10 ms (F4),
+   zendt de code, wacht weer 10 ms en zet de leds uit. Hoogstens 8 opdrachten in de rij. Een code die met haar
+   herhalingen niet in één keer past, wordt bij het bewaren geweigerd (F5). Een code `"continu"` brandt 2 s zonder
+   draaggolf (in een halte: zolang ze de bus vasthoudt).
 3. **Punten**: koppel elk meetpunt uit het plan aan zijn bron: `{"id":"HALL1","ingang":5}` (hallsensor) of
    `{"id":"STOP_lijnbus3","ontvanger":2}`. Optioneel `"volgende":"P5"` (welk punt een bus daarna bereikt; anders leert
    de doos dat uit wat ze ziet) en `"soort":"ftr"` (lichtsluis).
-4. **Bussen**: naam, kleur en de code die de ontvangers van die bus lezen (`"code":"nec:00FF12ED"`). Een bus zonder IR
-   wordt herkend aan de volgorde: een hallsensor op punt Y geeft de bus die naar Y op weg is.
+4. **Bussen**: naam, kleur en de code die de ontvangers van die bus lezen (`"code":"nec:00FF12ED"`). AANNAME: of de
+   bussen een eigen code zenden, staat niet in EISEN.md (V2). Een bus zonder IR wordt herkend aan de volgorde (FIFO per
+   strook): een melding op punt Y geeft de bus die het langst naar Y op weg is, maar **alleen op een punt met
+   `"alleenBus":true`** (V1; standaard uit: op een gedeelde strook kan het ook een auto zijn). Rechtzetten:
+   `{"actie":"gezien","bus":1,"punt":"P3"}`.
 5. **Meldingen**: elke keer dat een punt iets ziet, komt er een melding met de tijd van de doos (ms) in een ringbuffer
    van 64. Dezelfde code op dezelfde ontvanger binnen 1,5 s telt als één doorkomst; een lichtsluis hoogstens één keer
    per seconde.
@@ -196,13 +299,18 @@ met minimale vrije tijd, lichtgroepen rood/oranje/groen (gewone lichtgroepen), g
 |---|---|---|
 | vrij | tot een melding op het aankomstpunt | rood aan |
 | aankomst | 0,5 s | rood aan, stopcode via de stopleds |
-| stop | 2 s | stopcode elke 0,5 s opnieuw |
-| wachten | wachtS | niets (in- en uitstappen) |
-| verkeer | tot alle vrije ingangen vrijMinS onafgebroken niet actief waren | niets |
+| stop | 2 s | stopcode opnieuw (met `herhalen`: elke 0,4 s, zonder: elke 0,5 s) |
+| wachten | wachtS | in- en uitstappen; met `herhalen` (standaard) de stopcode elke 0,4 s |
+| verkeer | tot alle vrije ingangen vrijMinS onafgebroken niet actief waren, hoogstens `maxVerkeerS` (standaard 60 s; daarna toch groen met een melding, F12) | met `herhalen` de stopcode elke 0,4 s |
 | groen | groenS | groen aan, rood uit, rijdcode (3 keer om de 0,5 s), servo naar B; de rijtijd van de bus telt vanaf hier |
 | vertrek | 2 s | groen uit, oranje aan; daarna rood aan, oranje uit, servo naar A -> vrij |
 
-Een tweede bus die aankomt terwijl de halte bezig is, krijgt geen stopcode (de halte let er niet op).
+Na het opstarten (en na het bewaren van een halte) zendt elke halte één keer haar rijdcode (F2): een bus die tijdens
+een stroomonderbreking aan de halte stond, rijdt dan weer. Een **tweede bus** die aankomt terwijl de halte bezig is,
+wordt onthouden (één per halte, `"wachtend"` in `/api/staat`), krijgt meteen de stopcode (en met `herhalen` elke 0,4 s;
+de rijdcode valt dan weg), en de halte begint met hem zodra ze weer vrij is (F3). Een stopcode `"continu"` laat de
+stopleds branden van aankomst tot groen (F1). Regel voor `vrijMinS`: minstens de afstand van de sensor tot de invoeging
+gedeeld door de traagste snelheid.
 
 ## Een hallsensor instellen
 
@@ -242,12 +350,15 @@ N16R8), 43, 44 (UART0), 38 (RGB-led op v1.1) en 48 (RGB-led op v1.0). De lijst s
 | `include/servo.h` | servo's: eindstanden, snelheid, hoogstens 4 tegelijk (rij), µs naar tellen bij 50 Hz |
 | `include/bussen.h` | meetpunten, meldingen (ringbuffer 64), bussen, rijtijd per traject, fractie |
 | `include/halte.h` | de bushalte (toestandsmachine) |
-| `include/kastjes.h` | geluidskastjes (aanmelden, online) en de rij HTTP-opdrachten |
-| `src/irhw.h` | IR met de RMT (TX GPIO47, RX GPIO48/11/39/42) |
+| `include/kastjes.h` | geluidskastjes (aanmelden, online, offline na een fout) en de rij HTTP-opdrachten |
+| `include/i2c.h` | (2.1.0) de drivers van de PCA9685 (licht en servo's) en de MCP23017, als template op de I2C-klasse: op de doos Wire, in de tests een nep-bus |
+| `include/irrmt.h` | (2.1.0) IR-tijden naar RMT-items en terug |
+| `include/irzend.h` | (2.1.0) IR zenden in stappen: leds kiezen, wachten, zenden, continu |
+| `src/irhw.h` | IR met de RMT (TX GPIO47 kanaal 1, RX GPIO48/11/39/42, niveau van de pinnen) |
 | `src/tv.h` | de tv-pagina (gemaakt door `ui/maak-header.py` uit `ui/tv.html`) |
-| `src/hw.h` | eigen drivers voor de PCA9685 (alleen Wire, alleen volledig aan/uit), de servo-PCA9685 (50 Hz) en de MCP23017, de 16 ingangspinnen met de flank-interrupt (IRAM) en het statuslampje |
+| `src/hw.h` | de 16 ingangspinnen met de flank-interrupt (IRAM), het statuslampje, het herstel van de I2C-bus en de drivers uit `i2c.h` met Wire |
 | `src/main.cpp` | hardware, watchdog, wifi (hotspot en thuisnet), captive portal, mDNS, webserver, updates, bewaren, IR-taak, HTTP naar de kastjes, plan- en tv-bestanden |
-| `test/test_*` | 129 tests op de pc (ook met 32 groepen: `native32`) |
+| `test/test_*` | 159 tests op de pc (ook met 32 groepen: `native32`); `test/nep/nepwire.h` = de nep-I2C-bus met modellen van de chips |
 
 Alle logica staat in `include/` en gebruikt geen Arduino-functies: zo is ze op de pc te testen.
 
@@ -269,13 +380,16 @@ Alles JSON. Groepen, scènes, functies en ingangen hebben nummers vanaf 1.
 | `POST /api/test` | `{"actie":"looplicht","stapS":1}` (0,3 tot 5 s per groep), `{"actie":"vast","groep":5}`, `{"actie":"stop"}` |
 | `POST /api/update` | de nieuwe firmware als multipart-upload (veld `firmware`, bestand `firmware.bin`); antwoord `{"ok":true,"herstart":true}`, daarna herstart de doos. Een bestand dat niet met 0xE9 begint of niet in het vrije app-slot past, wordt geweigerd |
 | `GET /update` | een kleine eigen pagina om bij te werken (als het dashboard zelf stuk zou zijn) |
-| `POST /api/ingang` (2.0.0) | ook `{"nr":5,"polariteit":"pnp"}` en `{"groep":1,"polariteit":"pnp"}` (groep 1..5); ingangen 1..40 |
-| `POST /api/ir` | `{"actie":"leren","naam":"Stop bus","ontvanger":1}` (10 s), `{"actie":"bewaren","nr":3,"code":{"naam":"..","soort":"nec"\|"rc5"\|"raw","khz":38,"adres":0,"commando":18,"raw":[9000,4500,...],"herhaal":1}}` (zonder `nr`: nieuw; 32 codes, raw 2..256 tijden in µs, aan/uit om beurten, begint met aan), `{"actie":"zenden","nr":3,"leds":[5,6]}` (leeg of zonder `leds` = alle), `{"actie":"wissen","nr":3}`, `{"actie":"hernoemen","nr":3,"naam":".."}` |
+| `POST /api/ingang` (2.0.0) | ook `{"nr":5,"polariteit":"pnp"}` en `{"groep":1,"polariteit":"pnp"}` (groep = print 1..5: 1-8, 9-16, 17-23, 25-31, 32-38); pnp op een print `"vcc"`: 400 |
+| `POST /api/instellingen` (2.1.0) | `{"printSoort":["vcc","gnd","apart"]}` (1 tot 5 printen; `"vcc"` geweigerd zolang er een pnp-ingang op staat), `{"irLedActiefLaag":true}`, `{"irDuty":33}` of `50` |
+| `GET /api/zelftest` (2.1.0) | I2C-scan (0x20, 0x21, 0x40, 0x41, 0x42 gevonden), de PCA9685 teruglezen, MCP23017's, servo-PCA9685, LittleFS, vrije stapel per taak, wifi-toestellen, vrij geheugen: `{"ok":..,"i2c":[{"adres":"0x20","wat":..,"gevonden":true}],"pca9685":{"ok":..,"geschreven":..,"gelezen":..},"mcp23017":..,"mcp23017b":..,"servoPca":..,"littlefs":{..},"stapelVrij":{"licht":..,"ir":..,"kastjes":..,"loop":..},"wifiClients":2,"vrijGeheugen":..,"vrijPsram":..}` |
+| `POST /api/ir` | `{"actie":"leren","naam":"Stop bus","ontvanger":1}` (10 s), `{"actie":"bewaren","nr":3,"code":{"naam":"..","soort":"nec"\|"rc5"\|"raw"\|"continu","khz":38,"adres":0,"commando":18,"adres16":false,"commando16":false,"raw":[9000,4500,...],"herhaal":1}}` (zonder `nr`: nieuw; 32 codes, raw 2..256 tijden in µs, aan/uit om beurten, begint met aan; te lang met de herhalingen: 400 met het maximum), `{"actie":"zelftest","led":5}` (2.1.0, E4), `{"actie":"zenden","nr":3,"leds":[5,6]}` (leeg of zonder `leds` = alle), `{"actie":"wissen","nr":3}`, `{"actie":"hernoemen","nr":3,"naam":".."}` |
 | `POST /api/bus` | `{"nr":1,"naam":"Bus 1","kleur":"#d23","code":"nec:00FF12ED"}` (zonder `nr`: nieuw; 8 bussen), `{"actie":"wissen","nr":1}`, `{"actie":"gezien","bus":1,"punt":"P3"}` (met de hand, testen) |
-| `POST /api/punt` | `{"id":"P3","ingang":5}`, `{"id":"P4","ontvanger":2}`, optioneel `"soort":"hall"\|"ir"\|"ftr"\|"auto"` en `"volgende":"P5"`; `{"id":"P3","ingang":0}` = loskoppelen; `{"actie":"wissen","id":"P3"}` (48 punten) |
-| `POST /api/servo` | `{"nr":1,"naam":"Wissel 1","kanaal":1,"a":1100,"b":1900,"snelheid":400,"soort":"wissel"\|"slagboom"\|"armsein"}` (snelheid in µs/s, 0 = meteen), `{"nr":1,"naar":"a"\|"b"\|"wissel"}`, `{"nr":1,"kanaal":1,"proef":1500}` (ook voor een servo die nog niet bewaard is: hij wordt dan aangemaakt), `{"actie":"wissen","nr":1}` |
-| `POST /api/halte` | `{"nr":1,"naam":"Halte Station 1","aankomstPunt":"P5","stopLeds":[5],"stopCode":3,"rijdCode":4,"wachtS":12,"vrijIngangen":[7],"vrijMinS":3,"licht":{"rood":9,"oranje":10,"groen":11},"groenS":5,"servo":0}` (0 = geen), `{"actie":"wissen","nr":1}` |
+| `POST /api/punt` | `{"id":"P3","ingang":5}`, `{"id":"P4","ontvanger":2}`, optioneel `"soort":"hall"\|"ir"\|"ftr"\|"auto"`, `"volgende":"P5"` en `"alleenBus":true` (V1); `{"id":"P3","ingang":0}` = loskoppelen; `{"actie":"wissen","id":"P3"}` (48 punten) |
+| `POST /api/servo` | `{"nr":1,"naam":"Wissel 1","kanaal":1,"a":1100,"b":1900,"snelheid":400,"soort":"wissel"\|"slagboom"\|"armsein"}` (snelheid in µs/s, 0 = meteen; `"pulsUitS":0..10`, E19), `{"nr":1,"naar":"a"\|"b"\|"wissel"}`, `{"nr":1,"kanaal":1,"proef":1500}` (ook voor een servo die nog niet bewaard is: hij wordt dan aangemaakt), `{"actie":"wissen","nr":1}` |
+| `POST /api/halte` | `{"nr":1,"naam":"Halte Station 1","aankomstPunt":"P5","stopLeds":[5],"stopCode":3,"rijdCode":4,"wachtS":12,"vrijIngangen":[7],"vrijMinS":3,"licht":{"rood":9,"oranje":10,"groen":11},"groenS":5,"servo":0,"herhalen":true,"maxVerkeerS":60}` (0 = geen; `maxVerkeerS` 0 = geen grens), `{"actie":"wissen","nr":1}` |
 | `POST /api/kastje` | van het kastje: `{"actie":"aanmelden","id":"a1b2c3","naam":"Kerk","ip":"192.168.4.23","geluiden":[{"naam":"klok.wav","s":4.2}],"versie":"1.0.0"}` (elke 30 s; 90 s niets = offline); van het dashboard: `{"actie":"spelen","kastje":"Kerk","geluid":"klok.wav","volume":80}` (doos -> `POST http://<ip>/speel`), `{"actie":"stop","kastje":"Kerk"}` (-> `/stop`), `{"actie":"hernoemen","id":"a1b2c3","naam":"Kerk"}` (-> `/naam`) |
+| Toegang (2.1.0, F6) | elke POST/PUT (ook `/api/update`, `/api/plan`, de bestanden): van de hotspot (192.168.4.x) of met de kop `X-Treinbaan-Wachtwoord: <wifi-wachtwoord>`, anders **401**; een `Origin` die niet de doos is (`http://192.168.4.1`, `http://treinbaan.local`, het IP op het thuisnet, de `Host`): **403**. Uitzondering: `{"actie":"aanmelden"}` van een geluidskastje |
 | `GET /api/meldingen?sinds=812` | `{"volgnr":813,"msNu":123456,"meldingen":[{"nr":813,"ms":123400,"soort":"hall"\|"ir"\|"ftr","punt":"P3","ingang":5,"ontvanger":2,"code":"nec:00FF12ED","bus":1}]}` (`ingang`, `ontvanger`, `code`, `bus` alleen als ze er zijn; hoogstens de laatste 64; een `sinds` groter dan `volgnr` = de doos herstartte: alles) |
 | `GET /api/plan`, `PUT /api/plan` | het plan (body = `situatieplan/plan.json`, JSON-object, hoogstens **256 kB**), bewaard als `/plan.json`; zonder eigen plan geeft GET `/tv/plan.json` |
 | `POST /api/plan/beeld` | jpg of png (multipart of ruwe body, hoogstens 1,5 MB) -> `/plan.jpg`; `GET /plan.jpg` |
@@ -288,12 +402,18 @@ Erbij in `/api/staat` (2.0.0), kort en volledig: `"msNu"` (klok van de doos), `"
 `"bussen":[{"nr":1,"van":"P3","naar":"P4","fractie":0.42,"gezienMs":123456,"staat":"rijdt"|"halte"|"wacht"|"onbekend"}]`,
 `"irLaatst":[{"ontvanger":2,"code":"nec:00FF12ED","ms":123456}]` (laatste 8, de nieuwste achteraan),
 `"leren":{"loopt":true,"ontvanger":1,"resterendS":7}` of `{"loopt":false,"nr":5}` (met `"fout"` als het niet lukte),
-`"haltes":[{"nr":1,"fase":"vrij"|...,"bus":2,"resterendS":4}]` (`bus` 0 = onbekende bus), per ingang `"aanwezig"`.
+`"haltes":[{"nr":1,"fase":"vrij"|...,"bus":2,"resterendS":4,"wachtend":-1}]` (`bus` 0 = onbekende bus; `wachtend`:
+de wachtende bus, 0 = een onbekende, -1 = niemand; `"teLang":true` na F12), per ingang `"aanwezig"`. Sinds 2.1.0 ook
+`"servoWachtLampen"` (E14), `"ontvangerBezet":[false,false,true,false]` (E2, ontvanger 1..4),
+`"zelftest":{"loopt":false,"ok":true,"led":5,"khz":38.0,"code":"nec:7E815AA5","fout":"","ongemoduleerd":false}` (E4) en
+`"ir":{"nietVerzonden":0,"laatsteFout":""}` (F5; volledig staan in `"ir"` ook de codes).
 Alleen volledig: per servo, bus en halte ook hun instellingen, `"ir":{"codes":[{"nr":1,"naam":..,"soort":"nec","khz":38,
 "adres":0,"commando":18,"herhaal":1,"raw":[...],"tekst":"nec:00FF12ED","tijden":0}],"leds":8,"ontvangers":[{"nr":1,"pin":48,
 "soort":"leren"},...]}`, `"punten":[{"id":"P3","ingang":5,"soort":"auto","volgende":""}]`,
 `"kastjes":[{"id":..,"naam":..,"ip":..,"versie":..,"online":true,"gezienMs":..,"geluiden":[{"naam":"klok.wav","s":4.2}]}]`,
-`"pnpOmkeren":false` en per ingang `"polariteit"` (`raw` staat er alleen bij een code met tijden).
+per ingang `"polariteit"` (`raw` staat er alleen bij een code met tijden), in `"instellingen"` ook `"printSoort"` (5),
+`"irLedActiefLaag"` en `"irDuty"`; per punt `"alleenBus"`, per servo `"pulsUitS"`, per halte `"herhalen"` en
+`"maxVerkeerS"`. `"pnpOmkeren"` bestaat niet meer (2.1.0).
 
 `/api/staat` geeft per groep `"aan"` (gekozen), `"brandt"` (nu echt aan, bij knipperen deze tel; vervangt `"lamp"`
 0..100 van 1.2), `"effect"`, `"p1"`, `"p2"`, `"fase"`; per ingang `"actief"`, `"teller"`, `"toestand"` (bv. "puls",
@@ -316,10 +436,13 @@ oude stap `helderheid` wordt `aan` (waarde > 0) of `uit` (0). Een functie in JSO
 
 ## Bewaren
 
-`/instellingen.json` en `/stand.json` in LittleFS, met `"versie": 3` (sinds 2.0.0: IR-codes, servo's, bussen,
-punten, haltes, polariteit, 40 ingangen; tot 160 kB; in `/stand.json` ook de servo's in stand B). Een bestand met
-`"versie": 2` (firmware 1.3.0) laadt gewoon: de nieuwe onderdelen krijgen hun standaard (geen codes, servo's, ...;
-alle ingangen npn), daarna bewaart de doos het als versie 3. Het plan staat apart in `/plan.json`, het beeld in
+`/instellingen.json` en `/stand.json` in LittleFS, met `"versie": 4` (2.1.0: printSoort, irLedActiefLaag, irDuty,
+continu, adres16/commando16, pulsUitS, alleenBus, herhalen, maxVerkeerS; sinds 2.0.0: IR-codes, servo's, bussen,
+punten, haltes, polariteit; tot 160 kB; in `/stand.json` ook de servo's in stand B). Een bestand met `"versie": 3`
+(firmware 2.0.0) laadt gewoon: de nieuwe waarden krijgen hun standaard, een print met een pnp-ingang wordt `"gnd"`;
+een pnp-ingang op een print `"vcc"` in een bestand van versie 4 wordt npn (met een melding). Een bestand met
+`"versie": 2` (firmware 1.3.0) laadt ook: de onderdelen van 2.0.0 krijgen hun standaard (geen codes, servo's, ...;
+alle ingangen npn), daarna bewaart de doos het als versie 4. Het plan staat apart in `/plan.json`, het beeld in
 `/plan.jpg`, de bestanden van de tv-pagina in `/tv/`. Een bestand met `"versie": 1`
 (firmware 1.0 tot 1.2, met helderheden) wordt zonder melding omgezet: `helderheid`, `max` en `faduur` vallen weg (een
 groep die aan stond, blijft aan), een stap `helderheid` wordt `aan` (> 0) of `uit` (0), de effecten vuur, tv en ademen

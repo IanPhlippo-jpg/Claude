@@ -252,41 +252,41 @@
 <text x="96.45" y="216.00" font-size="2.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-K8</text>
 <text x="96.45" y="219.70" font-size="2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">MCP23017 (optioneel)</text>
 <polyline points="71.88,226.50 71.88,167.00 255.45,167.00" fill="none" stroke="#111111" stroke-width="0.3" stroke-dasharray="2 1"/>
-<text x="257.45" y="166.50" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111111">W67 -K7:GND</text>
+<text x="257.45" y="166.50" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111111">W66 -K7:GND</text>
 <polyline points="69.34,208.50 69.34,160.80 255.45,160.80" fill="none" stroke="#2e9e4f" stroke-width="0.3" stroke-dasharray="2 1"/>
-<text x="257.45" y="160.30" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#2e9e4f">W68 -K7:SCL</text>
+<text x="257.45" y="160.30" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#2e9e4f">W67 -K7:SCL</text>
 <polyline points="71.88,208.50 71.88,154.60 255.45,154.60" fill="none" stroke="#c9a400" stroke-width="0.3" stroke-dasharray="2 1"/>
-<text x="257.45" y="154.10" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#c9a400">W69 -K7:SDA</text>
+<text x="257.45" y="154.10" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#c9a400">W68 -K7:SDA</text>
 <polyline points="69.34,226.50 69.34,148.40 255.45,148.40" fill="none" stroke="#e07a10" stroke-width="0.3" stroke-dasharray="2 1"/>
-<text x="257.45" y="147.90" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#e07a10">W70 -K7:VCC</text>
+<text x="257.45" y="147.90" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#e07a10">W69 -K7:VCC</text>
 <polyline points="163.59,185.00 163.59,142.20 255.45,142.20" fill="none" stroke="#e07a10" stroke-width="0.3" stroke-dasharray="2 1"/>
-<text x="257.45" y="141.70" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#e07a10">W78 -X12:2</text>
+<text x="257.45" y="141.70" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#e07a10">W76 -X12:2</text>
 <polyline points="166.13,185.00 166.13,136.00 255.45,136.00" fill="none" stroke="#111111" stroke-width="0.3" stroke-dasharray="2 1"/>
-<text x="257.45" y="135.50" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111111">W79 -X13:2</text>
+<text x="257.45" y="135.50" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111111">W77 -X13:2</text>
 <polyline points="131.45,186.00 131.45,129.80 255.45,129.80" fill="none" stroke="#c8202f" stroke-width="0.6" stroke-dasharray="2 1"/>
-<text x="257.45" y="129.30" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#c8202f">W80 -X1:10 (WAGO)</text>
+<text x="257.45" y="129.30" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#c8202f">W78 -X1:10 (WAGO)</text>
 <line x1="136.45" y1="186.00" x2="224.95" y2="185.75" stroke="#111111" stroke-width="0.6" stroke-opacity="0.85"/>
-<text x="180.70" y="185.38" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111111">81</text>
+<text x="180.70" y="185.38" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111111">79</text>
 <polyline points="224.95,212.25 224.95,123.60 255.45,123.60" fill="none" stroke="#111111" stroke-width="0.6" stroke-dasharray="2 1"/>
-<text x="257.45" y="123.10" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111111">W82 -X2:10 (WAGO)</text>
+<text x="257.45" y="123.10" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111111">W80 -X2:10 (WAGO)</text>
 <polyline points="226.95,200.27 226.95,117.40 255.45,117.40" fill="none" stroke="#8a8d91" stroke-width="0.3" stroke-dasharray="2 1"/>
-<text x="257.45" y="116.90" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">W83 -X6:J3:17 (47)</text>
+<text x="257.45" y="116.90" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">W81 -X6:J3:17 (47)</text>
 <line x1="49.02" y1="226.50" x2="168.67" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="108.84" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">84</text>
+<text x="108.84" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">82</text>
 <line x1="51.56" y1="226.50" x2="171.21" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="111.38" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">85</text>
+<text x="111.38" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">83</text>
 <line x1="54.10" y1="226.50" x2="173.75" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="113.93" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">86</text>
+<text x="113.93" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">84</text>
 <line x1="56.64" y1="226.50" x2="176.29" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="116.47" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">87</text>
+<text x="116.47" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">85</text>
 <line x1="59.18" y1="226.50" x2="178.83" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="119.00" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">88</text>
+<text x="119.00" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">86</text>
 <line x1="61.72" y1="226.50" x2="181.37" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="121.55" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">89</text>
+<text x="121.55" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">87</text>
 <line x1="64.26" y1="226.50" x2="183.91" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="124.09" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">90</text>
+<text x="124.09" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">88</text>
 <line x1="66.80" y1="226.50" x2="186.45" y2="185.00" stroke="#8a8d91" stroke-width="0.3" stroke-opacity="0.85"/>
-<text x="126.63" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">91</text>
+<text x="126.63" y="205.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#555">89</text>
 <text x="262.00" y="29.00" font-size="2.8" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Modules (op palen in de bodem, geen solderen)</text>
 <text x="262.00" y="33.50" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4 MOSFET-module: 87 x 47, 4 x M3 *</text>
 <text x="262.00" y="37.10" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q3 AOD4184: 34 x 17, 2 x M3 *</text>
@@ -383,10 +383,10 @@
 <text x="231.20" y="277.40" font-size="3.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">TRN-11</text>
 <line x1="290.00" y1="279.00" x2="290.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="291.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">5</text>
+<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">6</text>
 <line x1="305.00" y1="279.00" x2="305.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="306.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-15</text>
+<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-16</text>
 <line x1="335.00" y1="279.00" x2="335.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Taal</text>
 <text x="336.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">nl</text>
@@ -395,7 +395,7 @@
 <text x="351.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1:1</text>
 <line x1="380.00" y1="279.00" x2="380.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">11 / 15</text>
+<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 / 17</text>
 <text x="231.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="231.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="265.00" y1="287.00" x2="265.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
@@ -406,13 +406,15 @@
 <text x="291.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">—</text>
 <line x1="335.00" y1="287.00" x2="335.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Maten en toleranties</text>
-<text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-m</text>
+<text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-c</text>
 <line x1="380.00" y1="287.00" x2="380.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="393.00" y2="284.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="279.60" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="384.00" y2="279.60" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="393.00" y1="284.10" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="382.50" y1="282.60" x2="394.50" y2="282.60" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
-<circle cx="401.00" cy="282.60" r="3.00" fill="none" stroke="#111" stroke-width="0.3"/>
-<circle cx="401.00" cy="282.60" r="1.50" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="381.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Projectie: 1e hoek</text>
+<line x1="387.00" y1="286.50" x2="393.30" y2="285.45" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="282.30" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="286.50" x2="387.00" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="393.30" y1="285.45" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="385.95" y1="284.40" x2="394.35" y2="284.40" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
+<circle cx="398.90" cy="284.40" r="2.10" fill="none" stroke="#111" stroke-width="0.3"/>
+<circle cx="398.90" cy="284.40" r="1.05" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="409.00" y="245.60" font-size="2" text-anchor="end" font-family="Arial, Helvetica, sans-serif" fill="#111">Rev. 6 (2026-11-16): IR, servo's, NPN/PNP; proefstuk, oogjes, lippen 0,3, ISO 2768-c</text>
 </svg>

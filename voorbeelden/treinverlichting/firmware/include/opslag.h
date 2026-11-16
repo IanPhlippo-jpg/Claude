@@ -5,8 +5,8 @@
 //   /instellingen.json  namen, scènes, functies, ingangen, wachtwoord, dag/nacht-duur, opstartgedrag
 //   /stand.json         de stand van de groepen (voor na een stroomonderbreking), apart zodat het vaak bewaren
 //                       van de stand de instellingen nooit in gevaar brengt
-// Elk bestand heeft een versienummer ("versie": 2) en wordt bij het laden volledig nagekeken:
-//   - onleesbaar (kapotte JSON), te groot (> 48 kB), geen object, onbekende versie of een onderdeel van het verkeerde
+// Elk bestand heeft een versienummer ("versie": 4, CONFIG_VERSIE) en wordt bij het laden volledig nagekeken:
+//   - onleesbaar (kapotte JSON), te groot (> 160 kB, MAX_BESTAND), geen object, onbekende versie of een onderdeel van het verkeerde
 //     soort (bv. "groepen" is geen lijst): het hele bestand is ONGELDIG -> standaardinstellingen + melding
 //     (main.cpp bewaart het kapotte bestand als /instellingen.kapot.json, er gaat niets verloren);
 //   - een losse waarde buiten het bereik of van het verkeerde soort (naam te lang, onbekend effect, nalopen -5):
@@ -20,6 +20,12 @@
 // Versie 3 (firmware 2.0.0) heeft er bij: "ir" (32 IR-codes), "servos" (16), "bussen" (8), "punten" (48 meetpunten),
 // "haltes" (8), per ingang "polariteit" (40 ingangen) en de functiestappen servo, ir en geluid. Met geleerde raw-codes
 // kan het bestand groter worden: tot 160 kB.
+// Versie 4 (firmware 2.1.0, Fable 5.2) heeft er bij: in "instellingen" "printSoort" (5 x "vcc"|"gnd"|"apart", E3),
+// "irLedActiefLaag" (E1) en "irDuty" (33|50, E4); per IR-code de soort "continu" (F1) en "adres16"/"commando16"
+// (F13); per servo "pulsUitS" (E19); per punt "alleenBus" (V1); per halte "herhalen" (F2) en "maxVerkeerS" (F12).
+// Versie 1..3 laden nog (OMGEZET): de nieuwe waarden krijgen hun standaard, en een print waarop een pnp-ingang staat
+// wordt "gnd" (zo bedraadde versie 3 PNP: COM aan 0 V, niets omkeren), de andere "vcc". Een pnp-ingang op een print
+// "vcc" in een bestand van versie 4 kan niet: die ingang wordt npn (HERSTELD).
 // Nooit crashen: elke waarde wordt begrensd voor ze gebruikt wordt; lijsten worden ingekort tot hun maximum.
 #pragma once
 #include <ArduinoJson.h>
@@ -38,7 +44,8 @@
 
 namespace trein {
 
-constexpr int CONFIG_VERSIE = 3;     // 3 = firmware 2.0.0 (IR, servo's, bussen, punten, haltes, polariteit)
+constexpr int CONFIG_VERSIE = 4;     // 4 = firmware 2.1.0 (printSoort, irLedActiefLaag, irDuty, ...)
+constexpr int VERSIE_200 = 3;        // firmware 2.0.0 (IR, servo's, bussen, punten, haltes, polariteit)
 constexpr int VERSIE_130 = 2;        // firmware 1.3.0: laadt gewoon, de nieuwe onderdelen krijgen hun standaard
 constexpr int OUDE_VERSIE = 1;       // firmware 1.0 tot 1.2 (met dimmen): wordt bij het laden omgezet
 constexpr size_t MAX_BESTAND = 160 * 1024;
@@ -58,7 +65,16 @@ struct Instellingen {
   // thuis-wifi (optioneel): de doos meldt zich daar ook aan (naast haar eigen hotspot); leeg = niet gebruikt
   char thuisSsid[33] = {0};        // 1..32 bytes
   char thuisWachtwoord[64] = {0};  // leeg (open netwerk) of 8..63 gewone tekens
+  uint8_t printSoort[N_PRINTEN] = {PRINT_VCC, PRINT_VCC, PRINT_VCC, PRINT_VCC, PRINT_VCC}; // E3, per optocouplerprint
+  bool irLedActiefLaag = UITGANG_ACTIEF_LAAG; // E1: polariteit van -Q4 (standaard dezelfde als -Q1)
+  uint8_t irDuty = IR_DUTY_STD;               // E4: 33 of 50 %
 };
+
+/** keert de Baan ingang i om? (printsoort en polariteit, E3) */
+inline bool ingangOmgekeerd(const Instellingen &in, const IngangCfg &c, int i) {
+  int p = printVanIngang(i);
+  return p >= 0 && ingangOmkeren(in.printSoort[p], c.polariteit);
+}
 
 struct Config {
   Instellingen inst;
@@ -382,6 +398,8 @@ struct Lezer {
     } else if (!r.isNull()) {
       hersteld++;
     }
+    c.adres16 = janee(v["adres16"], c.adres16);
+    c.commando16 = janee(v["commando16"], c.commando16);
   }
 
   void servo(JsonVariantConst v, ServoCfg &c, int nr) {
@@ -397,6 +415,7 @@ struct Lezer {
     c.a = (uint16_t)getal(v["a"], SERVO_MIN_US, SERVO_MAX_US, c.a);
     c.b = (uint16_t)getal(v["b"], SERVO_MIN_US, SERVO_MAX_US, c.b);
     c.snelheid = (uint16_t)getal(v["snelheid"], 0, SERVO_MAX_SNELHEID, c.snelheid);
+    c.pulsUitS = (uint8_t)getal(v["pulsUitS"], 0, SERVO_MAX_PULS_UIT_S, c.pulsUitS);
     JsonVariantConst so = v["soort"];
     if (!so.isNull()) {
       int x = so.is<const char *>() ? servoSoortVanId(so.as<const char *>()) : -1;
@@ -445,6 +464,7 @@ struct Lezer {
         strcpy(c.volgende, vo.as<const char *>());
       else hersteld++;
     }
+    c.alleenBus = janee(v["alleenBus"], c.alleenBus);
     return true;
   }
 
@@ -478,6 +498,8 @@ struct Lezer {
     }
     c.groenS = (uint16_t)getal(v["groenS"], 0, HALTE_MAX_S, c.groenS);
     c.servo = verwijzing(v["servo"], MAX_SERVOS, c.servo);
+    c.herhalen = janee(v["herhalen"], c.herhalen);
+    c.maxVerkeerS = (uint16_t)getal(v["maxVerkeerS"], 0, HALTE_MAX_S, c.maxVerkeerS);
   }
 
   void functie(JsonVariantConst v, Functie &f, int nr) {
@@ -578,6 +600,25 @@ struct Lezer {
       }
       if (!i.thuisSsid[0]) i.thuisWachtwoord[0] = 0; // geen netwerk: ook geen wachtwoord bewaren
     }
+    JsonVariantConst ps = v["printSoort"];
+    if (ps.is<JsonArrayConst>()) {
+      int k = 0;
+      for (JsonVariantConst x : ps.as<JsonArrayConst>()) {
+        if (k >= N_PRINTEN) { hersteld++; break; }
+        int s = x.is<const char *>() ? printSoortVanId(x.as<const char *>()) : -1;
+        if (s < 0) hersteld++;
+        else i.printSoort[k] = (uint8_t)s;
+        k++;
+      }
+    } else if (!ps.isNull()) {
+      hersteld++;
+    }
+    i.irLedActiefLaag = janee(v["irLedActiefLaag"], i.irLedActiefLaag);
+    JsonVariantConst du = v["irDuty"];
+    if (!du.isNull()) {
+      if (du.is<int>() && (du.as<int>() == 33 || du.as<int>() == 50)) i.irDuty = (uint8_t)du.as<int>();
+      else hersteld++;
+    }
   }
 };
 
@@ -636,6 +677,8 @@ inline void schrijfIrCode(JsonObject o, const IrCode &c, bool metRaw) {
     JsonArray r = o["raw"].to<JsonArray>();
     for (int i = 0; i < c.nRaw; i++) r.add(c.raw[i]);
   }
+  if (c.adres16) o["adres16"] = true;
+  if (c.commando16) o["commando16"] = true;
   if (!metRaw) {
     char t[IR_TEKST_LEN];
     irCodeTekst(c, t, sizeof t);
@@ -651,6 +694,7 @@ inline void schrijfServo(JsonObject o, const ServoCfg &c) {
   o["b"] = c.b;
   o["snelheid"] = c.snelheid;
   o["soort"] = servoSoortId(c.soort);
+  o["pulsUitS"] = c.pulsUitS;
 }
 
 inline void schrijfBus(JsonObject o, const BusCfg &c) {
@@ -665,6 +709,7 @@ inline void schrijfPunt(JsonObject o, const PuntCfg &c) {
   if (c.ontvanger >= 0) o["ontvanger"] = c.ontvanger + 1;
   o["soort"] = c.soort == MELD_AUTO ? "auto" : meldSoortId(c.soort);
   o["volgende"] = c.volgende;
+  o["alleenBus"] = c.alleenBus;
 }
 
 inline void schrijfHalte(JsonObject o, const HalteCfg &c) {
@@ -684,6 +729,8 @@ inline void schrijfHalte(JsonObject o, const HalteCfg &c) {
   l["groen"] = c.groen + 1;
   o["groenS"] = c.groenS;
   o["servo"] = c.servo + 1;
+  o["herhalen"] = c.herhalen;
+  o["maxVerkeerS"] = c.maxVerkeerS;
 }
 
 inline void schrijfFunctie(JsonObject o, const Functie &f) {
@@ -714,6 +761,10 @@ inline void schrijfInstellingen(JsonObject o, const Instellingen &i, bool metWac
   t["ssid"] = i.thuisSsid;
   if (metWachtwoord) t["wachtwoord"] = i.thuisWachtwoord;
   else t["metWachtwoord"] = i.thuisWachtwoord[0] != 0; // het dashboard krijgt het wachtwoord nooit te zien
+  JsonArray ps = o["printSoort"].to<JsonArray>();
+  for (int k = 0; k < N_PRINTEN; k++) ps.add(printSoortId(i.printSoort[k]));
+  o["irLedActiefLaag"] = i.irLedActiefLaag;
+  o["irDuty"] = i.irDuty;
 }
 
 inline std::string configNaarJson(const Config &c) {
@@ -784,7 +835,8 @@ inline std::string kijkNa(const char *tekst, size_t len, JsonDocument &d) {
 }
 
 /** de instellingen laden en volledig nakijken. ONGELDIG: c = de standaardinstellingen. OMGEZET: een bestand van
- *  versie 1 (met dimmen) of 2 (firmware 1.3.0), zonder fouten omgezet; main.cpp bewaart het meteen als versie 3. */
+ *  versie 1 (met dimmen), 2 (firmware 1.3.0) of 3 (2.0.0), zonder fouten omgezet; main.cpp bewaart het meteen als
+ *  versie 4. */
 inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string &melding) {
   melding.clear();
   standaard(c);
@@ -868,6 +920,21 @@ inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string 
     n++;
   }
   bool oud = d["versie"].as<int>() != CONFIG_VERSIE;
+  if (d["versie"].as<int>() < CONFIG_VERSIE) {
+    // versie 1..3: een print met een pnp-ingang was bedraad met COM aan 0 V = "gnd" (niets omkeren), de andere "vcc"
+    for (int p = 0; p < N_PRINTEN; p++) c.inst.printSoort[p] = PRINT_VCC;
+    for (int i = 0; i < N_INGANGEN; i++) {
+      int p = printVanIngang(i);
+      if (p >= 0 && c.ingang[i].polariteit == POL_PNP) c.inst.printSoort[p] = PRINT_GND;
+    }
+  }
+  for (int i = 0; i < N_INGANGEN; i++) {
+    int p = printVanIngang(i);
+    if (p >= 0 && !polariteitMag(c.inst.printSoort[p], c.ingang[i].polariteit)) {
+      c.ingang[i].polariteit = POL_NPN; // pnp op een print "vcc" kan niet (E3)
+      l.hersteld++;
+    }
+  }
   if (l.hersteld > 0) {
     char t[160];
     snprintf(t, sizeof t, "%d waarde%s in de instellingen klopte%s niet en %s aangepast.", l.hersteld,

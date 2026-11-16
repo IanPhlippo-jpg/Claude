@@ -599,7 +599,16 @@ start();
 //   rijbanen tussen zijn laatste 2 meldingen / tijd) verder over zijn route en wacht het voor het volgende meetpunt.
 // - GET /api/staat?kort=1 elke 0,5 s: wissels (servo's), lichtgroepen, haltes (fase, bus); /api/staat bij een nieuwe rev.
 // - Antwoordt de doos niet (of is de pagina als bestand geopend): de simulatie van het situatieplan draait.
-// - ?api=http://host:poort: een andere doos (of een nep-doos om te testen); ?demo=1: altijd de simulatie.
+// - ?api=http://host:poort: een andere doos (of een nep-doos om te testen); ?demo=1: altijd de simulatie. De doos zet
+//   Access-Control-Allow-Origin: * op /api/staat, /api/plan en /api/meldingen (V5), dus alle drie werken van elders.
+// - Meldingen zonder buscode (V1, V2): alleen aan een voertuig toewijzen als het zeker is. Op een meetpunt met
+//   "alleenBus" gaat de melding naar de bus die de doos daar zag (volgorde per strook), anders naar de voorste bus die er
+//   verwacht wordt; is er geen, dan alleen tellen (geen nieuw voertuig). Elders gaat ze naar de voorste auto die er
+//   verwacht wordt en al de helft van de weg reed (per stuk tussen 2 sensoren: wie eerst binnenkwam, gaat eerst buiten),
+//   of wordt ze een nieuwe auto;
+//   rijdt er net een bus over het punt, dan alleen tellen. Een auto die na 2 x zijn verwachte rijtijd het volgende
+//   meetpunt niet haalde, verdwijnt.
+// - Tijden van de doos (millis) lopen na 49,7 dagen over: verschillen altijd modulo 2^32 (V4).
 (() => {
   'use strict';
   const SP = window.situatieplan;
@@ -631,7 +640,10 @@ start();
   };
   if (!SP || zoek.get('demo') === '1' || (location.protocol === 'file:' && !BASIS)) return;
 
-  const D = { aan: false, volgnr: null, maxNr: -1, laatst: 0, kort: null, vol: null, rev: null, hist: {}, autoNr: 0, fasen: {}, ftr: {}, flits: {} };
+  // V4: millis() van de doos loopt na 2^32 ms (49,7 dagen) over: verschillen en "later dan" modulo 2^32
+  const msNa = (a, b) => (a - b) >>> 0; // ms van b tot a
+  const later = (a, b) => a !== b && msNa(a, b) < 0x80000000;
+  const D = { aan: false, volgnr: null, maxNr: -1, laatst: 0, kort: null, vol: null, rev: null, hist: {}, autoNr: 0, teller: {}, geteld: 0, fasen: {}, ftr: {}, flits: {} };
   const haal = async pad => { const r = await fetch(BASIS + pad, { cache: 'no-store' }); if (!r.ok) throw new Error(pad + ': ' + r.status); return r.json(); };
   const STD = 6; // m/s: aanname voor een voertuig waarvan nog niets gemeten is (zelfde orde als de simulatie)
   const pxm = () => (PLAN.schaal && PLAN.schaal.px_per_m) || 5;
@@ -681,8 +693,17 @@ start();
     }
     return best;
   }
-  // meetpunten: een bus ziet elke ontvanger (zijn code), een auto alleen hallsensoren en FTR-lichtsluizen
-  const meetpunten = bus => lijst('hallsensoren').map(p => p.id).concat(lijst('ir_sensoren').filter(p => bus || p.sensor === 'ftr' || D.ftr[p.id]).map(p => p.id));
+  // V1: een meetpunt waar alleen bussen komen (dashboard, Bussen, Meetpunten: "alleen bussen"; of in het plan alleen_bus)
+  function alleenBus(id) {
+    const k = D.vol && (D.vol.punten || []).find(x => x && (x.id || x.punt) === id);
+    if (k && k.alleenBus != null) return !!k.alleenBus;
+    const z = puntVan(id);
+    return !!(z && (z.p.alleen_bus || z.p.alleenBus));
+  }
+  // meetpunten: een bus ziet elke ontvanger (zijn code) en de hallsensoren waar alleen bussen komen (op een gedeelde strook
+  // zegt een hallsensor niet welk voertuig het was); een auto ziet de andere hallsensoren en de FTR-lichtsluizen
+  const meetpunten = bus => lijst('hallsensoren').filter(p => !!bus === alleenBus(p.id)).map(p => p.id)
+    .concat(lijst('ir_sensoren').filter(p => bus || p.sensor === 'ftr' || D.ftr[p.id]).map(p => p.id));
   // een bus rijdt naar zijn eigen haltestrook: de strook met zijn naam (bv. "Haltestrook Lijnbus 1"), anders halte_lijnbus<nr>
   function eigenStrook(bus) {
     const b = D.vol && (D.vol.bussen || []).find(x => x && x.nr === bus), n = b && b.naam ? b.naam.toLowerCase() : null;
@@ -708,6 +729,7 @@ start();
     v.rest = r ? r.d : null;
     v.routeL = v.rest;
     v.doel = r ? r.id : null;
+    v.verwachtS = r && v.v > 0 ? r.d / v.v : null; // verwachte rijtijd tot het volgende meetpunt (V1)
     zetEinde(v);
   }
   // verder rijden: hoogstens tot net voor het volgende meetpunt; afslaan zoals de route zegt
@@ -737,28 +759,54 @@ start();
   // ------------------------------------------------------------------------------------------- meldingen
   function snelheidSchatting(bus, plek) {
     const k = bus && D.kort && (D.kort.bussen || []).find(b => b.nr === bus); // de doos kent de rijtijd van het traject
-    if (k && k.fractie > 0.05 && k.van && k.naar && D.kort.msNu > k.gezienMs) {
+    if (k && k.fractie > 0.05 && k.van && k.naar && later(D.kort.msNu, k.gezienMs)) {
       const a = sensorPlek(k.van), b = sensorPlek(k.naar), r = a && b && weg(a, b);
-      if (r) return r.d / ((D.kort.msNu - k.gezienMs) / 1000 / k.fractie) / pxm();
+      if (r) return r.d / (msNa(D.kort.msNu, k.gezienMs) / 1000 / k.fractie) / pxm();
     }
     const gem = Object.values(D.hist).filter(h => h.snel > 0 && !!h.bus === !!bus).map(h => h.snel);
     return gem.length ? gem.reduce((a, b) => a + b) / gem.length : null;
+  }
+  /** rijdt er nu een live bus over dit punt (binnen 4 m ervoor of erna)? */
+  function busOver(plek) {
+    return SP.voertuigen.some(v => {
+      if (!v.live || !v.busNr || !v.benen[v.li]) return false;
+      const hier = { baan: v.benen[v.li].baan, s: v.s }, a = weg(hier, plek), b = weg(plek, hier);
+      return (a && a.d < 4 * pxm()) || (b && b.d < 4 * pxm());
+    });
+  }
+  /** V1/V2: wie hoort bij een melding zonder buscode? { id, bus } of null (alleen tellen, geen nieuw voertuig) */
+  function wie(m, plek) {
+    const verwacht = f => SP.voertuigen.filter(v => v.live && !v.vast && v.doel === m.punt && f(v)).sort((a, b) => a.rest - b.rest); // voorste eerst
+    if (alleenBus(m.punt)) {
+      // de doos volgt bussen zonder code in volgorde per strook: de bus die zij hier net zag, gaat voor
+      const k = D.kort && (D.kort.bussen || []).find(b => b.van === m.punt && b.gezienMs != null && Math.min(msNa(m.ms, b.gezienMs), msNa(b.gezienMs, m.ms)) <= 1500);
+      if (k) return { id: 'bus' + k.nr, bus: k.nr };
+      const b = verwacht(v => !!v.busNr)[0];
+      return b ? { id: b.id, bus: b.busNr } : null;
+    }
+    // de voorste auto die hier verwacht wordt en al minstens de helft van zijn weg reed; anders is het een andere auto
+    const a = verwacht(v => v.soort === 'auto' && !v.busNr && v.rest <= 0.5 * (v.routeL || 0))[0];
+    if (a) return { id: a.id, bus: 0 };
+    if (busOver(plek)) return null; // de magneet van een bus op de gedeelde strook: geen nieuwe auto
+    return { id: 'auto' + (++D.autoNr), bus: 0 };
   }
   function verwerk(m, msNu) {
     const plek = m.punt && sensorPlek(m.punt);
     if (!plek) return;
     if (m.soort === 'ftr') D.ftr[m.punt] = true;
     D.flits[m.punt] = performance.now();
-    const bus = m.bus || 0;
-    let id = 'bus' + bus;
-    if (!bus) { // een auto heeft geen code: de auto die hier verwacht werd (die het dichtst bij is), anders een nieuwe
-      const kand = SP.voertuigen.filter(v => v.live && v.soort === 'auto' && v.doel === m.punt && v.rest < Math.max(15 * pxm(), 0.3 * v.routeL)).sort((a, b) => a.rest - b.rest);
-      id = kand.length ? kand[0].id : 'auto' + (++D.autoNr);
+    D.teller[m.punt] = (D.teller[m.punt] || 0) + 1;
+    let bus = m.bus || 0, id = 'bus' + bus;
+    if (!bus) {
+      const w = wie(m, plek);
+      if (!w) { D.geteld++; return; } // niet zeker: alleen geteld
+      id = w.id;
+      bus = w.bus;
     }
     const h = D.hist[id];
     let snel = null;
-    if (h && m.ms > h.ms) {
-      const r = weg(h.plek, plek), dt = (m.ms - h.ms) / 1000;
+    if (h && later(m.ms, h.ms)) {
+      const r = weg(h.plek, plek), dt = msNa(m.ms, h.ms) / 1000;
       if (r && r.d / dt / pxm() < 40) snel = r.d / dt / pxm();
     }
     if (snel == null) snel = (h && h.snel) || snelheidSchatting(bus, plek) || STD;
@@ -771,11 +819,12 @@ start();
     if (bus) v.busNr = bus;
     if (plek.soort === 'meet' && snel != null) v.v = snel * pxm(); // de pagina zet een onbekend punt niet stil
     plan(v, plek, bus);
-    const oud = (msNu - m.ms) / 1000; // de melding is al even oud: zo ver is het voertuig al
+    const oud = msNa(msNu, m.ms) / 1000; // de melding is al even oud: zo ver is het voertuig al
     if (oud > 0 && oud < 8 && v.v > 0) stapLive(v, oud);
   }
   async function lusMeldingen() {
     try {
+      if (!D.vol) D.vol = await haal('/api/staat'); // eerst de meetpunten kennen (alleenBus), dan pas meldingen verwerken
       const j = await haal('/api/meldingen?sinds=' + (D.volgnr == null ? 0 : D.volgnr));
       D.laatst = performance.now();
       if (!D.aan) aanzetten();
@@ -784,7 +833,7 @@ start();
       for (const m of (j.meldingen || []).slice().sort((a, b) => a.nr - b.nr)) {
         if (m.nr <= D.maxNr) continue;
         D.maxNr = m.nr;
-        if (eerst && j.msNu - m.ms > 20000) continue; // bij het openen: alleen de laatste 20 s
+        if (eerst && msNa(j.msNu, m.ms) > 20000) continue; // bij het openen: alleen de laatste 20 s
         verwerk(m, j.msNu);
       }
       D.volgnr = j.volgnr;
@@ -839,9 +888,15 @@ start();
       }
       D.fasen[h.nr] = h;
     }
-    // voertuigen die al 3 minuten niet meer gezien zijn, verdwijnen
+    // weg: een auto die na 2 x zijn verwachte rijtijd het volgende meetpunt niet haalde (zonder meetpunt voor zich: na 20 s),
+    // een bus na 3 minuten zonder melding (niet zolang hij aan een halte staat)
     const nu = performance.now(), l = SP.voertuigen;
-    for (let i = l.length - 1; i >= 0; i--) { const hs = D.hist[l[i].id]; if (l[i].live && (!hs || nu - hs.gezien > 180000) && !l[i].vast) l.splice(i, 1); }
+    for (let i = l.length - 1; i >= 0; i--) {
+      const v = l[i], hs = D.hist[v.id];
+      if (!v.live || v.vast) continue;
+      const s = hs ? (nu - hs.gezien) / 1000 : 1e9;
+      if (v.busNr ? s > 180 : v.verwachtS ? s > 2 * v.verwachtS : s > 20) { l.splice(i, 1); delete D.hist[v.id]; }
+    }
   }
   async function lusStaat() {
     try {
@@ -901,7 +956,11 @@ start();
     }
     for (const p of lijst('ir_sensoren').concat(lijst('hallsensoren').slice(1))) { // de eerste hallsensor tekent de pagina zelf
       const f = Math.max(0, 1 - (nu - (D.flits[p.id] || -1e9)) / 900), ir = !p.id.startsWith('HALL');
-      if (f > 0) { const g = cx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 26); g.addColorStop(0, ir ? `rgba(40,170,255,${f})` : `rgba(255,214,0,${f})`); g.addColorStop(1, 'rgba(40,170,255,0)'); cx.fillStyle = g; cx.beginPath(); cx.arc(p.x, p.y, 26, 0, 7); cx.fill(); }
+      if (f > 0) { // een melding: een duidelijke gloed (ook als ze aan geen voertuig toegewezen werd, V1)
+        const k = ir ? '40,170,255' : '255,200,0', g = cx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 34);
+        g.addColorStop(0, `rgba(${k},${f})`); g.addColorStop(0.5, `rgba(${k},${0.65 * f})`); g.addColorStop(1, `rgba(${k},0)`);
+        cx.fillStyle = g; cx.beginPath(); cx.arc(p.x, p.y, 34, 0, 7); cx.fill();
+      }
       cx.fillStyle = ir ? '#0a7fbf' : '#c9a400'; cx.strokeStyle = '#fff'; cx.lineWidth = 2;
       cx.beginPath(); cx.moveTo(p.x, p.y - 8); cx.lineTo(p.x + 8, p.y); cx.lineTo(p.x, p.y + 8); cx.lineTo(p.x - 8, p.y); cx.closePath(); cx.fill(); cx.stroke();
       labelTekst(p.x, p.y - 20, p.naam || p.id, { fs: 10, kleur: ir ? '#0a5f8f' : '#1d1d1d' });

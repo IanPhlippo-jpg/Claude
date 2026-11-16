@@ -55,3 +55,18 @@
 - [x] src/: RMT TX (GPIO47) en RX (48/11/39/42), MCP23017 (0x20), PCA9685 servo's (0x42, 50 Hz), HTTP naar de kastjes, /tv, /api/plan, /plan.jpg; maak-header.py met tv.html
 - [x] native en native32 groen, `doos` bouwen (flash/RAM)
 - [x] README 2.0.0 (pinnen, I2C-adressen, API, PNP), graphify update
+
+## Advies Fable 5.2 (2026-11-16)
+- [x] Drivers testbaar: Pca9685, PcaServo, Mcp23017 als template in include/i2c.h; nep-Wire en MCP-model in test/nep; test_hw
+- [x] E6: I2C 100 kHz, Wire.setTimeOut(10), alleen gewijzigde kanalen schrijven, MCP 0x20 alleen poort B lezen (BANK=1, 3 bytes); F11 busherstel (9 klokpulsen)
+- [x] E1: irLedActiefLaag (instelling, standaard = bouwvlag), zetA keert om, begin(): eerst OLATA uit, dan IODIRA; test met negatieve proef
+- [x] E7: GPA7/GPB7 nooit ingang (23 ingangen, 0x21: 25-38); F10 in commentaar en als model-test
+- [x] E3: printSoort per print (vcc/gnd/apart), omkeren bij gnd+npn, pnp op vcc geweigerd; config-versie 4, oude bestanden omgezet; tests met negatieve proef
+- [x] E2: niveau van de ontvangers 2-4 lezen (laag > 50 ms = ftr-melding, hoog = einde); RMT-gedrag bevestigd in de documentatie van ESP-IDF 4.4; test met negatieve proef
+- [x] IR in include: rmt-items bouwen en lezen (irrmt.h), IrZender (F4: 2 ticks voor en na, F1 continu), E4 duty 33/50 en IR-zelftest via -B1, F5 weigeren + teller, F13 NEC-bytes zoals gelezen, F17 leerbuffer 48 kB + "code te lang", F8 kanaal 1 met 3 blokken
+- [x] Servo's: E8 gestaffeld opstarten en eerste opdracht door de rij, E14 wachten bij meer dan 12 groepen, E19 pulsUitS
+- [x] Halte: F2 herhalen + rijcode na opstarten, F3 één wachtende bus, F12 maxVerkeerS met melding
+- [x] Bussen/punten: V1 alleenBus, V2 FIFO per strook (commentaar); F16 kastjes 400 ms en offline na een fout
+- [x] main.cpp: F6 toegang (hotspot of wachtwoordkop, Origin), V5 CORS, F7 10 clients, F9 OE-commentaar, E5 commentaar, F14 tekst, F15 JSON buiten het slot + stapelmeting, GET /api/zelftest (Q1)
+- [x] Q3: ontbrekende gevallen als tests; native en native32 groen; doos bouwen (flash/RAM)
+- [x] Firmware 2.1.0, README (nieuw in 2.1.0, instellingen, tabel getest op de pc / gemeten op hardware), graphify update

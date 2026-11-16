@@ -143,6 +143,22 @@ EAN 4251755812462), opgezocht 2026-11-13; NOYITO "PC817 8-Channel Optocoupler Bo
 | weerstand in serie met de led | 1 kΩ | AANNAME (na te meten: stroom in IN bij 12 V) |
 | hoogte | 12 | AANNAME |
 | PC817 | CTR 50 tot 600 % bij 5 mA; IF max 50 mA; VR 6 V; tr 4 µs, tf 3 µs (100 Ω) | datablad Sharp PC817 |
+| schakeling aan de ingangskant (Fable 5.2 E3) | "vcc" (gemeenschappelijke VCC, ingang actief naar 0 V), "gnd" (gemeenschappelijke GND, ingang actief bij 12 V) of "apart" (IN+ en IN− per kanaal) | de handleiding van Envistia (envistiamall.com, "PC817 Optocoupler Isolation Board ... User Guide", opgezocht 2026-11-16) beschrijft "vcc": VCC door een weerstand naar de anode, de kathode op INx, "active when pulled LOW"; de productpagina van dezelfde verkoper noemt een gemeenschappelijke G aan de ingangskant. Tegenstrijdig: **meten** met de diodetest (TRN-22 stap A) |
+
+### Versie 6, na het advies van Fable 5.2 (2026-11-16)
+
+| Onderdeel | Maat of waarde | Soort |
+|---|---|---|
+| MCP23017-module CJMCU-2317 (-K5) | 26 x 21 x 1,6, geen bevestigingsgaten vermeld; GPA7 en GPB7 alleen uitgang (Microchip, aanpassing van het datablad 2022) | verkopers (ifuturetech, electronicscomp); pinvolgorde AANNAME |
+| hallsensor omnipolair | Honeywell SS451A, 3 tot 24 V, open collector | AANNAME: datablad nakijken |
+| reflexsensor | TCRT5000-module met LM393, 3,3 tot 5 V, uitgang actief laag bij een voorwerp | AANNAME (gangbare module) |
+| ompoolbeveiliging -R2 | 10SQ045: 10 A, 45 V, VF ± 0,55 V | AANNAME: datablad 10SQ0xx nakijken |
+| zekeringhouder 5 x 20 paneelmontage (-F1, -F19) | gat Ø12,5, flens Ø16, binnen ± 24 lang met vlaksteeklippen 4,8 | AANNAME: gangbare houder, na te meten |
+| XL4015 CC/CV (-T3) | 5 A, 2 potmeters (spanning en stroomgrens) | AANNAME |
+| elco -C5 | 1000 µF, 25 V of meer (een XL4015 komt op een willekeurige spanning uit de doos) | Fable 5.2 E9 |
+| weerstand IR-led | 120 Ω, 1 W | Fable 5.2 E16 |
+| servo MG90S blokkeerstroom | 1,0 tot 1,2 A bij 6 V | Fable 5.2 E8, AANNAME (gangbare opgaven) |
+| RMT van de ESP32-S3 (ESP-IDF 4.4) | "The receiver will ignore pulses longer than this setting" (idle-drempel): een lang niveau geeft geen frame | documentatie ESP-IDF 4.4, RMT; de firmware leest het niveau daarom ook met gpio_get_level (AANNAME + fallback) |
 
 ### 8-kanaals MOSFET-module met optocouplers, 3,3 V-versie (-Q1, -Q2)
 

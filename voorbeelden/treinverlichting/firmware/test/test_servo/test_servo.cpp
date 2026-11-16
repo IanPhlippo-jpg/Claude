@@ -2,6 +2,9 @@
 // Tellen bij 50 Hz, snelheid (µs/s), meteen (snelheid 0), hoogstens 4 tegelijk met een wachtrij, nieuw doel onderweg.
 #include <unity.h>
 
+#include <vector>
+
+#include "api.h"
 #include "servo.h"
 
 using namespace trein;
@@ -125,6 +128,96 @@ void test_nieuw_doel_onderweg_en_vergeten() {
   TEST_ASSERT_EQUAL(0, p.s.tellen(4));
 }
 
+// E8: na het opstarten met 16 servo's krijgen ze hun eerste puls één voor één, om de 300 ms: nooit meer dan 1 (en dus
+// zeker nooit meer dan 4) nieuwe pulsen binnen 300 ms. Ook servosOpStand in de Baan en de eerste opdracht naar().
+void test_opstarten_een_voor_een() {
+  Baan b;
+  for (int i = 0; i < MAX_SERVOS; i++) {
+    ServoCfg &c = b.cfg.servo[i];
+    c.gebruikt = true;
+    c.kanaal = (uint8_t)i;
+    c.a = 1000;
+    c.b = 2000;
+  }
+  b.servosOpStand(0x00FF, 0); // 1..8 op B, 9..16 op A
+  std::vector<uint32_t> eerste;
+  bool had[16] = {false};
+  for (uint32_t t = 0; t <= 6000; t += 5) {
+    if (t) b.tick(t, 0);
+    uint16_t tel[16];
+    b.servoTellen(tel);
+    for (int k = 0; k < 16; k++)
+      if (tel[k] && !had[k]) { had[k] = true; eerste.push_back(t); }
+  }
+  TEST_ASSERT_EQUAL(16, (int)eerste.size());
+  for (size_t i = 0; i + 1 < eerste.size(); i++) TEST_ASSERT_TRUE(eerste[i + 1] - eerste[i] >= SERVO_SPRONG_MS);
+  for (size_t i = 0; i + 4 < eerste.size(); i++) TEST_ASSERT_TRUE(eerste[i + 4] - eerste[i] >= SERVO_SPRONG_MS);
+  TEST_ASSERT_EQUAL(servoTellen(2000), b.servos.tellen(0));
+  TEST_ASSERT_EQUAL(servoTellen(1000), b.servos.tellen(15));
+  // negatieve proef: zetMeteen (zoals 2.0.0 opstartte) geeft alle 16 meteen een puls
+  Servos s;
+  for (int i = 0; i < MAX_SERVOS; i++) s.zetMeteen(i, 1500, STAND_A);
+  int meteen = 0;
+  for (int i = 0; i < MAX_SERVOS; i++) meteen += s.tellen(i) != 0;
+  TEST_ASSERT_EQUAL(16, meteen);
+  // de eerste opdracht van servo's zonder stand: ook door de rij (2.0.0: puls meteen, ook als hij "wachtte")
+  Proef p;
+  for (int i = 0; i < 6; i++) p.s.naar(i, 2000, STAND_B, p.cfg[i], p.t);
+  int metPuls = 0;
+  for (int i = 0; i < 6; i++) metPuls += p.s.tellen(i) != 0;
+  TEST_ASSERT_EQUAL(1, metPuls);
+  TEST_ASSERT_EQUAL(5, p.s.wachtend());
+  p.loop(1600);
+  metPuls = 0;
+  for (int i = 0; i < 6; i++) metPuls += p.s.tellen(i) != 0;
+  TEST_ASSERT_EQUAL(6, metPuls);
+}
+
+// E14: meer dan 12 lichtgroepen aan: geen nieuwe beweging, de rij wacht tot er minder aan staan
+void test_wachten_bij_veel_lampen() {
+  Baan b;
+  ServoCfg &c = b.cfg.servo[0];
+  c.gebruikt = true;
+  c.snelheid = 1000;
+  b.servos.zetMeteen(0, c.a, STAND_A);
+  for (int g = 0; g < 13; g++) b.lampen.stand[g].aan = true;
+  b.tick(0, 0);
+  b.tick(5, 0);
+  TEST_ASSERT_TRUE(b.servos.geremd);
+  TEST_ASSERT_TRUE(b.servoNaar(0, STAND_B, 5));
+  for (uint32_t t = 10; t < 1000; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL(c.a, b.servos.us(0)); // wacht
+  TEST_ASSERT_EQUAL_STRING("onderweg", b.servos.standTekst(0));
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 1000, true));
+  TEST_ASSERT_TRUE(d["servoWachtLampen"].as<bool>());
+  b.lampen.stand[12].aan = false; // 12 aan: mag weer
+  for (uint32_t t = 1000; t < 2000; t += 5) b.tick(t, 0);
+  TEST_ASSERT_FALSE(b.servos.geremd);
+  TEST_ASSERT_EQUAL(c.b, b.servos.us(0));
+}
+
+// E19: pulsUitS: zoveel s na aankomst geen puls meer; de volgende opdracht zet hem weer aan. 0 = altijd puls.
+void test_puls_uit_na_aankomst() {
+  Proef p;
+  p.cfg[0].pulsUitS = 1;
+  p.s.zetMeteen(0, 1000, STAND_A);
+  p.s.naar(0, 2000, STAND_B, p.cfg[0], p.t);
+  p.loop(1000); // aangekomen
+  p.loop(10);
+  TEST_ASSERT_TRUE(p.s.tellen(0) != 0);
+  p.loop(1000);
+  TEST_ASSERT_EQUAL(0, p.s.tellen(0));
+  TEST_ASSERT_EQUAL_STRING("b", p.s.standTekst(0));
+  p.s.naar(0, 1000, STAND_A, p.cfg[0], p.t);
+  TEST_ASSERT_TRUE(p.s.tellen(0) != 0);
+  // pulsUitS 0: de puls blijft
+  p.cfg[1].pulsUitS = 0;
+  p.s.zetMeteen(1, 1500, STAND_A);
+  p.loop(20000);
+  TEST_ASSERT_TRUE(p.s.tellen(1) != 0);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_tellen_50hz);
@@ -132,5 +225,8 @@ int main() {
   RUN_TEST(test_meteen_houdt_plaats_bezet);
   RUN_TEST(test_hoogstens_vier_tegelijk);
   RUN_TEST(test_nieuw_doel_onderweg_en_vergeten);
+  RUN_TEST(test_opstarten_een_voor_een);
+  RUN_TEST(test_wachten_bij_veel_lampen);
+  RUN_TEST(test_puls_uit_na_aankomst);
   return UNITY_END();
 }

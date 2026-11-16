@@ -39,15 +39,16 @@ const V5 = process.env.V5_BEELDEN ?? 'e2e-out/trein-v5';
 
 const STAPPEN = [
   {
-    titel: 'Modules nameten, de 2 helften en het deksel printen', tijd: 'bak links ± 10 uur, bak rechts ± 10 uur, deksel 2 x 6 uur, hulpstukken 1 uur', gereedschap: 'Schuifmaat, Elegoo Centauri Carbon, PETG zwart (bak) en grijs (deksel, hulpstukken)',
+    titel: 'Eerst kopen en meten, het proefstuk, dan de helften en het deksel printen', tijd: 'meten 1 uur, proefstuk 20 min, bak links ± 10 uur, bak rechts ± 10 uur, deksel 2 x 6 uur, hulpstukken 1 uur', gereedschap: 'Multimeter, schuifmaat, meetblad TRN-22, Elegoo Centauri Carbon, PETG zwart (bak) en grijs (deksel, hulpstukken)',
     beelden: [beeld(of('bakL', 'bakR'), [[G.bakR, [40, 0, 0]]]), kopie(`${V5}/helften-op-bed-vp.jpg`)],
     tekst: [
-      'Eerst de modules kopen en nameten (MOSFET-modules, schroefklemadapter, regelaar: AANNAME op TRN-10). Kloppen de gaten niet: de maten in opbouw.mjs aanpassen en de STL opnieuw maken, dan pas de rechterhelft printen (zij draagt de palen).',
+      'Eerst één stuk van elke module kopen en meten met TRN-22 (± € 24 tot € 37): welke schakeling de optocouplerprint heeft, de polariteit van de MOSFET-modules, de XL4015 (5,5 V, 3 A), de IR-zelftest. Meet ook hun maten en gaten (TRN-10 rechts, TRN-11 links: AANNAME); kloppen ze niet: opbouw.mjs aanpassen en de STL opnieuw maken.',
+      'Dan het proefstuk (print/Proefstuk.stl, TRN-08, ± 20 min): passen de 4 schroeven van een bordje, de bodemlip en de klikhaak? Zo niet: de krimp in de slicer compenseren (PETG 0,3 tot 0,5 %). Pas dan de helften van 10 uur.',
       'print/Kabeldoos-bak-links.stl en -rechts.stl met de bodem op het bed; print/Kabeldoos-deksel-links.stl met de buitenkant op het bed, -rechts.stl met de binnenkant op het bed (de lip op het bed); de hulpstukken: geen support nodig, ook niet onder de klikhaken (45°).',
       'Elk deel is hoogstens 230 x 230: leg het in het midden van het bed, dan blijft de hoek voor het filamentmes (rechtsvoor 10 x 20) vrij, ook met een skirt. Geen brim aan het naadvlak.',
       '0,2 mm lagen, 4 wanden, 30 % gyroid; buitenwanden op 40 mm/s (schroefpaaltjes Ø5, klikhaken 1,6).',
     ],
-    delen: ['Bak links (TRN-01) en rechts (TRN-02)', 'Deksel links (TRN-04) en rechts (TRN-05)', 'Hulpstukken (TRN-03)'],
+    delen: ['Proefstuk (TRN-08)', 'Bak links (TRN-01) en rechts (TRN-02)', 'Deksel links (TRN-04) en rechts (TRN-05)', 'Hulpstukken (TRN-03)'],
   },
   {
     titel: 'De helften passen (droog inklikken)', tijd: '10 min', gereedschap: 'Vlakke tafel, kleine schroevendraaier, detail TRN-06',

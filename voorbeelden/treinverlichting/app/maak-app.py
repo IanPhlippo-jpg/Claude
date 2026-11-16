@@ -113,8 +113,9 @@ def zip_bytes(entries: list[tuple[str, Path | bytes]]) -> bytes:
     return buf.getvalue()
 
 
-PRINT_TXT = """Kabeldoos treinverlichting (versie 5) - printbestanden
+PRINT_TXT = """Kabeldoos treinverlichting (versie 6) - printbestanden
 
+Proefstuk.stl               EERST (20 min, TRN-08): passen de schroeven, de lip en de haak? anders de krimp compenseren
 Kabeldoos-bak-links.stl     de bodem op het bed            224,9 x 229,8 x 49,4 mm   PETG zwart, ongeveer 255 g, 10 uur
 Kabeldoos-bak-rechts.stl    de bodem op het bed            229,8 x 229,8 x 49,4 mm   PETG zwart, ongeveer 240 g, 10 uur
 Kabeldoos-deksel-links.stl  de BUITENKANT op het bed       226,9 x 229,8 x 4,7 mm    PETG grijs, ongeveer 205 g, 6 uur
@@ -130,7 +131,7 @@ Na het printen: de 2 bakhelften op een vlakke tafel in elkaar schuiven tot de 2 
 2K-epoxy in de voeg, TRN-06); elk bordje op zijn 4 paaltjes met 4 schroeven 2,0 x 6 (TRN-07); de deksels klikken met de lip in elkaar. Meet eerst
 de modules met een AANNAME na (TRN-10, TRN-11) en print pas dan de bakhelften: zij dragen de palen van de modules.
 """
-STL_NAMEN = ['Kabeldoos-bak-links.stl', 'Kabeldoos-bak-rechts.stl', 'Kabeldoos-deksel-links.stl', 'Kabeldoos-deksel-rechts.stl', 'Hulpstukken.stl']
+STL_NAMEN = ['Proefstuk.stl', 'Kabeldoos-bak-links.stl', 'Kabeldoos-bak-rechts.stl', 'Kabeldoos-deksel-links.stl', 'Kabeldoos-deksel-rechts.stl', 'Hulpstukken.stl']
 stl = [(n, BOX / 'print' / n) for n in STL_NAMEN] + [(f'geluidskastje/{q.name}', q) for q in sorted((BOX / 'geluidskastje' / 'print').glob('*.stl'))]
 add_file('stl', None, 'dl/Kabeldoos-printbestanden.zip', 'Kabeldoos-printbestanden.zip',
          'De vijf STL\'s van de doos (bak links en rechts, deksel links en rechts, hulpstukken) en de 2 van het geluidskastje, dicht en manifold, met de printinstellingen', zip_bytes(stl + [('LEESMIJ-printen.txt', PRINT_TXT.encode('utf-8'))]))
@@ -219,11 +220,13 @@ DRAWINGS = [
     ('TRN-05', 'TRN-05-deksel-rechts.svg', 'Deksel rechts', '1:2,5', 'Met de lip van 12 in 4 klikvingers die onder de linkerhelft klikt.'),
     ('TRN-06', 'TRN-06-naad.svg', 'Naad', '5:1', 'De klikhaken, de bodemlippen, de lijmvoeg van 0,2 en de lip van het deksel, met de klikberekening en hoe je verbindt.'),
     ('TRN-07', 'TRN-07-bevestiging-bordjes.svg', 'Bevestiging van de bordjes', '3:1, 8:1', 'Elk bordje met 4 schroeven 2,0 x 6 op 4 paaltjes Ø5 (gaten 2 mm van de randen): doorsnede, schroef en de plaats van elk paaltje.'),
+    ('TRN-08', 'TRN-08-proefstuk.svg', 'Proefstuk', '1:1', 'Twee stukjes van ± 20 minuten om de passingen te proeven (4 schroefpaaltjes van een bordje, een bodemlip en een klikhaak) vóór de helften van 10 uur; met hoe je de krimp compenseert.'),
     ('TRN-10', 'TRN-10-modules.svg', 'Modules en bedrading', '1:1', 'De rechterhelft van boven met elke module (ook de servoprint, de XL4015 en de IR-leerontvanger achter het venstertje), haar gaten en klemmen, alle draden (W-nummers) en per groep de klemmen en de polyfuse; enkel de DC-bus wordt gesoldeerd.'),
     ('TRN-11', 'TRN-11-ir-driver.svg', 'IR-driver en MCP23017', '1:1', 'De linkerhelft naast bordje 16: de IR-driver, de AOD4184 en de MCP23017 (plaats voor een tweede), hun draden en de draden over de naad.'),
     ('TRN-14', 'TRN-14-draadlijst.svg', 'Interne draadlijst', '—', 'De draden W01..W61 tussen de modules met doorsnede, kleur en lengte; dupontkabels voor de signalen.'),
     ('TRN-15', 'TRN-15-draadlijst-uitbreiding.svg', 'Draadlijst uitbreiding', '—', 'De draden W62..W94 van versie 6: servoprint, servovoeding, IR-driver, MCP23017 en de IR-leerontvanger.'),
     ('TRN-20', 'TRN-20-meetblad.svg', 'Meetblad', 'A4', 'Ingebruikname: spanningen, OE, de polariteit van de modules, de stroom en de spanning over de MOSFET per groep, elke ingang, de hallsensor.'),
+    ('TRN-22', 'TRN-22-meetblad-versie-6.svg', 'Eerst kopen en meten', 'A4', 'Versie 6: één stuk van elke module op tafel meten (de schakeling van de optocouplerprint, de polariteit van de MOSFET-modules, de XL4015, de IR-zelftest) en wat je dan in het dashboard kiest.'),
     ('TRN-21', 'TRN-21-invulblad.svg', 'Invulblad', 'A4', 'De namen van de groepen en de ingangen, om bij de baan te hangen.'),
 ]
 for no, f, *_ in DRAWINGS:

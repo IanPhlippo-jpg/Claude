@@ -370,7 +370,9 @@ void test_stappen_servo_ir_geluid() {
   s.a = 1000;
   s.b = 2000;
   s.snelheid = 0;
-  b.servosOpStand(0); // servo 1 op A
+  b.servosOpStand(0, 0);                // servo 1 op A (door de rij, E8)
+  b.servos.stap(b.cfg.servo, 400);      // ... en daar aangekomen
+  TEST_ASSERT_EQUAL_STRING("a", b.servos.standTekst(0));
   IrCode &c = b.cfg.ir[2];
   c.gebruikt = true;
   c.commando = 7;

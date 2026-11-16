@@ -303,3 +303,24 @@ Uitgewerkt (fase A: elektronica, firmware, dashboard, tv; fase B: de aanpassinge
   (geen solderen). De leerontvanger in de doos krijgt geen RC-filter (korte draad van de ESP), de ontvangers op de baan wel.
 - 33 nieuwe draden (W62..W94, TRN-15); draden over de naad: dupont 30 cm (I2C: 2 aan elkaar) en montagedraad. Montagebladen TRN-10 (rechts) en TRN-11 (links).
 - Bestellijst van de uitbreiding: € 51,30 zonder servo's (README).
+
+## Advies Fable 5.2 op versie 6 (2026-11-16)
+
+De coördinator: "verwerk ALLE adviezen van Fable 5.2" (`docs/Advies-Fable-5.2-v6.md`, 62 punten: 3 x P1, 26 x P2,
+33 x P3). Ontwerpregel: de P1's hangen af van hardware die Ian nog niet heeft; het ontwerp werkt voor **elke** uitkomst
+en de meting beslist (meetblad **TRN-22**, "eerst kopen en meten", ± € 24 tot € 37).
+- **E3 (P1)** ingangskant van de optocouplerprint: 3 schakelingen ("vcc", "gnd", "apart") in schema, README en firmware;
+  meten met de diodetest (TRN-22 A), kiezen in het dashboard. De firmware weigert PNP op een print "vcc". Bron: de
+  handleiding van Envistia beschrijft de 8-kanaals PC817-print met gemeenschappelijke VCC (ingang actief als ze naar
+  0 V gaat); andere verkopers tonen een gemeenschappelijke GND: daarom meten.
+- **E1 (P1)** polariteit van -Q4: een instelling "IR-led actief laag" (standaard zoals -Q1), de MCP23017 zet bij het
+  starten eerst "alles uit"; meten: TRN-22 C en F.
+- **E2 (P1)** reflexsensor (FTR): een TCRT5000-module op 3,3 V met 1 kΩ rechtstreeks op ingang 17..23 van de MCP23017
+  (niet over 12 V, niet over de RMT); de RMT-ontvangers lezen daarnaast een lang niveau als "aanwezig" (ESP-IDF: de RMT
+  negeert pulsen langer dan de idle-drempel: AANNAME met deze fallback).
+- Doos: proefstuk (TRN-08) vóór de helften, lippen 0,3 speling, oogjes voor kabelbinders, de 2 zekeringen in houders
+  5 x 20 in de achterwand (van buiten te vervangen), ISO 2768-c en schalen 1:2 en 2:1.
+- **Navragen bij Ian** (niet zelf te beslissen): hoe stopt een bus bij een stopplaats (blijft hij staan zolang hij IR ziet,
+  of tot hij een rijcode krijgt; is het IR gemoduleerd: TRN-22 H), zenden de bussen zelf een IR-code (V2), en hoort er
+  een vierde IR-led bij (4 stoppunten, er waren er 3; de bestellijst rekent er 4 + 1 reserve).
+- Status per punt: `docs/Fable-5.2-v6-status.md`.

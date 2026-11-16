@@ -8,6 +8,8 @@
 //   RC5  draaggolf 36 kHz; Manchester met halve bits van 889 µs, 14 bits (MSB eerst): S1 = 1, S2 (= NIET commando-bit 6),
 //        toggle, 5 adresbits, 6 commandobits. Een 1 = eerst uit dan aan, een 0 = eerst aan dan uit. Elke 114 ms.
 //   raw  de tijden zelf (max 256), zoals geleerd.
+//   continu  (firmware 2.1.0, Fable 5.2 F1) geen code: de IR-led brandt zonder draaggolf zolang de halte de bus
+//        vasthoudt (voor een systeem dat stopt op een continu brandende IR-led). Niet te leren of te herkennen.
 // Herkennen gaat met een marge: 25 % + 80 µs (een TSOP maakt de pulsen iets langer en de pauzes iets korter).
 // Codetekst (in de API, in de meldingen en om een bus te koppelen):
 //   "nec:AABBCCDD"  de 4 bytes zoals gezonden (bv. nec:00FF12ED = adres 0, commando 0x12)
@@ -18,6 +20,12 @@
 // de duren in ns. leerUitDraaggolf() rekent de frequentie uit (aantal perioden / tijd binnen de pakketjes) en de omhullende
 // (de pakketjes worden één AAN-tijd; een pauze langer dan 80 µs is een UIT-tijd). Zonder draaggolf (een TSOP die al
 // gedemoduleerd is) worden de duren zelf de omhullende en blijft de frequentie 38 kHz.
+// NEC (F13): de 4 bytes worden bewaard zoals gelezen. Een uitgebreid adres waarvan de hoge byte 0 is ("12 00 ..") heet
+// adres 0x0012 met adres16 = true; zonder die vlag zou het zenden er "12 ED" van maken.
+// Lange niveaus (E2): de RMT sluit een frame af na 12 ms zonder flank en negeert een niveau dat langer duurt
+// ("The receiver will ignore pulses longer than this setting", ESP-IDF 4.4, RMT, idle_threshold). Een lichtsluis of
+// reflexsensor die lang laag blijft, geeft dus geen frame. Daarom leest main.cpp de ontvangerpinnen 2..4 ook als
+// niveau (NiveauWacht): laag langer dan 50 ms = een melding "ftr" (aanwezigheid), weer hoog = einde.
 #pragma once
 #include <stdint.h>
 #include <stdio.h>
@@ -35,11 +43,15 @@ constexpr int IR_KHZ_MIN = 30, IR_KHZ_MAX = 56;
 constexpr int IR_HERHAAL_MAX = 10;
 constexpr int IR_TEKST_LEN = 24;     // "nec:AABBCCDD" en een 0 past ruim
 constexpr int MAX_IR_PULSEN = 1200;  // genoeg voor 10 x een NEC- of RC5-frame met de pauzes (raw: zie irPulsen)
+constexpr int IR_MAX_ITEMS = 700;    // RMT-items om te zenden (2 tijden per item, een tijd > 32767 µs telt dubbel)
+constexpr uint8_t IR_DUTY_STD = 33;  // draaggolf: % aan (E4: 33 of 50, instelling irDuty)
+constexpr uint32_t FTR_NIVEAU_MS = 50; // E2: een ontvangerpin zo lang laag = aanwezigheid
+constexpr uint32_t IR_CONTINU_PROEF_MS = 2000; // een continu-code met de hand zenden: zo lang aan
 
-enum IrSoort : uint8_t { IR_NEC, IR_RC5, IR_RAW, N_IR_SOORTEN };
+enum IrSoort : uint8_t { IR_NEC, IR_RC5, IR_RAW, IR_CONTINU, N_IR_SOORTEN };
 
 inline const char *irSoortId(int s) {
-  static const char *T[N_IR_SOORTEN] = {"nec", "rc5", "raw"};
+  static const char *T[N_IR_SOORTEN] = {"nec", "rc5", "raw", "continu"};
   return T[(s >= 0 && s < N_IR_SOORTEN) ? s : 0];
 }
 inline int irSoortVanId(const char *id) {
@@ -56,6 +68,7 @@ struct IrCode {
   uint8_t khz = 38;
   uint16_t adres = 0, commando = 0; // NEC: adres 0..65535 (> 255 = uitgebreid), commando 0..255 (of 16 bit); RC5: 0..31 / 0..127
   uint8_t herhaal = 1;               // zoveel keer het frame (NEC: daarna herhaalcodes)
+  bool adres16 = false, commando16 = false; // NEC: de tweede (vierde) byte is de hoge byte, ook als die 0 is (F13)
   uint16_t nRaw = 0;
   uint16_t raw[MAX_RAW] = {0};       // raw: µs, aan/uit om beurten, begint met aan
 };
@@ -162,17 +175,18 @@ inline bool irHerken(const uint16_t *d, int n, IrGelezen &g) {
 }
 
 inline void irTekst(const IrGelezen &g, char *uit, size_t len) {
-  if (g.soort == IR_NEC) snprintf(uit, len, "nec:%02X%02X%02X%02X", g.bytes[0], g.bytes[1], g.bytes[2], g.bytes[3]);
+  if (g.soort == IR_CONTINU) snprintf(uit, len, "continu");
+  else if (g.soort == IR_NEC) snprintf(uit, len, "nec:%02X%02X%02X%02X", g.bytes[0], g.bytes[1], g.bytes[2], g.bytes[3]);
   else if (g.soort == IR_RC5) snprintf(uit, len, "rc5:%02X%02X", g.adres & 0x1F, g.commando & 0x7F);
   else snprintf(uit, len, "raw:%08X", (unsigned)g.vingerafdruk);
 }
 
 // ------------------------------------------------------------------------------------------------- zenden
-inline void necBytes(uint16_t adres, uint16_t commando, uint8_t *b) {
+inline void necBytes(uint16_t adres, uint16_t commando, uint8_t *b, bool adres16 = false, bool commando16 = false) {
   b[0] = (uint8_t)adres;
-  b[1] = adres > 0xFF ? (uint8_t)(adres >> 8) : (uint8_t)~b[0];
+  b[1] = (adres > 0xFF || adres16) ? (uint8_t)(adres >> 8) : (uint8_t)~b[0];
   b[2] = (uint8_t)commando;
-  b[3] = commando > 0xFF ? (uint8_t)(commando >> 8) : (uint8_t)~b[2];
+  b[3] = (commando > 0xFF || commando16) ? (uint8_t)(commando >> 8) : (uint8_t)~b[2];
 }
 
 /** de codetekst van een bewaarde code (zelfde tekst als wat een ontvanger van die code leest) */
@@ -181,7 +195,7 @@ inline void irCodeTekst(const IrCode &c, char *uit, size_t len) {
   g.soort = c.soort;
   g.adres = c.adres;
   g.commando = c.commando;
-  if (c.soort == IR_NEC) necBytes(c.adres, c.commando, g.bytes);
+  if (c.soort == IR_NEC) necBytes(c.adres, c.commando, g.bytes, c.adres16, c.commando16);
   if (c.soort == IR_RAW) g.vingerafdruk = irVingerafdruk(c.raw, c.nRaw);
   irTekst(g, uit, len);
 }
@@ -240,7 +254,7 @@ inline int irPulsen(const IrCode &c, uint32_t *uit, int max, bool toggle = false
   int herhaal = c.herhaal < 1 ? 1 : (c.herhaal > IR_HERHAAL_MAX ? IR_HERHAAL_MAX : c.herhaal);
   if (c.soort == IR_NEC) {
     uint8_t b[4];
-    necBytes(c.adres, c.commando, b);
+    necBytes(c.adres, c.commando, b, c.adres16, c.commando16);
     detail::necFrame(s, b);
     uint32_t duur = s.som(0);
     for (int r = 1; r < herhaal; r++) {
@@ -257,6 +271,8 @@ inline int irPulsen(const IrCode &c, uint32_t *uit, int max, bool toggle = false
       detail::rc5Frame(s, c.adres, c.commando, toggle);
       if (r + 1 < herhaal) s.zet(RC5_PERIODE - s.som(van));
     }
+  } else if (c.soort == IR_CONTINU) {
+    return 0; // geen pulsen: de led brandt zonder draaggolf (IrZender)
   } else {
     int n = c.nRaw > MAX_RAW ? MAX_RAW : c.nRaw;
     if (n % 2 == 0) n--; // eindigen met aan
@@ -269,9 +285,37 @@ inline int irPulsen(const IrCode &c, uint32_t *uit, int max, bool toggle = false
   return s.vol ? 0 : s.n;
 }
 
+/** het aantal RMT-items voor deze tijden (2 tijden per item; een tijd > 32767 µs wordt gesplitst) */
+inline int irItems(const uint32_t *us, int n) {
+  int helften = 0;
+  for (int i = 0; i < n; i++) helften += (int)((us[i] + 32766) / 32767);
+  return (helften + 1) / 2;
+}
+
+/** past de code met al haar herhalingen in één keer zenden? (F5: anders werd ze stil niet verzonden) */
+inline bool irPast(const IrCode &c) {
+  if (c.soort == IR_CONTINU) return true;
+  static uint32_t us[MAX_IR_PULSEN];
+  int n = irPulsen(c, us, MAX_IR_PULSEN);
+  return n > 0 && irItems(us, n) <= IR_MAX_ITEMS;
+}
+
+/** hoe vaak deze code hoogstens herhaald kan worden (0 = zelfs één keer past niet) */
+inline int irMaxHerhaal(const IrCode &c) {
+  IrCode x = c;
+  int beste = 0;
+  for (int h = 1; h <= IR_HERHAAL_MAX; h++) {
+    x.herhaal = (uint8_t)h;
+    if (!irPast(x)) break;
+    beste = h;
+  }
+  return beste;
+}
+
 // -------------------------------------------------------------------------------------------------- leren
 struct Leerresultaat {
   int khz = 0;      // gemeten draaggolf (afgerond); 0 = er was geen draaggolf (gedemoduleerde ontvanger)
+  int khzTiende = 0; // dezelfde in tienden van een kHz (zelftest: 380 = 38,0 kHz)
   int n = 0;        // aantal tijden in de omhullende
   uint16_t us[MAX_RAW] = {0};
   bool afgekapt = false; // meer dan MAX_RAW tijden: de rest viel weg
@@ -301,7 +345,10 @@ inline bool leerUitDraaggolf(const uint32_t *ns, int n, Leerresultaat &r, uint32
   }
   bool draaggolf = perioden >= 8;
   uint64_t periodeNs = draaggolf ? span / perioden : 0;
-  if (draaggolf) r.khz = (int)((perioden * 1000000ull + span / 2) / span); // perioden per ms = kHz
+  if (draaggolf) {
+    r.khz = (int)((perioden * 1000000ull + span / 2) / span); // perioden per ms = kHz
+    r.khzTiende = (int)((perioden * 10000000ull + span / 2) / span);
+  }
   // 2. de omhullende
   auto zet = [&r](uint64_t us) {
     if (r.n >= MAX_RAW) { r.afgekapt = true; return; }
@@ -344,6 +391,8 @@ inline void leerNaarCode(const Leerresultaat &r, IrCode &c) {
     c.soort = IR_NEC;
     c.adres = g.adres;
     c.commando = g.commando;
+    c.adres16 = g.bytes[1] != (uint8_t)~g.bytes[0]; // de 4 bytes zoals gelezen (F13)
+    c.commando16 = g.bytes[3] != (uint8_t)~g.bytes[2];
   } else if (rc5Lees(r.us, r.n, g)) {
     c.soort = IR_RC5;
     c.adres = g.adres;
@@ -355,5 +404,26 @@ inline void leerNaarCode(const Leerresultaat &r, IrCode &c) {
     memcpy(c.raw, r.us, sizeof(uint16_t) * (size_t)r.n);
   }
 }
+
+/** E2: het niveau van een ontvangerpin (laag = licht, of een sensor die trekt), elke 5 ms. Laag langer dan
+ *  FTR_NIVEAU_MS = begin van een aanwezigheid (+1, één keer), weer hoog = einde (-1); anders 0. */
+class NiveauWacht {
+ public:
+  bool bezet = false;
+  int stap(bool laag, uint32_t nu) {
+    if (!laag) {
+      laag_ = false;
+      if (bezet) { bezet = false; return -1; }
+      return 0;
+    }
+    if (!laag_) { laag_ = true; sinds_ = nu; }
+    if (!bezet && nu - sinds_ >= FTR_NIVEAU_MS) { bezet = true; return 1; }
+    return 0;
+  }
+
+ private:
+  bool laag_ = false;
+  uint32_t sinds_ = 0;
+};
 
 } // namespace trein

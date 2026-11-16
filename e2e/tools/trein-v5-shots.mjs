@@ -2,7 +2,7 @@
 // de modules van dichtbij, de naad (detail en doorsneden), de 2 helften los op het printbed (230 x 230 binnen het bed van
 // 256 x 256 met de vrije hoek voor het filamentmes), de doos dicht. Nodig: de app met test-hooks op E2E_URL (de
 // dev-server of npm run build:e2e). Gebruik: node e2e/tools/trein-v5-shots.mjs <uitmap>
-// SHOTS=open,boven,modules,naad,bed,schroeven,dicht kiest; ZOOM_<NAAM>="fx,fy,n;..." stuurt het inzoomen (fx, fy: plaats op het
+// SHOTS=open,boven,modules,naad,bed,schroeven,v6b,v6c,dicht kiest (v6c: proefstuk en oogjes voor kabelbinders, Fable 5.2); ZOOM_<NAAM>="fx,fy,n;..." stuurt het inzoomen (fx, fy: plaats op het
 // venster als fractie, n: stappen).
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
@@ -171,6 +171,29 @@ if (wat.includes('v6b')) {
   await open(filter((id) => /^(d1|t[1-9])$/.test(id) || /^m(q4|q3|k5)_/.test(id) || /^b(1[3-6])(k\d|e\d|r)?$/.test(id)));
   await shot('Control+5', 'v6b-links-boven', process.env.ZOOM_V6LB ?? '0.5,0.5,2');
   await shot('Control+7', 'v6b-ir-iso', process.env.ZOOM_V6II ?? '0.42,0.66,3');
+}
+if (wat.includes('v6c')) {
+  // Fable 5.2 (2026-11-16): het proefstuk (D1) en de oogjes voor de kabelbinders in de bodem (D2/D8)
+  const p = JSON.parse(readFileSync('voorbeelden/treinverlichting/Proefstuk.kcad', 'utf8'));
+  delete p.format;
+  await open(p);
+  await shot('Control+7', 'doos-proefstuk-iso', process.env.ZOOM_PI ?? '0.5,0.5,1');
+  await shot('Control+5', 'doos-proefstuk-boven', process.env.ZOOM_PB ?? '0.5,0.5,1');
+  // de 2 bakhelften met de modules (zonder bordjes): de oogjes van boven, schuin bij de tules vooraan links, van onderen
+  await open(filter((id) => /^(d1|d3|w1|t\d+|m[a-z0-9]+_\d+)$/.test(id)));
+  await shot('Control+5', 'doos-oogjes-boven', process.env.ZOOM_OB ?? '0.5,0.5,1');
+  await shot('Control+7', 'doos-oogjes-iso', process.env.ZOOM_OI ?? '0.35,0.6,6');
+  await open(filter((id) => /^(d1|d3)$/.test(id)));
+  await shot('Control+6', 'doos-oogjes-onder', process.env.ZOOM_OO ?? '0.5,0.5,1');
+  // van dichtbij: de linkerhelft met de tules, de IR-driver en de MCP23017 (de oogjes vooraan en bij -K5, -Q4)
+  await open(filter((id) => /^(d1|t[1-9])$/.test(id) || /^m(q4|q3|k5)_/.test(id)));
+  await shot('Control+5', 'doos-oogjes-detail', process.env.ZOOM_OD ?? '0.62,0.8,5');
+}
+if (wat.includes('zekering')) {
+  // Fable 5.2 D9: de 2 zekeringhouders 5 x 20 in de achterwand naast de DC-bus, van achteren en van binnen
+  await open(filter((id) => /^(d3|w1|f\d|t1\d)$/.test(id) || /^m(x1a|x1b|x2a|x2b|x3|x7|k7)_/.test(id)));
+  await shot('Control+2', 'zekering-achter', process.env.ZOOM_ZA ?? '0.42,0.5,6');
+  await shot('Control+7', 'zekering-binnen', process.env.ZOOM_ZB ?? '0.5,0.32,6');
 }
 if (wat.includes('dicht')) {
   await open(lees());

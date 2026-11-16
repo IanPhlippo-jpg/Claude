@@ -447,32 +447,49 @@ void test_baan_hallsensor_start_overweg() {
   TEST_ASSERT_EQUAL_UINT32(1, b.ingangen.t[1].teller);
 }
 
-// ---------------------------------------------------------------------------------- firmware 2.0.0: 40 ingangen
-void test_veertig_ingangen_en_mcp_afwezig() {
-  // ingang 17..24 (MCP23017 0x20) en 25..40 (tweede MCP23017 0x21) werken zoals 1..16
+// ------------------------------------------------------------------- firmware 2.1.0: 37 ingangen (Fable 5.2, E7)
+void test_ingangen_zonder_gpx7_en_mcp_afwezig() {
+  // ingang 17..23 (MCP23017 0x20) en 25..38 (tweede MCP23017 0x21) werken zoals 1..16
   Proef p;
-  for (int i : {16, 23, 24, 39}) {
+  for (int i : {16, 22, 24, 37}) {
     p.cfg[i].gedrag = GEDRAG_DRUKKNOP;
     p.cfg[i].functieA = (int8_t)(i % 16);
   }
   p.loop(50);
-  for (int i : {16, 23, 24, 39}) {
+  for (int i : {16, 22, 24, 37}) {
     p.zet(i, true);
     p.loop(50);
     p.zet(i, false);
     p.loop(50);
   }
   TEST_ASSERT_EQUAL(4, (int)p.op.size());
-  TEST_ASSERT_EQUAL(39, p.op[3].ingang);
-  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[39].teller);
-  // in de Baan: zonder tweede MCP23017 zijn 25..40 afwezig (altijd rust), 17..24 wel aanwezig
+  TEST_ASSERT_EQUAL(37, p.op[3].ingang);
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[37].teller);
+  // GPB7 en GPA7 zijn nooit een ingang: de omzetting laat ze weg
+  TEST_ASSERT_EQUAL_HEX64(0, mcp1Ingangen(0x80FF)); // GPB7 en heel poort A (IR-leds)
+  TEST_ASSERT_EQUAL_HEX64(ingangBit(16) | ingangBit(22), mcp1Ingangen(0x4100));
+  TEST_ASSERT_EQUAL_HEX64(0, mcp2Ingangen(0x8080));
+  TEST_ASSERT_EQUAL_HEX64(ingangBit(24) | ingangBit(30) | ingangBit(31) | ingangBit(37), mcp2Ingangen(0x4141));
+  TEST_ASSERT_EQUAL_HEX16(0x4100, mcp1Bits(ingangBit(16) | ingangBit(22) | ingangBit(23)));
+  TEST_ASSERT_EQUAL_HEX16(0x4141, mcp2Bits(ingangBit(24) | ingangBit(30) | ingangBit(31) | ingangBit(37)));
+  TEST_ASSERT_FALSE(BESTAANDE_INGANGEN >> 23 & 1); // ingang 24
+  TEST_ASSERT_FALSE(BESTAANDE_INGANGEN >> 38 & 1); // ingang 39
+  TEST_ASSERT_FALSE(BESTAANDE_INGANGEN >> 39 & 1); // ingang 40
+  TEST_ASSERT_EQUAL(2, printVanIngang(22));
+  TEST_ASSERT_EQUAL(-1, printVanIngang(23));
+  TEST_ASSERT_EQUAL(3, printVanIngang(30));
+  TEST_ASSERT_EQUAL(4, printVanIngang(31));
+  TEST_ASSERT_EQUAL(-1, printVanIngang(38));
+  // in de Baan: zonder tweede MCP23017 zijn 25..38 afwezig (altijd rust), 17..23 wel aanwezig, 24 nooit
   Baan b;
-  TEST_ASSERT_TRUE(b.ingangAanwezig >> 23 & 1);
+  TEST_ASSERT_TRUE(b.ingangAanwezig >> 22 & 1);
+  TEST_ASSERT_FALSE(b.ingangAanwezig >> 23 & 1);
   TEST_ASSERT_FALSE(b.ingangAanwezig >> 24 & 1);
-  for (uint32_t t = 0; t < 100; t += 5) b.tick(t, ingangBit(24) | ingangBit(20));
+  for (uint32_t t = 0; t < 100; t += 5) b.tick(t, ingangBit(24) | ingangBit(20) | ingangBit(23));
   TEST_ASSERT_FALSE(b.ingangen.t[24].actief);
+  TEST_ASSERT_FALSE(b.ingangen.t[23].actief);
   TEST_ASSERT_TRUE(b.ingangen.t[20].actief);
-  b.ingangAanwezig = ALLE_INGANGEN; // de tweede MCP23017 is gevonden
+  b.ingangAanwezig = BESTAANDE_INGANGEN; // de tweede MCP23017 is gevonden
   for (uint32_t t = 100; t < 200; t += 5) b.tick(t, ingangBit(24));
   TEST_ASSERT_TRUE(b.ingangen.t[24].actief);
 }
@@ -486,32 +503,39 @@ void test_polariteit_npn_pnp() {
     for (uint32_t e = t + dt; t < e; t += 5) b.tick(t, ruw);
   };
   loop(0, 50);
-  // pnp via de optocouplerprint (COM aan 0 V): de print trekt nog altijd laag bij actief -> niets omkeren
+  // print 1 "gnd" (E3): pnp rechtstreeks, de optocoupler geleidt (pin laag) als de sensor +12 V geeft: niets omkeren
+  b.zetPrintSoort(0, PRINT_GND);
   b.zetPolariteit(3, POL_PNP);
-  TEST_ASSERT_EQUAL(0, (int)b.omkeerMasker());
+  TEST_ASSERT_FALSE(b.omkeerMasker() & ingangBit(3)); // de npn-ingangen 1-3, 5-8 op die print wel
+  loop(0, 50);                                          // rust (de ingang begon opnieuw)
   loop(ingangBit(3), 100);
   TEST_ASSERT_TRUE(b.ingangen.t[3].actief);
   TEST_ASSERT_TRUE(b.seq.loopt(0));
   loop(0, 100);
   b.functieStop(0, t);
-  // een print die bij PNP actief HOOG geeft (pnpOmkeren): de pnp-ingang wordt omgekeerd
-  b.pnpOmkeren = true;
-  TEST_ASSERT_EQUAL_HEX64(ingangBit(3), b.omkeerMasker());
-  b.ingangen.herbegin(3);
+  // npn op dezelfde print "gnd" (pull-up 2,2 kΩ naar S12): omgekeerd, en de ingang begint opnieuw (geen valse start)
+  b.zetPolariteit(3, POL_NPN);
+  TEST_ASSERT_TRUE(b.omkeerMasker() & ingangBit(3));
   loop(ingangBit(3), 100); // pin laag = rust bij omkeren: de rusttoestand na herbeginnen, niets gestart
   TEST_ASSERT_FALSE(b.ingangen.t[3].actief);
   TEST_ASSERT_FALSE(b.seq.loopt(0));
   loop(0, 100); // pin hoog = actief
   TEST_ASSERT_TRUE(b.ingangen.t[3].actief);
   TEST_ASSERT_TRUE(b.seq.loopt(0));
-  // terug naar npn: de ingang begint opnieuw (geen valse start)
+  // terug naar print "vcc": de ingang begint opnieuw (geen valse start)
   b.functieStop(0, t);
-  b.zetPolariteit(3, POL_NPN);
-  loop(0, 100); // pin hoog: bij npn rust (de ingang begon opnieuw, geen stop- of startopdracht)
+  b.zetPrintSoort(0, PRINT_VCC);
+  loop(0, 100); // pin hoog: bij "vcc" rust (de ingang begon opnieuw, geen stop- of startopdracht)
   TEST_ASSERT_FALSE(b.ingangen.t[3].actief);
   TEST_ASSERT_FALSE(b.seq.loopt(0));
-  loop(ingangBit(3), 100); // pin laag = actief bij npn
+  loop(ingangBit(3), 100); // pin laag = actief bij "vcc"
   TEST_ASSERT_TRUE(b.seq.loopt(0));
+  TEST_ASSERT_TRUE(ingangOmkeren(PRINT_GND, POL_NPN));
+  TEST_ASSERT_FALSE(ingangOmkeren(PRINT_VCC, POL_NPN));
+  TEST_ASSERT_FALSE(ingangOmkeren(PRINT_APART, POL_NPN));
+  TEST_ASSERT_FALSE(ingangOmkeren(PRINT_GND, POL_PNP));
+  TEST_ASSERT_FALSE(polariteitMag(PRINT_VCC, POL_PNP));
+  TEST_ASSERT_TRUE(polariteitMag(PRINT_APART, POL_PNP));
   TEST_ASSERT_EQUAL_STRING("pnp", polariteitId(POL_PNP));
   TEST_ASSERT_EQUAL(-1, polariteitVanId("PNP"));
 }
@@ -561,7 +585,7 @@ int main() {
   RUN_TEST(test_drukknop_blijft_ontdenderd_en_telt_een_keer);
   RUN_TEST(test_hallsensor_magneet_bij_opstarten);
   RUN_TEST(test_baan_hallsensor_start_overweg);
-  RUN_TEST(test_veertig_ingangen_en_mcp_afwezig);
+  RUN_TEST(test_ingangen_zonder_gpx7_en_mcp_afwezig);
   RUN_TEST(test_polariteit_npn_pnp);
   RUN_TEST(test_hallsensor_geeft_melding_bij_punt);
   return UNITY_END();

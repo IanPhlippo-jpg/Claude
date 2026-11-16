@@ -68,10 +68,13 @@ struct Proef {
 
 } // namespace
 
+// de cyclus zonder "herhalen" (zoals firmware 2.0.0): de stopcode alleen in aankomst en stop
 void test_hele_cyclus() {
   Proef p;
+  p.cfg[0].herhalen = false;
   TEST_ASSERT_EQUAL_STRING("vrij", p.fase());
   TEST_ASSERT_TRUE(p.u.licht[8]); // rood bij het begin
+  TEST_ASSERT_EQUAL(1, p.u.tel(3)); // F2: na het opstarten één keer de rijdcode
   // een melding op een ander punt: niets
   p.h.melding(p.cfg, "P4", 1, p.u, p.t);
   TEST_ASSERT_EQUAL_STRING("vrij", p.fase());
@@ -91,9 +94,12 @@ void test_hele_cyclus() {
   p.loop(10);
   TEST_ASSERT_EQUAL_STRING("wachten", p.fase());
   TEST_ASSERT_EQUAL(12, p.h.resterendS(0, p.cfg[0], p.t));
-  // een tweede bus die aankomt terwijl de halte bezig is: niets
-  p.h.melding(p.cfg, "P5", 2, p.u, p.t);
+  // dezelfde bus nog eens gemeld (of een onbekende): niets
+  p.h.melding(p.cfg, "P5", 1, p.u, p.t);
+  p.h.melding(p.cfg, "P5", -1, p.u, p.t);
   TEST_ASSERT_EQUAL(1, p.h.t[0].bus);
+  TEST_ASSERT_FALSE(p.h.t[0].heeftWachtend);
+  TEST_ASSERT_EQUAL(1 + 4, p.u.tel(2));
   p.loop(12000);
   TEST_ASSERT_EQUAL_STRING("verkeer", p.fase());
   // verkeer: ingang 7 actief houdt de bus tegen; pas 3 s onafgebroken vrij geeft groen
@@ -116,9 +122,10 @@ void test_hele_cyclus() {
   TEST_ASSERT_TRUE(p.u.servoB);
   TEST_ASSERT_EQUAL(1, p.u.vertrekBus);
   TEST_ASSERT_FALSE(p.h.houdtVast(1)); // de bus rijdt
-  // rijdcode 3 keer om de 0,5 s
+  // rijdcode 3 keer om de 0,5 s (en 1 keer na het opstarten)
   p.loop(1500);
-  TEST_ASSERT_EQUAL(3, p.u.tel(3));
+  TEST_ASSERT_EQUAL(1 + 3, p.u.tel(3));
+  TEST_ASSERT_EQUAL(1 + 4, p.u.tel(2)); // zonder herhalen: geen stopcode meer na "stop"
   p.loop(3500);
   TEST_ASSERT_EQUAL_STRING("vertrek", p.fase());
   TEST_ASSERT_FALSE(p.u.licht[10]);
@@ -172,6 +179,8 @@ void test_halte_in_de_baan_met_ir_en_bus() {
   TEST_ASSERT_EQUAL(FASE_AANKOMST, b.haltes.t[0].fase);
   TEST_ASSERT_EQUAL(0, b.haltes.t[0].bus);
   IrZend z;
+  TEST_ASSERT_TRUE(b.haalIrZend(z)); // F2: na het bewaren van de halte eerst één keer de rijdcode
+  TEST_ASSERT_EQUAL(3, z.code);
   TEST_ASSERT_TRUE(b.haalIrZend(z));
   TEST_ASSERT_EQUAL(2, z.code);
   TEST_ASSERT_EQUAL_HEX8(1u << 4, z.leds);
@@ -195,10 +204,151 @@ void test_halte_in_de_baan_met_ir_en_bus() {
   TEST_ASSERT_FALSE(b.lampen.stand[10].aan);
 }
 
+// F2: met "herhalen" (standaard) de stopcode elke 400 ms van aankomst tot het einde van verkeer, ook in "wachten"
+void test_herhalen_tot_groen() {
+  Proef p;
+  TEST_ASSERT_TRUE(p.cfg[0].herhalen);
+  p.cfg[0].vrijIngangen = 0;
+  p.h.melding(p.cfg, "P5", 1, p.u, p.t);
+  TEST_ASSERT_EQUAL(1, p.u.tel(2));
+  p.loop(2500); // aankomst + stop: om de 400 ms
+  TEST_ASSERT_EQUAL_STRING("wachten", p.fase());
+  TEST_ASSERT_EQUAL(1 + 6, p.u.tel(2));
+  p.loop(10000); // ook tijdens wachten (dat deed 2.0.0 niet: een bus die alleen bij IR stopt, reed weg)
+  TEST_ASSERT_EQUAL_STRING("wachten", p.fase());
+  TEST_ASSERT_EQUAL(1 + 6 + 25, p.u.tel(2));
+  p.loop(2010);
+  TEST_ASSERT_EQUAL_STRING("groen", p.fase());
+  int stops = p.u.tel(2);
+  p.loop(3000);
+  TEST_ASSERT_EQUAL(stops, p.u.tel(2)); // in groen geen stopcode meer
+}
+
+// F2: de doos herstart terwijl een bus aan de halte wacht: begin() zendt meteen één keer de rijdcode
+void test_herstart_tijdens_wachten() {
+  Proef p;
+  p.h.melding(p.cfg, "P5", 1, p.u, p.t);
+  p.loop(4000);
+  TEST_ASSERT_EQUAL_STRING("wachten", p.fase());
+  Nep na; // na de herstart: een nieuwe Haltes, alles vrij
+  Haltes h;
+  h.begin(0, p.cfg[0], na, 0);
+  TEST_ASSERT_EQUAL(FASE_VRIJ, h.t[0].fase);
+  TEST_ASSERT_EQUAL(1, (int)na.ir.size());
+  TEST_ASSERT_EQUAL(3, na.ir[0].code); // de rijdcode
+  TEST_ASSERT_EQUAL_HEX8(1u << 4, na.ir[0].leds);
+  // negatieve proef: zonder rijdcode valt er niets te zenden
+  Nep leeg;
+  HalteCfg c = p.cfg[0];
+  c.rijdCode = -1;
+  h.begin(0, c, leeg, 0);
+  TEST_ASSERT_EQUAL(0, (int)leeg.ir.size());
+}
+
+// F3: een tweede bus tijdens groen wordt onthouden, krijgt meteen de stopcode, en de halte begint met hem zodra ze vrij is
+void test_tweede_bus_tijdens_groen() {
+  Proef p;
+  p.cfg[0].vrijIngangen = 0;
+  p.cfg[0].wachtS = 1;
+  p.h.melding(p.cfg, "P5", 1, p.u, p.t);
+  p.loop(3510);
+  TEST_ASSERT_EQUAL_STRING("groen", p.fase());
+  int stops = p.u.tel(2), rijd = p.u.tel(3);
+  p.h.melding(p.cfg, "P5", 2, p.u, p.t);
+  TEST_ASSERT_TRUE(p.h.t[0].heeftWachtend);
+  TEST_ASSERT_EQUAL(2, p.h.t[0].wachtendBus);
+  TEST_ASSERT_EQUAL(stops + 1, p.u.tel(2)); // meteen de stopcode
+  TEST_ASSERT_TRUE(p.h.houdt(0));
+  p.h.melding(p.cfg, "P5", 3, p.u, p.t);   // een derde: niet (hoogstens één wachtende)
+  TEST_ASSERT_EQUAL(2, p.h.t[0].wachtendBus);
+  p.loop(1000);
+  TEST_ASSERT_EQUAL(rijd, p.u.tel(3));      // geen rijdcode meer zolang er een bus wacht
+  TEST_ASSERT_TRUE(p.u.tel(2) >= stops + 3); // de stopcode herhaald
+  p.loop(4000 + 2000);
+  TEST_ASSERT_EQUAL_STRING("aankomst", p.fase()); // na vertrek meteen de wachtende bus
+  TEST_ASSERT_EQUAL(2, p.h.t[0].bus);
+  TEST_ASSERT_FALSE(p.h.t[0].heeftWachtend);
+  // in de staat: "wachtend"
+  Baan b;
+  b.cfg.halte[0] = p.cfg[0];
+  b.haltes.t[0] = p.h.t[0];
+  b.haltes.t[0].heeftWachtend = true;
+  b.haltes.t[0].wachtendBus = -1;
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, true));
+  TEST_ASSERT_EQUAL(0, d["haltes"][0]["wachtend"].as<int>()); // een onbekende bus wacht
+  b.haltes.t[0].heeftWachtend = false;
+  deserializeJson(d, apiStaat(b, 0, true));
+  TEST_ASSERT_EQUAL(-1, d["haltes"][0]["wachtend"].as<int>());
+}
+
+// F12: een vrij-ingang die actief blijft (magneet boven de sensor, losse draad): na maxVerkeerS toch groen, met melding
+void test_verkeer_blijft_bezet() {
+  Proef p;
+  p.cfg[0].wachtS = 0;
+  p.cfg[0].maxVerkeerS = 60;
+  p.h.melding(p.cfg, "P5", 1, p.u, p.t);
+  p.actief = ingangBit(6);
+  p.loop(2510);
+  TEST_ASSERT_EQUAL_STRING("verkeer", p.fase());
+  p.loop(59000);
+  TEST_ASSERT_EQUAL_STRING("verkeer", p.fase());
+  p.loop(1010);
+  TEST_ASSERT_EQUAL_STRING("groen", p.fase());
+  TEST_ASSERT_TRUE(p.h.t[0].teLang);
+  Baan b;
+  b.cfg.halte[0] = p.cfg[0];
+  b.haltes.t[0] = p.h.t[0];
+  TEST_ASSERT_TRUE(b.logicaMelding().find("Halte Station 1") != std::string::npos);
+  // maxVerkeerS = 0: geen grens (zoals 2.0.0)
+  Proef q;
+  q.cfg[0].wachtS = 0;
+  q.cfg[0].maxVerkeerS = 0;
+  q.h.melding(q.cfg, "P5", 1, q.u, q.t);
+  q.actief = ingangBit(6);
+  q.loop(200000);
+  TEST_ASSERT_EQUAL_STRING("verkeer", q.fase());
+}
+
+// F1: een halte met een continu-stopcode laat de stopleds branden zolang ze de bus vasthoudt
+void test_continu_stopcode() {
+  Baan b;
+  b.cfg.ir[0].gebruikt = true;
+  b.cfg.ir[0].soort = IR_CONTINU;
+  HalteCfg &c = b.cfg.halte[0];
+  c.gebruikt = true;
+  strcpy(c.aankomstPunt, "P5");
+  c.stopLeds = 1u << 4;
+  c.stopCode = 0;
+  c.wachtS = 1;
+  c.groenS = 1;
+  b.haltesOpnieuw(0);
+  TEST_ASSERT_EQUAL_HEX8(0, b.continuLeds(0));
+  b.busGezien(-1, "P5", 0);
+  b.haltes.melding(b.cfg.halte, "P5", -1, b, 0);
+  TEST_ASSERT_EQUAL_HEX8(1u << 4, b.continuLeds(0));
+  IrZend z;
+  TEST_ASSERT_FALSE(b.haalIrZend(z)); // niets in de rij: continu gaat niet via de RMT
+  uint32_t t = 0;
+  for (; t < 3600; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL(FASE_GROEN, b.haltes.t[0].fase);
+  TEST_ASSERT_EQUAL_HEX8(0, b.continuLeds(t));
+  // met de hand zenden: 2 s aan
+  TEST_ASSERT_TRUE(b.irZenden(0, 1u << 2));
+  TEST_ASSERT_EQUAL_HEX8(1u << 2, b.continuLeds(t));
+  b.tick(t + IR_CONTINU_PROEF_MS, 0);
+  TEST_ASSERT_EQUAL_HEX8(0, b.continuLeds(t + IR_CONTINU_PROEF_MS));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_hele_cyclus);
   RUN_TEST(test_zonder_vrije_ingangen_meteen_groen);
   RUN_TEST(test_halte_in_de_baan_met_ir_en_bus);
+  RUN_TEST(test_herhalen_tot_groen);
+  RUN_TEST(test_herstart_tijdens_wachten);
+  RUN_TEST(test_tweede_bus_tijdens_groen);
+  RUN_TEST(test_verkeer_blijft_bezet);
+  RUN_TEST(test_continu_stopcode);
   return UNITY_END();
 }

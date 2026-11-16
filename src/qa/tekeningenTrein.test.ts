@@ -1,10 +1,12 @@
 /**
- * Werktekeningen van de kabeldoos, versie 5 (voorbeelden/treinverlichting/tekeningen): TREIN_TEKENINGEN=1 VOORBEELDEN=1
+ * Werktekeningen van de kabeldoos, versie 6 (voorbeelden/treinverlichting/tekeningen): TREIN_TEKENINGEN=1 VOORBEELDEN=1
  * npx vitest run src/qa/tekeningenTrein.test.ts. A3 liggend, Europese projectie: de boormal op ware grootte over 2 bladen
  * met uitlijnkruisen (de 4 schroeven onder de baan, van onderen gezien), per helft de bak en het deksel,
  * de hulpstukken, het detail van de naad (klikhaken, bodemlippen, lijmvoeg, lip van het deksel), de bevestiging van de
  * bordjes (4 schroeven op 4 paaltjes), het montageblad van de
- * rechterhelft, de draadlijst, het meetblad en het invulblad (zie werktekening.ts en opbouwTrein.ts).
+ * rechterhelft, de draadlijst, het meetblad en het invulblad (zie werktekening.ts en opbouwTrein.ts). Fable 5.2 (T5):
+ * schalen volgens ISO 5455 (1:2, 2:1, 5:1, 10:1), algemene tolerantie ISO 2768-c (FDM), de echte passingen met hun eigen
+ * tolerantie op TRN-06 en TRN-07, het proefstuk op TRN-08 (D1).
  */
 import { describe, expect, it } from 'vitest';
 import { mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -17,12 +19,17 @@ import { controleerAlles, DRADEN, MODULES, GROEPEN } from '../../voorbeelden/tre
 import { STUKLIJST, KLEMMEN } from '../../voorbeelden/treinverlichting/schema/maak-schema.mjs';
 // @ts-expect-error: plain JavaScript
 import { HAAK, SPATEL } from '../../voorbeelden/treinverlichting/hulpstukken.mjs';
-import { OPBOUW, montageBlad, draadlijstBlad, meetBlad, invulBlad, lengte } from './opbouwTrein';
+import { OPBOUW, montageBlad, draadlijstBlad, meetBlad, meetBlad6, invulBlad, lengte } from './opbouwTrein';
+// @ts-expect-error: plain JavaScript
+import { oogjes } from '../../voorbeelden/treinverlichting/opbouw.mjs';
+// @ts-expect-error: plain JavaScript
+import { proefMaten } from '../../voorbeelden/treinverlichting/proefstuk.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
 const UIT = `${DIR}/tekeningen`;
 const datum = /\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? '';
-const PROJECT = { naam: 'Kabeldoos treinverlichting', datum, revisie: '5' };
+// revisie 6 (ISO 7200: één index per uitgifte) met de wijzigingsregel; algemene tolerantie ISO 2768-c (Fable 5.2 T3, T5)
+const PROJECT = { naam: 'Kabeldoos treinverlichting', datum, revisie: '6', tolerantie: 'ISO 2768-c', wijziging: "IR, servo's, NPN/PNP; proefstuk, oogjes, lippen 0,3, ISO 2768-c" };
 const m = M as Record<string, any>;
 const L = indeling() as { X: number; Z: number; xr: number; xn: number; sleutelgaten: [number, number][]; tules: { wand: string }[] };
 const D = m.doos, G = m.raster, BZ = 2 * (L.Z + D.wand), HOOG = D.bodem + D.h + D.deksel, PET = 1.27;
@@ -31,19 +38,25 @@ const N = m.naad, R = m.rechts, P5 = rechts() as any, HK = haakKlik() as any, DK
 const LANG = P5.XRB + L.X + D.wand, BXL = N.x + L.X + D.wand, BXR = P5.XRB - (P5.xs - N.haak.l), HBAK = D.bodem + D.h;
 const pct = (v: number) => `${getal(v * 100, 2)} %`;
 
+/** het aantal oogjes voor kabelbinders in een helft (Fable 5.2 D2/D8) */
+const OOG = (h: string) => (oogjes(indeling()) as { helft: string }[]).filter((o) => o.helft === h).length;
+/** de passingen met hun eigen tolerantie (Fable 5.2 T5: ISO 2768-c is de algemene tolerantie, deze maten zijn strenger) */
+const LS = () => N.lip.speling;
+
 const DELEN: Deel[] = [
-  { f: 'Kabeldoos-bak-links.kcad', nr: 'TRN-01', naam: 'Bak links (bordjes)', materiaal: 'PETG (zwart)', maken: '3D-print rechtop, de bodem op het bed, zonder support', snede: true, schaal: [1, 2.5], dichtheid: PET, maten: [
+  { f: 'Kabeldoos-bak-links.kcad', nr: 'TRN-01', naam: 'Bak links (bordjes)', materiaal: 'PETG (zwart)', maken: '3D-print rechtop, de bodem op het bed, zonder support', snede: true, schaal: [1, 2], dichtheid: PET, maten: [
     `Buitenmaat ${g1(BXL)} x ${g1(BZ)} x ${g1(HBAK)}, wand ${g1(D.wand)}, bodem ${g1(D.bodem)}; aan de naad (x = ${g1(N.x)}) open`,
     `Geen kabelgoten: 6 rijen bordjes, ${g1(G.b + 2 * G.wand + 2 * G.speling)} vrij tussen de rijen (draden en schroevendraaier)`,
     `Steunrail ${m.voet} hoog onder elk bordje; per bordje 4 schroefpaaltjes Ø${g1(m.schroefpaal.d)} x ${m.voet}, voorgat Ø${g1(m.schroefpaal.voorgat)} (TRN-07)`,
     `Paaltjes onder de gaten van de print: hart ${g1(m.schroefpaal.rand)} van beide randen; schroef ${m.schroefpaal.schroef.d.toFixed(1).replace(".", ",")} x ${m.schroefpaal.schroef.l} zelftappend`,
-    `Naad: 5 uitsparingen ${g1(N.lip.l)} x ${g1(N.lip.b + 2 * N.spleet)} in de bodem, 2 kuiltjes ${g1(N.haak.kuil)} diep in de wand (TRN-06)`,
+    `Naad: 5 uitsparingen ${g1(N.lip.l + N.lip.speling)} x ${g1(N.lip.b + 2 * N.lip.speling)} in de bodem (0,3 rondom), 2 kuiltjes ${g1(N.haak.kuil)} diep in de wand (TRN-06)`,
+    `${OOG('links')} oogjes voor een kabelbinder ${m.oog.binder}: 2 sleuven ${g1(m.oog.sleuf.b)} x ${g1(m.oog.sleuf.l)} door de bodem, kanaal ${g1(m.oog.kanaal)} eronder`,
     `${L.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)} op ${g1(D.invoer.y)} (5 links, 4 vooraan); draadsleuven tussen de rijen`,
     `2 sleutelgaten links: kop Ø${g1(D.sleutelgat.kop)}, sleuf ${g1(D.sleutelgat.schacht)} x ${D.sleutelgat.slag} naar voren (TRN-00)`,
     '2 schroefbussen Ø7 in de linkerhoeken, gat Ø2,6 (deksel)',
     'Versie 6: palen Ø6 x 5 voor de IR-driver -Q4, de AOD4184 -Q3 en 2 MCP23017 (klempaaltjes) naast bordje 16 (TRN-11)',
   ] },
-  { f: 'Kabeldoos-bak-rechts.kcad', nr: 'TRN-02', naam: 'Bak rechts (modules)', materiaal: 'PETG (zwart)', maken: '3D-print rechtop, de bodem op het bed, zonder support', snede: true, schaal: [1, 2.5], dichtheid: PET, maten: [
+  { f: 'Kabeldoos-bak-rechts.kcad', nr: 'TRN-02', naam: 'Bak rechts (modules)', materiaal: 'PETG (zwart)', maken: '3D-print rechtop, de bodem op het bed, zonder support', snede: true, schaal: [1, 2], dichtheid: PET, maten: [
     `Buitenmaat ${g1(P5.XRB - P5.xs)} x ${g1(BZ)} x ${g1(HBAK)}, met de klikhaken ${g1(BXR)} lang; aan de naad open`,
     `Palen Ø${g1(2 * R.modulePaal.r)} x ${g1(R.modulePaal.h)} onder elk gat van een module, gat achthoek Ø2,6 (3 mm) of Ø2,2 (PCA9685)`,
     '2 klikhouders (U 1,2 x 5 hoog) voor telkens 3 WAGO 221-415',
@@ -51,7 +64,9 @@ const DELEN: Deel[] = [
     `${P5.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)}: 3 vooraan, 2 achteraan, 5 rechts (4 ingangen, 1 servokabels)`,
     `DC-bus: gat Ø${g1(m.dcbus.gat)} in de achterwand op x ${g1(m.dcbus.x)}, ${g1(m.dcbus.y)} hoog; opening USB vooraan`,
     `2 sleutelgaten (x ${g1(R.sleutelgatX)}), 4 schroefbussen Ø7 (2 in de pilaren, 2 in de rechterhoeken)`,
-    'Versie 6: palen voor de servoprint -K7 en de XL4015 -T3, klikhouder voor 2 WAGO (-X12, -X13), 5de tule rechts (servokabels)',
+    'Versie 6: palen voor de servoprint -K7 en de XL4015 -T3, klikhouder voor 2 WAGO (-X12, -X13),',
+    '    5de tule rechts (servokabels)',
+    `${OOG('rechts')} oogjes voor een kabelbinder ${m.oog.binder} (bij elke tule en bij elke module met dupont), zoals links`,
     `Venster Ø${g1(m.tsmp.venster)} (punt 45°) in de voorwand op x ${g1(m.tsmp.x)}, ${g1(m.tsmp.y)} hoog, met de houder van de IR-leerontvanger -B1`,
     'Plaats van de modules: TRN-10. Eerst de modules nameten (AANNAME), dan printen',
   ] },
@@ -61,19 +76,38 @@ const DELEN: Deel[] = [
     `Spatel ${SPATEL.l} x ${SPATEL.b} x ${g1(SPATEL.dik)}, blad ${g1(SPATEL.blad)} dik over ${SPATEL.bladL}, haakje ${g1(SPATEL.haak)} x ${g1(SPATEL.haak)}`,
     'Aan de 2 voorste schroeven: de doos hangt verticaal 12 cm lager',
   ] },
-  { f: 'Kabeldoos-deksel-links.kcad', nr: 'TRN-04', naam: 'Deksel links', materiaal: 'PETG (grijs)', maken: '3D-print plat, de buitenkant op het bed', snede: true, schaal: [1, 2.5], dichtheid: PET, maten: [
+  { f: 'Kabeldoos-deksel-links.kcad', nr: 'TRN-04', naam: 'Deksel links', materiaal: 'PETG (grijs)', maken: '3D-print plat, de buitenkant op het bed', snede: true, schaal: [1, 2], dichtheid: PET, maten: [
     `Plaat ${g1(N.deksel.x + L.X + D.wand)} x ${g1(BZ)} x ${g1(D.deksel)}, links hoeken R${D.r}`,
     'Centreerrand 2 breed en 1,55 hoog langs links, achter en voor (0,3 speling in de bak)',
     `Sponning aan de naad: ${g1(N.deksel.lap + N.spleet)} breed, daar ${g1(N.deksel.buiten)} dik; 4 groeven ${g1(N.deksel.groef)} diep voor de nokken`,
     '2 gaten Ø3,2 met verzinking 90° Ø6,2 (plaatschroef 3 x 12)',
   ] },
-  { f: 'Kabeldoos-deksel-rechts.kcad', nr: 'TRN-05', naam: 'Deksel rechts', materiaal: 'PETG (grijs)', maken: '3D-print plat, de BINNENKANT op het bed (de lip op het bed)', snede: true, schaal: [1, 2.5], dichtheid: PET, maten: [
+  { f: 'Kabeldoos-deksel-rechts.kcad', nr: 'TRN-05', naam: 'Deksel rechts', materiaal: 'PETG (grijs)', maken: '3D-print plat, de BINNENKANT op het bed (de lip op het bed)', snede: true, schaal: [1, 2], dichtheid: PET, maten: [
     `Plaat ${g1(P5.XRB - N.deksel.x)} x ${g1(BZ)} x ${g1(D.deksel)} met een lip ${g1(N.deksel.lap)} x ${g1(N.deksel.lip)} aan de naad (${g1(P5.XRB - N.deksel.x + N.deksel.lap)} lang)`,
     `Lip in vingers (sleuven ${g1(N.deksel.sleuf)}), per vinger een nok ${g1(N.deksel.nok.h)} hoog, ${N.deksel.nok.b} breed (rek ${pct(DK.rek)})`,
     'Geen centreerrand: de 4 verzonken schroeven en de lip houden het op zijn plaats',
     '4 gaten Ø3,2 met verzinking 90° Ø6,2 (plaatschroef 3 x 12)',
   ] },
 ];
+
+/** TRN-08: het proefstuk (Fable 5.2 D1): eerst printen, de krimp compenseren, dan pas de helften van 10 uur */
+const PROEF = (): Deel => {
+  const Q = proefMaten() as any, SP = m.schroefpaal;
+  return { f: 'Proefstuk.kcad', nr: 'TRN-08', naam: 'Proefstuk', materiaal: 'PETG (zwart), zoals de bak', maken: '3D-print rechtop, de bodem op het bed, zonder support (± 20 min)', dichtheid: PET, maten: [
+    `Twee stukjes: A uit de linkerhelft (hoek achteraan aan de naad), B uit de rechterhelft, ${Q.dx} naar rechts`,
+    `A: bordplaats van bordje 3, 4 paaltjes Ø${g1(SP.d)} x ${m.voet} met voorgat Ø${g1(SP.voorgat)} ±0,1, steunrail`,
+    `    hart op hart ${g1(m.bordje.x - 2 * SP.rand)} ±0,15 x ${g1(m.bordje.z - 2 * SP.rand)} ±0,1 (zoals TRN-07)`,
+    `A: uitsparing ${g1(N.lip.l + LS())} x ${g1(N.lip.b + 2 * LS())} in de bodem, kuiltje ${g1(N.haak.kuil)} in de achterwand (${g1(Q.hw)} hoog)`,
+    `B: pilaar, klikhaak ${g1(N.haak.l)} x ${g1(N.haak.t)} met nok ${g1(N.haak.nok.d)}, bodemlip ${g1(N.lip.b)} x ${g1(N.lip.l)} (zoals TRN-06)`,
+    `± ${g1(Q.A[3] - Q.A[1] - D.wand)} mm naad; samen ${g1(Q.B[2] + Q.dx - Q.A[0])} x ${g1(Q.A[3] - Q.A[1])} op het bed`,
+    'Proef 1: een bordje vastschroeven met 4 schroeven 2,0 x 6:',
+    '    alle 4 gaan erin zonder te forceren.',
+    `Proef 2: B tegen A schuiven: de lip valt in zijn uitsparing (${g1(LS())} rondom),`,
+    '    de haak klikt in zijn kuiltje en gaat er met een schroevendraaier weer uit.',
+    'Past het niet: 57,1 en de uitsparing meten, de krimp in de slicer',
+    '    compenseren (XY ± 100,3 tot 100,5 %), opnieuw printen. Dan pas de helften.',
+  ] };
+};
 
 /** boormal op ware grootte, van onderen gezien (het deksel naar je toe, de bodem tegen de baan), over 2 A3-bladen met
  *  een overlap van 30 mm en 2 uitlijnkruisen: blad 1 de rechterhelft van de doos (op de mal links), blad 2 de linkerhelft */
@@ -171,14 +205,14 @@ function naadBlad(blad: string): string {
     b.tekst(to((tip + xs) / 2, -Z + 7.5), `klikhaak ${g1(H.l)} x ${g1(H.t)} (rechterhelft)`, 2.2, 'middle', { kleur: '#1f4fa3' });
     b.tekst(to(tip + 1.5, -Z - D.wand - 1.2), `nok ${g1(H.nok.d)} in kuiltje ${g1(H.kuil)}`, 2.0, 'middle');
     b.maatH(to(tip, 0)[0], to(xs, 0)[0], to(0, -Z + sp + H.t)[1], to(0, -Z + 4.4)[1], g1(H.l));
-    b.tekst(to(N.x + 0.1, -Z - D.wand - 1.3), `lijmspleet ${g2(sp)}`, 2.0, 'middle');
+    b.tekst(to(N.x + 0.1, -Z - D.wand - 1.3), `lijmspleet ${g2(sp)} ±0,1`, 2.0, 'middle');
     b.lijn(to(N.x, -Z - D.wand - 0.9), to(N.x + 0.1, -Z - D.wand + 0.4), 0.18);
   }
-  // 2. zijaanzicht van de haak (doorsnede z = -111,5; 3:1): de 45°-onderkant, de nok, de bodem van beide helften
+  // 2. zijaanzicht van de haak (doorsnede z = -111,5; 2:1): de 45°-onderkant, de nok, de bodem van beide helften
   {
-    const s = 2.5, o: P = [40, 58], x0 = tip - 6, y0 = -D.bodem;
+    const s = 2, o: P = [40, 66], x0 = tip - 6, y0 = -D.bodem;
     const to = (x: number, y: number): P => [o[0] + (x - x0) * s, o[1] + (y - y0) * s];
-    b.tekst([o[0], 172], '2  Doorsnede door de klikhaak (2,5:1), van voren gezien', 2.8, 'start', { vet: true });
+    b.tekst([o[0], 156], '2  Doorsnede door de klikhaak (2:1), van voren gezien', 2.8, 'start', { vet: true });
     poly(to, [[x0, -D.bodem], [N.x, -D.bodem], [N.x, 0], [x0, 0]], 0.4, '#555', ARC);
     poly(to, [[xs, -D.bodem], [xs + 12, -D.bodem], [xs + 12, H.top + 6], [xs, H.top + 6]], 0.4, '#555', ARC); // de pilaar loopt verder tot het deksel
     poly(to, P5.haken[0].prof as [number, number][], 0.45, '#1f4fa3', ARC);
@@ -190,12 +224,12 @@ function naadBlad(blad: string): string {
     b.tekst(to(x0 + 1, -D.bodem - 4.5), 'onderkant 45°: print zonder support', 2.2, 'start', { vet: true });
     b.maatV(to(0, 0)[1], to(0, H.top)[1], to(xs + 12, 0)[0], to(xs + 12, 0)[0] + 7, g1(H.top));
   }
-  // 3. doorsnede door het deksel aan de naad (6:1): de linkerhelft (sponning, groef), de lip met de nok
+  // 3. doorsnede door het deksel aan de naad (5:1): de linkerhelft (sponning, groef), de lip met de nok
   {
-    const s = 6, o: P = [200, 214], x0 = Nd.x - Nd.lap - 4, y0 = D.h;
+    const s = 5, o: P = [200, 220], x0 = Nd.x - Nd.lap - 4, y0 = D.h;
     const to = (x: number, y: number): P => [o[0] + (x - x0) * s, o[1] + (y - y0) * s];
     const xt = Nd.x - Nd.lap, yb = y0 + D.deksel - Nd.buiten, yl = y0 + Nd.lip;
-    b.tekst([o[0], 268], '3  Doorsnede door een nok van het deksel (6:1)', 2.8, 'start', { vet: true });
+    b.tekst([o[0], 268], '3  Doorsnede door een nok van het deksel (5:1)', 2.8, 'start', { vet: true });
     poly(to, [[x0, y0], [xt - sp, y0], [xt - sp, yb], [xt, yb], [xt, yb + Nd.groef], [xt + 0.2 + Nd.nok.l + 0.3, yb + Nd.groef], [xt + 0.2 + Nd.nok.l + 0.3, yb], [Nd.x, yb], [Nd.x, y0 + D.deksel], [x0, y0 + D.deksel]], 0.4, '#777', ARC);
     poly(to, [[xt, y0], [Nd.x + 6, y0], [Nd.x + 6, y0 + D.deksel], [Nd.x + sp, y0 + D.deksel], [Nd.x + sp, yl], [xt + 0.2 + Nd.nok.l, yl], [xt + 0.2 + Nd.nok.l, yl + Nd.nok.h], [xt + 0.2 + Nd.nok.ramp, yl + Nd.nok.h], [xt + 0.2, yl], [xt, yl]], 0.4, '#1f4fa3', ARC);
     b.tekst(to(x0 + 1, y0 + D.deksel + 1.2), 'deksel links (buitenkant op het bed)', 2.0, 'start');
@@ -213,7 +247,7 @@ function naadBlad(blad: string): string {
     for (let i = 0; i < zz.length - 1; i += 2) b.lijn(to(N.x, zz[i]), to(N.x, zz[i + 1]), 0.4);
     for (const z of N.lip.z) poly(to, [[N.x, z - N.lip.b / 2], [N.x - N.lip.l, z - N.lip.b / 2], [N.x - N.lip.l, z + N.lip.b / 2], [N.x, z + N.lip.b / 2]], 0.4, '#1f4fa3', ARC);
     b.tekst(to(N.x - 20, Z - 10), 'links', 2.4, 'middle'); b.tekst(to(N.x + 20, Z - 10), 'rechts', 2.4, 'middle');
-    b.tekst(to(N.x + 4, N.lip.z[0]), `lip ${g1(N.lip.b)} x ${g1(N.lip.l)}, ${g1(sp)} rondom`, 2.0, 'start');
+    b.tekst(to(N.x + 4, N.lip.z[0]), `lip ${g1(N.lip.b)} x ${g1(N.lip.l)}, ${g1(LS())} ±0,1 rondom`, 2.0, 'start');
   }
   // de berekening en de werkwijze
   let y = 160;
@@ -235,7 +269,15 @@ function naadBlad(blad: string): string {
   rg(`    uitharden op de tafel. Lijmspleet overal ${g2(sp)}.`);
   rg('3  Deksel: de rechterhelft met de lip onder de linkerhelft schuiven tot de');
   rg('    4 nokken klikken (eventueel lijm in de sponning), dan 6 schroeven.');
-  kader(b, { nr: 'TRN-06', naam: 'Naad: klikhaken en lijmvoeg', materiaal: 'PETG (zwart en grijs)', maken: 'inklikken, eventueel lijmen', massa: '—', schaal: '5:1, 2,5:1, 6:1, 1:2', blad, soort: 'Detailtekening' }, PROJECT);
+  y -= 2;
+  rg('Passingen (eigen tolerantie; de rest ISO 2768-c)', true);
+  rg(`Lijmspleet tussen de helften ${g2(sp)} ±0,1 (stootvlakken, haken, deksel)`);
+  rg(`Bodemlip ${g1(N.lip.b)} x ${g1(N.lip.l)} ±0,1 in uitsparing ${g1(N.lip.b + 2 * LS())} x ${g1(N.lip.l + LS())} ±0,1:`);
+  rg(`    ${g1(LS())} rondom (PETG krimpt 0,3 tot 0,5 %: tot 1 mm over een helft)`);
+  rg(`Nok klikhaak ${g1(H.nok.d)} ±0,1 in kuiltje ${g1(H.kuil)} +0,2/0; haak ${g1(H.t)} ±0,1 dik`);
+  rg(`Lip deksel ${g1(Nd.lip)} ±0,1 in sponning ${g1(D.deksel - Nd.buiten)} +0,1/0; nok ${g1(Nd.nok.h)} in groef ${g1(Nd.groef)}`);
+  rg('Eerst het proefstuk TRN-08 printen en de krimp in de slicer compenseren.');
+  kader(b, { nr: 'TRN-06', naam: 'Naad: klikhaken en lijmvoeg', materiaal: 'PETG (zwart en grijs)', maken: 'inklikken, eventueel lijmen', massa: '—', schaal: '5:1, 2:1, 1:2', blad, soort: 'Detailtekening' }, PROJECT);
   return b.svg();
 }
 
@@ -247,10 +289,10 @@ function bevestigingBlad(blad: string): string {
   const Lg = indeling() as unknown as { paaltjes: { nr: number; x: number; z: number }[]; rijen: { soort: string; nr: number; cx: number; cz: number }[][]; X: number; Z: number };
   const b = new Blad(), B = m.bordje, SP = m.schroefpaal, S = SP.schroef, sd = getal(SP.schroef.d, 1).includes(',') ? getal(SP.schroef.d, 1) : `${getal(SP.schroef.d, 1)},0`;
   b.tekst([30, 280], 'Bevestiging van de bordjes: 4 schroeven per bordje op 4 paaltjes in de bodem (64 in totaal)', 3.6, 'start', { vet: true });
-  // 1. een bordje van boven, 3:1
-  const s = 3, o: P = [62, 180];
+  // 1. een bordje van boven, 2:1 (ISO 5455)
+  const s = 2, o: P = [62, 190];
   const to = (x: number, z: number): P => [o[0] + (x + B.x / 2) * s, o[1] + (B.z / 2 - z) * s];
-  b.tekst([32, 266], '1  Bordje van boven (3:1), z naar voren = omlaag', 2.8, 'start', { vet: true });
+  b.tekst([32, 266], '1  Bordje van boven (2:1), z naar voren = omlaag', 2.8, 'start', { vet: true });
   const rh = (x0: number, z0: number, x1: number, z1: number, w = 0.35, vul = 'none', extra = '') => {
     const p = to(x0, z1), q = to(x1, z0); // z1 (achter) ligt lager op het blad dan z0
     b.el.push(`<rect x="${p[0].toFixed(2)}" y="${b.y(q[1]).toFixed(2)}" width="${(q[0] - p[0]).toFixed(2)}" height="${(q[1] - p[1]).toFixed(2)}" fill="${vul}" stroke="#111" stroke-width="${w}" ${extra}/>`);
@@ -276,17 +318,17 @@ function bevestigingBlad(blad: string): string {
   // maten: 61,1 x 20,9, hart gat 2,0 van beide randen, 57,1 en 16,9 tussen de gaten
   const [xa, xb] = [to(-B.x / 2, 0)[0], to(B.x / 2, 0)[0]], [ya, yb] = [to(0, B.z / 2)[1], to(0, -B.z / 2)[1]];
   b.maatH(xa, xb, ya, ya - 10, g1(B.x));
-  b.maatH(to(hoeken[0][0], 0)[0], to(hoeken[2][0], 0)[0], yb, yb + 6, g1(B.x - 2 * SP.rand));
+  b.maatH(to(hoeken[0][0], 0)[0], to(hoeken[2][0], 0)[0], yb, yb + 6, `${g1(B.x - 2 * SP.rand)} ±0,15`);
   b.maatH(xa, to(hoeken[0][0], 0)[0], yb, yb + 12, g1(SP.rand));
   b.maatV(ya, yb, xb, xb + 10, g1(B.z));
-  b.maatV(to(0, hoeken[1][1])[1], to(0, hoeken[0][1])[1], xa, xa - 8, g1(B.z - 2 * SP.rand));
+  b.maatV(to(0, hoeken[1][1])[1], to(0, hoeken[0][1])[1], xa, xa - 8, `${g1(B.z - 2 * SP.rand)} ±0,1`);
   b.maatV(ya, to(0, hoeken[1][1])[1], xa, xa - 15, g1(SP.rand));
   b.tekst([o[0], ya - 18], `Ø${g1(S.kop)} schroefkop, Ø${g1(SP.d)} paaltje, rood gestreept: schacht van de schroevendraaier PH1 (Ø4,5 + 0,25 lucht)`, 2.1);
   b.tekst([o[0], ya - 21.5], 'Vrij tot de eindklem 1,45 en tot de klemstrook 8,2: de schroevendraaier raakt geen klem en geen draad.', 2.1);
-  // 2. doorsnede door een paaltje, 8:1 (y omhoog: onderkant bodem -2,4, bovenkant bodem 0)
-  const k = 8, c: P = [345, 170];
+  // 2. doorsnede door een paaltje, 10:1 (y omhoog: onderkant bodem -2,4, bovenkant bodem 0)
+  const k = 10, c: P = [345, 160];
   const tp = (r: number, y: number): P => [c[0] + r * k, c[1] + y * k];
-  b.tekst([270, 266], '2  Doorsnede door een paaltje (8:1)', 2.8, 'start', { vet: true });
+  b.tekst([270, 266], '2  Doorsnede door een paaltje (10:1)', 2.8, 'start', { vet: true });
   const bod = m.doos.bodem, voet = m.voet, pcb = B.pcb;
   const vlak = (r0: number, y0: number, r1: number, y1: number, vul: string, w = 0.4) => {
     const p = tp(r0, y1), q = tp(r1, y0);
@@ -309,8 +351,8 @@ function bevestigingBlad(blad: string): string {
   b.tekst(tp(-4.8, -bod / 2 - 0.3), 'bodem', 2.2); b.tekst(tp(-4.9, voet / 2 - 0.3), 'paaltje', 2.2); b.tekst(tp(-4.5, voet + pcb + 0.4), 'print', 2.2);
   b.tekst(tp(0, voet + pcb + S.kopH + 3.6), `schroef ${sd} x ${S.l}, bolkop`, 2.2, 'middle');
   // maten
-  b.maatH(tp(-SP.d / 2, 0)[0], tp(SP.d / 2, 0)[0], tp(0, -bod)[1], tp(0, -bod)[1] - 10, `Ø${g1(SP.d)}`);
-  b.maatH(tp(-SP.voorgat / 2, 0)[0], tp(SP.voorgat / 2, 0)[0], tp(0, -bod)[1], tp(0, -bod)[1] - 18, `Ø${g1(SP.voorgat)}`);
+  b.maatH(tp(-SP.d / 2, 0)[0], tp(SP.d / 2, 0)[0], tp(0, -bod)[1], tp(0, -bod)[1] - 10, `Ø${g1(SP.d)} ±0,2`);
+  b.maatH(tp(-SP.voorgat / 2, 0)[0], tp(SP.voorgat / 2, 0)[0], tp(0, -bod)[1], tp(0, -bod)[1] - 18, `Ø${g1(SP.voorgat)} ±0,1`);
   b.maatH(tp(-S.kop / 2, 0)[0], tp(S.kop / 2, 0)[0], tp(0, voet + pcb + S.kopH)[1], tp(0, voet + pcb + S.kopH)[1] + 8, `Ø${g1(S.kop)}`);
   const xl = tp(-5, 0)[0];
   b.maatV(tp(0, 0)[1], tp(0, voet)[1], xl, xl - 8, g1(voet));
@@ -336,6 +378,18 @@ function bevestigingBlad(blad: string): string {
   r('Vastdraaien', true);
   r('Met de hand tot de kop de print raakt, dan nog 1/8 slag. Niet');
   r('doordraaien: dan breekt de draad in het paaltje uit.');
+  // de passingen met hun eigen tolerantie (Fable 5.2 T5)
+  y = 112;
+  const xp = 140, rp = (t: string, vet = false) => { b.tekst([xp, y], t, 2.3, 'start', { vet }); y -= 3.8; };
+  rp('Passingen (eigen tolerantie; de rest ISO 2768-c)', true);
+  rp(`Voorgat Ø${g1(SP.voorgat)} ±0,1: de schroef Ø${sd} tapt zijn draad`);
+  rp(`    (kern Ø${g1(S.kern)}).`);
+  rp(`Paaltjes hart op hart ${g1(B.x - 2 * SP.rand)} ±0,15 en ${g1(B.z - 2 * SP.rand)} ±0,1:`);
+  rp(`    gat Ø${g1(SP.gat)} in de print, schroef Ø${sd}: 0,1 per kant.`);
+  rp(`Paaltje Ø${g1(SP.d)} ±0,2, ${g1(voet)} ±0,1 hoog (print op paaltjes en rail).`);
+  rp(`Gat in de print Ø${g1(SP.gat)}: gekocht, AANNAME (na te meten).`);
+  rp('Eerst het proefstuk TRN-08: de 4 schroeven moeten erin');
+  rp('    zonder te forceren, anders de krimp compenseren.');
   // 4. de tabel: plaats van elk bordje en zijn 4 gaten
   const bordjes = Lg.rijen.flat().filter((d) => d.soort === 'bordje').sort((p, q) => p.nr - q.nr);
   y = 116;
@@ -350,7 +404,7 @@ function bevestigingBlad(blad: string): string {
     [String(d.nr), getal(xs[0] + Lg.X, 2), getal(xs[1] + Lg.X, 2), getal(zs[0] + Lg.Z, 2), getal(zs[1] + Lg.Z, 2)].forEach((t, i) => b.tekst([kol[i], y], t, 2.1, 'end'));
     y -= 3.15;
   }
-  kader(b, { nr: 'TRN-07', naam: 'Bevestiging van de bordjes', materiaal: 'PETG (zwart), bak links', maken: 'mee geprint; schroeven 2,0 x 6', massa: '—', schaal: '3:1, 8:1', blad, soort: 'Detailtekening' }, PROJECT);
+  kader(b, { nr: 'TRN-07', naam: 'Bevestiging van de bordjes', materiaal: 'PETG (zwart), bak links', maken: 'mee geprint; schroeven 2,0 x 6', massa: '—', schaal: '2:1, 10:1', blad, soort: 'Detailtekening' }, PROJECT);
   return b.svg();
 }
 
@@ -364,6 +418,15 @@ describe('modules en bedrading (opbouw.mjs, versie 5)', () => {
     const uitSchema = (STUKLIJST as string[][]).map((r) => r[0]).flatMap((a) => a.split(', ')).filter((a) => /^-(K|Q|T2|X[1-37])\d*$/.test(a));
     expect(uitSchema.length).toBeGreaterThan(8);
     expect(uitSchema.filter((a) => !refs.has(a))).toEqual([]);
+  });
+  it('de meetbladen TRN-20 en TRN-22 en de bestellijst in de README noemen elke module van opbouw.mjs (Fable 5.2 Q3)', () => {
+    // -X1a/-X1b heten samen -X1 (zo ook -X2); de optionele plaats -K8 (tweede MCP23017) hoeft er niet in
+    const refs = [...new Set(Object.keys(MODULES).filter((r) => !MODULES[r].optioneel).map((r) => r.replace(/[ab]$/, '')))];
+    const noemt = (t: string, r: string) => new RegExp(`${r.replace('-', '\\-')}(?![0-9])`).test(t);
+    const meet = meetBlad('TRN-20', '1 / 1', PROJECT) + meetBlad6('TRN-22', '1 / 1', PROJECT), readme = readFileSync(`${DIR}/README.md`, 'utf8');
+    const best = /\n## Bestellijst\r?\n([\s\S]*?)(?=\r?\n## |$)/.exec(readme)?.[1] ?? '';
+    expect(best.length).toBeGreaterThan(100);
+    expect({ meetblad: refs.filter((r) => !noemt(meet, r)), bestellijst: refs.filter((r) => !noemt(best, r)) }).toEqual({ meetblad: [], bestellijst: [] });
   });
   it('de klemmen in het klemmenplan bestaan op hun module', () => {
     for (const [strook, [, rijen]] of Object.entries(KLEMMEN as Record<string, [string, { klem: string; bron?: [string, string] }[]]>)) {
@@ -390,7 +453,7 @@ describe('tekeningen kabeldoos', () => {
   it.skipIf(!process.env.TREIN_TEKENINGEN)('boormal, bak, deksel, hulpstukken, naad en de bouwbladen', () => {
     mkdirSync(UIT, { recursive: true });
     for (const f of readdirSync(UIT).filter((f) => f.endsWith('.svg'))) unlinkSync(`${UIT}/${f}`);
-    const totaal = DELEN.length + 4 + OPBOUW.length + 4;
+    const totaal = DELEN.length + 5 + OPBOUW.length + 5;
     let n = 0;
     const blad = () => `${++n} / ${totaal}`;
     writeFileSync(`${UIT}/TRN-00a-boormal.svg`, boormalBlad(1, blad()));
@@ -399,10 +462,25 @@ describe('tekeningen kabeldoos', () => {
     DELEN.forEach((d) => writeFileSync(`${UIT}/${bestand(d)}`, onderdeelBlad(d, blad(), DIR, PROJECT)));
     writeFileSync(`${UIT}/TRN-06-naad.svg`, naadBlad(blad()));
     writeFileSync(`${UIT}/TRN-07-bevestiging-bordjes.svg`, bevestigingBlad(blad()));
+    writeFileSync(`${UIT}/TRN-08-proefstuk.svg`, onderdeelBlad(PROEF(), blad(), DIR, PROJECT));
     for (const o of OPBOUW) writeFileSync(`${UIT}/${o.nr}-${o.sleutel}.svg`, montageBlad(o.nr, blad(), PROJECT, o.helft));
     writeFileSync(`${UIT}/TRN-14-draadlijst.svg`, draadlijstBlad('TRN-14', blad(), PROJECT, 0, 61));
     writeFileSync(`${UIT}/TRN-15-draadlijst-uitbreiding.svg`, draadlijstBlad('TRN-15', blad(), PROJECT, 61, 200));
     writeFileSync(`${UIT}/TRN-20-meetblad.svg`, meetBlad('TRN-20', blad(), PROJECT));
+    writeFileSync(`${UIT}/TRN-22-meetblad-versie-6.svg`, meetBlad6('TRN-22', blad(), PROJECT));
     writeFileSync(`${UIT}/TRN-21-invulblad.svg`, invulBlad('TRN-21', blad(), PROJECT));
+    // Fable 5.2 T3/T5: revisie 6 met de wijzigingsregel, ISO 2768-c, schalen volgens ISO 5455, de passingen op TRN-06/07
+    const bladen = readdirSync(UIT).filter((f) => /^TRN-.*\.svg$/.test(f));
+    expect(bladen.length).toBe(totaal);
+    for (const f of bladen) {
+      const t = readFileSync(`${UIT}/${f}`, 'utf8');
+      expect(t, f).toContain('>6<');
+      if (!/^TRN-2/.test(f)) expect(t, f).toContain('Rev. 6 ('); // de A4-bladen (opbouwTrein.ts) hebben een eigen titelblok
+      expect(t, f).not.toContain('2768-m');
+      for (const sch of ['1:2,5', '2,5:1', '3:1', '6:1', '8:1']) expect(t, `${f}: schaal ${sch}`).not.toContain(`>${sch}`);
+    }
+    for (const f of bladen.filter((q) => !/^TRN-(00|2)/.test(q))) expect(readFileSync(`${UIT}/${f}`, 'utf8'), f).toContain('ISO 2768-c');
+    for (const f of ['TRN-06-naad.svg', 'TRN-07-bevestiging-bordjes.svg']) expect(readFileSync(`${UIT}/${f}`, 'utf8'), f).toMatch(/Passingen[\s\S]*±0,1/);
+    expect(readFileSync(`${UIT}/TRN-02-bak-rechts.svg`, 'utf8')).toContain('Projectie: 1e hoek');
   }, 1800000);
 });

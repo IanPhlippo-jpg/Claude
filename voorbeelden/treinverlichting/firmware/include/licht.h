@@ -36,6 +36,16 @@ constexpr GroepMasker ALLE_GROEPEN = (GroepMasker)(0xFFFFFFFFu >> (32 - N_GROEPE
 /** het masker van één groep (index 0..N_GROEPEN-1) */
 inline GroepMasker groepBit(int g) { return (GroepMasker)1u << g; }
 
+// Polariteit van de MOSFET-modules met optocoupler (lichtgroepen -Q1/-Q2 en de IR-leds -Q4, AANNAME tot het meten op
+// TRN-20): standaard ACTIEF LAAG (led van de optocoupler tussen VCC en IN: IN naar 0 V = aan). Een module met de led
+// tussen IN en GND: -DTREIN_UITGANG_ACTIEF_HOOG. Voor -Q4 is het ook een instelling (irLedActiefLaag, firmware 2.1.0)
+// met deze bouwvlag als standaard (Fable 5.2, E1: -Q4 is "zoals -Q1", dus dezelfde polariteit).
+#ifdef TREIN_UITGANG_ACTIEF_HOOG
+constexpr bool UITGANG_ACTIEF_LAAG = false;
+#else
+constexpr bool UITGANG_ACTIEF_LAAG = true;
+#endif
+
 /** is het moment al aangebroken? (werkt ook als millis() rondloopt) */
 inline bool voorbij(uint32_t nu, uint32_t moment) { return (int32_t)(nu - moment) >= 0; }
 

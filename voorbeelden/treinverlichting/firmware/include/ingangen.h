@@ -1,20 +1,29 @@
 // De ingangen (knoppen, schakelaars, sensoren, hallsensoren), zonder hardware. Testen: test/test_ingangen.
 //
-// Firmware 2.0.0: 40 ingangen in 5 groepen van 8:
-//   1..16   GPIO's van de ESP (2 optocouplerprints)
-//   17..24  GPB0..GPB7 van de MCP23017 op 0x20 (een derde optocouplerprint)
-//   25..40  GPA0..GPA7 en GPB0..GPB7 van een tweede MCP23017 op 0x21 (optioneel, 2 optocouplerprints PC817): wordt hij
-//           bij het opstarten niet gevonden, dan zijn 25..40 afwezig (altijd rust; /api/staat meldt "aanwezig":false)
-// Per ingang de polariteit npn (de sensor trekt naar 0 V, standaard) of pnp (de sensor geeft +12 V); ook per groep van 8.
-// De bedrading kiest de COM-klem van de optocouplerprint (NPN: COM aan +12 V, PNP: COM aan 0 V); de print trekt zijn
-// uitgang dan in BEIDE gevallen laag als de sensor actief is, dus de firmware hoeft niets om te keren. Alleen voor een
-// ingangsprint die bij PNP actief HOOG uitgeeft, keert de Baan de pnp-ingangen om (pnpOmkeren, -DTREIN_PNP_KEERT_OM;
-// zie README). Een ingang die van polariteit verandert, begint opnieuw: zijn huidige lezing is de rusttoestand.
+// Firmware 2.1.0: 38 plaatsen, 37 ingangen (Fable 5.2, E7: GPA7 en GPB7 van een MCP23017 zijn nooit ingang):
+//   1..16   GPIO's van de ESP (optocouplerprint 1 en 2)
+//   17..23  GPB0..GPB6 van de MCP23017 op 0x20: bedoeld voor reflexsensoren (TCRT5000-module op de beveiligde 3,3 V,
+//           uitgang met 1 kΩ in serie naar GPBn, interne pull-up, actief laag; E2), of een derde optocouplerprint
+//   24      bestaat niet (GPB7)
+//   25..38  GPA0..GPA6 en GPB0..GPB6 van een tweede MCP23017 op 0x21 (optioneel): wordt hij bij het opstarten niet
+//           gevonden, dan zijn ze afwezig (altijd rust; /api/staat meldt "aanwezig":false)
+//   39, 40  bestaan niet (de lijst houdt 40 plaatsen zodat oude instellingen gewoon laden)
+// Optocouplerprint ("print", 5 stuks: 1-8, 9-16, 17-23, 25-31, 32-38) en de soort van zijn ingangskant (E3, AANNAME tot
+// het meten op TRN-22, daarom instelbaar per print: "printSoort"):
+//   vcc    gemeenschappelijke VCC aan +12 V (S12), de sensor trekt IN naar 0 V (zoals getekend; standaard). Alleen npn.
+//   gnd    gemeenschappelijke GND, IN hoog = actief. Contacten en reed tussen S12 en IN, pnp-sensoren rechtstreeks
+//          (polariteit "pnp"). Npn- en open-collector-hallsensoren met een pull-up 2,2 kΩ van IN naar S12: in rust
+//          is de ingang dan actief, dus keert de firmware hem om (polariteit "npn" op een print "gnd").
+//   apart  per kanaal IN+ en IN-: npn (IN+ aan S12, IN- aan de sensor) en pnp (IN+ aan de sensor, IN- aan 0 V)
+//          naast elkaar, niets om te keren.
+//   Omkeren: alleen soort "gnd" met polariteit "npn" (ingangOmkeren). Polariteit "pnp" op een print "vcc" kan niet
+//   (geweigerd: polariteitMag). Een ingang die van polariteit of printsoort verandert, begint opnieuw: zijn huidige
+//   lezing is de rusttoestand.
 //
 // main.cpp leest de ingangen elke 5 ms en geeft twee maskers door (bit i = ingang i+1):
-//   ruw      de ingang is nu ACTIEF (de optocoupler trekt de pin laag; main.cpp keert dat al om)
-//   flanken  sinds de vorige lezing was er minstens één "actief"-flank (een GPIO-interrupt zet die vlag, hw.h): zo
-//            wordt ook een puls gezien die korter is dan 5 ms en tussen twee lezingen valt
+//   ruw      de optocoupler (of de reflexsensor) trekt de pin nu LAAG; de Baan keert de omgekeerde ingangen om
+//   flanken  sinds de vorige lezing was er minstens één flank (GPIO: elke verandering, een interrupt zet de vlag;
+//            MCP23017: INTF met INTCAP actief): zo wordt ook een puls gezien die korter is dan 5 ms
 //
 // Soort per ingang (hoe het signaal gelezen wordt):
 //   contact  knop, schakelaar, reed: een ingang wisselt pas als hij 30 ms onafgebroken de nieuwe waarde heeft
@@ -41,13 +50,34 @@
 
 namespace trein {
 
-constexpr int N_INGANGEN = 40;
-constexpr int INGANG_GROEP = 8;                          // polariteit per groep van 8
-constexpr int N_INGANG_GROEPEN = N_INGANGEN / INGANG_GROEP;
-constexpr int INGANGEN_GPIO = 16, INGANGEN_MCP1 = 24;    // 1..16 GPIO, 17..24 MCP23017 0x20, 25..40 MCP23017 0x21
+constexpr int N_INGANGEN = 40;                           // plaatsen (bestaande ingangen: BESTAANDE_INGANGEN)
 typedef uint64_t IngangMasker;                           // bit i = ingang i+1
 constexpr IngangMasker ALLE_INGANGEN = (IngangMasker)((1ull << N_INGANGEN) - 1);
 inline IngangMasker ingangBit(int i) { return (IngangMasker)1u << i; }
+constexpr IngangMasker INGANGEN_GPIO = 0xFFFFull;                 // 1..16
+constexpr IngangMasker INGANGEN_MCP1 = 0x7Full << 16;            // 17..23 (MCP23017 0x20, GPB0..6)
+constexpr IngangMasker INGANGEN_MCP2 = 0x3FFFull << 24;          // 25..38 (MCP23017 0x21, GPA0..6, GPB0..6)
+constexpr IngangMasker BESTAANDE_INGANGEN = INGANGEN_GPIO | INGANGEN_MCP1 | INGANGEN_MCP2;
+constexpr int N_PRINTEN = 5;                             // optocouplerprints: 1-8, 9-16, 17-23, 25-31, 32-38
+
+/** de ingangen van een MCP23017 (16 bits: GPA = bit 0..7, GPB = bit 8..15) naar het ingangsmasker, en terug */
+inline IngangMasker mcp1Ingangen(uint16_t ab) { return (IngangMasker)((ab >> 8) & 0x7F) << 16; }
+inline IngangMasker mcp2Ingangen(uint16_t ab) {
+  return ((IngangMasker)(ab & 0x7F) << 24) | ((IngangMasker)((ab >> 8) & 0x7F) << 31);
+}
+inline uint16_t mcp1Bits(IngangMasker m) { return (uint16_t)(((m >> 16) & 0x7F) << 8); }
+inline uint16_t mcp2Bits(IngangMasker m) { return (uint16_t)(((m >> 24) & 0x7F) | (((m >> 31) & 0x7F) << 8)); }
+
+/** de print (0..4) van ingang i (index); -1 = de ingang bestaat niet */
+inline int printVanIngang(int i) {
+  if (i < 0) return -1;
+  if (i < 8) return 0;
+  if (i < 16) return 1;
+  if (i < 23) return 2;
+  if (i >= 24 && i < 31) return 3;
+  if (i >= 31 && i < 38) return 4;
+  return -1;
+}
 constexpr uint32_t ONTDENDER_MS = 30;
 constexpr uint16_t MAX_NALOOP_S = 3600;
 constexpr uint16_t STD_VASTHOUD_MS = 300, MAX_VASTHOUD_MS = 10000; // puls: zo lang blijft de ingang actief
@@ -75,6 +105,22 @@ inline int polariteitVanId(const char *id) {
   if (strcmp(id, "pnp") == 0) return POL_PNP;
   return -1;
 }
+
+enum PrintSoort : uint8_t { PRINT_VCC, PRINT_GND, PRINT_APART, N_PRINTSOORTEN };
+inline const char *printSoortId(int s) {
+  static const char *T[N_PRINTSOORTEN] = {"vcc", "gnd", "apart"};
+  return T[(s >= 0 && s < N_PRINTSOORTEN) ? s : 0];
+}
+inline int printSoortVanId(const char *id) {
+  if (!id) return -1;
+  for (int s = 0; s < N_PRINTSOORTEN; s++)
+    if (strcmp(printSoortId(s), id) == 0) return s;
+  return -1;
+}
+/** keert de firmware deze ingang om? (E3: print "gnd" met een npn-sensor en een pull-up naar S12) */
+inline bool ingangOmkeren(uint8_t printSoort, uint8_t polariteit) { return printSoort == PRINT_GND && polariteit == POL_NPN; }
+/** kan deze polariteit op deze print? (pnp op een print met gemeenschappelijke VCC: nee) */
+inline bool polariteitMag(uint8_t printSoort, uint8_t polariteit) { return !(printSoort == PRINT_VCC && polariteit == POL_PNP); }
 
 enum Gedrag : uint8_t { GEDRAG_GEEN, GEDRAG_DRUKKNOP, GEDRAG_SCHAKELAAR, GEDRAG_SENSOR, N_GEDRAG };
 

@@ -323,6 +323,20 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
 .puntchips button { min-height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--rand); background: var(--vlak); font-size: 14px; font-weight: 650; display: inline-flex; align-items: center; gap: 6px; }
 .puntchips button i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
 .puntchips button[aria-pressed="true"] { outline: 3px solid var(--groen); outline-offset: 1px; }
+/* advies Fable 5.2: hardware, toegang, zelftest */
+.test-status.fout { color: var(--rood); }
+.test-status.amber { color: var(--inkt); background: var(--geel-zacht); border-left: 5px solid rgb(var(--amber)); border-radius: 8px; padding: 8px 12px; }
+.tegel.let-op { box-shadow: 0 0 0 3px var(--rood); }
+.keuze button:disabled, .pol button:disabled { opacity: .42; cursor: not-allowed; }
+.keuze.drie button { padding: 6px 4px; line-height: 1.2; }
+.keuze button small { display: block; font-size: 12px; font-weight: 600; opacity: .8; }
+.uitleg-lijst { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.uitleg-lijst li { font-size: 15px; color: var(--zacht); line-height: 1.4; }
+.uitleg-lijst b { color: var(--inkt); }
+.lijn .vink { min-height: 44px; margin-top: 0; font-size: 15px; gap: 8px; }
+.lijn .vink input { width: 24px; height: 24px; }
+@media (max-width: 420px) { .leeg-label { display: none; } }
+.zt-kop { margin: 14px 0 0; font-size: 15px; color: var(--zacht); text-transform: uppercase; letter-spacing: .04em; }
 </style>
 </head>
 <body>
@@ -399,7 +413,8 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
     <div class="knoppen"><button class="knop" type="button" id="tellers-nul">Alle tellers op 0</button></div>
     <div class="tegel" style="margin-top:22px">
       <h3>NPN of PNP, per groep van 8</h3>
-      <p class="klein"><b>NPN</b> (standaard): een knop of sensor trekt de ingang naar 0 V. <b>PNP</b>: de sensor geeft zelf +12 V. Bij PNP komt de COM-klem van die optocouplerprint aan 0 V in plaats van +12 V (zie de README). Per ingang apart kan bij Instellen.</p>
+      <p class="klein"><b>NPN</b> (standaard): een knop of sensor trekt de ingang naar 0 V. <b>PNP</b>: de sensor geeft zelf +12 V. Of PNP kan, hangt af van hoe de optocouplerprint aan de ingangskant geschakeld is: alleen bij "GND samen" of "apart per kanaal" (Instellingen, Hardware; meten op TRN-22). Per ingang apart kan bij Instellen.</p>
+      <p class="klein">Ingang 17 tot 23 hangen rechtstreeks aan de MCP23017: bedoeld voor reflexsensoren (TCRT5000-module) op de beveiligde 3,3 V, actief laag. Een ingang 24 is er niet meer (GPB7 van de MCP23017 mag geen ingang zijn).</p>
       <div id="ingang-groepen"></div>
     </div>
   </section>
@@ -424,6 +439,18 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
         <p class="klein">Zenden via IR-led (niets gekozen = alle leds):</p>
         <div class="chips acht" id="ir-leds"></div>
         <div id="ir-codes" style="margin-top:8px"></div>
+        <div class="knoppen"><button class="knop" type="button" id="ir-continu">+ Code “continu” (zonder draaggolf)</button></div>
+        <p class="klein">Voor bussen die stoppen op een led die gewoon brandt (geen 38 kHz): de IR-led brandt dan zolang de halte de bus vasthoudt. Kijk met de camera van een gsm naar een bestaande stopplaats: brandt de led rustig, dan is ze waarschijnlijk continu. De IR-zelftest hieronder zegt "ongemoduleerd" als de ontvanger licht ziet zonder draaggolf.</p>
+      </div>
+      <div class="tegel blok" id="ir-test">
+        <h3>Zenden en zelftest</h3>
+        <div class="test-status" id="ir-teller" role="status"></div>
+        <p class="klein">IR-zelftest: houd de gekozen IR-led vlak voor het venstertje van de leerontvanger (-B1) in de doos. De doos zendt een NEC-testcode via die led en leest ze zelf terug. Zo weet je of -Q3 en -Q4 de draaggolf goed schakelen (TRN-22).</p>
+        <div class="twee">
+          <div class="veld"><span class="klein">Via IR-led</span><select id="ir-test-led" aria-label="IR-led voor de zelftest"></select></div>
+          <div class="veld"><span class="klein leeg-label">&nbsp;</span><button class="knop hoofd" type="button" id="ir-test-start">IR-zelftest</button></div>
+        </div>
+        <div class="test-status" id="ir-test-uit" role="status"></div>
       </div>
       <div class="tegel blok">
         <h3>Laatst ontvangen</h3>
@@ -439,11 +466,12 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
     </div>
     <div id="baan-bussen" class="deel" hidden>
       <h2>Bussen</h2>
-      <p class="uitleg">Elke bus zendt zijn eigen IR-code; de ontvangers op de baan lezen die. Zo weet de doos welke bus waar rijdt.</p>
+      <p class="uitleg">Zendt een bus een eigen IR-code, dan lezen de ontvangers op de baan welke bus waar rijdt. Zonder code volgt de doos de bussen in volgorde per strook (wie eerst binnenrijdt, rijdt eerst buiten).</p>
       <div id="bus-lijst" class="rooster"></div>
       <div class="knoppen"><button class="knop hoofd" type="button" id="bus-nieuw">+ Nieuwe bus</button></div>
+      <div class="tegel blok" id="bus-gezien" style="margin-top:18px" hidden></div>
       <h2 style="margin-top:28px">Meetpunten</h2>
-      <p class="uitleg">Elk meetpunt uit het plan hangt aan een ingang (hallsensor) of aan een IR/FTR-ontvanger.</p>
+      <p class="uitleg">Elk meetpunt uit het plan hangt aan een ingang (hallsensor) of aan een IR/FTR-ontvanger. <b>Alleen bussen</b>: aanzetten waar alleen bussen komen. Alleen daar telt een melding zonder buscode voor een bus; elders is het een auto, en de doos en de tv raden niet.</p>
       <div class="tegel" id="punt-lijst"></div>
     </div>
     <div id="baan-haltes" class="deel" hidden>
@@ -473,6 +501,7 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
       <div class="knoppen"><button class="knop hoofd" type="button" id="inst-groepen-bewaar">Namen bewaren</button></div>
     </div>
     <div class="blok tegel" id="inst-algemeen"></div>
+    <div class="blok tegel" id="inst-hardware"></div>
     <div class="blok tegel" id="inst-test">
       <h3>Testmodus</h3>
       <p class="klein">Voor de ingebruikname en het meetblad. Looplicht: elke groep brandt om de beurt (zonder effect). Eén groep aan: om de stroom van die groep te meten. "Alles uit" stopt de testmodus ook.</p>
@@ -494,6 +523,17 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
       <div class="knoppen"><button class="knop hoofd" type="button" id="ww-bewaar">Wachtwoord wijzigen</button></div>
       <p class="klein" style="margin-top:14px">Wachtwoord vergeten? Houd de knop <strong>BOOT</strong> op de ESP 5 seconden ingedrukt (het lampje wordt blauw en knippert): het wachtwoord is dan weer <strong>treinbaan</strong> en het thuisnet staat uit.</p>
     </div>
+    <div class="blok tegel" id="inst-toegang">
+      <h3>Toegang via het thuisnet</h3>
+      <p class="klein">Op de wifi "Treinbaan" van de doos is niets nodig. Open je het dashboard via het thuisnet (http://treinbaan.local), dan aanvaardt de doos een wijziging alleen met het wifi-wachtwoord van de doos (het wachtwoord van "Treinbaan" hierboven). Zo kan geen ander toestel of webpagina op het thuisnet de doos aanpassen of er firmware op zetten.</p>
+      <div class="test-status" id="toegang-status" role="status"></div>
+      <div class="veld"><span class="klein">Wifi-wachtwoord van de doos</span><input type="password" id="toegang-ww" autocomplete="current-password" maxlength="63"></div>
+      <p class="klein">Blijft alleen in deze browser op dit toestel en gaat mee bij elke wijziging.</p>
+      <div class="knoppen">
+        <button class="knop hoofd" type="button" id="toegang-bewaar">Bewaren op dit toestel</button>
+        <button class="knop" type="button" id="toegang-wis">Vergeten</button>
+      </div>
+    </div>
     <div class="blok tegel" id="inst-thuisnet">
       <h3>Thuis-wifi (niet verplicht)</h3>
       <p class="klein">De doos houdt altijd haar eigen wifi "Treinbaan". Vul hier ook het wifi-netwerk van het huis in, dan is het dashboard ook te vinden op <strong>http://treinbaan.local</strong> zonder van wifi te wisselen.</p>
@@ -504,6 +544,12 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
         <button class="knop hoofd" type="button" id="thuis-bewaar">Thuisnet bewaren</button>
         <button class="knop" type="button" id="thuis-uit">Thuisnet uitzetten</button>
       </div>
+    </div>
+    <div class="blok tegel" id="inst-zelftest">
+      <h3>Zelftest op het bord</h3>
+      <p class="klein">Kijkt na wat de tests op de pc niet kunnen: welke chips op de I2C-bus antwoorden, of de PCA9685 en de MCP23017 teruggeven wat de doos schreef, het bestandssysteem, het geheugen van de taken en de wifi. Gebruik ze bij het meetblad TRN-22. De IR-zelftest staat bij Baan, IR.</p>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="zelftest-start">Zelftest uitvoeren</button></div>
+      <div id="zelftest-uit"></div>
     </div>
     <div class="blok tegel">
       <h3>Over de doos</h3>
@@ -615,13 +661,44 @@ let K = {};                // de laatste korte staat (live: servo's, bussen, hal
 let demo = !/^https?:$/.test(location.protocol) || /[?&]demo=1/.test(location.search); // file:// of ?demo=1: geen doos
 let bezig = false;
 
+// F6: op het thuisnet aanvaardt de doos een wijziging (POST/PUT, ook /api/update) alleen met het wifi-wachtwoord van de
+// doos in de kop X-Treinbaan-Wachtwoord (anders 401; 403 = het verzoek kwam van een andere webpagina); op de eigen
+// hotspot (192.168.4.x) is dat niet nodig. Het wachtwoord blijft in
+// localStorage van dit toestel en gaat nooit naar een geluidskastje.
+const WW_SLEUTEL = 'treinbaan-api-ww';
+let apiWw = '', geweigerd = false;
+try { apiWw = localStorage.getItem(WW_SLEUTEL) || ''; } catch (e) { /* geen opslag: elke keer invullen */ }
+const opHotspot = () => /^192\.168\.4\.\d+$/.test(location.hostname);
+const metWw = (kop = {}) => { if (apiWw) kop['X-Treinbaan-Wachtwoord'] = apiWw; return kop; };
+const GEWEIGERD = 'Geweigerd: op het thuisnet is het wifi-wachtwoord van de doos nodig (Instellingen, Toegang).';
+function weigering(code) { geweigerd = code || 401; werkToegangBij(); return { ok: false, status: geweigerd, fout: GEWEIGERD }; }
+function zetApiWw(w) {
+  apiWw = w;
+  try { if (w) localStorage.setItem(WW_SLEUTEL, w); else localStorage.removeItem(WW_SLEUTEL); } catch (e) { /* niet erg */ }
+  werkToegangBij();
+}
+function werkToegangBij() {
+  const st = $('#toegang-status');
+  st.textContent = geweigerd ? 'De doos weigerde een wijziging (' + geweigerd + '): ' + (apiWw ? 'het bewaarde wachtwoord klopt niet.' : 'vul het wachtwoord in.')
+    : opHotspot() ? 'Je zit nu op de wifi "Treinbaan": geen wachtwoord nodig.'
+    : apiWw ? 'Wachtwoord bewaard op dit toestel: het gaat mee bij elke wijziging.' : 'Geen wachtwoord bewaard. Op het thuisnet weigert de doos dan elke wijziging.';
+  st.className = 'test-status' + (geweigerd ? ' fout' : apiWw || opHotspot() ? ' aan' : '');
+  $('#inst-toegang').classList.toggle('let-op', geweigerd);
+  $('#toegang-wis').hidden = !apiWw;
+}
+
 async function api(pad, body, methode) {
-  if (demo) return Demo.vraag(pad, body, methode);
-  const r = await fetch(pad, body ? { method: methode || 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' });
-  if (r.status === 404 && !S) { demo = true; return Demo.vraag(pad, body); } // geopend zonder doos
   let j;
-  try { j = await r.json(); } catch (e) { if (!S) { demo = true; return Demo.vraag(pad, body); } throw e; }
-  if (!r.ok && j.ok !== false) j.ok = false;
+  if (demo) j = await Demo.vraag(pad, body, methode, apiWw);
+  else {
+    const r = await fetch(pad, body ? { method: methode || 'POST', headers: metWw({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) } : { cache: 'no-store' });
+    if (r.status === 401 || r.status === 403) return weigering(r.status);
+    if (r.status === 404 && !S) { demo = true; return Demo.vraag(pad, body); } // geopend zonder doos
+    try { j = await r.json(); } catch (e) { if (!S) { demo = true; return Demo.vraag(pad, body); } throw e; }
+    if (!r.ok && j.ok !== false) j.ok = false;
+  }
+  if (j && (j.status === 401 || j.status === 403)) return weigering(j.status);
+  if (body && geweigerd && j && j.ok !== false) { geweigerd = false; werkToegangBij(); }
   return j;
 }
 
@@ -695,6 +772,7 @@ function bouwAlles() {
   bouwFuncties();
   bouwIngangen();
   bouwInstellingen();
+  bouwHardware();
   bouwBaan();
   $('#inst-versie').textContent = S.versie || '–';
   $('#inst-aantal').textContent = S.aantalGroepen || S.groepen.length;
@@ -1017,8 +1095,20 @@ function koppeling(g) {
   }
 }
 
+// E7: GPA7 en GPB7 van de MCP23017 zijn geen ingang: 1-16 (optocouplerprints), 17-23 (0x20), 25-38 (0x21, als hij er is)
+const ingangZichtbaar = g => !!g && g.nr !== 24 && g.nr <= 38 && g.aanwezig !== false;
+const zichtbareIngangen = () => (S ? S.ingangen : []).filter(ingangZichtbaar);
+// E3: hoe elke optocouplerprint aan de ingangskant geschakeld is (meten op TRN-22)
+const PRINTSOORT = [['vcc', 'VCC samen', 'standaard'], ['gnd', 'GND samen', 'IN hoog = actief'], ['apart', 'Apart', 'per kanaal IN+ en IN−']];
+const printNaam = id => ({ vcc: 'VCC samen', gnd: 'GND samen', apart: 'apart per kanaal' })[id] || id;
+const PRINTEN = [[1, 8], [9, 16], [17, 23], [25, 31], [32, 38]]; // ingangen per print; 4 en 5 alleen met de MCP23017 0x21
+const printVan = nr => PRINTEN.findIndex(([a, b]) => nr >= a && nr <= b);
+const printSoorten = () => { const p = (S && ((S.instellingen && S.instellingen.printSoort) || S.printSoort)) || []; return PRINTEN.map((x, k) => p[k] || 'vcc'); };
+const printenAanwezig = () => PRINTEN.map((x, k) => k < 3 || zichtbareIngangen().some(g => printVan(g.nr) === k)); // print 4-5: als 0x21 er is
+const pnpKan = nr => { const k = printVan(nr); return k < 0 || printSoorten()[k] !== 'vcc'; };
+const PNP_NIET = 'PNP kan niet op een optocouplerprint met gemeenschappelijke VCC. Meet de print (TRN-22) en kies bij Instellingen, Hardware "GND samen" of "Apart".';
 function bouwIngangen() {
-  $('#ingangen-lijst').replaceChildren(...S.ingangen.map((g, i) => {
+  $('#ingangen-lijst').replaceChildren(...S.ingangen.map((g, i) => [g, i]).filter(([g]) => ingangZichtbaar(g)).map(([g, i]) => {
     const stip = h('span', { class: 'stip', 'aria-hidden': 'true' }), toestand = h('span', { class: 'toestand' });
     const teller = h('span', { class: 'teller', title: 'Zo vaak actief (hallsensor: zo veel pulsen) sinds de doos aanstaat' });
     iRijen[i] = { stip, toestand, teller };
@@ -1035,14 +1125,16 @@ function bouwIngangen() {
     return rij;
   }));
   werkIngangenBij();
-  // NPN/PNP per groep van 8 (ingang 17-24: de MCP23017)
-  $('#ingang-groepen').replaceChildren(...[0, 1, 2].filter(k => S.ingangen.length > k * 8).map(k => {
-    const deel = S.ingangen.slice(k * 8, k * 8 + 8), pol = id => deel.every(x => (x.polariteit || 'npn') === id);
-    return h('div', { class: 'lijn' }, h('div', { class: 'tekst' }, h('strong', null, 'Ingang ' + (k * 8 + 1) + ' tot ' + (k * 8 + 8)),
-      h('span', { class: 'klein' }, k === 2 ? 'extra ingangen (MCP23017)' : 'optocouplerprint ' + (k + 1) + (pol('npn') || pol('pnp') ? '' : ' · gemengd'))),
-      h('div', { class: 'pol' }, ['npn', 'pnp'].map(id => h('button', { type: 'button', 'aria-pressed': String(pol(id)), onclick: () => {
-        if (confirm('Ingang ' + (k * 8 + 1) + ' tot ' + (k * 8 + 8) + ' allemaal op ' + id.toUpperCase() + ' zetten?')) stuur('/api/ingang', { groep: k + 1, polariteit: id }, 'Ingang ' + (k * 8 + 1) + '-' + (k * 8 + 8) + ': ' + id.toUpperCase());
-      } }, id.toUpperCase()))));
+  // NPN/PNP per print (ingang 1-8, 9-16, 17-23 op de MCP23017 0x20; 25-31 en 32-38 op 0x21 als die er is)
+  const ps = printSoorten(), aanwezig = printenAanwezig();
+  $('#ingang-groepen').replaceChildren(...PRINTEN.map((x, k) => k).filter(k => aanwezig[k]).map(k => {
+    const [van, tot] = PRINTEN[k], deel = S.ingangen.slice(van - 1, tot), pol = id => deel.every(x => (x.polariteit || 'npn') === id);
+    return h('div', { class: 'lijn' }, h('div', { class: 'tekst' }, h('strong', null, 'Ingang ' + van + ' tot ' + tot),
+      h('span', { class: 'klein' }, (k >= 2 ? 'MCP23017, reflexsensor op 3,3 V · print ' + (k + 1) + ': ' : 'optocouplerprint ' + (k + 1) + ': ') + printNaam(ps[k]) + (pol('npn') || pol('pnp') ? '' : ' · gemengd'))),
+      h('div', { class: 'pol' }, ['npn', 'pnp'].map(id => h('button', { type: 'button', 'aria-pressed': String(pol(id)), disabled: id === 'pnp' && ps[k] === 'vcc' && !pol('pnp'),
+        title: id === 'pnp' && ps[k] === 'vcc' ? PNP_NIET : null, onclick: () => {
+          if (confirm('Ingang ' + van + ' tot ' + tot + ' allemaal op ' + id.toUpperCase() + ' zetten?')) stuur('/api/ingang', { groep: k + 1, polariteit: id }, 'Ingang ' + van + '-' + tot + ': ' + id.toUpperCase());
+        } }, id.toUpperCase()))));
   }));
 }
 
@@ -1060,7 +1152,10 @@ function ingangEditor(i) {
     h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat hangt eraan?'), h('div', { class: 'keuze' }, SOORTEN.map(([id, n]) =>
       h('button', { type: 'button', 'aria-pressed': String((c.soort || 'contact') === id), onclick: () => { c.soort = id; bouwIngangen(); } }, n)))),
     h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Hoe schakelt het?'), h('div', { class: 'keuze' }, POLARITEIT.map(([id, n]) =>
-      h('button', { type: 'button', 'aria-pressed': String((c.polariteit || 'npn') === id), onclick: () => { c.polariteit = id; bouwIngangen(); } }, n)))),
+      h('button', { type: 'button', 'aria-pressed': String((c.polariteit || 'npn') === id), disabled: id === 'pnp' && !pnpKan(i + 1) && c.polariteit !== 'pnp',
+        onclick: () => { c.polariteit = id; bouwIngangen(); } }, n))),
+      !pnpKan(i + 1) ? h('p', { class: 'klein', style: 'margin-top:6px' }, PNP_NIET) : null,
+      i >= 16 && i <= 22 ? h('p', { class: 'klein', style: 'margin-top:6px' }, 'Ingang 17 tot 23 hangen rechtstreeks aan de MCP23017: voor een reflexsensor (TCRT5000-module) op de beveiligde 3,3 V, uitgang met 1 kΩ naar de ingang, actief laag. Kies "Knop, schakelaar of reed" en NPN.') : null),
     c.soort === 'puls'
       ? h('div', null, h('p', { class: 'klein', style: 'margin-top:8px' }, 'Een hallsensor onder het spoor geeft een korte puls als de magneet onder de loc voorbijkomt. De doos ziet elke puls (ook van 1 ms) en houdt de ingang daarna nog even actief, zodat de functies hem zeker zien.'),
           stapper({ n: 'Na een puls actief houden', min: 0, max: 10, waarde: c.vasthouden != null ? c.vasthouden : 0.3, toon: v => v ? getal(v) + ' s' : 'niet',
@@ -1138,6 +1233,93 @@ function bouwInstellingen() {
     } }, 'Bewaren')));
 }
 
+// E3, E1, E4: instellingen die van de gekochte modules afhangen (meten op TRN-22)
+let hwC = null, hwVuil = false;
+function bouwHardware() {
+  if (hwVuil && hwC) return;
+  const i = S.instellingen || {};
+  hwC = { printSoort: printSoorten(), irLedActiefLaag: i.irLedActiefLaag != null ? !!i.irLedActiefLaag : true, irDuty: i.irDuty === 50 ? 50 : 33 };
+  tekenHardware();
+}
+function tekenHardware() {
+  const c = hwC, BEREIK = ['ingang 1-8', 'ingang 9-16', 'ingang 17-23, alleen als daar een print komt', 'ingang 25-31 (0x21)', 'ingang 32-38 (0x21)'];
+  const keuze = (opties, waarde, zet, kl) => h('div', { class: 'keuze' + (kl ? ' ' + kl : '') }, opties.map(([id, n, sub]) => h('button', { type: 'button', 'aria-pressed': String(waarde === id),
+    onclick: () => { zet(id); hwVuil = true; tekenHardware(); } }, n, sub ? h('small', null, sub) : null)));
+  $('#inst-hardware').replaceChildren(
+    h('h3', null, 'Hardware: na het meten op TRN-22'),
+    h('p', { class: 'klein' }, 'Deze keuzes hangen af van de modules die je kocht. Meet ze eerst na met het meetblad TRN-22 en zet ze dan hier juist. Fout gekozen: de ingangen of de IR-leds werken omgekeerd.'),
+    ...printenAanwezig().map((a, k) => a ? veld('Optocouplerprint ' + (k + 1) + ' · ' + BEREIK[k], keuze(PRINTSOORT, c.printSoort[k], id => { c.printSoort[k] = id; }, 'drie')) : null).filter(Boolean),
+    h('ul', { class: 'uitleg-lijst' },
+      h('li', null, h('b', null, 'VCC samen'), ' ("vcc", zoals getekend): +12 V aan de VCC-klem, een knop of NPN-sensor trekt IN naar 0 V. PNP kan hier niet.'),
+      h('li', null, h('b', null, 'GND samen'), ' ("gnd"): IN hoog = actief. Knop of reed tussen S12 en IN, een PNP-sensor rechtstreeks. Per NPN-sensor een pull-up van 2,2 kΩ van IN naar S12; de doos keert die ingang dan om.'),
+      h('li', null, h('b', null, 'Apart'), ' ("apart"): per kanaal een eigen IN+ en IN−. NPN: IN+ aan S12, IN− aan de sensor. PNP: IN+ aan de sensor, IN− aan 0 V.'),
+      h('li', null, 'Welke heb je? Diodetest tussen IN en elke gemeenschappelijke klem: zie TRN-22.')),
+    veld('IR-driver -Q4: een IR-led doet mee bij', keuze([[true, 'Laag', 'zoals -Q1'], [false, 'Hoog', '']], c.irLedActiefLaag, v => { c.irLedActiefLaag = v; })),
+    h('p', { class: 'klein' }, 'TRN-22: met alleen IR-led 1 gekozen geleidt alleen kanaal 1 van -Q4. Geleiden juist de andere 7, kies dan het andere.'),
+    veld('Draaggolf: puls per periode (duty)', keuze([[33, '33 %', 'standaard'], [50, '50 %', '']], c.irDuty, v => { c.irDuty = v; })),
+    h('p', { class: 'klein' }, 'Kies 50 % als de IR-zelftest (Baan, IR) niets of een verkeerde code teruglas: de puls van 33 % kan te smal zijn voor de MOSFET.'),
+    h('div', { class: 'knoppen' }, knop('Hardware bewaren', async () => {
+      const j = await stuur('/api/instellingen', { printSoort: c.printSoort.slice(), irLedActiefLaag: c.irLedActiefLaag, irDuty: c.irDuty }, 'Hardware bewaard');
+      if (j) { hwVuil = false; S.rev = -1; peil(); }
+    }, 'hoofd'), hwVuil ? knop('Annuleren', () => { hwVuil = false; bouwHardware(); }) : null));
+}
+
+// Q1: GET /api/zelftest; de vorm van het antwoord mag groeien: onbekende velden worden gewoon getoond
+const ZT_NAMEN = { i2c: 'I2C-bus', pca9685: 'PCA9685 0x40 (schrijven en teruglezen)', mcp23017: 'MCP23017 0x20 (IR-leds, ingang 17-23)',
+  mcp23017b: 'MCP23017 0x21 (ingang 25-38, optioneel)', servoPca: "PCA9685 0x42 (servo's)", littlefs: 'Bestanden (LittleFS)',
+  stapelVrij: 'Stapel van de taken: vrij (bytes, laagste stand)', wifiClients: 'Wifi: verbonden toestellen', vrijGeheugen: 'Vrij geheugen (bytes)',
+  vrijPsram: 'Vrij PSRAM (bytes)', gevonden: 'gevonden', geschreven: 'geschreven', gelezen: 'gelezen', totaal: 'totaal (bytes)', gebruikt: 'gebruikt (bytes)',
+  loop: 'web en wifi', ms: 'duur (ms)' };
+const ZT_OPTIONEEL = ['mcp23017b'];
+const ZT_GEEN_BADGE = ['wifiClients', 'vrijGeheugen', 'vrijPsram', 'stapelVrij', 'ms'];
+const ZT_TITEL = ['adres', 'naam', 'wat', 'taak', 'chip', 'id'];
+const OPTIONEEL = ['0x21', '0x41']; // de tweede MCP23017 en de tweede lichtprint zijn niet verplicht (of "optioneel" in "wat")
+const ztNaam = k => ZT_NAMEN[k] || String(k).replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+const ztTekst = v => typeof v === 'boolean' ? (v ? 'ja' : 'nee') : typeof v === 'number' ? getal(v, 2) : Array.isArray(v) ? v.map(ztTekst).join(', ')
+  : v && typeof v === 'object' ? Object.entries(v).map(([k, x]) => ztNaam(k) + ' ' + ztTekst(x)).join(', ') : String(v);
+function ztOk(v) {
+  if (!v || typeof v !== 'object') return null;
+  if (typeof v.ok === 'boolean') return v.ok;
+  if (typeof v.gevonden === 'boolean') return v.gevonden ? true : v.nodig === false || OPTIONEEL.includes(String(v.adres).toLowerCase()) || /optioneel/.test(v.wat || '') ? null : false;
+  return null;
+}
+function ztRegel(titel, v, sleutel) {
+  // een losse ja/nee bovenaan (bv. "mcp23017": true) is zelf een controle; een getal (wifiClients) is alleen informatie
+  let ok = typeof v === 'boolean' && !ZT_GEEN_BADGE.includes(sleutel) ? (v || (ZT_OPTIONEEL.includes(sleutel) ? null : false)) : ztOk(v);
+  const afwezig = (v && v.gevonden === false && ok === null) || (v === false && ok === null);
+  const det = v && typeof v === 'object' && !Array.isArray(v) ? Object.entries(v).filter(([k]) => k !== 'ok' && !ZT_TITEL.includes(k)).map(([k, x]) => ztNaam(k) + ': ' + ztTekst(x)).join(' · ') : ztTekst(v);
+  return h('div', { class: 'lijn' }, h('div', { class: 'tekst' }, h('strong', null, titel), det ? h('span', { class: 'klein' }, det) : null),
+    ok !== null || afwezig ? h('span', { class: 'badge ' + (ok === true ? 'groen' : ok === false ? 'rood' : '') }, ok === true ? 'in orde' : ok === false ? 'fout' : 'niet aanwezig') : null);
+}
+function toonZelftest(j) {
+  const delen = [];
+  for (let [k, v] of Object.entries(j)) {
+    if (k === 'ok' || (k === 'fout' && typeof v === 'string')) continue;
+    // {"0x20":true,...} wordt een lijst van chips
+    if (v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length && Object.keys(v).every(a => /^0x[0-9a-f]+$/i.test(a)))
+      v = Object.entries(v).map(([adres, x]) => Object.assign({ adres }, typeof x === 'object' ? x : { gevonden: !!x }));
+    if (Array.isArray(v) && v.some(x => x && typeof x === 'object'))
+      delen.push(h('h4', { class: 'zt-kop' }, ztNaam(k)), ...v.map(x => ztRegel(ZT_TITEL.map(t => x[t]).filter(y => y != null && y !== '').join(' · ') || ztNaam(k), x)));
+    else delen.push(ztRegel(ztNaam(k), v, k));
+  }
+  const fouten = delen.filter(d => d.querySelector && d.querySelector('.badge.rood')).length;
+  const goed = j.ok !== false && !fouten;
+  $('#zelftest-uit').replaceChildren(h('div', { class: 'test-status ' + (goed ? 'aan' : 'fout') }, goed ? 'Alles in orde.' : 'Niet alles in orde' + (j.fout ? ': ' + j.fout : '') + '. Zie de rode regels.'), ...delen);
+}
+async function zelftest() {
+  const k = $('#zelftest-start');
+  k.disabled = true;
+  $('#zelftest-uit').replaceChildren(h('div', { class: 'test-status' }, 'Bezig…'));
+  try {
+    const j = await api('/api/zelftest');
+    if (!j || typeof j !== 'object') throw new Error('leeg');
+    toonZelftest(j);
+  } catch (e) {
+    $('#zelftest-uit').replaceChildren(h('div', { class: 'test-status fout' }, 'Geen antwoord op de zelftest. Kent deze firmware /api/zelftest al?'));
+  }
+  k.disabled = false;
+}
+
 async function bewaarNamen() {
   const c = instConcept;
   for (let i = 0; i < c.groepen.length; i++) {
@@ -1159,7 +1341,7 @@ async function bewaarWachtwoord() {
   if (a !== b) { toast('De twee wachtwoorden zijn niet gelijk.', true); return; }
   if (!confirm('Na het wijzigen start de wifi van de doos opnieuw. Verbind de gsm daarna opnieuw met "Treinbaan" en het nieuwe wachtwoord.')) return;
   const j = await stuur('/api/instellingen', { wachtwoord: a }, 'Wachtwoord gewijzigd. Verbind opnieuw met de wifi.');
-  if (j) { $('#ww1').value = ''; $('#ww2').value = ''; }
+  if (j) { $('#ww1').value = ''; $('#ww2').value = ''; if (apiWw) zetApiWw(a); }
 }
 
 // ------------------------------------------------------------------------- testmodus, thuisnet, bijwerken
@@ -1213,6 +1395,7 @@ function bijwerken() {
   fd.append('firmware', f, f.name);
   x.upload.onprogress = e => { if (e.lengthComputable) { bar.value = Math.round(100 * e.loaded / e.total); st.textContent = 'Versturen: ' + bar.value + ' %'; } };
   x.onload = () => {
+    if (x.status === 401 || x.status === 403) { weigering(x.status); klaar(false, GEWEIGERD); return; }
     let j = {};
     try { j = JSON.parse(x.responseText); } catch (e) { /* geen JSON */ }
     if (x.status === 200 && j.ok) klaar(true, 'Bijgewerkt. De doos start opnieuw: verbind daarna opnieuw met "Treinbaan" (ongeveer 10 s).');
@@ -1220,6 +1403,7 @@ function bijwerken() {
   };
   x.onerror = () => klaar(false, 'De verbinding viel weg tijdens het versturen. Probeer opnieuw.');
   x.open('POST', '/api/update');
+  if (apiWw) x.setRequestHeader('X-Treinbaan-Wachtwoord', apiWw);
   x.send(fd);
 }
 
@@ -1257,10 +1441,11 @@ const live = (soort, nr) => (K[soort] || []).find(x => x && x.nr === nr) || {};
 const vrijNr = (l, max) => { for (let i = 1; i <= max; i++) if (!l.some(x => x.nr === i)) return i; return 0; };
 const servoSoort = id => SERVOSOORT.find(x => x[0] === id) || SERVOSOORT[0];
 const ontvNaam = n => (ONTV.find(o => o[0] === n) || [0, 'Ontvanger ' + n])[1];
-const geleden = ms => { const s = Math.max(0, Math.round(((K.msNu || 0) - ms) / 1000)); return s < 90 ? s + ' s geleden' : Math.round(s / 60) + ' min geleden'; };
+// V4: millis() van de doos loopt na 49,7 dagen over: het verschil modulo 2^32
+const geleden = ms => { const d = ((K.msNu || 0) - ms) >>> 0, s = d >= 0x80000000 ? 0 : Math.round(d / 1000); return s < 90 ? s + ' s geleden' : Math.round(s / 60) + ' min geleden'; };
 const rond = v => Math.round(v * 10) / 10;
 const kb = b => b > 1e6 ? getal(b / 1e6) + ' MB' : Math.round(b / 1024) + ' kB';
-const codeTekst = c => (c.soort === 'raw' ? 'raw · ' + (c.raw ? c.raw.length : c.tijden || 0) + ' tijden' : String(c.soort || '').toUpperCase() + ' · adres ' + c.adres + ' · commando ' + c.commando) +
+const codeTekst = c => c.soort === 'continu' ? 'continu · zonder draaggolf: de led brandt zolang de halte de bus vasthoudt' : (c.soort === 'raw' ? 'raw · ' + (c.raw ? c.raw.length : c.tijden || 0) + ' tijden' : String(c.soort || '').toUpperCase() + ' · adres ' + c.adres + ' · commando ' + c.commando) +
   ' · ' + (c.khz || 38) + ' kHz' + (c.herhaal > 1 ? ' · ' + c.herhaal + ' keer' : '');
 function kiesLijst(opties, waarde, opWijzig, label) {
   const s = h('select', { 'aria-label': label, onchange: e => opWijzig(e.target.value) }, opties.map(([v, n]) => h('option', { value: v }, n)));
@@ -1269,8 +1454,8 @@ function kiesLijst(opties, waarde, opWijzig, label) {
 }
 const veld = (label, ...el) => h('div', { class: 'veld' }, h('span', { class: 'klein' }, label), ...el);
 const knop = (tekst, onclick, soort) => h('button', { class: 'knop' + (soort ? ' ' + soort : ''), type: 'button', onclick }, tekst);
-/** chips 1..n die de lijst `gekozen` aanpassen */
-const chipsKies = (n, gekozen) => h('div', { class: 'chips acht' }, Array.from({ length: n }, (x, i) => i + 1).map(nr =>
+/** chips 1..n (of de nummers in de lijst n) die de lijst `gekozen` aanpassen */
+const chipsKies = (n, gekozen) => h('div', { class: 'chips acht' }, (Array.isArray(n) ? n : Array.from({ length: n }, (x, i) => i + 1)).map(nr =>
   h('button', { class: 'chip', type: 'button', 'aria-pressed': String(gekozen.includes(nr)), onclick: e => {
     const i = gekozen.indexOf(nr);
     if (i >= 0) gekozen.splice(i, 1); else gekozen.push(nr);
@@ -1320,6 +1505,7 @@ function bouwIr() {
   const o = $('#ir-ontv');
   if (!o.children.length) o.append(...ONTV.map(([n, t]) => h('option', { value: n }, t)));
   if (!$('#ir-leds').children.length) $('#ir-leds').append(...chipsKies(IRLEDS, irKies).children);
+  if (!$('#ir-test-led').children.length) $('#ir-test-led').append(...Array.from({ length: IRLEDS }, (x, i) => h('option', { value: i + 1 }, 'IR-led ' + (i + 1))));
   const codes = codesLijst(), el = $('#ir-codes');
   el.replaceChildren(...codes.map(c => h('div', { class: 'lijn dubbel' }, h('span', { class: 'nr' }, c.nr),
     h('div', { class: 'tekst' }, h('strong', null, c.naam || 'Code ' + c.nr), h('span', { class: 'klein' }, codeTekst(c))), h('div', { class: 'acties' },
@@ -1352,6 +1538,20 @@ function werkIrBij() {
   }
   $('#ir-leer').disabled = !!lr.loopt;
   lerenWas = !!lr.loopt;
+  // F5: codes die niet verzonden konden worden (te lang met hun herhalingen)
+  const ir = Object.assign({}, S.ir, K.ir), nv = ir.nietVerzonden || 0, tl = $('#ir-teller');
+  tl.textContent = nv ? 'IR niet verzonden: ' + nv + ' keer' + (ir.laatsteFout ? '. Laatste fout: ' + ir.laatsteFout : '') : 'IR niet verzonden: 0 keer. Alles is vertrokken.';
+  tl.className = 'test-status' + (nv ? ' fout' : ' aan');
+  // E4/F1: de IR-zelftest (zenden via een IR-led, teruglezen met -B1)
+  const z = K.zelftest, uit = $('#ir-test-uit');
+  if (z && (z.loopt || z.led)) {
+    uit.className = 'test-status' + (z.loopt ? '' : z.ok ? ' aan' : z.ongemoduleerd ? ' amber' : ' fout');
+    uit.textContent = z.loopt ? 'Zelftest loopt: de doos zendt via IR-led ' + (z.led || $('#ir-test-led').value) + ' en luistert met -B1…'
+      : z.ok ? 'Gelukt: draaggolf ' + getal(z.khz || 38) + ' kHz, code ' + (z.code || '?') + ' juist teruggelezen.'
+      : z.ongemoduleerd ? 'Ongemoduleerd: -B1 zag licht, maar geen draaggolf. Zendt -Q3 wel 38 kHz (TRN-22)? Stoppen de bussen op een led die gewoon brandt, gebruik dan een code “continu”.'
+      : 'Mislukt: ' + (z.fout || 'niets teruggelezen') + '. Houd de led dichter bij het venster, probeer duty 50 % (Instellingen, Hardware) of kijk -Q3 en -Q4 na (TRN-22).';
+  } else uit.textContent = '';
+  $('#ir-test-start').disabled = !!(z && z.loopt);
   const l = (K.irLaatst || []).slice().sort((a, b) => b.ms - a.ms), el = $('#ir-laatst'), bussen = bussenLijst();
   const sig = l.map(x => x.ms + x.code).join('|') + '/' + bussen.map(b => b.code).join();
   if (sig !== irSig && !el.contains(document.activeElement)) {
@@ -1391,7 +1591,7 @@ function servoTegel(s) {
   return h('article', { class: 'tegel' },
     h('div', { class: 'tegel-kop' }, h('span', { class: 'nr' }, s.nr), h('h3', null, s.naam || 'Servo ' + s.nr, h('span', { class: 'label' }, so[1])), badge),
     h('div', { class: 'servo-balk', 'aria-hidden': 'true' }, h('i', { style: 'left:' + servoPos(s.a) }, 'A'), h('i', { style: 'left:' + servoPos(s.b) }, 'B'), bol),
-    h('div', { class: 'rij' }, h('span', { class: 'klein' }, 'Kanaal ' + s.kanaal + ' · ' + (s.snelheid ? s.snelheid + ' µs/s' : 'meteen')), us),
+    h('div', { class: 'rij' }, h('span', { class: 'klein' }, 'Kanaal ' + s.kanaal + ' · ' + (s.snelheid ? s.snelheid + ' µs/s' : 'meteen') + (s.pulsUitS ? ' · puls uit na ' + s.pulsUitS + ' s' : '')), us),
     h('div', { class: 'ab' },
       knop('A · ' + so[2], () => stuur('/api/servo', { nr: s.nr, naar: 'a' }, null, true)),
       knop('B · ' + so[3], () => stuur('/api/servo', { nr: s.nr, naar: 'b' }, null, true))),
@@ -1428,11 +1628,13 @@ function servoEditor() {
     stapper({ n: 'Kanaal op de servoprint (PCA9685 0x42)', min: 1, max: 16, waarde: c.kanaal, opWijzig: v => { c.kanaal = v; } }),
     schuif('a', 'Eindstand A · ' + so[2]), schuif('b', 'Eindstand B · ' + so[3]),
     stapper({ n: 'Snelheid', min: 0, max: 2000, waarde: c.snelheid, toon: v => v ? v + ' µs/s' : 'meteen', stap: () => 50, opWijzig: v => { c.snelheid = v; } }),
-    h('p', { class: 'klein' }, "Proef zet de servo meteen op die stand (zonder te bewaren). Hoogstens 4 servo's bewegen tegelijk, de rest wacht even: zo blijft de voeding rustig."),
+    stapper({ n: 'Puls uit na aankomst', min: 0, max: 10, waarde: c.pulsUitS || 0, toon: v => v ? 'na ' + v + ' s' : 'nooit', opWijzig: v => { c.pulsUitS = v; } }),
+    h('p', { class: 'klein' }, '"Nooit": de servo krijgt altijd zijn puls en houdt zijn stand met kracht. Een wissel die tegen zijn aanslag duwt, wordt dan warm en bromt: zet 1 s. Een slagboom of sein dat door zijn eigen gewicht zakt: laat op "nooit".'),
+    h('p', { class: 'klein' }, "Proef zet de servo meteen op die stand (zonder te bewaren). Hoogstens 4 servo's bewegen tegelijk, de rest wacht even; bij het opstarten gaan ze één voor één (om de 0,3 s) naar hun stand. Zo blijft de voeding rustig."),
     h('div', { class: 'knoppen' },
       knop('Bewaren', async () => {
         if (!(c.naam || '').trim()) { toast('Geef de servo een naam.', true); return; }
-        const j = await stuur('/api/servo', { nr: c.nr, naam: c.naam.trim(), kanaal: c.kanaal, a: c.a, b: c.b, snelheid: c.snelheid, soort: c.soort }, 'Servo bewaard');
+        const j = await stuur('/api/servo', { nr: c.nr, naam: c.naam.trim(), kanaal: c.kanaal, a: c.a, b: c.b, snelheid: c.snelheid, soort: c.soort, pulsUitS: c.pulsUitS || 0 }, 'Servo bewaard');
         if (j) { servoOpen = 0; servoC = null; bouwServos(); }
       }, 'hoofd'),
       knop('Annuleren', () => { servoOpen = 0; servoC = null; bouwServos(); }),
@@ -1506,15 +1708,35 @@ function bouwPunten() {
   const el = $('#punt-lijst');
   if (!S) return;
   const pp = planPunten(P, MEET);
-  const opties = [['', 'niet gekoppeld']].concat(S.ingangen.map(g => ['i' + g.nr, 'Ingang ' + g.nr + ' · ' + g.naam]), ONTV.slice(1).map(([n, t]) => ['o' + n, t]));
+  const opties = [['', 'niet gekoppeld']].concat(zichtbareIngangen().map(g => ['i' + g.nr, 'Ingang ' + g.nr + ' · ' + g.naam]), ONTV.slice(1).map(([n, t]) => ['o' + n, t]));
   el.replaceChildren(...pp.map(({ p, c }) => {
     const k = puntKop(p.id), w = k.ingang ? 'i' + k.ingang : k.ontvanger ? 'o' + k.ontvanger : '';
+    const kop = v => !v ? { ingang: 0 } : v[0] === 'i' ? { ingang: +v.slice(1) } : { ontvanger: +v.slice(1) };
     return h('div', { class: 'lijn dubbel' }, h('span', { class: 'kleurstip', style: 'background:' + c[2] }),
-      h('div', { class: 'tekst' }, h('strong', null, p.naam || p.id), h('span', { class: 'klein' }, p.id + ' · ' + c[1])), h('div', { class: 'acties' },
-      kiesLijst(opties, w, v => stuur('/api/punt', !v ? { id: p.id, ingang: 0 } : v[0] === 'i' ? { id: p.id, ingang: +v.slice(1) } : { id: p.id, ontvanger: +v.slice(1) },
-        p.id + (v ? ' gekoppeld' : ' niet meer gekoppeld')), 'Koppeling van ' + p.id)));
+      h('div', { class: 'tekst' }, h('strong', null, p.naam || p.id), h('span', { class: 'klein' }, p.id + ' · ' + c[1] + (k.alleenBus ? ' · alleen bussen' : ''))), h('div', { class: 'acties' },
+      kiesLijst(opties, w, v => stuur('/api/punt', Object.assign({ id: p.id, alleenBus: !!k.alleenBus }, kop(v)), p.id + (v ? ' gekoppeld' : ' niet meer gekoppeld')), 'Koppeling van ' + p.id),
+      h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: !!k.alleenBus, onchange: e => stuur('/api/punt', Object.assign({ id: p.id, alleenBus: e.target.checked }, kop(w)),
+        p.id + (e.target.checked ? ': alleen bussen' : ': alle voertuigen')) }), 'alleen bussen')));
   }));
   if (!pp.length) el.append(h('p', { class: 'leeg' }, P ? 'Het plan heeft nog geen hallsensoren of IR/FTR-ontvangers. Zet ze erop bij Plan.' : 'Er staat nog geen plan op de doos. Laad het bij Plan.'));
+  bouwBusGezien();
+}
+// V2: zonder buscode volgt de doos de bussen in volgorde per strook; hier zeg je waar een bus staat (POST /api/bus "gezien")
+const gz = { bus: 0, punt: '' };
+function bouwBusGezien() {
+  const el = $('#bus-gezien'), l = bussenLijst(), meet = planPunten(P, MEET.concat(['stoppunten']));
+  el.hidden = !l.length || !meet.length;
+  if (el.hidden) return;
+  if (!l.some(b => b.nr === gz.bus)) gz.bus = l[0].nr;
+  if (!meet.some(x => x.p.id === gz.punt)) gz.punt = meet[0].p.id;
+  el.replaceChildren(h('h3', null, 'Bus staat bij punt'),
+    h('p', { class: 'klein' }, 'Zonder eigen IR-code kent de doos de bussen aan hun volgorde: wie eerst een strook oprijdt, rijdt er eerst af. Klopt die volgorde niet meer (een bus van de baan genomen, een gemiste melding), zeg dan hier waar een bus nu staat.'),
+    h('div', { class: 'twee' }, veld('Bus', kiesLijst(l.map(b => [b.nr, b.naam || 'Bus ' + b.nr]), gz.bus, v => { gz.bus = +v; }, 'Bus')),
+      veld('staat nu bij', kiesLijst(meet.map(x => [x.p.id, x.p.id + ' · ' + (x.p.naam || x.c[1])]), gz.punt, v => { gz.punt = v; }, 'Meetpunt'))),
+    h('div', { class: 'knoppen' }, knop('Doorgeven', () => {
+      const b = l.find(x => x.nr === gz.bus);
+      stuur('/api/bus', { actie: 'gezien', bus: gz.bus, punt: gz.punt }, (b ? b.naam : 'Bus ' + gz.bus) + ' staat bij ' + puntNaam(gz.punt));
+    }, 'hoofd')));
 }
 
 // ------------------------------------------------------------------------------------------------- haltes
@@ -1538,7 +1760,8 @@ function halteTegel(x) {
   return h('article', { class: 'tegel' },
     h('div', { class: 'tegel-kop' }, h('span', { class: 'nr' }, x.nr), h('h3', null, x.naam || 'Halte ' + x.nr), badge), balk, info,
     h('p', { class: 'klein' }, 'Aankomst bij ' + (x.aankomstPunt ? puntNaam(x.aankomstPunt) : '–') + ' · “' + code(x.stopCode) + '” via IR-led ' + ((x.stopLeds || []).join(', ') || 'alle') +
-      ' · wacht ' + (x.wachtS || 0) + ' s' + ((x.vrijIngangen || []).length ? ' · vrije weg: ingang ' + x.vrijIngangen.join(', ') : '') +
+      ' · stopcode ' + (x.herhalen === false ? 'één keer' : 'herhaald tot groen') +
+      ' · wacht ' + (x.wachtS || 0) + ' s' + ((x.vrijIngangen || []).length ? ' · vrije weg: ingang ' + x.vrijIngangen.join(', ') + ', hoogstens ' + (x.maxVerkeerS === 0 ? '(geen grens)' : duur(x.maxVerkeerS || 60)) : '') +
       (lt.rood || lt.groen ? ' · licht: groep ' + [lt.rood, lt.oranje, lt.groen].map(n => n || '–').join('/') : '')),
     h('div', { class: 'knoppen' }, h('button', { class: 'knop', type: 'button', 'aria-expanded': String(open), onclick: () => {
       halteOpen = open ? 0 : x.nr;
@@ -1555,8 +1778,10 @@ function werkHaltesBij() {
     r.badge.textContent = t[0] + (l.resterendS ? ' · ' + l.resterendS + ' s' : '');
     r.badge.className = 'badge ' + t[1];
     [...r.balk.children].forEach((s, k) => { s.className = k === i && f !== 'vrij' ? 'nu' : k < i ? 'na' : ''; });
-    const b = l.bus && bussenLijst().find(y => y.nr === l.bus);
-    r.info.textContent = b && f !== 'vrij' ? 'Aan de halte: ' + b.naam : '';
+    const b = l.bus && bussenLijst().find(y => y.nr === l.bus), w = l.wachtend > 0 && bussenLijst().find(y => y.nr === l.wachtend);
+    r.info.textContent = [b && f !== 'vrij' ? 'Aan de halte: ' + b.naam : '',
+      l.wachtend >= 0 && l.wachtend != null ? 'Wacht erachter: ' + (w ? w.naam : l.wachtend ? 'bus ' + l.wachtend : 'een bus zonder code') + ' (krijgt al de stopcode)' : '',
+      l.teLang ? 'De vrije weg bleef te lang bezet: de bus kreeg toch groen. Kijk de vrij-ingangen na.' : ''].filter(Boolean).join(' · ');
     r.info.hidden = !r.info.textContent;
   });
 }
@@ -1565,6 +1790,8 @@ function halteEditor() {
   c.licht = c.licht || { rood: 0, oranje: 0, groen: 0 };
   c.stopLeds = c.stopLeds || [];
   c.vrijIngangen = c.vrijIngangen || [];
+  if (c.herhalen == null) c.herhalen = true;
+  if (c.maxVerkeerS == null) c.maxVerkeerS = 60;
   const codes = [[0, 'geen']].concat(codesLijst().map(x => [x.nr, x.nr + ' · ' + x.naam]));
   const groepen = [[0, 'geen']].concat(S.groepen.map(g => [g.nr, g.nr + ' · ' + g.naam]));
   const punten = [['', 'kies een punt van het plan']].concat(planPunten(P).map(({ p, c: k }) => [p.id, p.id + ' · ' + (p.naam || k[1])]));
@@ -1576,9 +1803,13 @@ function halteEditor() {
     h('div', { class: 'twee' }, veld('Stopcode (de bus stopt)', kiesLijst(codes, c.stopCode || 0, v => { c.stopCode = +v; }, 'Stopcode')),
       veld('Rijcode (de bus vertrekt)', kiesLijst(codes, c.rijdCode || 0, v => { c.rijdCode = +v; }, 'Rijcode'))),
     veld('Stopcode zenden via IR-led (niets gekozen = alle)', chipsKies(IRLEDS, c.stopLeds)),
+    h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: c.herhalen !== false, onchange: e => { c.herhalen = e.target.checked; } }), 'Stopcode blijven herhalen tot groen (elke 0,4 s)'),
+    h('p', { class: 'klein' }, 'Aan: voor bussen die alleen stilstaan zolang ze de stopcode zien. Uit: één keer zenden, voor bussen die de stopcode onthouden tot de rijcode komt. Na een herstart zendt elke halte één keer de rijcode, zodat geen bus blijft staan. Komt er een tweede bus terwijl de halte bezet is, dan krijgt die meteen de stopcode en wacht hij.'),
     sec('wachtS', 'Wachten aan de halte', 600),
-    veld('Vrije weg: deze ingangen moeten vrij zijn (bv. hallsensor)', chipsKies(S.ingangen.length, c.vrijIngangen)),
+    veld('Vrije weg: deze ingangen moeten vrij zijn (bv. hallsensor)', chipsKies(zichtbareIngangen().map(g => g.nr), c.vrijIngangen)),
     sec('vrijMinS', 'Zo lang vrij', 60),
+    stapper({ n: 'Hoogstens wachten op vrije weg', min: 0, max: 3600, waarde: c.maxVerkeerS, toon: v => v ? duur(v) : 'geen grens', stap: (x, op) => { const y = op ? x : x - 1; return y < 120 ? 10 : y < 600 ? 30 : 300; }, opWijzig: v => { c.maxVerkeerS = v; } }),
+    h('p', { class: 'klein' }, 'Blijft een ingang bezet (een magneet boven de sensor, een losse draad), dan krijgt de bus na deze tijd toch groen, met een melding. "Geen grens" is niet aan te raden: dan wacht de bus voor altijd.'),
     h('div', { class: 'twee' }, ['rood', 'oranje', 'groen'].map(k => veld('Verkeerslicht ' + k, kiesLijst(groepen, c.licht[k] || 0, v => { c.licht[k] = +v; }, 'Lichtgroep voor ' + k)))),
     sec('groenS', 'Groen blijft', 60),
     veld('Bij groen een servo naar B (niet verplicht)', kiesLijst([[0, 'geen']].concat(servosLijst().map(s => [s.nr, s.nr + ' · ' + s.naam])), c.servo || 0, v => { c.servo = +v; }, 'Servo')),
@@ -1587,7 +1818,8 @@ function halteEditor() {
         if (!(c.naam || '').trim()) { toast('Geef de halte een naam.', true); return; }
         if (!c.aankomstPunt) { toast('Kies het aankomstpunt.', true); return; }
         const j = await stuur('/api/halte', { nr: c.nr, naam: c.naam.trim(), aankomstPunt: c.aankomstPunt, stopLeds: c.stopLeds, stopCode: c.stopCode || 0, rijdCode: c.rijdCode || 0,
-          wachtS: c.wachtS || 0, vrijIngangen: c.vrijIngangen, vrijMinS: c.vrijMinS || 0, licht: c.licht, groenS: c.groenS || 0, servo: c.servo || 0 }, 'Halte bewaard');
+          wachtS: c.wachtS || 0, vrijIngangen: c.vrijIngangen, vrijMinS: c.vrijMinS || 0, licht: c.licht, groenS: c.groenS || 0, servo: c.servo || 0,
+          herhalen: c.herhalen !== false, maxVerkeerS: c.maxVerkeerS != null ? c.maxVerkeerS : 60 }, 'Halte bewaard');
         if (j) { halteOpen = 0; halteC = null; bouwHaltes(); }
       }, 'hoofd'),
       knop('Annuleren', () => { halteOpen = 0; halteC = null; bouwHaltes(); }),
@@ -1986,7 +2218,7 @@ function koppelVeld(p, c) {
   if (k[soort] == null && (soort === 'ingang' || soort === 'ontvanger')) { const d = puntKop(p.id); if (d[soort]) k[soort] = d[soort]; }
   const opties = {
     servo: () => servosLijst().map(s => [s.nr, s.nr + ' · ' + s.naam]), halte: () => haltesLijst().map(x => [x.nr, x.nr + ' · ' + x.naam]),
-    irled: () => Array.from({ length: IRLEDS }, (x, i) => [i + 1, 'IR-led ' + (i + 1)]), ingang: () => S.ingangen.map(g => [g.nr, g.nr + ' · ' + g.naam]),
+    irled: () => Array.from({ length: IRLEDS }, (x, i) => [i + 1, 'IR-led ' + (i + 1)]), ingang: () => zichtbareIngangen().map(g => [g.nr, g.nr + ' · ' + g.naam]),
     ontvanger: () => ONTV.slice(1), groep: () => S.groepen.map(g => [g.nr, g.nr + ' · ' + g.naam]), kastje: () => kastjesLijst().map(x => [x.naam, x.naam]) }[soort]();
   const nu = k[soort] != null ? k[soort] : '';
   if (nu !== '' && !opties.some(o => String(o[0]) === String(nu))) opties.push([nu, String(nu)]);
@@ -2075,7 +2307,8 @@ async function nieuweAchtergrond(f, st) {
       st.textContent = 'Versturen naar de doos (' + kb(blob.size) + ')…';
       const fd = new FormData();
       fd.append('bestand', blob, 'achtergrond.jpg');
-      const r = await fetch('/api/tv/bestand?naam=achtergrond.jpg', { method: 'POST', body: fd });
+      const r = await fetch('/api/tv/bestand?naam=achtergrond.jpg', { method: 'POST', headers: metWw(), body: fd });
+      if (r.status === 401 || r.status === 403) { weigering(r.status); throw new Error('geweigerd'); }
       if (!r.ok) throw new Error('doos');
     }
     const fx = w / PE.breedte, fy = hh / PE.hoogte;
@@ -2091,7 +2324,7 @@ async function nieuweAchtergrond(f, st) {
     st.textContent = 'Achtergrond ' + w + ' × ' + hh + ' px, ' + kb(blob.size) + (demo ? ' (voorbeeld: niet verstuurd)' : ', staat op de doos') + '. Tik op Bewaren.';
     tekenSvg();
   } catch (e) {
-    st.textContent = e.message === 'doos' ? 'De doos weigerde het beeld (te groot?).' : 'Dat lukte niet. Is het een jpg of png?';
+    st.textContent = e.message === 'geweigerd' ? GEWEIGERD : e.message === 'doos' ? 'De doos weigerde het beeld (te groot?).' : 'Dat lukte niet. Is het een jpg of png?';
   }
 }
 /** een gewijzigde lijn weer om de 2 px (zoals situatieplan/maak-plan.py) */
@@ -2138,7 +2371,7 @@ async function bewaarPlan() {
     for (const { p } of planPunten(uit, MEET)) {
       const k = p.koppeling || {}, d = puntKop(p.id);
       if ((k.ingang || 0) !== (d.ingang || 0) || (k.ontvanger || 0) !== (d.ontvanger || 0))
-        await api('/api/punt', k.ingang ? { id: p.id, ingang: k.ingang } : k.ontvanger ? { id: p.id, ontvanger: k.ontvanger } : { id: p.id, ingang: 0 });
+        await api('/api/punt', Object.assign({ id: p.id, alleenBus: !!d.alleenBus }, k.ingang ? { ingang: k.ingang } : k.ontvanger ? { ontvanger: k.ontvanger } : { ingang: 0 }));
     }
   } catch (e) { toast('Geen verbinding met de doos.', true); return; }
   P = uit;
@@ -2178,9 +2411,24 @@ $('#thuis-bewaar').addEventListener('click', () => bewaarThuisnet(false));
 $('#thuis-uit').addEventListener('click', () => bewaarThuisnet(true));
 $('#fw-bewaar').addEventListener('click', bijwerken);
 $('#ir-leer').addEventListener('click', () => stuur('/api/ir', { actie: 'leren', naam: $('#ir-naam').value.trim() || 'Nieuwe code', ontvanger: +$('#ir-ontv').value }, 'Leren gestart: 10 s'));
-$('#servo-nieuw').addEventListener('click', () => { servoOpen = -1; servoC = { nr: vrijNr(servosLijst(), NSERVO), naam: '', kanaal: vrijNr(servosLijst().map(x => ({ nr: x.kanaal })), 16) || 1, a: 1000, b: 2000, snelheid: 400, soort: 'wissel' }; bouwServos(); });
+$('#servo-nieuw').addEventListener('click', () => { servoOpen = -1; servoC = { nr: vrijNr(servosLijst(), NSERVO), naam: '', kanaal: vrijNr(servosLijst().map(x => ({ nr: x.kanaal })), 16) || 1, a: 1000, b: 2000, snelheid: 400, soort: 'wissel', pulsUitS: 0 }; bouwServos(); });
 $('#bus-nieuw').addEventListener('click', () => { busOpen = -1; busC = { nr: 0, naam: '', kleur: '#1f6fd1', code: '' }; bouwBussen(); });
-$('#halte-nieuw').addEventListener('click', () => { halteOpen = -1; halteC = { nr: vrijNr(haltesLijst(), NHALTE), naam: '', aankomstPunt: '', stopLeds: [], stopCode: 0, rijdCode: 0, wachtS: 12, vrijIngangen: [], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0 }; bouwHaltes(); });
+$('#halte-nieuw').addEventListener('click', () => { halteOpen = -1; halteC = { nr: vrijNr(haltesLijst(), NHALTE), naam: '', aankomstPunt: '', stopLeds: [], stopCode: 0, rijdCode: 0, wachtS: 12, vrijIngangen: [], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0, herhalen: true, maxVerkeerS: 60 }; bouwHaltes(); });
+$('#toegang-bewaar').addEventListener('click', () => {
+  const w = $('#toegang-ww').value;
+  if (!/^[\x20-\x7e]{8,63}$/.test(w)) { toast('Het wifi-wachtwoord van de doos heeft 8 tot 63 tekens.', true); return; }
+  geweigerd = false;
+  zetApiWw(w);
+  $('#toegang-ww').value = '';
+  toast('Bewaard op dit toestel');
+});
+$('#toegang-wis').addEventListener('click', () => { zetApiWw(''); toast('Wachtwoord vergeten op dit toestel'); });
+$('#zelftest-start').addEventListener('click', zelftest);
+$('#ir-test-start').addEventListener('click', () => stuur('/api/ir', { actie: 'zelftest', led: +$('#ir-test-led').value }, 'IR-zelftest gestart'));
+$('#ir-continu').addEventListener('click', () => {
+  const n = prompt('Naam voor de code “continu” (de IR-led brandt zonder draaggolf zolang de halte de bus vasthoudt):', 'Stop (continu)');
+  if (n && n.trim()) stuur('/api/ir', { actie: 'bewaren', code: { naam: n.trim(), soort: 'continu', herhaal: 1 } }, 'Code “continu” bewaard');
+});
 $('#ww-toon').addEventListener('change', e => { $('#ww1').type = $('#ww2').type = e.target.checked ? 'text' : 'password'; });
 $('#fabriek').addEventListener('click', () => {
   if (confirm('Alle namen, scènes, functies, ingangen en het wifi-wachtwoord gaan terug naar de beginwaarden. Doorgaan?'))
@@ -2195,7 +2443,8 @@ const Demo = (() => {
   const std = id => { const f = fxInfo(id); return f.p ? [f.p[0].std, f.p[1].std] : [0, 0]; };
   const st = {
     rev: 1, melding: '', versie: '1.3.0 (voorbeeld)', hotspot: 'Treinbaan', aantalGroepen: 16,
-    instellingen: { dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true } },
+    instellingen: { dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true }, printSoort: ['vcc', 'vcc', 'vcc'], irLedActiefLaag: true, irDuty: 33 },
+    wachtwoord: 'treinbaan',
     test: { soort: '', groep: 0 }, thuisnet: { ssid: 'Thuis', verbonden: true, ip: '192.168.1.40' },
     groepen: namen.map((n, i) => ({ nr: i + 1, naam: n, dagnacht: [0, 1, 4, 5, 6, 7, 11, 13, 14].includes(i),
       aan: false, effect: 'geen', p1: 0, p2: 0, fase: 0, brandt: false })),
@@ -2309,32 +2558,49 @@ const Demo = (() => {
       default: return true;
     }
   };
-  // ---- versie 6: 24 ingangen (17-24 op de MCP23017, hier PNP), IR, servo's, bussen, haltes, kastjes, plan
+  // ---- versie 6: 40 ingangen zoals de doos (17-23 op de MCP23017 0x20; 0x21 niet aanwezig: 25-40 "aanwezig":false; 24 is
+  // geen ingang meer), IR, servo's, bussen, haltes, kastjes, plan
   const t0 = Date.now();
-  st.versie = '2.0.0 (voorbeeld)';
-  for (let i = 16; i < 24; i++) st.ingangen.push({ nr: i + 1, naam: 'Ingang ' + (i + 1), soort: 'contact', vasthouden: 0.3, gedrag: 'geen', functieA: 0, functieB: 0, wisselen: false, nalopen: 10, actief: false, teller: 0, toestand: 'rust' });
-  st.ingangen.forEach((x, i) => { x.polariteit = i >= 16 ? 'pnp' : 'npn'; });
+  st.versie = '2.1.0 (voorbeeld)';
+  for (let i = 16; i < 40; i++) st.ingangen.push({ nr: i + 1, naam: 'Ingang ' + (i + 1), soort: 'contact', vasthouden: 0.3, gedrag: 'geen', functieA: 0, functieB: 0, wisselen: false, nalopen: 10, actief: false, teller: 0, toestand: 'rust' });
+  st.ingangen.forEach((x, i) => { x.polariteit = 'npn'; x.aanwezig = i < 24; });
   Object.assign(st.ingangen[16], { naam: 'Hall sensor 1', soort: 'puls', teller: 52 });
-  Object.assign(st.ingangen[17], { naam: 'Lichtsluis invoeging', gedrag: 'sensor', nalopen: 3, teller: 14 });
+  Object.assign(st.ingangen[17], { naam: 'Reflexsensor invoeging', gedrag: 'sensor', nalopen: 3, teller: 14 });
+  const thuisDemo = /[?&]thuisnet=1/.test(location.search); // ?demo=1&thuisnet=1: zoals op het thuisnet (401 zonder wachtwoord)
+  const printVanNr = printVan;
+  st.instellingen.printSoort = ['vcc', 'vcc', 'vcc', 'vcc', 'vcc'];
+  const PNP_FOUT = 'PNP kan niet op een print met gemeenschappelijke VCC: kies bij Instellingen, Hardware een print "gnd" of "apart" (meten op TRN-22).';
   const code = (naam, soort, adres, commando, khz, extra) => Object.assign({ naam, soort, khz: khz || 38, adres, commando, herhaal: 1 }, extra);
   st.ir = { codes: Array(32).fill(null) };
   [code('Herkenning bus 1', 'nec', 1, 1), code('Herkenning bus 2', 'nec', 1, 2), code('Stop bus', 'nec', 0, 18), code('Rijden bus', 'nec', 0, 19),
-    code('Knipperlicht bus', 'rc5', 5, 12, 36), code('Toeter (opgenomen)', 'raw', 0, 0, 38, { raw: Array(67).fill(560) })].forEach((c, i) => { st.ir.codes[i] = Object.assign({ nr: i + 1 }, c); });
-  st.punten = [{ id: 'HALL1', ingang: 17 }, { id: 'IRS1', ontvanger: 2 }, { id: 'IRS2', ontvanger: 3 }];
+    code('Knipperlicht bus', 'rc5', 5, 12, 36), code('Toeter (opgenomen)', 'raw', 0, 0, 38, { raw: Array(255).fill(560), herhaal: 5 }), { naam: 'Stop (continu)', soort: 'continu', herhaal: 1 }]
+    .forEach((c, i) => { st.ir.codes[i] = Object.assign({ nr: i + 1 }, c); });
+  Object.assign(st.ir, { nietVerzonden: 1, laatsteFout: '“Toeter (opgenomen)”: 255 tijden x 5 = 1275, meer dan 1200' });
+  st.zelftest = {};
+  let zelftestT = 0;
+  const ZELFTEST = { // dezelfde vorm als apiZelftest in include/api.h (firmware 2.1.0)
+    i2c: [{ adres: '0x20', wat: 'MCP23017 (IR-leds, ingang 17-23)', gevonden: true }, { adres: '0x21', wat: 'MCP23017 (ingang 25-38, optioneel)', gevonden: false },
+      { adres: '0x40', wat: 'PCA9685 (groep 1-16)', gevonden: true }, { adres: '0x41', wat: 'PCA9685 (groep 17-32, optioneel)', gevonden: false },
+      { adres: '0x42', wat: "PCA9685 (servo's)", gevonden: true }],
+    pca9685: { ok: true, geschreven: 1234, gelezen: 1234 }, mcp23017: true, mcp23017b: false, servoPca: true,
+    littlefs: { ok: true, totaal: 1441792, gebruikt: 217088 }, stapelVrij: { licht: 2312, ir: 1880, kastjes: 2650, loop: 3120 },
+    wifiClients: 3, vrijGeheugen: 182344, vrijPsram: 8102400, ok: true };
+  st.punten = [{ id: 'HALL1', ingang: 17, alleenBus: false }, { id: 'IRS1', ontvanger: 2, alleenBus: true }, { id: 'IRS2', ontvanger: 3, alleenBus: false }];
   st.leren = { loopt: false };
   let leren = null;
   const servo = (naam, soort, kanaal, a, b, snelheid) => ({ naam, soort, kanaal, a, b, snelheid, us: a, stand: 'a', doel: a });
   st.servos = Array(16).fill(null);
   [servo('Wissel 1', 'wissel', 1, 1100, 1900, 600), servo('Wissel 2', 'wissel', 2, 1150, 1850, 600), servo('Wissel 3', 'wissel', 3, 1120, 1880, 600),
     servo('Wissel 4', 'wissel', 4, 1100, 1900, 600), servo('Slagboom overweg', 'slagboom', 5, 1000, 1950, 300), servo('Armsein spoor 1', 'armsein', 6, 1300, 1700, 200)]
-    .forEach((s, i) => { st.servos[i] = Object.assign({ nr: i + 1 }, s); });
+    .forEach((s, i) => { st.servos[i] = Object.assign({ nr: i + 1, pulsUitS: s.soort === 'wissel' ? 1 : 0 }, s); });
   st.servos[2].doel = st.servos[2].b;
   const servoNaar = (nr, stand) => { const x = st.servos[nr - 1]; if (x) x.doel = stand === 'wissel' ? (x.doel === x.a ? x.b : x.a) : stand === 'b' ? x.b : x.a; };
   st.bussen = [{ nr: 1, naam: 'Lijnbus 1', kleur: '#d23b2b', code: 'nec:01FE01FE' }, { nr: 2, naam: 'Lijnbus 2', kleur: '#1f6fd1', code: 'nec:01FE02FD' },
     { nr: 3, naam: 'Lijnbus 3', kleur: '#e0a400', code: 'nec:01FE03FC' }];
-  const halte = (nr, naam, punt, led) => ({ nr, naam, aankomstPunt: punt, stopLeds: [led], stopCode: 3, rijdCode: 4, wachtS: 12, vrijIngangen: [17], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0 });
+  const halte = (nr, naam, punt, led) => ({ nr, naam, aankomstPunt: punt, stopLeds: [led], stopCode: 3, rijdCode: 4, wachtS: 12, vrijIngangen: [17], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0, herhalen: true, maxVerkeerS: 60 });
   st.haltes = [halte(1, 'Halte Lijnbus 1', 'STOP_lijnbus1', 7), halte(2, 'Halte Lijnbus 2', 'STOP_lijnbus2', 6), halte(3, 'Halte Lijnbus 3', 'STOP_lijnbus3', 5)];
   Object.assign(st.haltes[0], { licht: { rood: 13, oranje: 14, groen: 15 }, servo: 5 });
+  st.haltes[2].herhalen = false;
   st.kastjes = [{ id: 'a1b2c3', naam: 'Kerk', ip: '192.168.4.23', versie: '1.0.0', online: true, volume: 70, vrij: 1015000, geluiden: [{ naam: 'klok.wav', s: 4.2 }, { naam: 'orgel.wav', s: 12.5 }] },
     { id: 'd4e5f6', naam: 'Station', ip: '192.168.4.24', versie: '1.0.0', online: true, volume: 85, vrij: 806000, geluiden: [{ naam: 'omroep.wav', s: 6.1 }, { naam: 'fluit.wav', s: 1.3 }, { naam: 'trein-komt.wav', s: 3.8 }] },
     { id: '0c9a7e', naam: 'Café', ip: '192.168.4.25', versie: '1.0.0', online: false, geluiden: [] }];
@@ -2376,7 +2642,12 @@ const Demo = (() => {
       x.fase = HDUUR[i][0];
       x.resterendS = ['stop', 'wachten', 'groen', 'vertrek'].includes(x.fase) ? Math.ceil(HDUUR[i][1] - s) : 0;
       x.bus = x.fase === 'vrij' ? 0 : x.nr;
+      x.wachtend = x.nr === 1 && ['wachten', 'verkeer'].includes(x.fase) ? 2 : -1; // F3: een tweede bus wacht achter de eerste
     });
+    if (st.zelftest.loopt && t - zelftestT > 2500) { // IR-led 8 hangt in het voorbeeld aan een stopplaats zonder draaggolf
+      const led = st.zelftest.led;
+      st.zelftest = led === 8 ? { loopt: false, led, ok: false, ongemoduleerd: true, fout: 'geen draaggolf' } : { loopt: false, led, ok: true, khz: 38.0, code: 'nec:00FF12ED' };
+    }
     const n = Math.floor(ms / 3500) + 7;
     st.irLaatst = Array.from({ length: 8 }, (x, i) => n - i).map(i => ({ ontvanger: 2 + (i % 2), code: i % 5 === 4 ? 'nec:00FF12ED' : (st.bussen[i % 3] || st.bussen[0] || { code: 'nec:00FF12ED' }).code, ms: (i - 7) * 3500 - 400 }));
   };
@@ -2384,9 +2655,11 @@ const Demo = (() => {
   let testStart = 0;
   const vrijePlaats = lijst => lijst.findIndex(x => !x);
 
-  async function vraag(pad, b, methode) {
+  async function vraag(pad, b, methode, ww) {
     await new Promise(r => setTimeout(r, 40));
     const t = Date.now();
+    if (thuisDemo && b && ww !== st.wachtwoord) return { ok: false, status: 401 };
+    if (pad === '/api/zelftest') { await new Promise(r => setTimeout(r, 500)); return JSON.parse(JSON.stringify(ZELFTEST)); }
     if (pad.startsWith('/api/staat')) {
       st.groepen.forEach(g => { g.brandt = brandt(g, t); });
       if (st.test.soort) {
@@ -2451,7 +2724,9 @@ const Demo = (() => {
         break;
       }
       case '/api/ingang': {
-        if (b.groep) { st.ingangen.slice((b.groep - 1) * 8, b.groep * 8).forEach(x => { x.polariteit = b.polariteit; }); st.rev++; break; }
+        const pr = b.groep && PRINTEN[b.groep - 1];
+        if (b.polariteit === 'pnp' && (pr ? [pr[0]] : [b.nr]).some(n => printVanNr(n) >= 0 && st.instellingen.printSoort[printVanNr(n)] === 'vcc')) return fout(PNP_FOUT);
+        if (pr) { st.ingangen.slice(pr[0] - 1, pr[1]).forEach(x => { x.polariteit = b.polariteit; }); st.rev++; break; }
         if (b.tellersNul) { st.ingangen.forEach(x => { x.teller = 0; }); break; }
         const x = st.ingangen[b.nr - 1], w = Object.assign({}, b);
         if (w.tellerNul) x.teller = 0;
@@ -2461,7 +2736,13 @@ const Demo = (() => {
       }
       case '/api/instellingen':
         if (b.fabrieksinstellingen) return fout('In het voorbeeld kan dat niet.');
-        ['dagnachtMin', 'opstart'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
+        if (b.printSoort) {
+          const mis = PRINTEN.map((x, k) => k).find(k => b.printSoort[k] === 'vcc' && st.ingangen.some(x => printVanNr(x.nr) === k && x.polariteit === 'pnp'));
+          if (mis != null) return fout(PNP_FOUT + ' Of zet eerst de PNP-ingangen van print ' + (mis + 1) + ' op NPN.');
+          b.printSoort.slice(0, 5).forEach((x, k) => { st.instellingen.printSoort[k] = x; });
+        }
+        if (b.wachtwoord) st.wachtwoord = b.wachtwoord;
+        ['dagnachtMin', 'opstart', 'irLedActiefLaag', 'irDuty'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
         if (b.thuisnet) {
           const ssid = b.thuisnet.ssid || '';
           st.instellingen.thuisnet = { ssid, metWachtwoord: !!ssid && (b.thuisnet.wachtwoord ? true : st.instellingen.thuisnet.metWachtwoord) };
@@ -2490,14 +2771,26 @@ const Demo = (() => {
       case '/api/ir': {
         const c = st.ir.codes, i = (b.nr || 0) - 1;
         if (b.actie === 'leren') { leren = { start: t, naam: b.naam, ontvanger: b.ontvanger || 1 }; st.leren = { loopt: true, ontvanger: leren.ontvanger, resterendS: 10 }; break; }
+        if (b.actie === 'zelftest') {
+          if (st.zelftest.loopt) return fout('Er loopt al een zelftest.');
+          st.zelftest = { loopt: true, led: b.led || 1 };
+          zelftestT = t;
+          break;
+        }
         if (b.actie === 'bewaren') {
-          const p = i >= 0 ? i : vrijePlaats(c);
+          const p = i >= 0 ? i : vrijePlaats(c), raw = (b.code && b.code.raw) || [];
           if (p < 0) return fout('Alle 32 plaatsen voor IR-codes zijn bezet.');
+          if (raw.length * (b.code.herhaal || 1) > 1200) return fout('Deze code kan hoogstens ' + Math.floor(1200 / raw.length) + ' keer herhaald worden (1200 tijden met de herhalingen).');
           c[p] = Object.assign({ nr: p + 1 }, b.code);
           st.rev++;
           return { ok: true, nr: p + 1 };
         }
         if (!c[i]) return fout('Deze code bestaat niet.');
+        if (b.actie === 'zenden' && (c[i].raw || []).length * (c[i].herhaal || 1) > 1200) { // F5: wordt niet stil weggegooid
+          st.ir.nietVerzonden++;
+          st.ir.laatsteFout = '“' + c[i].naam + '”: ' + c[i].raw.length + ' tijden x ' + c[i].herhaal + ' = ' + c[i].raw.length * c[i].herhaal + ', meer dan 1200';
+          return fout('Niet verzonden: “' + c[i].naam + '” is met zijn herhalingen te lang.');
+        }
         if (b.actie === 'wissen') c[i] = null;
         if (b.actie === 'hernoemen') c[i].naam = b.naam;
         if (b.actie !== 'zenden') st.rev++;
@@ -2559,6 +2852,7 @@ const Demo = (() => {
 
 kiesTab(tab);
 verbinding(false);
+werkToegangBij();
 lus();
 </script>
 </body>

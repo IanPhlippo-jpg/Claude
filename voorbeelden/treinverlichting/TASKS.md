@@ -84,3 +84,22 @@
 - [x] Tekeningen: TRN-01/02, montageblad linkerhelft (TRN-11), draadlijst, schema (-X9 = klemmen van -Q4), bestellijst
 - [x] Bouwschema, app (maak-app.py), README/EISEN, foto's in scratchpad/trein-v6b
 - [x] tv-pagina: label van een live bus niet over een ander label (tv-live.js)
+
+## Advies Fable 5.2 op versie 6 verwerken: 62 punten (2026-11-16)
+- [x] P1: E3 (ingangskant optocouplerprint: 3 varianten, bron, meetstap), E1 (polariteit -Q4), E2 (reflexsensor op de MCP23017 + niveau-timeout)
+- [x] Firmware (agent): E1, E2, E3, E4-E8, E14, E19, F1-F17, V5, Q1/Q3 (mocks van hw.h/irhw.h), native en native32 groen
+- [x] Dashboard en tv (agent): instellingen voor E1/E3/F2/F1/E19, IR-zelftest, V1/V2/V4
+- [x] Doos en tekeningen (agent): D1 proefstuk en speling 0,3, D2/D8 trekontlasting, D9 zekeringen, T5 schaal en toleranties, qaTrein en rebuild
+- [x] Schema (E3, E11, E12, T4, -W-kabels), rekenblad (E8, E14-E16, D5), TRN-20 (T1), bestellijst (T2), sensoradvies (S1-S4, V3)
+- [x] README, EISEN, Maten-en-bronnen, versies (T3), "getest op de pc / gemeten" (Q2), "eerst kopen en meten"
+- [x] Tabel van de 62 punten met status (docs/Fable-5.2-v6-status.md), app opnieuw (zip < 16 MB), foto's in scratchpad/trein-v6c
+
+## Doos en tekeningen na Fable 5.2 (2026-11-16)
+- [x] D1: speling bodemlippen 0,3 in maten.mjs (naad) en de naadtests bijwerken
+- [x] D1: proefstuk (Proefstuk.kcad): bordplaats met 4 schroefpaaltjes + steunrail, 30 mm naad met lip en klikhaak; STL in print/
+- [x] D2/D8: oogjes voor kabelbinders in de bodem bij elke tule en bij -K2, -K7, -K5, -Q4; vrij van modules en draadzones
+- [x] D9: zekeringen -F1 en -F19 bereikbaar bij de naad van het deksel: nagekeken, niet zonder grote verbouwing (rapport)
+- [x] T5: schaal 1:2 of 1:5, ISO 2768-c in het titelblok, passingen met eigen tolerantie op TRN-06/TRN-07, projectiesymbool
+- [x] T3: revisie 6 en wijzigingsregel in tekeningenTrein; TRN-08 "Proefstuk"
+- [x] Q3: test dat TRN-20 en de bestellijst in README elke module van MODULES noemen
+- [x] Rebuild per helft, volledige qaTrein, tekeningen + PDF, tsc, graphify update, foto's in scratchpad/trein-v6c

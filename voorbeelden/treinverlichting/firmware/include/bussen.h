@@ -9,9 +9,14 @@
 //           (ms van de doos); de tv-pagina vraagt elke 250 ms de nieuwe op (GET /api/meldingen?sinds=<volgnr>).
 //           Dezelfde code op dezelfde ontvanger binnen 1,5 s is dezelfde doorkomst (een bus zendt zijn code
 //           voortdurend): geen nieuwe melding. Een lichtsluis zonder code: hoogstens één melding per seconde.
-// Bus       naam, kleur en de code die de ontvangers van die bus lezen. Een bus is "gezien bij punt Y" als de ontvanger
-//           van Y zijn code leest, of als de ingang van Y actief wordt: dan de bus die volgens de volgorde naar Y op
-//           weg is (de langst onderweg zijnde als er meer zijn).
+// Bus       naam, kleur en eventueel de code die de ontvangers van die bus lezen (AANNAME: dat de bussen een eigen code
+//           zenden staat niet in EISEN.md; Fable 5.2, V2). Een bus is "gezien bij punt Y" als de ontvanger van Y zijn
+//           code leest, of (zonder code) als het punt Y iets ziet en "alleenBus" aan staat: dan de bus die naar Y op
+//           weg is, in volgorde van aankomst (FIFO per strook: de langst onderweg zijnde eerst; V2). Klopt de volgorde
+//           niet meer, dan zet het dashboard het recht met POST /api/bus {"actie":"gezien","bus":..,"punt":..}.
+//           alleenBus (V1, standaard uit): een hall- of ftr-melding zonder code wordt alleen aan een bus toegeschreven
+//           op een punt waar alleen bussen komen; op een gedeelde strook blijft de melding zonder bus (geen auto die de
+//           bus op het scherm naar voren schuift of zijn rijtijd bederft).
 // Rijtijd   per traject A -> B een voortschrijdend gemiddelde: zonder metingen 10 s; de eerste meting telt helemaal,
 //           daarna het gemiddelde van 2, van 3 en vanaf de vierde voor een kwart (exponentieel). Een meting korter dan
 //           0,2 s of (na 2 metingen) langer dan 3 x het gemiddelde telt niet (de bus stond stil of reed om).
@@ -66,6 +71,7 @@ struct PuntCfg {
   int8_t ontvanger = -1;   // 0..3
   uint8_t soort = MELD_AUTO; // hall/ir/ftr; AUTO = hall bij een ingang, ir (of ftr zonder code) bij een ontvanger
   char volgende[PUNT_ID_LEN] = {0};
+  bool alleenBus = false;  // V1: alleen bussen komen hier (een melding zonder code mag aan een bus toegeschreven worden)
 };
 
 struct BusCfg {
@@ -250,7 +256,7 @@ class Volg {
       m.soort = p[i].soort == MELD_AUTO ? MELD_HALL : p[i].soort;
       strcpy(m.punt, p[i].id);
       m.ingang = (int8_t)ingang;
-      m.bus = (int8_t)verwachteBus(b, p[i].id);
+      m.bus = (int8_t)(p[i].alleenBus ? verwachteBus(b, p[i].id) : -1);
       if (m.bus >= 0) busGezien(m.bus, p[i].id, p, nu);
       return &meldingen.voegToe(m);
     }
@@ -293,7 +299,7 @@ class Volg {
       strcpy(m.punt, p[i].id);
       m.ontvanger = (int8_t)ontvanger;
       strncpy(m.code, code, IR_TEKST_LEN - 1);
-      m.bus = (int8_t)(code[0] ? busVanCode(b, code) : verwachteBus(b, p[i].id));
+      m.bus = (int8_t)(code[0] ? busVanCode(b, code) : (p[i].alleenBus ? verwachteBus(b, p[i].id) : -1));
       if (m.bus >= 0) busGezien(m.bus, p[i].id, p, nu);
       return &meldingen.voegToe(m);
     }

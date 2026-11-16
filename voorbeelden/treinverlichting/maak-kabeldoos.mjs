@@ -23,9 +23,14 @@ import { fileURLToPath } from 'node:url';
 import { component } from '../lib/schets.mjs';
 import { M } from './maten.mjs';
 import { yv, xv, zv, deel, snede, cirkels, veelhoeken, hoekRechthoek, PETG, PETG_DEKSEL } from './hulp.mjs';
-import { bordjePcb, klemstrook, smdRij, tule, dcBus, schroefVerzonken, bolkopSchroef, modulesOp, espUsb, draaiY, tsmp58000 } from './onderdelen.mjs';
+import { bordjePcb, klemstrook, smdRij, tule, dcBus, zekeringhouder, schroefVerzonken, bolkopSchroef, modulesOp, espUsb, draaiY, tsmp58000 } from './onderdelen.mjs';
 import { hulpstukkenPlaat } from './hulpstukken.mjs';
-import { MODULES, gatenDoos, voetafdruk, helft } from './opbouw.mjs';
+import { proefstuk } from './proefstuk.mjs';
+import { MODULES, gatenDoos, voetafdruk, helft, oogjes, oogSleuven } from './opbouw.mjs';
+/** de oogjes voor kabelbinders in één helft (Fable 5.2 D2/D8): de 2 sleuven door de bodem (snede van boven, samen met de
+ *  andere sneden in de bodem) en het kanaal eronder (snede van onderen, 1,4 diep: de binder ligt verzonken) */
+const oogjesIn = (h) => oogjes(indeling()).filter((o) => o.helft === h);
+function kanalenOogjes(o, h) { snede(o, -M.doos.bodem + M.oog.kanaal, M.oog.kanaal + 1, oogjesIn(h).map((q) => q.rect), 'Kanalen oogjes kabelbinders'); }
 /** de gaten van de modules in één helft (versie 6 fase B: ook modules in de linkerhelft) */
 const gatenIn = (h) => Object.keys(MODULES).filter((r) => helft(r) === h).flatMap((r) => gatenDoos(r));
 
@@ -124,9 +129,9 @@ export function rechts() {
     const kuil = k < 0 ? [tip - 0.3, -Z - H.kuil, tip + H.nok.l + 0.3, -Z + 0.1] : [tip - 0.3, Z - 0.1, tip + H.nok.l + 0.3, Z + H.kuil];
     return { k, z0: Math.min(zw, zb), z1: Math.max(zw, zb), prof, nok, kuil };
   });
-  // bodemlippen van de rechterhelft (in de uitsparingen van de linkerhelft, 0,2 rondom)
+  // bodemlippen van de rechterhelft (in de uitsparingen van de linkerhelft, 0,3 rondom: Fable 5.2 D1)
   const lippen = N.lip.z.map((z) => [xs - N.lip.l, z - N.lip.b / 2, xs + 1, z + N.lip.b / 2]);
-  const uitsparingen = N.lip.z.map((z) => [N.x - N.lip.l, z - N.lip.b / 2 - N.spleet, N.x + 1, z + N.lip.b / 2 + N.spleet]);
+  const ls = N.lip.speling, uitsparingen = N.lip.z.map((z) => [xs - N.lip.l - ls, z - N.lip.b / 2 - ls, N.x + 1, z + N.lip.b / 2 + ls]);
   const T = R.tules, yi = D.invoer.y;
   const tules = [...T.voor.map((c) => ({ wand: 'voor', c })), ...T.achter.map((c) => ({ wand: 'achter', c })), ...T.rechts.map((c) => ({ wand: 'rechts', c }))];
   const sleutelgaten = R.sleutelgatZ.map((z) => [R.sleutelgatX, z]);
@@ -175,7 +180,8 @@ export function bakLinks() {
   o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer voor' });
   sleutelgatenOp(o, L.sleutelgaten);
   // draadsleuven tussen de rijen en de uitsparingen voor de bodemlippen van de rechterhelft (één snede)
-  snede(o, 0.01, D.bodem + 1, [...L.bodem, ...rechts().uitsparingen], 'Draadsleuven en uitsparingen naad');
+  snede(o, 0.01, D.bodem + 1, [...L.bodem, ...rechts().uitsparingen, ...oogjesIn('links').flatMap(oogSleuven)], 'Draadsleuven, uitsparingen naad en oogjes');
+  kanalenOogjes(o, 'links');
   // steunrails onder het midden van de bordjes (de print buigt niet door als je een klem aandraait)
   const rails = L.rijen.slice(0, 6).map((rij) => { const bs = rij.filter((d) => d.soort === 'bordje'); return [Math.min(...bs.map((d) => d.cx)) - M.bordje.x / 2 + 1, rij[0].cz - 3, Math.max(...bs.map((d) => d.cx)) + M.bordje.x / 2 - 1, rij[0].cz + 3]; });
   o.schets(yv(-0.5, 'Plane steunrails'), (s) => rails.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0], [x1, 0, z1], 1)));
@@ -249,9 +255,13 @@ export function bakRechts() {
   o.schets(zv(ZB, 'Plane opening USB'), (s) => s.rrectW([u.x0, u.y0, ZB], [u.x1, u.y1, ZB], 1));
   o.extrude('cut', w + 1, { omkeren: true, naam: 'Opening USB' });
   // DC-chassisbus 5,5 x 2,5 in de achterwand, boven de WAGO-klemmen (de adapter houdt zijn stekker: niets doorknippen)
-  o.schets(zv(-ZB, 'Plane DC-bus', -1), (s) => s.cirkelW([M.dcbus.x, M.dcbus.y, -ZB], M.dcbus.gat / 2));
-  o.extrude('cut', w + 1, { omkeren: true, naam: 'Gat DC-bus' });
+  // en ernaast de 2 zekeringhouders 5 x 20 (Fable 5.2 D9: de zekeringen van buiten te vervangen)
+  o.schets(zv(-ZB, 'Plane DC-bus', -1), (s) => { s.cirkelW([M.dcbus.x, M.dcbus.y, -ZB], M.dcbus.gat / 2); M.zekering.x.forEach((x) => s.cirkelW([x, M.zekering.y, -ZB], M.zekering.gat / 2)); });
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Gat DC-bus en zekeringhouders' });
   sleutelgatenOp(o, P.sleutelgaten);
+  // de oogjes voor de kabelbinders (Fable 5.2 D2/D8): sleuven door de bodem, kanaal eronder
+  snede(o, 0.01, D.bodem + 1, oogjesIn('rechts').flatMap(oogSleuven), 'Sleuven oogjes kabelbinders');
+  kanalenOogjes(o, 'rechts');
   // de bodemlippen (op het bed: geen overhang) en de pilaren aan de naad
   o.schets(yv(-D.bodem, 'Plane bodemlippen'), (s) => P.lippen.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0], [x1, 0, z1])));
   o.extrude('boss', D.bodem, { naam: 'Bodemlippen naad' });
@@ -372,6 +382,8 @@ export function kabeldoos() {
   L.paaltjes.forEach((p, i) => at(`bs${i + 1}`, `Plaatschroef 2,0 x 6 bolkop<${i + 1}>`, schroefB, [p.x, M.voet + B.pcb, p.z]));
   // de DC-bus in de achterwand van de rechterhelft, de membraantules (flens buiten, langs de normaal van de wand naar buiten)
   at('w1', 'DC-chassisbus 5,5 x 2,5<1>', dcBus(), [M.dcbus.x, M.dcbus.y, -ZB], draaiY(90));
+  const zh = zekeringhouder();
+  M.zekering.x.forEach((x, i) => at(`f${i + 1}`, `Zekeringhouder 5 x 20 ${i ? '-F19 (3,15 A)' : '-F1 (8 A)'}<${i + 1}>`, zh, [x, M.zekering.y, -ZB], draaiY(90)));
   const tl = tule(), yi = D.invoer.y;
   [...L.tules, ...P.tules].forEach((t, i) => {
     const p = { links: [-XB, yi, t.c], rechts: [P.XRB, yi, t.c], voor: [t.c, yi, ZB], achter: [t.c, yi, -ZB] }[t.wand];
@@ -392,6 +404,8 @@ export const ONDERDELEN = {
   'Kabeldoos-deksel-rechts.kcad': dekselRechts,
   'Bordje-PCB.kcad': bordjePcb,
   'Hulpstukken.kcad': hulpstukkenPlaat,
+  // Fable 5.2 D1: eerst dit proefstuk printen (± 20 minuten) en de krimp compenseren, dan de helften
+  'Proefstuk.kcad': proefstuk,
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

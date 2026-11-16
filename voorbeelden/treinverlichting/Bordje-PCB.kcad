@@ -4,8 +4,8 @@
  "name": "Modelbouwled PCB met weerstand (print)",
  "units": "mm",
  "planes": {
-  "y51": {
-   "id": "y51",
+  "y54": {
+   "id": "y54",
    "name": "Plane Print 0",
    "origin": [
     0,
@@ -29,8 +29,8 @@
    ],
    "kind": "reference"
   },
-  "y52": {
-   "id": "y52",
+  "y55": {
+   "id": "y55",
    "name": "Plane Gaten",
    "origin": [
     0,
@@ -61,7 +61,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "y51",
+   "plane": "y54",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -206,7 +206,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "y52",
+   "plane": "y55",
    "points": {
     "origin_s2": {
      "x": 0,

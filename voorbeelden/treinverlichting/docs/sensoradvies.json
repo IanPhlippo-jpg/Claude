@@ -1,5 +1,5 @@
 {
- "schaal_model": "1:87 (AANNAME)",
+ "schaal": "H0 1:87 = 218 px, AANNAME: 2 punten op de baan opmeten (mm_op_de_baan_per_px)",
  "stap_px": 217.5,
  "sensoren": [
   {
@@ -63,83 +63,83 @@
    "bestaat": false
   },
   {
-   "id": "FTR_lijnbus3",
-   "soort": "ftr",
+   "id": "HS_lijnbus3",
+   "soort": "hall",
    "baan": "halte_lijnbus3",
    "afstand_px": 148.1,
    "x": 592.2,
    "y": 456.8,
-   "waarom": "reflexsensor aan STOP_lijnbus3: de bus staat aan de halte",
+   "waarom": "hallsensor aan STOP_lijnbus3: de bus komt aan de halte (aankomstpunt)",
+   "bestaat": false
+  },
+  {
+   "id": "HS_lijnbus2",
+   "soort": "hall",
+   "baan": "halte_lijnbus2",
+   "afstand_px": 150.5,
+   "x": 712.8,
+   "y": 456.9,
+   "waarom": "hallsensor aan STOP_lijnbus2: de bus komt aan de halte (aankomstpunt)",
+   "bestaat": false
+  },
+  {
+   "id": "HS_lijnbus1",
+   "soort": "hall",
+   "baan": "halte_lijnbus1",
+   "afstand_px": 150.4,
+   "x": 839.1,
+   "y": 456.9,
+   "waarom": "hallsensor aan STOP_lijnbus1: de bus komt aan de halte (aankomstpunt)",
+   "bestaat": false
+  },
+  {
+   "id": "HS_standmodel",
+   "soort": "hall",
+   "baan": "halte_standmodel",
+   "afstand_px": 152.0,
+   "x": 960.9,
+   "y": 457.8,
+   "waarom": "hallsensor aan STOP_standmodel: de bus komt aan de halte (aankomstpunt)",
+   "bestaat": false
+  },
+  {
+   "id": "FTR_lijnbus3",
+   "soort": "ftr",
+   "baan": "halte_lijnbus3",
+   "afstand_px": 275.4,
+   "x": 528.9,
+   "y": 562.0,
+   "waarom": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
    "bestaat": false
   },
   {
    "id": "FTR_lijnbus2",
    "soort": "ftr",
    "baan": "halte_lijnbus2",
-   "afstand_px": 150.5,
-   "x": 712.8,
-   "y": 456.9,
-   "waarom": "reflexsensor aan STOP_lijnbus2: de bus staat aan de halte",
+   "afstand_px": 279.9,
+   "x": 644.8,
+   "y": 562.0,
+   "waarom": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
    "bestaat": false
   },
   {
    "id": "FTR_lijnbus1",
    "soort": "ftr",
    "baan": "halte_lijnbus1",
-   "afstand_px": 150.4,
-   "x": 839.1,
-   "y": 456.9,
-   "waarom": "reflexsensor aan STOP_lijnbus1: de bus staat aan de halte",
+   "afstand_px": 279.8,
+   "x": 771.2,
+   "y": 562.0,
+   "waarom": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
    "bestaat": false
   },
   {
    "id": "FTR_standmodel",
    "soort": "ftr",
    "baan": "halte_standmodel",
-   "afstand_px": 152.0,
-   "x": 960.9,
-   "y": 457.8,
-   "waarom": "reflexsensor aan STOP_standmodel: de bus staat aan de halte",
-   "bestaat": false
-  },
-  {
-   "id": "HV_lijnbus3",
-   "soort": "hall",
-   "baan": "halte_lijnbus3",
-   "afstand_px": 275.4,
-   "x": 528.9,
-   "y": 562.0,
-   "waarom": "vlak voor de invoeging: de bus is vertrokken",
-   "bestaat": false
-  },
-  {
-   "id": "HV_lijnbus2",
-   "soort": "hall",
-   "baan": "halte_lijnbus2",
-   "afstand_px": 279.9,
-   "x": 644.8,
-   "y": 562.0,
-   "waarom": "vlak voor de invoeging: de bus is vertrokken",
-   "bestaat": false
-  },
-  {
-   "id": "HV_lijnbus1",
-   "soort": "hall",
-   "baan": "halte_lijnbus1",
-   "afstand_px": 279.8,
-   "x": 771.2,
-   "y": 562.0,
-   "waarom": "vlak voor de invoeging: de bus is vertrokken",
-   "bestaat": false
-  },
-  {
-   "id": "HV_standmodel",
-   "soort": "hall",
-   "baan": "halte_standmodel",
    "afstand_px": 281.0,
    "x": 892.4,
    "y": 562.0,
-   "waarom": "vlak voor de invoeging: de bus is vertrokken",
+   "waarom": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
    "bestaat": false
   },
   {

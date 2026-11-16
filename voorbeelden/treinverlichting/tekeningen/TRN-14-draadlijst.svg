@@ -13,19 +13,19 @@
 <line x1="30.00" y1="32.80" x2="356.00" y2="32.80" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <text x="31.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W01</text>
 <text x="42.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">DC-bus pen (+)</text>
-<text x="112.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-F1 zekeringhouder (in)</text>
-<text x="182.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V van de DC-bus (pen = +) naar de zekeringhouder (gesoldeerd aan de bus)</text>
+<text x="112.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-F1 zekering T 8 A (in)</text>
+<text x="182.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V van de DC-bus (pen = +, gesoldeerd) naar de zekeringhouder -F1 in de achterwand (vlak…</text>
 <text x="312.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">120 mm</text>
+<text x="341.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">110 mm</text>
 <line x1="30.00" y1="36.22" x2="356.00" y2="36.22" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W02</text>
-<text x="42.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-F1 zekeringhouder (uit)</text>
+<text x="42.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-F1 zekering T 8 A (uit)</text>
 <text x="112.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X1:1 (WAGO)</text>
-<text x="182.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">L+ na de hoofdzekering 7,5 A</text>
+<text x="182.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">L+ na de hoofdzekering T 8 A (5 x 20, in de achterwand)</text>
 <text x="312.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">90 mm</text>
+<text x="341.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
 <line x1="30.00" y1="39.64" x2="356.00" y2="39.64" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W03</text>
 <text x="42.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">DC-bus huls (−)</text>
@@ -582,10 +582,10 @@
 <text x="231.20" y="277.40" font-size="3.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">TRN-14</text>
 <line x1="290.00" y1="279.00" x2="290.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="291.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">5</text>
+<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">6</text>
 <line x1="305.00" y1="279.00" x2="305.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="306.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-15</text>
+<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-16</text>
 <line x1="335.00" y1="279.00" x2="335.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Taal</text>
 <text x="336.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">nl</text>
@@ -594,7 +594,7 @@
 <text x="351.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">—</text>
 <line x1="380.00" y1="279.00" x2="380.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 / 15</text>
+<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">13 / 17</text>
 <text x="231.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="231.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="265.00" y1="287.00" x2="265.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
@@ -605,13 +605,15 @@
 <text x="291.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">—</text>
 <line x1="335.00" y1="287.00" x2="335.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Maten en toleranties</text>
-<text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-m</text>
+<text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-c</text>
 <line x1="380.00" y1="287.00" x2="380.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="393.00" y2="284.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="279.60" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="384.00" y2="279.60" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="393.00" y1="284.10" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="382.50" y1="282.60" x2="394.50" y2="282.60" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
-<circle cx="401.00" cy="282.60" r="3.00" fill="none" stroke="#111" stroke-width="0.3"/>
-<circle cx="401.00" cy="282.60" r="1.50" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="381.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Projectie: 1e hoek</text>
+<line x1="387.00" y1="286.50" x2="393.30" y2="285.45" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="282.30" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="286.50" x2="387.00" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="393.30" y1="285.45" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="385.95" y1="284.40" x2="394.35" y2="284.40" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
+<circle cx="398.90" cy="284.40" r="2.10" fill="none" stroke="#111" stroke-width="0.3"/>
+<circle cx="398.90" cy="284.40" r="1.05" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="409.00" y="245.60" font-size="2" text-anchor="end" font-family="Arial, Helvetica, sans-serif" fill="#111">Rev. 6 (2026-11-16): IR, servo's, NPN/PNP; proefstuk, oogjes, lippen 0,3, ISO 2768-c</text>
 </svg>

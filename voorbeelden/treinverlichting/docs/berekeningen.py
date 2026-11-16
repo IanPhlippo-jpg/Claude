@@ -23,7 +23,7 @@ U_LED = 2.9  # V, witte led (AANNAME 2,8 tot 3,1)
 R_BORDJE = {'1K (voor 12 V)': 1000, '1K5 (voor 20 V)': 1500, '470 Ω (voor 5 V)': 470}
 I_LED_EIGEN = 0.020  # A, led met eigen weerstand op een bordje van 0 Ω (AANNAME: 20 mA, gangbaar maximum)
 ADAPTER = dict(naam='Mean Well GST90A12-P1M', a=6.67)  # 12 V, 6,67 A (datablad)
-ZEKERING = dict(a=7.5, r=0.010)  # A; ATO 7,5 A in een houder met draden, weerstand AANNAME 10 mΩ
+ZEKERING = dict(a=8.0, r=0.012)  # A; Fable 5.2 D9: 5 x 20 traag (T 8 A) in een houder in de achterwand; weerstand AANNAME 12 mΩ
 # polyfuses Bourns MF-R050 (radiaal, datablad MF-R): houdstroom bij 23, 40 en 50 °C, trip bij 23 °C, R min en R1max, tijd
 # tot trip bij 2,5 A; één per groep (-F2..-F17) en één voor de ingangen en sensoren (-F18)
 PTC_GROEP = dict(naam='Bourns MF-R050 (radiaal)', hold={23: 0.50, 40: 0.41, 50: 0.36}, trip=1.00, rmin=0.41, r1max=1.17, vmax=60, t_trip=4.0, i_trip_test=2.5)
@@ -39,7 +39,7 @@ BRUG_U = 0.1  # V, meetcriterium: spanning n− tot VIN− (over de MOSFET) bij 
 ESP_W = 0.6  # W, ESP32-S3 met wifi-hotspot (AANNAME: 120 mA gemiddeld op 5 V)
 PCA_W = 0.03
 BUCK_ETA = 0.85  # Joy-IT SBC-Buck02 bij 12 -> 5 V en 0,15 A (AANNAME: niet in het datablad)
-DIODE = dict(naam='SB560', vf=0.70, ifsm=150.0, if_av=5.0)  # V bij 5 A, A piek, A (datablad SB5x0-reeks; na te kijken)
+DIODE = dict(naam='10SQ045', vf=0.55, ifsm=300.0, if_av=10.0)  # Fable 5.2 E15: 10 A, 45 V; V bij 10 A, A piek, A (datablad 10SQ0xx; AANNAME, na te kijken)
 # de optocouplerprint PC817 8 kanalen (3,6-24 V): de weerstand in serie met de led staat niet in de beschrijving
 OPTO = dict(naam='PC817 (optocouplerprint 8 kanalen)', r=1000, u_led=1.2, ctr_min=0.50, if_max=0.050, vr=6.0, r_vermogen=0.125)  # R AANNAME 1 kΩ (0805); CTR ≥ 50 % bij 5 mA, IF max 50 mA, VR 6 V (datablad PC817)
 PULLUP_OUT = 10000  # Ω, pull-up op de uitgangskant van de print (AANNAME)
@@ -64,8 +64,8 @@ MU = 0.3  # wrijving PETG op PETG (AANNAME)
 # schroefpaaltje (maten.mjs, M.schroefpaal): Ø5, voorgat Ø1,6 tot 0,4 boven de onderkant van de bodem (2,4), 3 hoog;
 # plaatschroef voor kunststof 2,0 x 6 met bolkop Ø4 (AANNAME: gangbare maat), print 1,6 dik, gat in de print Ø2,2 (AANNAME)
 PAAL = dict(d=5.0, voorgat=1.6, schroef=2.0, l=6.0, pcb=1.6, gat=2.2, kop=4.0)
-IR = dict(naam='Vishay TSAL6200', vf=1.35, if_dc=0.100, if_piek=0.200, r=120.0, p_r=0.5, duty_draag=1 / 3, duty_code=0.5)  # datablad TSAL6200; duty AANNAME (NEC)
-SERVO = dict(naam='SG90 / MG90S', n=16, tegelijk=4, blok=0.70, rust=0.010, u=5.5, eta=0.88, buck_a=5.0, zekering=3.0)  # stromen AANNAME
+IR = dict(naam='Vishay TSAL6200', vf=1.35, if_dc=0.100, if_piek=0.200, r=120.0, p_r=1.0, duty_draag=1 / 3, duty_code=0.5)  # datablad TSAL6200; duty AANNAME (NEC)
+SERVO = dict(naam='SG90 / MG90S', n=16, tegelijk=4, blok=1.2, rust=0.010, u=5.5, eta=0.88, buck_a=5.0, cc=3.0, zekering=3.15)  # stromen AANNAME (Fable 5.2 E8: MG90S 1,0-1,2 A blokkeren bij 6 V); cc = stroomgrens van de XL4015 CC/CV (E10)
 TAU_PETG = 15.0  # MPa: afschuifsterkte van geprint PETG over de laagnaden heen (AANNAME, voorzichtig: ~1/3 van de bulkwaarde)
 PETG = dict(e=2100.0, rek_max=0.02)  # MPa; toelaatbare rek bij herhaald klikken (AANNAME, gangbaar voor PETG)
 KOPER = 0.0175  # Ω mm²/m
@@ -108,7 +108,7 @@ def maak():
           f'- **Alles aan, ongunstigste bordjes, alle ingangen actief:** {GROEPEN} x {f(groep_max)} A + besturing + ingangen = '
           f'**{f(totaal)} A**, {f(100 * totaal / ADAPTER["a"], 0)} % van de {ADAPTER["naam"]} ({f(ADAPTER["a"], 2)} A). Met bordjes '
           f'van 1K en 4 ingangen actief: {f(GROEPEN * groep_1k + 0.07 + 4 * i_in, 2)} A.',
-          f'- **Hoofdzekering {f(ZEKERING["a"], 1)} A** (ATO in een houder met draden, 32 V DC) achter de DC-bus: ze is groter dan '
+          f'- **Hoofdzekering {f(ZEKERING["a"], 1)} A** (5 x 20 traag, in een houder in de achterwand naast de DC-bus: van buiten te vervangen) achter de DC-bus: ze is groter dan '
           f'wat de adapter kan leveren ({f(ADAPTER["a"], 2)} A) en **beschermt de draden tot de verdeelklemmen** en de '
           'ompoolbeveiliging (hieronder) tegen een andere adapter zonder eigen beveiliging. Een groep of een knop beschermt ze niet.',
           f'- **Per groep een polyfuse {PTC_GROEP["naam"]}** (-F2..-F17), met één pootje in de klem n− van de MOSFET-module en het '
@@ -282,9 +282,18 @@ def maak():
     ir_gem = ir_piek * IR['duty_draag'] * IR['duty_code']
     p_r_piek, p_r_gem = ir_piek ** 2 * IR['r'], ir_piek ** 2 * IR['r'] * IR['duty_draag'] * IR['duty_code']
     assert ir_piek <= IR['if_dc'] and p_r_gem < 0.5 * IR['p_r'] and 8 * ir_piek < 15
-    servo_piek = SERVO['tegelijk'] * SERVO['blok'] + (SERVO['n'] - SERVO['tegelijk']) * SERVO['rust']
+    servo_vraag = SERVO['tegelijk'] * SERVO['blok'] + (SERVO['n'] - SERVO['tegelijk']) * SERVO['rust']
+    servo_piek = min(servo_vraag, SERVO['cc'])  # de stroomgrens van de XL4015 knipt de vraag af (E10)
     servo_12 = servo_piek * SERVO['u'] / SERVO['eta'] / U
-    assert servo_piek < SERVO['buck_a'] * 0.8 and servo_12 < SERVO['zekering'] * 0.8
+    assert SERVO['cc'] <= SERVO['buck_a'] * 0.8 and servo_12 < SERVO['zekering'] * 0.8
+    oe_hoog = 3.3 * (10e3 / 2) / (10e3 / 2 + 1e3)  # E16: -R1 1 kΩ tegen 2 PCA9685-printen met elk 10 kΩ naar 0 V (AANNAME)
+    assert oe_hoog > 0.7 * 3.3
+    gnd_rust = (U - OPTO['u_led']) / (2200 + OPTO['r'])  # E3, print "gnd": NPN-sensor uit, stroom door 2,2 kΩ en de led
+    gnd_zink = U / 2200  # NPN-sensor aan: hij trekt IN naar 0 V
+    assert gnd_rust > 2e-3 and gnd_zink < 0.020
+    p_v6 = servo_piek * SERVO['u'] * (1 / SERVO['eta'] - 1) + 8 * (ir_piek ** 2 * IR['r'] * IR['duty_draag'] * IR['duty_code'])
+    dt6 = (p_tot + p_v6) / (DOOS['alfa'] * a_eff)
+    assert dt6 < 15
     npn_i = (U - OPTO['u_led']) / OPTO['r']
     bip_npn, bip_pnp = (5.0 - OPTO['u_led']) / OPTO['r'], (U - 5.0 - OPTO['u_led']) / OPTO['r']
     uit_ma = OPTO['ctr_min'] * bip_npn * 1000
@@ -300,21 +309,32 @@ def maak():
           f'{f(IR["p_r"], 1)} W). Alle 8 leds samen: {f(8 * ir_piek, 2)} A piek door -Q3 (AOD4184-module, geen koeling nodig). De MOSFET van '
           '-Q4 en die van -Q3 staan in serie: elk ± 0,02 V, verwaarloosbaar. Bereik: enkele meters tot een TSOP-ontvanger (AANNAME, '
           'praktijk); richt de led op de ontvanger van de bus.', '',
-          f"**Servo's** ({SERVO['naam']}): blokkeerstroom ± {f(SERVO['blok'], 2)} A, in rust ± {f(SERVO['rust'] * 1000, 0)} mA (AANNAME, gangbare "
-          f"waarden). De firmware laat er hoogstens {SERVO['tegelijk']} tegelijk bewegen: ongunstigst {SERVO['tegelijk']} x {f(SERVO['blok'], 2)} + "
-          f"{SERVO['n'] - SERVO['tegelijk']} x {f(SERVO['rust'], 2)} = **{f(servo_piek, 2)} A** op {f(SERVO['u'], 1)} V: de XL4015 (5 A) heeft ruim "
-          f"marge. Uit 12 V (rendement {f(SERVO['eta'] * 100, 0)} %): {f(servo_12, 2)} A, dus -F19 {f(SERVO['zekering'], 0)} A. De elco van 1000 µF "
-          'vangt de stroomstoot op als een servo vertrekt.', '',
-          f'**Ingangen NPN of PNP** (serieweerstand {f(OPTO["r"], 0)} Ω op de print, AANNAME): NPN met COM op +12 V: {f(npn_i * 1000, 1)} mA. '
-          f'Een PNP-print (led andersom, COM op 0 V): even veel. Een bipolaire print (PC814) met COM op 5 V: NPN {f(bip_npn * 1000, 1)} mA, '
-          f'PNP {f(bip_pnp * 1000, 1)} mA; uitgang ten minste {f(uit_ma, 1)} mA (CTR {f(OPTO["ctr_min"] * 100, 0)} %) tegen een pull-up van 10 kΩ '
-          f'(0,33 mA): ruim. **Nooit een gewone (NPN-)print met COM aan 0 V**: een PNP-sensor zet dan 12 V in sperrichting over de led '
-          f'(PC817: hoogstens {f(OPTO["vr"], 0)} V).', '',
+          f"**Servo's** ({SERVO['naam']}): blokkeerstroom ± {f(SERVO['blok'], 1)} A (Fable 5.2 E8: de MG90S trekt bij 6 V 1,0 tot 1,2 A), "
+          f"in rust ± {f(SERVO['rust'] * 1000, 0)} mA (AANNAME). De firmware laat er hoogstens {SERVO['tegelijk']} tegelijk bewegen, ook bij het "
+          f"opstarten (één nieuwe per 0,3 s) en bij de eerste opdracht; zo kan de vraag {f(servo_vraag, 2)} A zijn. Daarom een XL4015 met "
+          f"**stroomgrens (CC/CV) op {f(SERVO['cc'], 0)} A** (E10): de servokabels (± 0,08 mm²) krijgen bij een sluiting hoogstens {f(SERVO['cc'], 0)} A, "
+          f"en de servo's bewegen dan wat trager. Uit 12 V (rendement {f(SERVO['eta'] * 100, 0)} %): {f(servo_12, 2)} A, dus -F19 T "
+          f"{f(SERVO['zekering'], 2)} A. Elco 1000 µF **25 V** (een XL4015 komt op een willekeurige spanning uit de doos, tot 12 V; E9). "
+          "Met meer dan 12 groepen aan wachten de servo's (E14). Na aankomst mag de puls uit (instelbaar, E19).", '',
+          f'**OE** met 2 PCA9685-printen (2 x 10 kΩ naar 0 V, AANNAME) tegen -R1 1 kΩ: hoog = **{f(oe_hoog, 2)} V** (grens 0,7 x 3,3 = '
+          f'{f(0.7 * 3.3, 2)} V; Fable 5.2 E16). De IR-weerstanden zijn 1 W: blijft GPIO47 door een fout hoog, dan is het 0,95 W continu.', '',
+          f'**Ingangen: de 3 mogelijke schakelingen van de optocouplerprint** (Fable 5.2 E3; serieweerstand {f(OPTO["r"], 0)} Ω AANNAME; welke '
+          'schakeling: meten, TRN-22 stap A). De handleiding van Envistia beschrijft de 8-kanaals PC817-print met een gemeenschappelijke '
+          'VCC (de ingang wordt actief als ze naar 0 V gaat); andere verkopers tonen een gemeenschappelijke GND. '
+          f'"vcc": NPN of contact trekt IN naar 0 V, {f(npn_i * 1000, 1)} mA. "apart" (per kanaal IN+ en IN−): even veel, per ingang NPN of PNP. '
+          f'"gnd": een contact of PNP-sensor geeft 12 V op IN ({f(npn_i * 1000, 1)} mA); een NPN- of open-collectorsensor krijgt 2,2 kΩ van IN naar '
+          f'S12: in rust {f(gnd_rust * 1000, 1)} mA door de led (de firmware keert die ingang om), aan zinkt de sensor {f(gnd_zink * 1000, 1)} mA '
+          f'(SS451A: hoogstens 20 mA). **Nooit 12 V op IN van een print "vcc"**: dan staat er 12 V in sperrichting over de led (PC817: hoogstens '
+          f'{f(OPTO["vr"], 0)} V); de firmware weigert PNP op zo\'n print. Reflexsensoren (TCRT5000, 3,3 V) gaan niet over een optocoupler maar '
+          'met 1 kΩ in serie rechtstreeks naar ingang 17-23 van de MCP23017 (E2).', '',
+          f'**Warmte met de uitbreiding** (Fable 5.2 D5): + {f(p_v6, 2)} W (de XL4015 bij {f(SERVO["cc"], 0)} A en de IR-weerstanden), samen '
+          f'{f(p_tot + p_v6, 2)} W: **{f(dt6, 1)} K** warmer dan onder de baan in het ongunstigste geval; de polyfuses blijven binnen de gerekende {T_DOOS} °C.', '',
           f"**Voeding:** de uitbreiding vraagt uit 12 V hoogstens {f(extra_12, 2)} A (servo's, IR gemiddeld, ontvangers, 16 extra ingangen); "
           f'met de bordjes van 1K (Modelbouwled voor 12 V) en 4 ingangen actief: **{f(gewoon, 2)} A** ({f(100 * gewoon / ADAPTER["a"], 0)} % van de '
           f'{f(ADAPTER["a"], 2)} A). Het ongunstigste geval van hoofdstuk 2 (bordjes van 0 Ω, alles aan) plus 4 blokkerende servo’s geeft '
           f'{f(totaal + extra_12, 2)} A: meer dan de adapter. Komen er ooit bordjes zonder weerstand, geef de servo’s dan een eigen netadapter '
-          '5 V (bv. Mean Well GST25A05, 4 A) in plaats van -T3.', '']
+          '5 V (bv. Mean Well GST25A05, 4 A) in plaats van -T3. De hoofdzekering springt bij overbelasting niet: dan gaat de adapter '
+          'in beveiliging en start de doos opnieuw (Fable 5.2 E14; daarom wachten de servo\'s als meer dan 12 groepen aan staan).', '']
     (HIER / 'Berekeningen.md').write_text('\n'.join(L) + '\n', encoding='utf-8')
     print('\n'.join(L))
 

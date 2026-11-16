@@ -23,9 +23,9 @@ import { irBlad, servoBlad, STUKLIJST_V6 } from './uitbreiding.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const PROJECT = {
-  naam: 'Treinbaan', omschrijving: 'kabeldoos verlichting, versie 5', eigenaar: 'Ian', tekeningnr: 'TRN-E01',
+  naam: 'Treinbaan', omschrijving: 'kabeldoos verlichting, versie 6', eigenaar: 'Ian', tekeningnr: 'TRN-E01',
   installatie: '=TRN', installatieNaam: 'verlichting modelbaan', plaats: '+DOOS', plaatsNaam: 'onder de baan',
-  datum: '2026-11-08', getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: '5', datum: '2026-11-15', naam: 'PC' },
+  datum: '2026-11-08', getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: '6', datum: '2026-11-16', naam: 'PC' },
 };
 export { INGANG_GPIO };
 // de bladen (nummers voor de kruisverwijzingen)
@@ -52,12 +52,12 @@ function voeding() {
   i.push(T(25, 120, '230 V AC alleen in de gekeurde adapter', { size: 2.5 }));
   i.push(L([[80, yp], [92.8, yp]]), L([[80, 95], [86, 95], [86, ym], [92.8, ym]]), T(82, yp - 3, '-W1', { size: 2.8 }), T(82, yp + 4, 'kabel adapter', { size: 2.2 }));
   i.push(klem(94, yp, '-X5', 'pen'), klem(94, ym, '-X5', 'huls'), T(86, yp - 13, 'DC-bus 5,5 x 2,5, 8 A (2 soldeerlippen)', { size: 2.2 }));
-  i.push(L([[95.2, yp], [118, yp]]), T(104, yp - 1.5, 'J+', { size: 2.2 }), zekering(118, yp, '-F1', 'ATO 7,5 A, houder met draden'));
+  i.push(L([[95.2, yp], [118, yp]]), T(104, yp - 1.5, 'J+', { size: 2.2 }), zekering(118, yp, '-F1', 'T 8 A, 5 x 20 in de achterwand'));
   i.push(L([[138, yp], [148.8, yp]]), klem(150, yp, '-X1', '1'), L([[151.2, yp], [165, yp]]));
   i.push(L([[95.2, ym], [148.8, ym]]), klem(150, ym, '-X2', '1'), L([[151.2, ym], [165, ym]]));
-  // ompoolbeveiliging: Schottkydiode SB560 tussen L+ en M (kathode aan L+): verkeerd om = de diode geleidt, de adapter
+  // ompoolbeveiliging: Schottkydiode 10SQ045 (10 A, Fable 5.2 E15) tussen L+ en M (kathode aan L+): verkeerd om = de diode geleidt, de adapter
   // schakelt af of -F1 smelt; de modules zien hoogstens −0,6 V
-  i.push(punt(175, yp), L([[175, yp], [175, 120.8]]), klem(175, 122, '-X1', '8', { kant: 'links' }), L([[175, 123.2], [175, 140]]), diodeOp(175, 140, '-R2', 'SB560'), L([[175, 154], [175, 186.8]]), klem(175, 188, '-X2', '8', { kant: 'links' }), L([[175, 189.2], [175, ym]]), punt(175, ym));
+  i.push(punt(175, yp), L([[175, yp], [175, 120.8]]), klem(175, 122, '-X1', '8', { kant: 'links' }), L([[175, 123.2], [175, 140]]), diodeOp(175, 140, '-R2', '10SQ045'), L([[175, 154], [175, 186.8]]), klem(175, 188, '-X2', '8', { kant: 'links' }), L([[175, 189.2], [175, ym]]), punt(175, ym));
   i.push(T(181, 162, 'ompoolbeveiliging', { size: 2.0 }), T(181, 165, '(pootjes in de WAGO-klemmen)', { size: 1.9 }));
   i.push(rail(yp, 165, RECHTS, 'L+', { naar: `${ref(B.uit, X0)}  ${ref(B.in, X0)}` }), rail(ym, 165, RECHTS, 'M', { naar: `${ref(B.uit, X0)}  ${ref(B.in, X0)}  ${ref(B.besturing, X0)}` }));
   // aftakkingen naar de MOSFET-modules (VIN), de regelaar en de polyfuse van de ingangen
@@ -139,7 +139,7 @@ function ingangen() {
     i.push(L([[x0 + 2, y1 - 6], [x0 + 8 * 23.2 - 6, y1 - 6]]));
   }
   i.push(T(25, 244, '-K3, -K4: optocouplerprint PC817, 8 kanalen; VCC (ingang) = S12 +12 V, IN n naar 0 V = actief; uitgang met jumper op pull-up: OUT n laag = actief (GPIO met pull-up). Een +12 V op IN n: niets aan de hand (0 V over de led).', { size: 2.3 }));
-  i.push(T(25, 249, 'Hallsensor (SS441A, A3144): + aan -X3, − aan -X2, uitgang aan IN; meerdere parallel mag; ingang op "Hallsensor (korte puls)" zetten (puls vanaf 1 ms). PNP: blad 8. Ingangsweerstand 1 kΩ: AANNAME.', { size: 2.3 }));
+  i.push(T(25, 249, 'Hallsensor (SS441A, A3144): + aan -X3, − aan -X2, uitgang aan IN; meerdere parallel mag; ingang op "Hallsensor (korte puls)" zetten (puls vanaf 1 ms). Schakeling van de print: TRN-22 stap A ("vcc" getekend; "gnd" en "apart" op blad 8). Ingangsweerstand 1 kΩ: AANNAME.', { size: 2.3 }));
   return { titel: ['Ingangen', 'knoppen en sensoren'], inhoud: i };
 }
 
@@ -169,8 +169,8 @@ function besturing() {
 export const STUKLIJST = [
   ['-T1', '1', 'Netadapter 12 V DC, 6,67 A (80 W), C14, stekker 5,5 x 2,5 (+ midden)', 'Mean Well GST90A12-P1M'],
   ['-X5', '1', 'DC-chassisbus 5,5 x 2,5, 50 V / 8 A, soldeerlippen', 'GlobTek JACK-L-PANEL-8A(R)'],
-  ['-F1', '1', 'Zekeringhouder steekzekering ATO met draden + zekering 7,5 A, 32 V DC', 'Littelfuse FHAC0001ZXJ of gelijk'],
-  ['-R2', '1', 'Schottkydiode 5 A, 60 V (ompoolbeveiliging, pootjes in -X1:8 en -X2:8)', 'SB560'],
+  ['-F1', '1 + 1', 'Zekeringhouder 5 x 20 paneelmontage (in de achterwand) + zekering T 8 A', 'bv. Schurter FEU of gelijk'],
+  ['-R2', '1', 'Schottkydiode 10 A, 45 V (ompoolbeveiliging, pootjes in -X1:8 en -X2:8)', '10SQ045'],
   ['-X1, -X2', '4', 'Verbindingsklem 5-voudig, 0,2 tot 4 mm² (L+ en 0 V, telkens 2 samen)', 'WAGO 221-415'],
   ['-X3, -X7', '2', 'Verbindingsklem 5-voudig (+12 V sensoren, 3,3 V)', 'WAGO 221-415'],
   ['-X8', '16', 'Doorverbinder 1 + 1, 0,2 tot 4 mm² (polyfuse aan de − van het bordje)', 'WAGO 221-2411'],
@@ -237,7 +237,7 @@ alle.forEach((b, k) => { b.nr = k + 1; });
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   voor.inhoud = titelblad(PROJECT, [
     ['Klant', 'eigen gebruik (modelbaan)'], ['Tekeningnummer', PROJECT.tekeningnr], ['Fabrikant', 'zelfbouw met kant-en-klare modules'], ['Projectverantwoordelijke', 'Ian'],
-    ['Projectstart', '2026-11-08'], ['Projectnaam', 'Treinbaan, kabeldoos verlichting'], ['Revisie 3', '2026-11-13: kant-en-klare modules (versie 4)'], ['Revisie 4', '2026-11-15: één laag in 2 helften, aan/uit, hallsensoren (versie 5)'], ['Revisie 5', "2026-11-15: IR, servo's, NPN/PNP (versie 6, fase A)"],
+    ['Projectstart', '2026-11-08'], ['Projectnaam', 'Treinbaan, kabeldoos verlichting'], ['Revisie 3', '2026-11-13: kant-en-klare modules (versie 4)'], ['Revisie 4', '2026-11-15: één laag in 2 helften, aan/uit, hallsensoren (versie 5)'], ['Revisie 5', "2026-11-15: IR, servo's, NPN/PNP (versie 6, fase A)"], ['Revisie 6', '2026-11-16: advies Fable 5.2 (3 schakelingen van de ingangsprint, reflexsensoren, B3V3, zekeringen in de wand)'],
   ], [
     ['Installatie', '=TRN verlichting modelbaan'], ['Plaats', '+DOOS kabeldoos onder de baan'], ['Voedingsspanning', '230 V AC (in de netadapter) → 12 V DC'],
     ['Stuurspanning', '5 V DC en 3,3 V DC'], ['Beschermingsgraad', 'IP20 (binnen)'], ['Potentialen', 'J+, L+ en S12 12 V, L5 5 V, L3 3,3 V, M 0 V'], ['Bouwjaar', '2026'],
