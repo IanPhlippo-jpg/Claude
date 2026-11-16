@@ -5,7 +5,7 @@
  * hebben een gesloten kabelloop met overbrenging 1:1 of 2:1; de prijs ligt in de marktband of er staat een melding; alle
  * bladen zijn geldige SVG met een titelblok; geen hoofdstukken die in elkaar steken en geen zwevende onderdelen.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { TOESTELLEN, toestel } from '../../bibliotheek/fitness/catalogus.mjs';
 import { aabb, contact, lengteStuk, type Balk } from '../../bibliotheek/fitness/model.mjs';
 import { berekening } from '../../bibliotheek/fitness/bereken.mjs';
@@ -23,13 +23,21 @@ import { add, mul, sub } from '../../bibliotheek/fitness/model.mjs';
 import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
 import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
 import { buigPad, afronden } from '../../bibliotheek/fitness/vorm.mjs';
+import { nokFouten, lagerhuisFouten, laadpenFouten, inbedFouten, ontluchtFouten, uitslagFouten } from '../../bibliotheek/fitness/controle.mjs';
+import { bouwer } from '../../bibliotheek/fitness/model.mjs';
+import { PROFIEL, VERSIE } from '../../bibliotheek/fitness/onderdelen.mjs';
+import { plyobox } from '../../bibliotheek/fitness/opslag.mjs';
 
+// de volledige run (150 toestellen x versies) is zwaar: elke test krijgt 60 s (v6)
+vi.setConfig({ testTimeout: 60000 });
 const STANDEN = [0, 0.25, 0.5, 0.75, 1];
-// snelle standaardrun: per soort het eerste, het middelste en het laatste toestel, plus de toestellen in FITNESS_IDS
+// snelle standaardrun: per soort het eerste, het middelste en het laatste toestel, per bouwer en per variant van een
+// bouwer minstens één toestel (P2-22 v6), plus de toestellen in FITNESS_IDS
 // (bv. FITNESS_IDS=FM-05,FM-06 na een wijziging aan die toestellen). Alles: FITNESS_VOLLEDIG=1 (zo draait test:voorbeelden).
 const VOL = process.env.FITNESS_VOLLEDIG === '1';
 const EXTRA = (process.env.FITNESS_IDS ?? '').split(',').filter(Boolean);
-const TT = VOL ? TOESTELLEN : TOESTELLEN.filter((t) => { const z = TOESTELLEN.filter((x) => x.soort === t.soort), k = z.indexOf(t); return k === 0 || k === z.length - 1 || k === Math.floor(z.length / 2) || EXTRA.includes(t.id); });
+const PER_BOUWER = ['FS-03', 'FS-06', 'FS-12', 'FS-14', 'FM-05', 'FM-07', 'FM-08', 'FM-09', 'FM-13', 'FO-04', 'FO-05', 'FO-09', 'FO-12', 'FO-14', 'FO-16', 'FO-18', 'FO-21', 'FX-01', 'FX-03', 'FX-04', 'FX-05', 'FX-07', 'FX-09', 'FX-10', 'FX-11', 'FX-16', 'FX-17', 'FX-18', 'FX-24'];
+const TT = VOL ? TOESTELLEN : TOESTELLEN.filter((t) => { const z = TOESTELLEN.filter((x) => x.soort === t.soort), k = z.indexOf(t); return k === 0 || k === z.length - 1 || k === Math.floor(z.length / 2) || PER_BOUWER.includes(t.id) || EXTRA.includes(t.id); });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const VERSIES = ['thuis', 'pro'] as const;
@@ -51,11 +59,12 @@ function geldigeSvg(s: string): string | null {
 const isRecht = (g: Balk) => [g.u, g.v].every((d) => Math.max(...d.map(Math.abs)) > 0.9999);
 
 describe('catalogus', () => {
-  it('± 50 toestellen, goed verdeeld over de vier soorten, unieke nummers', () => {
-    expect(TOESTELLEN.length).toBeGreaterThanOrEqual(48);
+  it('± 150 toestellen, goed verdeeld over de acht soorten, unieke nummers', () => {
+    expect(TOESTELLEN.length).toBeGreaterThanOrEqual(150);
     const per: Record<string, number> = {};
     for (const t of TOESTELLEN) per[t.soort] = (per[t.soort] ?? 0) + 1;
     for (const s of ['rek', 'bank', 'kabel', 'plate']) expect(per[s], s).toBeGreaterThanOrEqual(10);
+    for (const s of ['selectorized', 'multigym', 'opslag', 'buiten']) expect(per[s], s).toBe(25);
     expect(new Set(TOESTELLEN.map((t) => t.id)).size).toBe(TOESTELLEN.length);
     for (const t of TOESTELLEN) expect(t.id).toMatch(/^F[RBKPSMOX]-\d\d$/);
   });
@@ -84,7 +93,8 @@ for (const t of TT) for (const v of VERSIES) {
     });
     it('stuklijst en bestellijst kloppen met het model', () => {
       const sl = stuklijst(o), zp = zaagplan(o, sl);
-      expect(sl.posities.reduce((s: number, p: any) => s + p.n, 0)).toBe(o.delen.length);
+      // een gezette plaat (v6, P1-11) is één positie voor al haar vlakken
+      expect(sl.posities.reduce((s: number, p: any) => s + p.n, 0)).toBe(o.delen.filter((d: any) => !d.deelVan).length + (o.gezet ?? []).length);
       expect(sl.posities.map((p: any) => p.pos)).toEqual(sl.posities.map((_: unknown, i: number) => i + 1));
       const staven = o.delen.filter((d: any) => d.soort === 'staaf').length;
       expect(zp.profielen.reduce((s, p) => s + p.stukken.length, 0)).toBe(staven);
@@ -105,7 +115,7 @@ for (const t of TT) for (const v of VERSIES) {
       expect(B.controles.filter((c) => c.groep === 'Sterkte').length, 'sterkte').toBeGreaterThan(0);
       expect(B.controles.some((c) => c.groep === 'Stabiliteit'), 'stabiliteit of verankering').toBe(true);
     });
-    if (t.soort === 'kabel') it('kabelmachine: gesloten kabelloop en overbrenging', () => {
+    if (t.soort === 'kabel' || t.soort === 'selectorized' || /^FM-(13|14|23|24)$/.test(t.id)) it('kabelmachine: gesloten kabelloop en overbrenging', () => {
       expect(o.kabels.length).toBeGreaterThan(0);
       const ids = new Set(o.katrollen.map((k: any) => k.id));
       for (const kb of o.kabels) {
@@ -236,13 +246,13 @@ describe('Fable 5.2 - functie en evenwicht (elke P1 met een negatieve proef)', (
     expect(haakFouten(o).join(' ')).toMatch(/één wand/);
     expect(haakFouten(o).join(' ')).toMatch(/geen U-beugel/);
     leegCache();
-  });
+  }, 60000);
   it('P1-02: de safety is monteerbaar (één doorlopende stang); negatief: twee pennen naar buiten in een gelast frame worden gemeld', () => {
     for (const o of alle()) expect(monteerFouten(o), o.id).toEqual([]);
     const o = toestel('FR-01', 'thuis'), S = o.delen.filter((d: any) => /^Staander/.test(d.naam) && d.groep === 'Zijframe L');
     const nep = { ...o, delen: [...o.delen, { id: 'x1', naam: 'Pen safety', groep: 'Oud', soort: 'staaf', P: { vorm: 'rond', b: 16 }, a: [S[0].a[0], 300, 800], b: [S[0].a[0], 230, 800], u: [0, -1, 0], in: S[0].id }, { id: 'x2', naam: 'Pen safety', groep: 'Oud', soort: 'staaf', P: { vorm: 'rond', b: 16 }, a: [S[0].a[0], 1200, 800], b: [S[0].a[0], 1270, 800], u: [0, 1, 0], in: S[1].id }] };
     expect(monteerFouten(nep).length).toBeGreaterThan(0);
-  });
+  }, 60000);
   it('P1-04: kabellengte van de functional trainer en de kabeltoren blijft gelijk in de laagste en hoogste wagenstand; negatief: de oude open loop verandert met de hele verstelweg', () => {
     for (const id of ['FK-04', 'FK-05']) for (const v of VERSIES) {
       const lo = toestel(id, v, { wagen: 3 }), hi = toestel(id, v, { wagen: 18 });
@@ -424,7 +434,7 @@ describe('fitness v5 fase A: pro-uiterlijk', () => {
     for (const t of TT) for (const v of VERSIES) {
       const o = toestel(t.id, v), armen = o.delen.filter((d: any) => /^Hefboomarm/.test(d.naam));
       if (t.soort === 'plate') for (const a of armen.filter((x: any) => x.rol === 'hefboom')) { expect(a.P.ovaal, `${t.id} ${v}`).toBe(true); expect(a.geo[0].r).toBe(Math.min(a.P.b, a.P.h) / 2); }
-      else for (const a of armen) expect(a.P.ovaal ?? false).toBe(false);
+      else if (t.soort !== 'selectorized') for (const a of armen) expect(a.P.ovaal ?? false).toBe(false); // v6 P3-01: FS-armen in vlakovaal
     }
     expect(toestel('FP-04', 'pro').koop.some((k: any) => k.key === 'kapOvaal')).toBe(true);
   });
@@ -458,18 +468,18 @@ describe('fitness v5 fase A: pro-uiterlijk', () => {
       expect(o.stijl?.accent).toMatch(/^#[0-9a-f]{6}$/);
     }
   });
-  it('logoplaat: gelaserd, zonder gaten, niet op een bewegend deel, vrij van botsingen, in de stuklijst en de DXF', () => {
+  it('logoplaat: gelaserd, op 2 lasbouten (2 gaten), niet op een bewegend deel, vrij van botsingen, in de stuklijst en de DXF', () => {
     let n = 0;
     for (const t of TT) for (const v of VERSIES) {
       const o = toestel(t.id, v), lp = o.delen.find((d: any) => d.naam === 'Logoplaat');
       if (!lp) continue;
       n++;
-      expect(lp.gaten.length).toBe(0); expect(lp.laser).toBe(true); expect(lp.t).toBe(3);
+      expect(lp.gaten.length).toBe(2); expect(lp.laser).toBe(true); expect(lp.t).toBe(3); // v6 P3-11: 2 gaten op lasbouten
       const host = o.delen.find((d: any) => d.id === lp.in);
       expect(/^(Hefboom|Slede|Wagen|Arm|Stang)/.test(host.groep)).toBe(false);
       expect(botsingen(o).filter((b: any) => b.a === 'Logoplaat' || b.b === 'Logoplaat')).toEqual([]);
       expect(stuklijst(o).posities.some((p: any) => p.naam === 'Logoplaat')).toBe(true);
-      expect(o.koop.some((k: any) => k.key === 'vhb')).toBe(true);
+      expect(o.koop.some((k: any) => k.key === 'lasbout')).toBe(true);
     }
     expect(n).toBeGreaterThanOrEqual(VOL ? 80 : 8);
   });
@@ -492,7 +502,7 @@ describe('fitness v5 fase A: pro-uiterlijk', () => {
     const k = kostprijs(toestel('FP-08', 'pro'));
     expect(k.regels.find((r: any) => r.cat === 'staal')!.wat).toMatch(/vlakovaalbuis x 1,5/);
     const koop = k.regels.filter((r: any) => r.cat === 'koop').map((r: any) => r.wat).join(' | ');
-    for (const re of [/Naafkap/, /Hardverchromen/, /VHB/, /Instructieplaat/]) expect(koop).toMatch(re);
+    for (const re of [/Naafkap/, /Hardverchromen/, /Lasbout/, /Instructieplaat/]) expect(koop).toMatch(re); // v6 P3-11: lasbouten i.p.v. VHB
     expect(geenNaN(JSON.stringify(k.regels))).toBe(true);
   });
 });
@@ -626,7 +636,7 @@ describe('fitness v5 fase B: varianten', () => {
     const n = (m: string) => toestel('FK-01', 'pro', { maat: m }).stapels[0].n;
     expect(n('compact')).toBe(n('standaard') - 4); expect(n('XL')).toBe(n('standaard') + 4);
     expect(toestel('FP-04', 'pro', { maat: 'XL' }).maat).toBe('standaard'); // geen maten: standaard
-    for (const id of ['FR-01', 'FR-02', 'FB-01', 'FK-01', 'FK-04']) for (const m of ['compact', 'XL']) for (const v of ['thuis', 'pro'] as const) {
+    for (const id of ['FR-01', 'FR-02', 'FB-01', 'FK-01', 'FK-04', 'FS-01', 'FS-13', 'FM-02', 'FO-01', 'FO-16', 'FX-01', 'FX-09']) for (const m of ['compact', 'XL']) for (const v of ['thuis', 'pro'] as const) {
       const o = toestel(id, v, { maat: m });
       expect(botsingen(o), `${id} ${m}`).toEqual([]); expect(zwevend(o)).toEqual([]); expect(kabelFouten(o)).toEqual([]);
       expect(berekening(o).controles.filter((c: any) => c.oordeel === 'rood').length, `${id} ${m}`).toBe(0);
@@ -692,7 +702,7 @@ describe('fitness v5 fase C: opslag in pro-vormtaal en buiten (EN 16630)', () =>
     }
     // monkey bars: sporten om 300 mm geven een vrije opening buiten 89-230 mm; de valtegels vervangen de valzone
     const m = toestel('FX-16', 'pro', { opties: ['valtegels'] });
-    expect(m.koop.some((k: any) => k.key === 'valtegel' && k.oppervlak > 10)).toBe(true);
+    expect(m.koop.some((k: any) => /^valtegel/.test(k.key) && k.oppervlak > 10)).toBe(true); // v6 P2-11: dikte naar de valhoogte
     expect(m.context.some((g: any) => g.kleur === 'valzone')).toBe(false);
     expect(berekening(m).controles.find((c: any) => /Openingen hoofd/.test(c.wat))?.formule).toMatch(/buiten|> 230/);
   });
@@ -703,5 +713,126 @@ describe('fitness v5 fase C: opslag in pro-vormtaal en buiten (EN 16630)', () =>
     const l = berekening(toestel('FX-09', 'pro'));
     expect(l.controles.some((c: any) => c.wat === 'Los werktuig')).toBe(true);
     expect(l.controles.some((c: any) => /Kantelen op 10°/.test(c.wat))).toBe(false);
+  });
+});
+
+describe('fitness v6: Fable 5.2 P1, elk met een negatieve proef', () => {
+  const NOK = TOESTELLEN.filter((t: any) => toestel(t.id, 'pro').nok?.as);
+  it('P1-01/02/03: de nok wikkelt op, de kabel blijft even lang, de stapel stijgt R·θ, de greep haalt de grens', () => {
+    expect(NOK.length).toBeGreaterThanOrEqual(17);
+    for (const t of NOK) for (const v of VERSIES) {
+      const o = toestel(t.id, v), o1 = toestel(t.id, v, { stand: 1 });
+      expect(nokFouten(o, o1), `${t.id} ${v}`).toEqual([]);
+      expect(Math.abs(o1.stapels[0].dz - o.nok.slag), `${t.id}: stapel stijgt R·θ`).toBeLessThanOrEqual(1);
+    }
+    // negatief: de nok de andere kant op, de kabel langer in stand 1, te weinig kracht, de oude stapelweg
+    const o = toestel('FS-01', 'pro'), o1 = toestel('FS-01', 'pro', { stand: 1 });
+    expect(nokFouten({ ...o, nok: { ...o.nok, zin: -o.nok.zin } }, o1).some((x: string) => /draait van het raakpunt weg/.test(x))).toBe(true);
+    expect(nokFouten(o, { ...o1, kabels: o1.kabels.map((k: any) => ({ ...k, L: k.L + 50 })) }).some((x: string) => /kabellengte/.test(x))).toBe(true);
+    expect(nokFouten({ ...o, nok: { ...o.nok, kracht: o.nok.grens - 1 } }).some((x: string) => /grens/.test(x))).toBe(true);
+    expect(nokFouten({ ...o, nok: { ...o.nok, slag: 600 } }).some((x: string) => /stapelweg/.test(x))).toBe(true);
+  });
+  it('P1-02/03: kabelstations 1:1 of 2:1 naar de grens; greepweg FS-02 en FS-09 ≥ 380 mm', () => {
+    for (const t of TOESTELLEN.filter((x: any) => x.soort === 'selectorized')) for (const v of VERSIES) {
+      const o = toestel(t.id, v), K = o.nok ?? o.kracht;
+      expect(K.kracht, `${t.id} ${v}`).toBeGreaterThanOrEqual(K.grens);
+      const c = berekening(o).controles.find((x: any) => x.groep === 'Krachtsverhouding');
+      expect(c?.oordeel, t.id).not.toBe('info');
+    }
+    for (const id of ['FS-02', 'FS-09']) expect(toestel(id, 'pro').nok.greepweg, id).toBeGreaterThanOrEqual(380);
+    expect(toestel('FS-13', 'pro').kracht.overbrenging).toBe(1);
+    // negatief: de oude lat pulldown (2:1, 100 kg) gaf 50 kg aan de stang
+    expect(100 / 2).toBeLessThan(toestel('FS-13', 'pro').kracht.grens);
+  });
+  it('P1-04: het lagerhuis is uit te draaien tot de boring', () => {
+    for (const id of ['FS-01', 'FS-12', 'FK-08', 'FK-10']) expect(lagerhuisFouten(toestel(id, 'pro')), id).toEqual([]);
+    const o = toestel('FS-01', 'pro');
+    expect(lagerhuisFouten({ ...o, delen: [{ naam: 'Lagerhuis', boring: 44, P: { b: 60.3, t: 8 } }] }).length).toBe(1);
+  });
+  it('P1-05: dipgrepen Ø42,4 x 4 met berekening, 2 pennen en een U-zadel; Ø32 zou te zwak zijn', () => {
+    for (const id of ['FM-09', 'FM-11', 'FM-17', 'FM-21', 'FM-22']) for (const v of VERSIES) {
+      const o = toestel(id, v), B = berekening(o);
+      expect(o.delen.filter((d: any) => d.naam === 'Dipgreep').every((d: any) => d.prof === 'b42x4'), id).toBe(true);
+      expect(o.delen.filter((d: any) => d.naam === 'Dip wang').length, id).toBe(2);
+      expect(o.pennen.filter((p: any) => /^Dip pen/.test(p.naam)).length, id).toBe(2);
+      expect(B.controles.filter((c: any) => /Dipgreep|Dipbeugel|Dip pen/.test(c.wat)).length, id).toBeGreaterThanOrEqual(4);
+      expect(B.controles.filter((c: any) => /Dipgreep|Dipbeugel|Dip pen/.test(c.wat) && c.oordeel === 'rood'), id).toEqual([]);
+      expect(o.lasten.some((l: any) => l.geval === 'dip'), id).toBe(true);
+    }
+    // negatief: dezelfde last op de oude greep Ø32 x 3,2
+    const s = (2.5 * 150 * 9.81 * 400) / (PROFIEL as any).b32x3.W;
+    expect(s).toBeGreaterThan(235);
+  });
+  it('P1-06/07/08: laadpaal te laden, log ≤ 0,5 x de last, stenenplatform zwaar genoeg', () => {
+    for (const t of TOESTELLEN.filter((x: any) => x.soort === 'buiten' && !x.cfg?.palen)) for (const v of VERSIES) expect(laadpenFouten(toestel(t.id, v)), `${t.id} ${v}`).toEqual([]);
+    const lp = toestel('FX-04', 'pro');
+    expect(laadpenFouten({ ...lp, delen: lp.delen.map((d: any) => ({ ...d, los: false })) }).length).toBeGreaterThan(0);
+    for (const id of ['FX-09', 'FX-10', 'FX-04']) for (const v of VERSIES) { const o = toestel(id, v); expect(o.massa, `${id} ${v}`).toBeLessThanOrEqual(0.5 * o.maxLast); }
+    expect(101).toBeGreaterThan(0.5 * toestel('FX-09', 'thuis').maxLast); // negatief: de oude log (101 kg) bij 100 kg
+    const st = toestel('FX-11', 'pro'), Bs = berekening(st);
+    expect(st.massa).toBeGreaterThanOrEqual(150);
+    for (const w of ['Steen op 100 mm van de rand', 'Deksel 8 mm']) expect(Bs.controles.find((c: any) => c.wat.startsWith(w))?.benut, w).toBeLessThanOrEqual(1);
+    const oud = (1.5 * 0.3 * 200 * 9.81 * 1.15) / (82 * 9.81 * 0.4 + 200 * 9.81 * 0.1); // het oude platform (82 kg, 800 breed)
+    expect(oud).toBeGreaterThan(1);
+  });
+  it('P1-09/10: palen 600 mm in een poer onder het maaiveld, funderingsplan, ontluchting voor het verzinken', () => {
+    for (const t of TOESTELLEN.filter((x: any) => x.soort === 'buiten' && x.cfg?.palen)) for (const v of VERSIES) {
+      const o = toestel(t.id, v);
+      expect(inbedFouten(o), `${t.id} ${v}`).toEqual([]);
+      expect(ontluchtFouten(o), `${t.id} ${v}`).toEqual([]);
+      const f = alleBladen(o).find((x: any) => x.id === 'fundering');
+      expect(f, t.id).toBeTruthy(); expect(geldigeSvg(f!.svg)).toBeNull(); expect(f!.svg).toMatch(/600 in beton/);
+    }
+    const o = toestel('FX-12', 'pro');
+    expect(inbedFouten({ ...o, context: o.context.map((g: any) => (g.kleur === 'beton' ? { ...g, a: [g.a[0], g.a[1], -300], b: [g.b[0], g.b[1], -900] } : g)) }).length).toBeGreaterThan(0);
+    expect(ontluchtFouten({ ...o, delen: o.delen.map((d: any) => ({ ...d, gaten: [], kappen: [false, false] })) }).length).toBeGreaterThan(0);
+  });
+  it('P1-11: gezette platen zijn één positie met een uitslag en zetlijnen in de DXF', () => {
+    for (const id of ['FO-01', 'FO-04', 'FO-05', 'FO-16', 'FO-20', 'FS-01', 'FK-01']) {
+      const o = toestel(id, 'pro'), dx = dxfBestanden(o);
+      expect(o.gezet.length, id).toBeGreaterThan(0);
+      expect(uitslagFouten(o), id).toEqual([]);
+      for (const g of o.gezet) {
+        const d = dx.find((x: any) => x.pos === g.pos.pos);
+        expect(d?.dxf, `${id} ${g.naam}`).toMatch(/ZETLIJN/);
+        expect(d!.dxf).not.toMatch(/\$INSUNITS/);
+      }
+    }
+    const v = toestel('FO-01', 'pro').gezet[0], som = v.zetlijnen.reduce((s: number, z: any) => s + z.ba, 0);
+    expect(Math.abs(v.bmaat - (2 * (Math.hypot(230 / 2, 70) - 2) + som))).toBeLessThan(3);
+    const o = toestel('FO-04', 'pro');
+    expect(uitslagFouten({ ...o, gezet: [], delen: o.delen.map((d: any) => ({ ...d, deelVan: undefined, opm: /^Bak/.test(d.naam) ? 'gezette bak' : d.opm })) }).length).toBeGreaterThan(0);
+  });
+  it('P1-12: plyobox taps, deksel 4 mm op 3 ribben; landing op de rand houdt, de oude box niet', () => {
+    for (const id of ['FO-16', 'FO-17']) {
+      const o = toestel(id, 'pro'), B = berekening(o);
+      expect(o.delen.filter((d: any) => d.naam === 'Ribbe').length).toBe(3);
+      for (const w of ['Landing op de rand', 'Deksel 4 mm']) expect(B.controles.find((c: any) => c.wat.startsWith(w))?.benut, `${id} ${w}`).toBeLessThanOrEqual(1);
+    }
+    const b = bouwer((VERSIE as any).pro, 0); b.o.opties = {};
+    plyobox(b, {}, { maat: [600, 500, 500], taps: 0, td: 3 });
+    expect(b.o.toetsen.filter((t: any) => t.benut > 1).length).toBe(2);
+  });
+});
+
+describe('fitness v6: steekproef per bouwer, opties per reeks en een negatieve proef per nieuwe bouwer (P2-22, P2-24)', () => {
+  it('opties per reeks: valtegels alleen buiten (EN 16630), klemmen alleen strongman; FS/FM/FO met alle opties botsingsvrij', () => {
+    expect(toestel('FX-01', 'pro', { opties: ['valtegels', 'klemmen'] }).gekozenOpties.map((x: any) => x.id)).toEqual(['klemmen']);
+    expect(toestel('FX-16', 'pro', { opties: ['valtegels', 'klemmen'] }).gekozenOpties.map((x: any) => x.id)).toEqual(['valtegels']);
+    for (const [id, opt] of [['FS-01', ['grepenset', 'fijnstapel']], ['FM-02', ['opslag', 'bandpinnen', 'grepenset']], ['FS-13', ['grepenset', 'fijnstapel']]] as const) {
+      const o = toestel(id, 'pro', { opties: [...opt] });
+      expect(botsingen(o), id).toEqual([]); expect(zwevend(o), id).toEqual([]);
+    }
+  });
+  it('negatieve proef: de controles vinden een fout in een model van elke nieuwe bouwer', () => {
+    for (const id of ['FS-01', 'FS-03', 'FS-06', 'FS-12', 'FS-13', 'FM-02', 'FM-07', 'FM-09', 'FM-13', 'FO-01', 'FO-04', 'FO-09', 'FO-12', 'FO-14', 'FO-16', 'FO-18', 'FX-01', 'FX-03', 'FX-04', 'FX-07', 'FX-09', 'FX-11', 'FX-12', 'FX-16', 'FX-18', 'FX-24']) {
+      const o = toestel(id, 'pro'), d = o.delen.find((x: any) => x.soort === 'staaf' && x.geo.length === 1 && !x.pad) ?? o.delen[0];
+      // een kopie van een stuk 20 mm verschoven: steekt in het origineel
+      const kopie = { ...d, id: 'x-kopie', naam: 'Kopie', in: null, groep: 'kopie', geo: d.geo.map((g: any) => ({ ...g, a: add(g.a, [20, 0, 0]), b: add(g.b, [20, 0, 0]) })) };
+      expect(botsingen({ ...o, lassen: [], delen: [...o.delen, kopie] }).length, id).toBeGreaterThan(0);
+      // een stuk 500 mm boven alles: zweeft
+      const los = { ...d, id: 'x-los', naam: 'Los', geo: d.geo.map((g: any) => ({ ...g, a: add(g.a, [0, 0, 5000]), b: add(g.b, [0, 0, 5000]) })) };
+      expect(zwevend({ ...o, delen: [...o.delen, los] }).length, id).toBeGreaterThan(0);
+    }
   });
 });

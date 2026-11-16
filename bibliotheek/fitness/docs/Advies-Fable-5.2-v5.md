@@ -283,3 +283,62 @@ Gemeten (standaardinstellingen, incl. btw, tegenover de bovenkant van de marktba
 10. P2-22 tests: 24 van 150 in de snelle run, geen enkele negatieve proef en geen kabelloop-test voor de nieuwe reeksen.
 
 Bronnen normpunten EN 16630 (samenvattingen, geen normtekst): tolymp.de/en/your-topics, sportsequip.co.uk (BS EN 16630), sunshinegym.co.uk (buyers guide), standards.iteh.ai (prEN 16630:2025).
+
+---
+
+## Verwerking in v6 (2026-11-16)
+
+Status: **gedaan**, **deels** (wat ontbreekt, staat erbij), **keuze Ian** (bedrijfskeuze, niet geschrapt) of **niet**. Elke P1 heeft een test met een negatieve proef (`src/qa/qaFitness.test.ts`, describe "fitness v6").
+
+| Punt | Status | Wat | Bestand |
+|---|---|---|---|
+| P1-01 | gedaan | raakpunt en vloerkatrol aan de kant waar de nok opwikkelt (ook FK-08 had de fout); controle `nokFouten` | selectorized.mjs, kabel.mjs, controle.mjs |
+| P1-02 | gedaan | nok R = grens · L / stapel, grens per oefening (AANNAME merkwaarden), stapel 20/24/28 x 5 kg; kabelstations 1:1 (lat, row) of 2:1 (arm, romp); toets met oordeel | selectorized.mjs |
+| P1-03 | gedaan | stapelweg = R·θ (ook FK-10), opgewikkelde kabel: lengte gelijk in stand 0 en 1; FS-02 greepweg 447 mm, FS-09 391 mm | selectorized.mjs, kabel.mjs, model.mjs |
+| P1-04 | gedaan | lagerhuis Ø70 x 12 E355 (binnen 46) → Ø50 H7 voor GFM-4550, as Ø45; FK Ø60,3 x 10 → Ø44 H7; controle `lagerhuisFouten` | selectorized.mjs, kabel.mjs, onderdelen.mjs |
+| P1-05 | gedaan | U-zadel (rugplaat + wangen), 2 pennen Ø25/16 op 150 mm, greep Ø42,4 x 4, berekening en belastinggeval dip | rigs.mjs |
+| P1-06 | gedaan | afneembare T-greep (stift Ø25 + borgveer); controle `laadpenFouten` | buiten.mjs |
+| P1-07 | gedaan | log 1,2 m in Ø273 x 4 (thuis Ø219 x 3): 52 / 35 kg leeg | buiten.mjs |
+| P1-08 | gedaan | eigen bouwer: frame 80 x 80 x 4, deksel 8 mm + rubbermat 20 mm, 1 x 1 m, 237 kg; toetsen steen op de rand en deksel | buiten.mjs |
+| P1-09 | gedaan | paal 600 mm in een poer 500 x 500 x 800, bovenkant −200; funderingsplan (A3); controle `inbedFouten` | buiten.mjs, tekeningen.mjs |
+| P1-10 | gedaan | 2 ontluchtingsgaten per holle ruimte, kopkap na het verzinken; controle `ontluchtFouten` | buiten.mjs, controle.mjs |
+| P1-11 | gedaan | gezette plaat = één positie met uitslag (K = 0,4) en zetlijnen: V-goot, bak, mantel, kabelgoot, zijkap, bovenkap; DXF-laag ZETLIJN; zetblad; venster in de stapelkap-DXF; nokkap vlak met kantband | model.mjs, vorm.mjs, stuklijst.mjs, dxf.mjs, tekeningen.mjs, opslag.mjs, kabel.mjs, pro.mjs |
+| P1-12 | gedaan | taps (100 mm per zijde), deksel 4 mm op 3 ribben, rubberen rand, toetsen landing op de rand en deksel | opslag.mjs |
+| P2-01 | gedaan | naafbus Ø70 x 12 onder elke arm; toets as buiging + torsie (von Mises) en las nok op as | selectorized.mjs |
+| P2-02 | gedaan | zitting op een veerpen (verstelbaar), instelschijf met 6 gaten, aanslagen met rubberbuffers | selectorized.mjs |
+| P2-03 | deels | rol op 404 mm van de knieas; de arm is nog niet verstelbaar | selectorized.mjs |
+| P2-04 | keuze Ian | FS-13..22, 25 blijven (samenvoegen = schrappen) | - |
+| P2-05 | gedaan | vloerankers op elk vrijstaand rig, belastinggeval kippen, notitie op het typeplaatje | rigs.mjs, tekeningen.mjs |
+| P2-06 | gedaan | eigen ladder: 2 kokers met kopplaten tussen de staanders gebout, sporten ertussen | rigs.mjs |
+| P2-07 | gedaan | ophangbalk aan beide kanten gebout, berekend op 2 schommelende gebruikers | rigs.mjs |
+| P2-08 | gedaan | pen 450 mm, jukbalk verstelbaar per 50 mm (2 pennen), Hardox-sleepstrips, schetsplaten | buiten.mjs |
+| P2-09 | deels | duwkracht μ·(last + slee), duwpaal 60 x 60 x 4, UHMW-slijtstrip, bodem 6 mm op 2 ribben; uitneembare duwpalen niet | buiten.mjs |
+| P2-10 | gedaan | greep 180 mm vrij, frame 720 breed, stalen voetplaat | buiten.mjs |
+| P2-11 | gedaan | klimzone (stang of ladder vanaf 2 m: geen aftrek), tegeldikte 45/60/80 mm naar de valhoogte | buiten.mjs, opties.mjs |
+| P2-12 | gedaan | openingen met palen en ladderliggers, eigen vingertoets 8-25 mm, sleuven 6 mm | buiten.mjs |
+| P2-13 | gedaan | Mp = Kp·γ·b·(D³ − d³)/12, 50 % horizontaal, poer 500 x 500 x 800 | bereken.mjs |
+| P2-14 | gedaan | palen Ø114,3 x 4 (pro) en Ø88,9 x 4 (thuis) | buiten.mjs |
+| P2-15 | deels | € 25 per bocht + € 100 instellen (buis tot Ø60: € 30), matrijs-AANNAME op het stukblad; R per buigerij pas na een offerte | prijzen.mjs, tekeningen.mjs |
+| P2-16 | gedaan | W x 0,85 voor gebogen stukken (lat-arm thuis/semi zwaarder) | bereken.mjs, selectorized.mjs, kabel.mjs |
+| P2-17 | gedaan | kolom richting (L/R), terugvering en ovaliteit op het stukblad | tekeningen.mjs |
+| P2-18 | deels | controle "aansluitingen op vlakovaal" met de oplossing (zadelplaat); de zadelplaten zelf nog niet getekend | bereken.mjs |
+| P2-19 | gedaan | wand-DXF per koker voor de buislaser (STEP kan het model niet maken), instelling buislaser € 0,40 per gat | dxf.mjs, prijzen.mjs |
+| P2-20 | gedaan | materiaal uit het profiel (S355/C45/E355 met 3.1-certificaat), $INSUNITS weg | onderdelen.mjs, stuklijst.mjs, dxf.mjs |
+| P2-21 | gedaan | norm per soort (EN 16630, strongman, opslag), EN ISO 13920-BF, materiaal verzinkt; funderingsplan, zetbladen | blad.mjs, tekeningen.mjs |
+| P2-22 | gedaan | steekproef per bouwer, kabelloop FS/FM, maten en opties op de nieuwe reeksen, negatieve proef per bouwer | qaFitness.test.ts |
+| P2-23 | keuze Ian | semi-pro blijft een prijslijn | - |
+| P2-24 | gedaan | opties per reeks: valtegels (buiten), klemmen (strongman) | opties.mjs, web, presentatie |
+| P2-25 | gedaan | verpakking en handleiding niet dubbel, overhead per grootteklasse, minder lasuren opslag, plaatsing en keuring buiten, marges nieuwe soorten; tabel € 45 / 60 / 65 | prijzen.mjs, catalogus.mjs, opslag.mjs, docs/Marktprijzen.md |
+| P2-26 | gedaan | klantmodus (`?klant`, klant.html): geen werkplaats, instellingen, kostprijs of marktband; presentatie zonder marktband | web/index.html, maak-web.mjs, presentatie/app.mjs |
+| P2-27 | deels | keuring EN 16630 in de prijs, aansprakelijkheid in de docs; verzekering afsluiten = Ian | prijzen.mjs |
+| P3-01 | deels | armen in vlakovaal, nok als segment, nokkap dicht; ruggengraat, lagerschild en gesloten voet niet | selectorized.mjs |
+| P3-02 | deels | latstang gekarteld in plaats van wit; zitting niet verplaatst | selectorized.mjs |
+| P3-03 | deels | schetsplaat met rond gat aan de voet (bovenaan zitten de bouten); voetflens en genummerde gaten niet | rigs.mjs |
+| P3-04 | niet | muurrigs zonder achterstaanders: andere constructie, eerst kiezen | - |
+| P3-05 | niet | functional trainer met boog: nog niet | - |
+| P3-06 | deels | zijplaat trapvorm (schuine voorkant); kopligger blijft | opslag.mjs |
+| P3-07 | niet | kruisvoet: in strijd met de vorige opdracht (basisplaat gevraagd); kost is gedocumenteerd | - |
+| P3-08 | gedaan | gedraaide eindkap Ø56 met kraag in de accentkleur | opslag.mjs |
+| P3-09 | gedaan | laadpennen zwart, schetsplaten op het juk | pro.mjs, buiten.mjs |
+| P3-10 | gedaan | bolle kopkap, infobord op de bank, stangen RVS 1.4404 (pro) | buiten.mjs, onderdelen.mjs |
+| P3-11 | gedaan | logo- en zijplaten op 2 lasbouten M5 | pro.mjs |

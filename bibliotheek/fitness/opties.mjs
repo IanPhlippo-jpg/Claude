@@ -9,6 +9,8 @@ export const AFWERKING = { leer: 'zwart', chroom: true, logo: true };
 /** standaardkleuren zonder meerprijs (andere RAL-kleuren: kleine reeks bij de lakkerij, AANNAME + 20 % op het coaten) */
 export const RAL_STANDAARD = ['9005', '7016', '7021', '9006'];
 
+/** de soort voor de opties: de reeks bij strongman/buiten, anders de soort */
+export const optieSoort = (def) => def.optiesSoort ?? def.soort;
 /** de opties per soort: id, naam, uitleg */
 export const OPTIES = {
   rek: [
@@ -31,9 +33,12 @@ export const OPTIES = {
     { id: 'bandpinnen', naam: 'Bandpinnen', uitleg: '2 pinnen Ø30 onderaan voor weerstandsbanden' },
     { id: 'grepenset', naam: 'Grepenset', uitleg: 'touw, 2 D-grepen, enkelband en 2 karabiners' },
   ],
-  buiten: [
-    { id: 'valtegels', naam: 'Valtegels', uitleg: 'valdempende rubbertegels EN 1177 in de hele valruimte (buitentoestellen)' },
-    { id: 'klemmen', naam: 'Schijfklemmen', uitleg: '2 snelsluitklemmen Ø50 per laadpen (strongman)' },
+  // per reeks (P2-24 v6): strongman en buiten (EN 16630) hebben elk hun eigen opties
+  park: [
+    { id: 'valtegels', naam: 'Valtegels', uitleg: 'valdempende rubbertegels EN 1177 in de hele valruimte, dikte naar de valhoogte' },
+  ],
+  strongman: [
+    { id: 'klemmen', naam: 'Schijfklemmen', uitleg: '2 snelsluitklemmen Ø50 per laadpen' },
   ],
   plate: [
     { id: 'opslag', naam: 'Schijvenopslag', uitleg: '2 schijfhouders Ø50 op het voetframe' },
@@ -49,11 +54,11 @@ function vrij(o, g, behalve = []) {
 
 /** de opties van toestel def op bouwer b (na de bouw en het pro-uiterlijk, vóór afwerken) */
 export function optiesBouwen(b, def) {
-  const o = b.o, gekozen = new Set(o.opties?.opties ?? []), lijst = OPTIES[def.soort] ?? [], oud = b.huidig;
+  const o = b.o, gekozen = new Set(o.opties?.opties ?? []), lijst = OPTIES[optieSoort(def)] ?? [], oud = b.huidig;
   o.gekozenOpties = [];
   for (const opt of lijst) {
     if (!gekozen.has(opt.id)) continue;
-    const ok = BOUW[`${def.soort}:${opt.id}`]?.(b, def) ?? false;
+    const ok = BOUW[`${optieSoort(def)}:${opt.id}`]?.(b, def) ?? false;
     o.gekozenOpties.push({ ...opt, gelukt: ok !== false, melding: ok === false ? 'past niet op dit toestel (geen vrije plaats)' : '' });
   }
   b.groep(oud);
@@ -108,15 +113,16 @@ const BOUW = {
   'selectorized:fijnstapel': (b) => BOUW['kabel:fijnstapel'](b),
   'multigym:opslag': (b) => BOUW['rek:opslag'](b),
   // valtegels: de hele valruimte (EN 16630) in rubbertegels van 45 mm
-  'buiten:valtegels': (b) => {
+  'park:valtegels': (b) => {
     const o = b.o; if (!o.valruimte) return false;
     const z = o.context.findIndex((g) => g.kleur === 'valzone'); const vz = z >= 0 ? o.context.splice(z, 1)[0] : null;
     const box = o.delen.flatMap((d) => d.geo).map(aabb), mn = [0, 1].map((i) => Math.min(...box.map((q) => q[0][i]))), mx = [0, 1].map((i) => Math.max(...box.map((q) => q[1][i]))), X0 = o.valruimte.X;
     const w = mx[0] - mn[0] + 2 * X0, d = mx[1] - mn[1] + 2 * X0;
-    b.koop('valtegel', 1, [balk([(mn[0] + mx[0]) / 2 - w / 2, (mn[1] + mx[1]) / 2, 22.5], [(mn[0] + mx[0]) / 2 + w / 2, (mn[1] + mx[1]) / 2, 22.5], [0, 1, 0], d, 45, false, 'valtegel')], { naam: `Valtegels EN 1177 45 mm in de valruimte (${(w / 1000).toFixed(1).replace('.', ',')} x ${(d / 1000).toFixed(1).replace('.', ',')} m)`, oppervlak: Math.round((w * d) / 1e4) / 100, groep: 'afwerking' });
+    const Y0 = o.valruimte.Y, dt = Y0 <= 1600 ? 45 : Y0 <= 2100 ? 60 : 80, key = dt === 45 ? 'valtegel' : `valtegel${dt}`; // EN 1177: dikte naar de kritische valhoogte (P2-11)
+    b.koop(key, 1, [balk([(mn[0] + mx[0]) / 2 - w / 2, (mn[1] + mx[1]) / 2, dt / 2], [(mn[0] + mx[0]) / 2 + w / 2, (mn[1] + mx[1]) / 2, dt / 2], [0, 1, 0], d, dt, false, 'valtegel')], { naam: `Valtegels EN 1177 ${dt} mm in de valruimte (${(w / 1000).toFixed(1).replace('.', ',')} x ${(d / 1000).toFixed(1).replace('.', ',')} m)`, oppervlak: Math.round((w * d) / 1e4) / 100, groep: 'afwerking' });
     void vz; return true;
   },
-  'buiten:klemmen': (b) => {
+  'strongman:klemmen': (b) => {
     const n = b.o.delen.filter((d) => d.naam === 'Laadpen').length; if (!n) return false;
     b.koop('kraagklem', 2 * n, [], { naam: `Snelsluitklem Ø50 (lock-jaw), 2 per laadpen (${n} laadpennen)`, groep: 'afwerking' }); return true;
   },

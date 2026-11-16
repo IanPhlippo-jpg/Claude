@@ -9,3 +9,4 @@ export declare function massa(d: any): number;
 export declare function add(a: number[], b: number[]): number[];
 export declare function sub(a: number[], b: number[]): number[];
 export declare function mul(a: number[], k: number): number[];
+export declare function bouwer(V: any, stand?: number): any;

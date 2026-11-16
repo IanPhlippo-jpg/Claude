@@ -24,9 +24,19 @@ export function rigBouw(b, def, c) {
     b.groep(`Zijframe ${i + 1}`);
     const voet = b.staaf('Voetbalk', 'voet', [x, c.muur ? yf - 150 : 0, a / 2], [x, yb + (c.muur ? 0 : 200), a / 2]);
     const f = staander(b, 'Staander voor', 'staander', x, yf, a, H, westsideGaten(b, a, H)), bk = staander(b, 'Staander achter', 'staander', x, yb, a, H, westsideGaten(b, a, H));
-    ligger(b, 'Bovenligger zijkant', 'ligger', f, bk, { z: H - a / 2 });
-    if (pro(b) || c.muur) ankers(b, voet);
-    st.push({ x, voet, f, b: bk });
+    const zl = ligger(b, 'Bovenligger zijkant', 'ligger', f, bk, { z: H - a / 2 });
+    ankers(b, voet); // P2-05 v6: ook thuis verankerd (kippen, ringen)
+    st.push({ x, voet, f, b: bk, zl });
+  }
+  // P3-03 v6: schetsplaat 8 mm met een rond gat tussen staander en voetbalk van de buitenste zijframes (buitenkant);
+  // bovenaan zitten de bouten van de optrekstang en de bovenligger, daar komt geen plaat
+  for (const [i, sx] of [[0, -1], [n, 1]]) {
+    const S = st[i], xp = S.x + sx * (a / 2 + 4);
+    b.groep(`Zijframe ${i + 1}`);
+    for (const [y0, sy] of [[yf, 1], [yb, -1]]) {
+      const yi = y0 + sy * (a / 2), pts = [[y0 - sy * (a / 2), 0], [yi + sy * 200, 0], [yi + sy * 200, a, 30], [yi, a + 200, 30], [y0 - sy * (a / 2), a + 200]];
+      b.contour('Schetsplaat hoek', [xp, 0, 0], [0, 1, 0], [0, 0, 1], 8, sy > 0 ? pts : pts.reverse(), { banden: 8, gaten: [{ x: yi + sy * 62, y: a + 62, d: 30 }], opm: 'schetsplaat 8 mm op de buitenkant, afgeronde punt en een rond gat Ø30 (merkuiterlijk), rondom gelast' });
+    }
   }
   // liggers per vak: vooraan een optrekstang (of een gewone ligger), achteraan een bovenligger; onderaan dwars op de voeten
   for (let i = 0; i < n; i++) {
@@ -43,7 +53,10 @@ export function rigBouw(b, def, c) {
     b.o.pronk = b.o.pronk ?? [];
     for (const s of st) for (const [dx, z] of [[-35, 450], [35, 450], [-35, 650], [35, 650]]) b.o.pronk.push(balk([s.x + dx, yb + a / 2 - 9, z], [s.x + dx, yb + a / 2 - 1, z], X, 19, 19, false, 'zink', { zes: true }), balk([s.x + dx, yb + a / 2 - 1, z], [s.x + dx, yb + a / 2, z], X, 26, 26, true, 'ring'));
     b.koop('keilbout', 4 * st.length, [], { naam: 'Keilbout M12 x 120 verzinkt in beton (muurplaten)', groep: 'afwerking' }); }
-  else b.o.verankerd = pro(b) ? 'vloer' : null;
+  else b.o.verankerd = 'vloer';
+  // P2-05 v6: zwaaien/kippen aan de optrekstang (0,5 x gebruiker horizontaal, AANNAME): alleen verankerd
+  b.trekLast('Kippen aan de optrekstang (0,5 x gebruiker)', 0.5 * V.gebruiker * 9.81, [xs(0) + wi / 2, yf, H - 70], [0, -1, 0]);
+  b.o.notities.push('Kipping, muscle-ups en ringen alleen met de 4 vloerankers per zijframe (typeplaatje).');
   // J-hooks en safety\'s in het eerste vak
   if (extra.has('jhooks')) {
     const zj = gatZ(st[0].f, 1350), zs = gatZ(st[0].f, 800);
@@ -54,15 +67,27 @@ export function rigBouw(b, def, c) {
   // monkey bars: sporten Ø35 tussen de bovenliggers voor en achter, om de 300 mm, in elk vak
   if (extra.has('monkey')) {
     b.groep('Monkey bars');
-    for (let i = 0; i < n; i++) if (i % 2 === 1 && !(i === n - 1 && extra.has('ringen'))) for (let x = xs(i) + a / 2 + 150; x < xs(i + 1) - a / 2 - 100; x += 300) b.staaf('Sport monkey bar', 'optrek', [x, yf + b.P('optrek').b / 2 - 1, H - 70], [x, yb - a / 2, H - a / 2 - 55], { opm: 'tussen de bovenliggers gelast; kartel', kap: false });
+    // P2-06 v6: eigen ladder per vak: 2 liggers (koker, met kopplaten tussen de staanders gebout) en sporten ertussen
+    const zm = H - 300, Pl = b.P('licht');
+    for (let i = 0; i < n; i++) if (i % 2 === 1 && !(i === n - 1 && extra.has('ringen'))) {
+      const L = st[i], Rr = st[i + 1];
+      ligger(b, 'Ladderligger voor', 'licht', L.f, Rr.f, { z: zm }, { bout: true, groep: `Monkey bars ${i + 1}` });
+      ligger(b, 'Ladderligger achter', 'licht', L.b, Rr.b, { z: zm }, { bout: true, groep: `Monkey bars ${i + 1}` });
+      b.groep(`Monkey bars ${i + 1}`);
+      for (let x = xs(i) + a / 2 + 150; x < xs(i + 1) - a / 2 - 100; x += 300) b.staaf('Sport monkey bar', 'optrek', [x, yf + Pl.b / 2, zm], [x, yb - Pl.b / 2, zm], { opm: 'door de ladderliggers gestoken en gelast; kartel', kap: false });
+      b.groep('Monkey bars');
+    }
+    { const sp = b.o.delen.find((d) => d.naam === 'Sport monkey bar'); if (sp) b.reken('Sport monkey bar (gebruiker hangt eraan)', sp, 'ligger', D - Pl.b, V.gebruiker, { proef: 'intrinsiek' }); const ll = b.o.delen.find((d) => d.naam === 'Ladderligger voor'); if (ll) b.reken('Ladderligger (2 gebruikers)', ll, 'ligger', wi, V.gebruiker, { proef: 'intrinsiek' }); }
     b.groep('frame');
   }
   // ophangbalk met 2 ringen (gymnastiekringen aan straps) in het laatste vak
   if (extra.has('ringen')) {
     const L = st[n - 1], R = st[n];
     b.groep(`Zijframe ${n + 1}`);
-    b.staaf('Ophangbalk', 'ligger', [L.x + a / 2, (yf + yb) / 2, H - a / 2], [R.x - a / 2, (yf + yb) / 2, H - a / 2], { opm: 'tussen de zijliggers gelast (rechts) en gebout (links, 2 x M16)' });
+    // P2-07 v6: ophangbalk aan beide kanten gebout (kopplaten 2 x M16), berekend op 2 gebruikers die schommelen
+    const ob = ligger(b, 'Ophangbalk', 'ligger', L.zl, R.zl, { y: (yf + yb) / 2, z: H - a / 2 }, { bout: true, groep: 'Ophangbalk', as: 0 });
     b.groep('frame');
+    b.reken('Ophangbalk (2 gebruikers aan de ringen, schommelen)', ob, 'ligger', wi, 2 * V.gebruiker, { proef: 'intrinsiek' });
     b.koop('ringen', 1, [-1, 1].map((sx) => balk([(L.x + R.x) / 2 + sx * 250, (yf + yb) / 2, H - a], [(L.x + R.x) / 2 + sx * 250, (yf + yb) / 2, 1500], X, 6, 6, true, 'kabel')), { naam: 'Gymnastiekringen hout Ø28 met straps aan de ophangbalk' });
   }
   // schijvenopslag: 2 houders per achterste staander, naar achteren
@@ -71,10 +96,26 @@ export function rigBouw(b, def, c) {
   if (extra.has('dip')) {
     const s = st[n];
     b.groep('Dipstation');
-    const Pl = b.P('licht'), yd = yf - a / 2 - Pl.b / 2;
-    b.staaf('Dipbeugel', 'licht', [s.x - 290, yd, 1250], [s.x + 290, yd, 1250], { v: Y, kap: true, opm: 'tegen de staander geklemd (2 x M16 door de Westside-gaten)' });
-    for (const sx of [-1, 1]) b.staaf('Dipgreep', 'greep', [s.x + sx * 260, yd - Pl.b / 2 + 0.3, 1250], [s.x + sx * 260, yf - 560, 1250], { opm: 'buis Ø32 met rubber handvat' });
+    // P1-05 v6: U-zadel om de staander (rugplaat 10 mm vooraan + 2 wangen langs de zijvlakken), 2 pennen Ø25 op 150 mm door
+    // de Westside-gaten (door beide wanden), dipbeugel op de rugplaat gelast, grepen Ø42,4 x 4 licht naar buiten
+    const Pl = b.P('licht'), t = 10, z1 = gatZ(s.f, 950), z2 = gatZ(s.f, 1100), zd = z2 + 60, xi = a / 2 + 1, xo = xi + 8, yp = yf - a / 2, Lg = 400, pin = V.pin, Mk = 2.5 * V.gebruiker * (Lg + 10 + b.P('licht').b) / (z2 - z1) / 2.5;
+    b.plaat('Dip rugplaat', [s.x - xo, yp - t, z1 - 60], [s.x + xo, yp, zd + 60], { gaten: [z1, z2].map((z) => ({ p: [s.x, yp, z], d: pin + 1 })), opm: `rugplaat ${t} mm, gaten Ø${pin + 1} op ${Math.round(z2 - z1)} mm voor de pennen` });
+    for (const sx of [-1, 1]) b.plaat('Dip wang', [s.x + sx * xi, yp, z1 - 60], [s.x + sx * xo, yp + a, zd + 60], { opm: 'wang 8 mm langs het zijvlak (U-zadel, 1 mm speling): de beugel draait niet rond de pennen' });
+    const yd = yp - t - Pl.b / 2;
+    b.staaf('Dipbeugel', 'licht', [s.x - 290, yd, zd], [s.x + 290, yd, zd], { v: Y, kap: true, opm: 'op de rugplaat gelast' });
+    for (const z of [z1, z2]) {
+      b.staaf('Dip pen', `r${pin}`, [s.x, yp - t, z], [s.x, yp + a + 12, z], { in: s.f.id, kap: false, opm: 'rond S355J2, door beide wanden van de staander, borgveer achteraan' });
+      b.pen(`Dip pen ${z === z1 ? 'onder' : 'boven'}`, [s.x, yp + (a + 12 - t) / 2, z], [0, 1, 0], { d: pin, lengte: a + 12 + t, F: Mk, snedes: 2, t: s.f.P.t, fy: 355, factor: 'intrinsiekPen', a: `Zijframe ${n + 1}`, b: 'Dipstation', uit: [0, -140, 0], gelast: 'Dip pen' });
+    }
+    const grepen = [-1, 1].map((sx) => b.staaf('Dipgreep', 'b42x4', [s.x + sx * 260, yd - Pl.b / 2 + 0.3, zd], [s.x + sx * 300, yd - Pl.b / 2 - Lg, zd], { opm: 'buis Ø42,4 x 4, gekarteld of rubber handvat; licht naar buiten (40 mm op 400)' }));
     b.groep('frame');
+    // berekening: de gebruiker steunt met het halve gewicht op elke greep, hand op het einde (P1-05)
+    b.reken('Dipgreep (gebruiker in de dip, hand op het einde)', grepen[0], 'uitkrager', Lg, V.gebruiker / 2, { proef: 'intrinsiek', las: true });
+    {
+      const F = 2.5 * V.gebruiker * 9.81, M = F * (Lg + t + Pl.b) / 1000, Fp = M / ((z2 - z1) / 1000), Fb = 2 * 1.5 * s.f.P.t * pin * 235;
+      b.toets('Pennen en bouten', 'Dipbeugel: pennen in de staander (koppel)', `proeflast 2,5 · ${V.gebruiker} kg · g = ${(F / 1000).toFixed(2)} kN op ${Lg + t + Pl.b} mm: M = ${(M / 1000).toFixed(2)} kNm; 2 pennen Ø${pin} op ${Math.round(z2 - z1)} mm: ${(Fp / 1000).toFixed(1)} kN per pen ≤ stuik 2 wanden 2·1,5·t·d·fy = ${(Fb / 1000).toFixed(1)} kN`, Fp / Fb, 'EN 1993-1-8 tabel 3.4 (stuik, vereenvoudigd)');
+    }
+    b.last('Gebruiker in de dip', V.gebruiker, [s.x, yd - Pl.b / 2 - Lg / 2, zd], { geval: 'dip' });
   }
   b.groep('frame');
   b.stang([xs(0) - 450, yf + a / 2 + 45, gatZ(st[0].f, 1350) + 14], [xs(1) + 450, yf + a / 2 + 45, gatZ(st[0].f, 1350) + 14]);

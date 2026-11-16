@@ -28,13 +28,18 @@ export const PROFIEL = {
   k30x30x2: koker(30, 30, 2), k40x40x2: koker(40, 40, 2), k40x40x3: koker(40, 40, 3), k50x50x3: koker(50, 50, 3), k50x50x4: koker(50, 50, 4),
   k60x60x3: koker(60, 60, 3), k60x60x4: koker(60, 60, 4), k70x70x4: koker(70, 70, 4), k80x80x3: koker(80, 80, 3), k80x80x4: koker(80, 80, 4), k80x80x5: koker(80, 80, 5), k100x100x4: koker(100, 100, 4),
   k50x30x2: koker(30, 50, 2), k60x40x3: koker(40, 60, 3), k80x40x3: koker(40, 80, 3), k80x40x4: koker(40, 80, 4), k100x50x3: koker(50, 100, 3), k100x50x4: koker(50, 100, 4), k120x60x4: koker(60, 120, 4), k120x80x5: koker(80, 120, 5),
-  b25x2: buis(25, 2), b32x3: buis(32, 3.2, 'buis Ø32x3,2 (optrekstang)'), b42x3: buis(42.4, 3.2, 'buis Ø42,4x3,2', 'EN 10255 S195T / EN 10219'), b48x3: buis(48.3, 3.2, 'buis Ø48,3x3,2 (schijfhouder)', 'EN 10255 / EN 10219 S235JRH'), b48x4: buis(48.3, 4, 'buis Ø48,3x4 (schijfhouder)'), b48x8: buis(48.3, 8, 'buis Ø48,3x8 naadloos (schijfhouder)', 'EN 10216-1 / DIN 2448 P235'),
-  b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b89x4: buis(88.9, 4, 'buis Ø88,9x4 (buitenpaal)'), b273x6: buis(273, 6.3, 'buis Ø273x6,3 (log)'), b48x8s: { ...buis(48.3, 8, 'buis Ø48,3x8 S355 (axle)'), fy: 355 }, b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b60x8: buis(60.3, 8, 'buis Ø60,3x8 naadloos (lagerhuis)', 'EN 10216-1 P235'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'), b76x8: buis(76.1, 8, 'buis Ø76,1x8 naadloos (lagerhuis)', 'EN 10216-1 P235'),
-  r16: rond(16), r20: rond(20), r25: rond(25), r30: rond(30), r35: rond(35), r38: rond(38), r60: rond(60), r30s: { ...rond(30), fy: 355, naam: 'rond Ø30 S355J2 (optrekstang)' }, r35s: { ...rond(35), fy: 355, naam: 'rond Ø35 S355J2 (optrekstang)' }, r40: { ...rond(40), fy: 355, naam: 'rond Ø40 C45 / S355J2 (as)' },
+  b25x2: buis(25, 2), b32x3: buis(32, 3.2, 'buis Ø32x3,2 (optrekstang)'), b42x3: buis(42.4, 3.2, 'buis Ø42,4x3,2', 'EN 10255 S195T / EN 10219'), b42x4: buis(42.4, 4, 'buis Ø42,4x4 (dipgreep)'), b48x3: buis(48.3, 3.2, 'buis Ø48,3x3,2 (schijfhouder)', 'EN 10255 / EN 10219 S235JRH'), b48x4: buis(48.3, 4, 'buis Ø48,3x4 (schijfhouder)'), b48x8: buis(48.3, 8, 'buis Ø48,3x8 naadloos (schijfhouder)', 'EN 10216-1 / DIN 2448 P235'),
+  b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b89x4: buis(88.9, 4, 'buis Ø88,9x4 (buitenpaal)'), b114x4: buis(114.3, 4, 'buis Ø114,3x4 (buitenpaal)'), b273x6: buis(273, 6.3, 'buis Ø273x6,3 (log)'), b273x4: buis(273, 4, 'buis Ø273x4 (log)'), b219x3: buis(219.1, 3, 'buis Ø219,1x3 (log thuis)'), b48x8s: { ...buis(48.3, 8, 'buis Ø48,3x8 S355J2H (laadpen, axle)', 'EN 10210 S355J2H, 3.1-certificaat'), fy: 355 }, b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b60x10: { ...buis(60.3, 10, 'buis Ø60,3x10 E355 naadloos (lagerhuis)', 'EN 10297-1 E355'), fy: 355 }, b70x10: { ...buis(70, 10, 'buis Ø70x10 E355 naadloos (lagerhuis)', 'EN 10297-1 E355'), fy: 355 }, b70x12: { ...buis(70, 12, 'buis Ø70x12 E355 naadloos (lagerhuis)', 'EN 10297-1 E355'), fy: 355 }, b60x8: buis(60.3, 8, 'buis Ø60,3x8 naadloos (lagerhuis)', 'EN 10216-1 P235'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'), b76x8: buis(76.1, 8, 'buis Ø76,1x8 naadloos (lagerhuis)', 'EN 10216-1 P235'),
+  r16: rond(16), r20: rond(20), r25: rond(25), r30: rond(30), r35: rond(35), r38: rond(38), r60: rond(60), r30s: { ...rond(30), fy: 355, naam: 'rond Ø30 S355J2 (optrekstang)' }, r35s: { ...rond(35), fy: 355, naam: 'rond Ø35 S355J2 (optrekstang)' }, r40: { ...rond(40), fy: 355, naam: 'rond Ø40 C45 / S355J2 (as)' }, r35rvs: { ...rond(35), fy: 350, naam: 'rond Ø35 RVS 1.4404 koudgetrokken (h9)', norm: 'EN 10088-3 1.4404+C (Rp0,2 ≥ 350, AANNAME)', prijsFactor: 4 }, r40rvs: { ...rond(40), fy: 350, naam: 'rond Ø40 RVS 1.4404 koudgetrokken (h9)', norm: 'EN 10088-3 1.4404+C (Rp0,2 ≥ 350, AANNAME)', prijsFactor: 4 }, r45: { ...rond(45), fy: 355, naam: 'rond Ø45 C45 / S355J2 (as)' },
   s40x8: strip(40, 8), pl10x300: strip(300, 10), pl12x450: strip(450, 12), pl12x600: strip(600, 12), s50x8: strip(50, 8), s60x10: strip(60, 10), s80x10: strip(80, 10), s30x10: strip(30, 10), s12x8: strip(12, 8), s30x8: strip(30, 8), s90x10: strip(90, 10), s100x10: strip(100, 10), s140x10: strip(140, 10), s180x10: strip(180, 10), s80x15: strip(80, 15), s24x8: strip(24, 8), b38x5: buis(38, 5, 'buis Ø38x5 uitgedraaid (lagerbus)', 'EN 10297-1 E355'), b44x5: buis(44.5, 5, 'buis Ø44,5x5 uitgedraaid (lagerbus)', 'EN 10297-1 E355'), b89x5: buis(88.9, 5, 'buis Ø88,9x5'), pl10x150: strip(150, 10),
   o80x40x3: ovaal(40, 80, 3), o100x50x3: ovaal(50, 100, 3), o120x60x3: ovaal(60, 120, 3), o120x60x4: ovaal(60, 120, 4),
 };
-for (const [k, P] of Object.entries(PROFIEL)) P.id = k;
+for (const [k, P] of Object.entries(PROFIEL)) {
+  P.id = k;
+  // materiaal uit het profiel (P2-20 v6): wat op 355 gerekend is, wordt ook als S355/C45/E355 besteld, met 3.1-certificaat
+  if ((P.fy ?? 235) >= 355) { if (/S235/.test(P.norm ?? '')) P.norm = P.norm.replace(/S235[A-Z0-9]*/, /C45/.test(P.naam) ? 'C45 / S355J2' : 'S355J2'); P.mat = /E355/.test(P.norm ?? '') ? 'E355 (3.1-certificaat)' : /C45/.test(P.naam) ? 'C45 / S355J2 (3.1-certificaat)' : 'S355J2(H) (3.1-certificaat)'; }
+  else P.mat = 'S235JR(H)';
+}
 
 // ---------------------------------------------------------------- de twee versies
 /**
@@ -119,6 +124,8 @@ export const KOOP = {
   glij35: k('Flensglijlager iglidur GFM-3539-26 (stang Ø35)', 'igus iglidur GFM-3539-26', 'RS Components BE', 3.6, 'st', 'AANNAME: igus-prijslijst', false),
   glij38: k('Flensglijlager iglidur GFM-4044-30 (stang Ø38, uitgedraaid)', 'igus iglidur GFM-4044-30', 'RS Components BE', 4.4, 'st', 'AANNAME: igus-prijslijst', false),
   glij40: k('Flensglijlager iglidur GFM-4044-30 (as Ø40)', 'igus iglidur GFM-4044-30', 'RS Components BE', 4.4, 'st', 'AANNAME: igus-prijslijst', false),
+  glij45: k('Flensglijlager iglidur GFM-4550-30 (as Ø45)', 'igus iglidur GFM-4550-30', 'RS Components BE', 6.2, 'st', 'AANNAME: igus-prijslijst', false),
+  stelring45: k('Stelring DIN 705 Ø45 met stelschroef', 'DIN 705 A 45', 'Eriks / Brammer', 6.4, 'st', 'AANNAME: prijs Eriks', false),
   stelring40: k('Stelring DIN 705 Ø40 met stelschroef', 'DIN 705 A 40', 'Eriks / Brammer', 5.2, 'st', 'AANNAME: prijs Eriks', false),
   lager6206: k('Kogellager 6206-2RS', 'SKF 6206-2RS1', 'RS Components BE', 9.8, 'st', 'AANNAME: RS-prijs', false),
   stapelbus: k('Kunststof bus Ø25/32 x 20 (stapelplaat)', 'iglidur J flensbus 25/32', 'igus / RS Components', 1.1, 'st', 'AANNAME: igus-prijslijst', false),
@@ -158,6 +165,8 @@ export const KOOP = {
   zwenkwiel75: k('Zwenkwiel Tente 75 mm rubber met rem, 55 kg', 'Tente 75 mm', 'RS Components AT', 14.5, 'st', 'https://at.rs-online.com/web/p/lenkrollen/3222089', false),
   kapOvaal: k('Eindkap vlakovaalbuis (lamellenstop ovaal)', 'lamellenstop flachoval 80x40 / 100x50 zwart', 'AANNAME (kunststofdoppen-groothandel)', 1.9, 'st', 'AANNAME', false),
   // pro-uiterlijk (v5): logoplaat, instructieplaat, katrolkappen, verchromen, kijkvenster
+  eindkapAccent: k('Gedraaide eindkap Ø56 met kraag, aluminium geanodiseerd in de accentkleur', 'eindkap Ø56 x 14 alu', 'AANNAME (draaierij)', 4.5, 'st', 'AANNAME', false),
+  lasbout: k('Lasbout M5 x 12 (boutlassen) met RVS-dopmoer', 'DIN EN ISO 13918 PT M5x12 + dopmoer A2', 'AANNAME (lastechniek)', 0.6, 'st', 'AANNAME', false),
   vhb: k('Dubbelzijdige kleefband 3M VHB 5952 (logoplaat)', '3M VHB 5952 19 mm x 3 m', 'AANNAME (vakhandel)', 9.5, 'rol', 'AANNAME', false),
   instructiesticker: k('Instructieplaat: alu 0,8 mm bedrukt (oefeningen, spieren, pen-instructie)', 'instructieplaat 80 x 175 / 150 x 210', 'graveerdienst', 9, 'st', 'AANNAME', false),
   katrolkap: k('Katrolkap ABS (2 schalen, voor katrol Ø90-115)', 'pulley cover ABS 145 mm', 'AANNAME (fitness-onderdelen)', 7.5, 'st', 'AANNAME', false),
@@ -172,8 +181,11 @@ export const KOOP = {
   naafkap: k('Naafkap ABS Ø90 met klemring (accentkleur, over de stelring)', 'pivot cap ABS 90 mm', 'AANNAME (spuitgietwerk/fitness-onderdelen)', 4.5, 'st', 'AANNAME', false),
   verchromen: k('Hardverchromen schijfhouder (of RVS-huls Ø50 erover)', 'hardchroom 20 µm, per stuk tot 400 mm', 'AANNAME (galvanobedrijf BE)', 22, 'st', 'AANNAME', false),
   polycarbonaat: k('Kijkvenster polycarbonaat 4 mm helder, op maat gezaagd', 'Makrolon 4 mm', 'AANNAME (kunststofplatenhandel)', 18, 'st', 'AANNAME', false),
+  kopkap: k('Kopkap bol, gegoten aluminium, voor buis Ø89-114 (na het verzinken erop)', 'kopkap alu Ø114', 'AANNAME (speeltoestelhandel)', 9, 'st', 'AANNAME', false),
   infobord: k('Infobord EN 16630 (aluminium dibond 3 mm, UV-bedrukt, op de paal)', 'infobord 400 x 300', 'AANNAME (signalisatie)', 65, 'st', 'AANNAME', false),
   beton: k('Betonpoer C25/30 400 x 400 x 600: uitgraven, bekisting, storten (per poer)', 'C25/30 0,1 m³ + arbeid', 'AANNAME (aannemer)', 45, 'st', 'AANNAME', false),
+  valtegel60: k('Valdempende rubbertegel 500 x 500 x 60 mm (EN 1177, valhoogte tot 2,1 m)', 'SBR-valtegel 60 mm', 'AANNAME (speeltoestelhandel)', 58, 'm²', 'AANNAME', false),
+  valtegel80: k('Valdempende rubbertegel 500 x 500 x 80 mm (EN 1177, valhoogte tot 2,8 m)', 'SBR-valtegel 80 mm', 'AANNAME (speeltoestelhandel)', 72, 'm²', 'AANNAME', false),
   valtegel: k('Valdempende rubbertegel 500 x 500 x 45 mm (EN 1177, valhoogte tot 1,5 m)', 'SBR-valtegel 45 mm', 'AANNAME (speeltoestelhandel)', 48, 'm²', 'AANNAME', false),
   rubberhuls: k('Rubberen huls op een houder (EPDM-slang 42 x 3, op maat)', 'EPDM slang binnen 42 mm, wand 3 mm', 'AANNAME (rubberhandel)', 7.5, 'm', 'AANNAME', false),
   rubbermat: k('Rubberstrook 3 mm op de legplank (per m²)', 'rubbermat 3 mm', 'AANNAME (bouwmarkt)', 12, 'm²', 'AANNAME', false),

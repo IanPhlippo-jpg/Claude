@@ -5,7 +5,11 @@ import { T, L, g, tabel, esc, A3, A4L, A4, f, svg, poly, lijn, tk, maat, eersteH
 
 export { T, L, g, tabel, esc, A3, A4L, A4, f, svg, poly, lijn, tk, maat, eersteHoek, lasSymbool };
 export const naamVan = (o) => `${o.id} ${o.naam}`;
-export const versieTekst = (o) => `${o.V.naam} (EN ISO 20957 klasse ${o.V.klasse})`;
+/** de productnorm per soort (P2-21 v6): buitentoestellen EN 16630, strongman geen productnorm, opslag EN ISO 20957-1 als leidraad */
+export const normVan = (o) => (o.buiten ? 'EN 16630:2015' : o.def?.soort === 'buiten' ? 'strongman: geen productnorm (proef 2,5 x de last)' : o.def?.soort === 'opslag' ? 'opslag: EN ISO 20957-1 als leidraad' : `EN ISO 20957 klasse ${o.V.klasse}`);
+/** materiaal en afwerking per toestel (P2-20/21 v6) */
+export const materiaalVan = (o) => (o.verzinkt ? 'S235/S355, verzinkt + coat' : `S235/S355, RAL ${o.afwerking?.ral ?? ''}`.trim());
+export const versieTekst = (o) => `${o.V.naam} (${normVan(o)})`;
 
 /** titelblok ISO 7200 rechtsonder: 180 x 32 (A3) of 125 x 28 (A4); opts { titel, nr, rev, datum, blad, schaal } */
 export function titelblok(o, [w, h], opts = {}) {
@@ -17,9 +21,9 @@ export function titelblok(o, [w, h], opts = {}) {
   veld(0, 0, 'Eigenaar', 'Ian · laswerken', groot ? 2.5 : 2.2, true); veld(k1, 0, 'Bibliotheek', 'Fitnesstoestellen', groot ? 2.3 : 2);
   veld(k3, 0, 'Projectie', '', 2); el.push(eersteHoek(tx + k3 + 4, ty + 1.6, groot ? 0.48 : 0.4));
   veld(0, 1, 'Titel', opts.titel ?? naamVan(o), groot ? 2.8 : 2.3, true, groot ? 70 : 50);
-  veld(0, 2, 'Toestel', groot ? `${naamVan(o)} · ${variantTekst(o)}, klasse ${o.V.klasse}` : `${o.id} · ${variantTekst(o)} (klasse ${o.V.klasse})`, groot ? 2.1 : 1.8, false, groot ? 70 : 46); veld(k2, 2, 'Tekeningnummer', opts.nr ?? tekeningNr(o), groot ? 2.3 : 2, true); veld(k3 + (groot ? 12 : 6), 2, 'Rev.', opts.rev ?? '1', 2.2);
-  veld(0, 3, 'Maten en toleranties', groot ? 'mm · ISO 2768-m · lassen ISO 5817-C' : 'mm · ISO 2768-m · ISO 5817-C', groot ? 2.1 : 1.6); veld(k1 + (groot ? 10 : 6), 3, 'Schaal', opts.schaal ?? '', 2.1); veld(k2, 3, 'Uitgifte', opts.datum ?? '', 2); veld(k3 + (groot ? 12 : 6), 3, 'Blad', opts.blad ?? '1 / 1', 2.1);
-  veld(0, 4, 'Getekend', opts.getekend ?? 'model (bibliotheek fitness)', groot ? 1.9 : 1.6); veld(k1 + (groot ? 10 : 6), 4, 'Goedgekeurd', opts.goedgekeurd ?? '______', 1.9); veld(k2, 4, 'Documentsoort', opts.soort ?? 'werkplaatstekening', groot ? 1.9 : 1.6, false, 22); veld(k3 + (groot ? 12 : 6), 4, 'Materiaal', opts.materiaal ?? 'S235, RAL', 1.6, false, 14);
+  veld(0, 2, 'Toestel', groot ? `${naamVan(o)} · ${variantTekst(o)} · ${normVan(o)}` : `${o.id} · ${variantTekst(o)} (${normVan(o)})`, groot ? 2.1 : 1.8, false, groot ? 70 : 46); veld(k2, 2, 'Tekeningnummer', opts.nr ?? tekeningNr(o), groot ? 2.3 : 2, true); veld(k3 + (groot ? 12 : 6), 2, 'Rev.', opts.rev ?? '1', 2.2);
+  veld(0, 3, 'Maten en toleranties', opts.tol ?? (groot ? 'mm · gelast EN ISO 13920-BF · los ISO 2768-m · ISO 5817-C' : 'mm · EN ISO 13920-BF · ISO 2768-m · 5817-C'), groot ? 1.9 : 1.5); veld(k1 + (groot ? 10 : 6), 3, 'Schaal', opts.schaal ?? '', 2.1); veld(k2, 3, 'Uitgifte', opts.datum ?? '', 2); veld(k3 + (groot ? 12 : 6), 3, 'Blad', opts.blad ?? '1 / 1', 2.1);
+  veld(0, 4, 'Getekend', opts.getekend ?? 'model (bibliotheek fitness)', groot ? 1.9 : 1.6); veld(k1 + (groot ? 10 : 6), 4, 'Goedgekeurd', opts.goedgekeurd ?? '______', 1.9); veld(k2, 4, 'Documentsoort', opts.soort ?? 'werkplaatstekening', groot ? 1.9 : 1.6, false, 22); veld(k3 + (groot ? 12 : 6), 4, 'Materiaal', opts.materiaal ?? materiaalVan(o), 1.4, false, 26);
   return el.join('');
 }
 /** lassymbool halve V met gebogen flank (flare bevel, ISO 2553 nr. 4.4): pijl van p naar knik k, referentielijn met

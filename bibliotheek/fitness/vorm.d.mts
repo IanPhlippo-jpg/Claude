@@ -8,3 +8,6 @@ export declare function cirkelPunten(x: number, y: number, r: number, n?: number
 export declare function binnen(q: number[], poly: number[][]): boolean;
 export declare function randAfstand(q: number[], poly: number[][]): number;
 export declare function banden(poly: number[][], n?: number): { y0: number; y1: number; x0: number; x1: number }[];
+export declare const buigToeslag: (hoek: number, R: number, t: number, K?: number) => number;
+export declare function uitslagStrook(L: number, benen: number[], zet: { hoek: number; R: number; richting?: string }[], t: number, K?: number): { punten: number[][]; zetlijnen: any[]; B: number };
+export declare function ontvouw(panelen: { q: number[][]; gaten?: number[][][] }[], zet: { hoek: number; R: number; richting?: string }[], t: number, K?: number): { punten: number[][]; zetlijnen: any[]; uitsparingen: number[][][] };

@@ -89,158 +89,204 @@ melding als de prijs erbuiten valt.
 
 | Nr | Toestel | Thuis (incl. btw) | Markt thuis | Pro (incl. btw) | Markt pro | Uren thuis/pro | Berekening |
 |---|---|--:|--:|--:|--:|--:|---|
-| FR-01 | Power rack | € 3.622 ↑ | € 300-1.460 | € 5.158 | € 1.400-7.150 | 30,5 / 31,9 | groen / oranje |
-| FR-02 | Half rack | € 3.485 ↑ | € 515-965 | € 5.033 | € 1.860-6.550 | 28,9 / 31,4 | groen / oranje |
-| FR-03 | Squat stands (paar) | € 2.259 ↑ | € 190-650 | € 3.056 ↑ | € 800-1.500 | 18,2 / 18,4 | groen / groen |
-| FR-04 | Opklapbaar wandrek | € 3.107 ↑ | € 475-710 | € 4.119 ↑ | € 900-1.500 | 26,0 / 26,8 | oranje / oranje |
-| FR-05 | Squat rack met optrekstang | € 2.896 ↑ | € 375-600 | € 3.873 ↑ | € 1.500-2.500 | 23,9 / 24,9 | groen / oranje |
-| FR-06 | Optrekstang voor de muur | € 1.032 ↑ | € 50-250 | € 1.307 ↑ | € 250-600 | 6,1 / 6,3 | oranje / oranje |
-| FR-07 | Dipstation | € 1.462 ↑ | € 130-450 | € 1.928 | € 1.300-2.500 | 10,5 / 10,9 | groen / groen |
-| FR-08 | Schijvenboom | € 1.383 ↑ | € 90-300 | € 1.830 ↑ | € 450-800 | 7,9 / 8,1 | groen / groen |
-| FR-09 | Schijvenrek op wielen | € 1.761 ↑ | € 150-370 | € 2.360 ↑ | € 400-900 | 15,7 / 16,4 | groen / groen |
-| FR-10 | Dumbbellrek 2 lagen | € 1.396 ↑ | € 200-380 | € 1.914 ↑ | € 400-1.000 | 8,8 / 9,0 | groen / groen |
-| FR-11 | Stangenhouder verticaal | € 1.329 ↑ | € 70-150 | € 1.755 ↑ | € 250-500 | 9,4 / 9,6 | groen / groen |
-| FR-12 | Stangenrek voor de muur | € 1.153 ↑ | € 70-140 | € 1.451 ↑ | € 150-350 | 8,3 / 8,6 | oranje / oranje |
-| FR-13 | Kettlebellrek | € 2.214 ↑ | € 220-370 | € 2.984 ↑ | € 400-800 | 19,6 / 20,8 | groen / groen |
-| FR-14 | Landmine-station | € 1.042 ↑ | € 50-150 | € 1.344 ↑ | € 150-400 | 6,4 / 6,7 | groen / groen |
-| FB-01 | Vlakke bank | € 1.318 ↑ | € 160-305 | € 1.786 ↑ | € 400-850 | 7,3 / 7,4 | groen / groen |
-| FB-02 | Verstelbare bank (FID) | € 1.830 ↑ | € 300-830 | € 2.435 ↑ | € 800-1.950 | 12,2 / 12,4 | groen / groen |
-| FB-03 | Bankdrukstation vlak | € 2.291 ↑ | € 600-930 | € 3.169 ↑ | € 1.300-1.900 | 17,0 / 17,8 | groen / groen |
-| FB-04 | Bankdrukstation schuin | € 2.779 ↑ | € 315-900 | € 3.773 ↑ | € 1.000-1.900 | 21,6 / 22,4 | groen / groen |
-| FB-05 | Schouderdrukbank met steunen | € 2.804 ↑ | € 400-900 | € 3.818 ↑ | € 1.300-2.000 | 21,6 / 22,3 | groen / groen |
-| FB-06 | Zitbank 90° | € 1.493 ↑ | € 200-800 | € 1.949 ↑ | € 400-900 | 9,3 / 9,2 | groen / groen |
-| FB-07 | Preacher curl bank | € 1.629 ↑ | € 170-700 | € 2.181 ↑ | € 560-820 | 10,7 / 11,3 | groen / groen |
-| FB-08 | Hyperextension 45° | € 1.456 ↑ | € 130-400 | € 1.931 ↑ | € 700-1.200 | 9,8 / 10,1 | groen / groen |
-| FB-09 | GHD (glute ham developer) | € 1.709 ↑ | € 550-1.100 | € 2.281 | € 1.160-2.700 | 11,5 / 11,9 | groen / groen |
-| FB-10 | Buikbank (decline) | € 1.437 ↑ | € 110-240 | € 1.914 ↑ | € 500-1.000 | 7,5 / 7,7 | groen / groen |
-| FB-11 | Hip thrust bank | € 1.345 ↑ | € 115-380 | € 1.790 ↑ | € 400-900 | 8,7 / 8,9 | groen / groen |
-| FB-12 | Reverse hyper | € 2.161 ↑ | € 475-1.220 | € 2.964 | € 1.500-3.000 | 16,0 / 16,6 | groen / groen |
-| FK-01 | Lat pulldown met gewichtstapel | € 4.608 ↑ | € 600-2.400 | € 6.634 ↑ | € 3.490-5.920 | 28,2 / 30,3 | groen / groen |
-| FK-02 | Seated cable row met stapel | € 4.010 ↑ | € 1.640-2.300 | € 5.679 | € 3.000-6.930 | 24,9 / 26,6 | groen / groen |
-| FK-03 | Kabelcrossover (2 stapels) | € 6.088 ↑ | € 1.300-3.800 | € 8.907 | € 4.500-9.850 | 32,0 / 34,7 | groen / groen |
-| FK-04 | Functional trainer | € 8.035 ↑ | € 1.500-4.500 | € 11.749 ↑ | € 4.650-9.500 | 51,1 / 54,6 | groen / groen |
-| FK-05 | Kabeltoren verstelbaar | € 4.181 ↑ | € 800-1.500 | € 6.036 ↑ | € 2.500-4.800 | 26,1 / 27,8 | oranje / oranje |
-| FK-06 | Lat pulldown met schijvenlader | € 2.388 ↑ | € 700-1.150 | € 3.433 ↑ | € 1.500-3.000 | 16,9 / 17,6 | groen / groen |
-| FK-07 | Katrolset voor het rack | € 1.180 ↑ | € 200-530 | € 1.626 ↑ | € 600-1.200 | 7,3 / 7,4 | oranje / oranje |
-| FK-08 | Leg extension met stapel | € 4.730 ↑ | € 900-2.350 | € 6.710 | € 3.490-7.940 | 30,9 / 32,8 | groen / groen |
-| FK-09 | Leg curl zittend met stapel | € 4.904 ↑ | € 900-2.400 | € 6.942 | € 3.490-7.940 | 32,7 / 34,7 | groen / groen |
-| FK-10 | Pec deck / rear delt | € 4.697 ↑ | € 800-2.400 | € 6.632 | € 3.490-6.930 | 30,8 / 32,4 | groen / groen |
-| FK-11 | Wandkatrol met schijvenlader | € 1.426 ↑ | € 150-450 | € 1.903 ↑ | € 500-1.200 | 9,3 / 9,3 | oranje / oranje |
-| FK-12 | Glute kickback met stapel | € 5.075 ↑ | € 1.000-2.300 | € 7.218 ↑ | € 3.170-4.600 | 33,8 / 36,1 | groen / groen |
-| FP-01 | Leg press 45° | € 7.089 ↑ | € 1.000-2.500 | € 9.115 ↑ | € 3.490-8.280 | 62,0 / 63,8 | groen / groen |
-| FP-02 | Hack squat | € 5.167 ↑ | € 1.000-1.800 | € 6.643 | € 3.250-8.280 | 47,0 / 47,3 | groen / groen |
-| FP-03 | Belt squat | € 3.574 ↑ | € 1.000-2.200 | € 4.821 | € 2.330-6.600 | 28,3 / 29,2 | groen / groen |
-| FP-04 | Chest press iso-lateraal | € 4.186 ↑ | € 800-1.600 | € 5.618 ↑ | € 2.490-5.420 | 32,7 / 33,7 | groen / groen |
-| FP-05 | Seated row met borststeun | € 5.225 ↑ | € 900-1.500 | € 6.950 ↑ | € 2.490-4.220 | 44,1 / 45,6 | groen / groen |
-| FP-06 | T-bar row met borststeun | € 2.429 ↑ | € 500-1.200 | € 3.293 ↑ | € 1.300-2.330 | 19,1 / 21,3 | groen / groen |
-| FP-07 | Seated calf raise | € 2.601 ↑ | € 400-500 | € 3.534 ↑ | € 1.160-2.470 | 19,6 / 20,7 | groen / groen |
-| FP-08 | Pulldown iso-lateraal | € 4.706 ↑ | € 1.200-1.700 | € 6.300 ↑ | € 2.490-4.340 | 36,8 / 38,2 | groen / groen |
-| FP-09 | Schouderdrukmachine | € 3.904 ↑ | € 1.000-1.500 | € 5.232 ↑ | € 2.290-4.340 | 30,2 / 31,2 | groen / groen |
-| FP-10 | Hip thrust machine | € 2.916 ↑ | € 1.000-1.500 | € 3.693 | € 1.500-5.150 | 24,4 / 23,5 | groen / groen |
-| FP-11 | Smithmachine | € 3.984 ↑ | € 700-1.500 | € 5.597 | € 3.500-7.820 | 31,4 / 32,7 | groen / groen |
-| FP-12 | Leg extension / leg curl (schijven) | € 3.040 ↑ | € 740-1.170 | € 3.833 | € 2.290-4.110 | 26,6 / 26,8 | groen / groen |
-| FS-01 | Chest press (selectorized) | € 5.012 ↑ | € 1.500-2.600 | € 7.119 | € 3.900-7.800 | 30,4 / 32,3 | groen / groen |
-| FS-02 | Shoulder press (selectorized) | € 4.901 ↑ | € 1.500-2.600 | € 6.947 | € 3.900-7.600 | 30,4 / 32,3 | groen / groen |
-| FS-03 | Biceps curl (selectorized) | € 4.909 ↑ | € 1.200-2.200 | € 6.928 ↑ | € 3.300-6.200 | 30,5 / 32,4 | groen / groen |
-| FS-04 | Triceps extension (selectorized) | € 4.909 ↑ | € 1.200-2.200 | € 6.928 ↑ | € 3.300-6.200 | 30,5 / 32,4 | groen / groen |
-| FS-05 | Abdominal crunch (selectorized) | € 4.896 ↑ | € 1.200-2.300 | € 6.935 ↑ | € 3.300-6.500 | 30,2 / 32,2 | groen / groen |
-| FS-06 | Back extension (selectorized) | € 4.896 ↑ | € 1.200-2.300 | € 6.904 ↑ | € 3.300-6.500 | 31,0 / 32,9 | groen / groen |
-| FS-07 | Incline chest press (selectorized) | € 5.069 ↑ | € 1.500-2.600 | € 7.199 | € 3.900-7.800 | 30,4 / 32,3 | groen / groen |
-| FS-08 | Pullover (selectorized) | € 4.943 ↑ | € 1.500-2.600 | € 7.011 | € 3.900-7.200 | 30,2 / 32,2 | groen / groen |
-| FS-09 | Seated dip (selectorized) | € 4.937 ↑ | € 1.300-2.400 | € 7.000 ↑ | € 3.500-6.800 | 30,4 / 32,3 | groen / groen |
-| FS-10 | Seated calf raise (selectorized) | € 4.941 ↑ | € 1.200-2.200 | € 7.006 ↑ | € 3.300-6.000 | 31,4 / 34,1 | groen / groen |
-| FS-11 | Standing calf raise (selectorized) | € 4.896 ↑ | € 1.300-2.400 | € 6.989 ↑ | € 3.500-6.500 | 28,7 / 31,3 | groen / groen |
-| FS-12 | Prone leg curl (selectorized) | € 5.032 ↑ | € 1.200-2.300 | € 7.082 ↑ | € 3.300-6.800 | 29,1 / 31,1 | groen / groen |
-| FS-13 | Lat pulldown (selectorized) | € 4.331 ↑ | € 900-2.300 | € 6.264 ↑ | € 3.300-6.200 | 25,8 / 27,8 | groen / groen |
-| FS-14 | Triceps pushdown (selectorized) | € 4.062 ↑ | € 900-2.300 | € 5.856 | € 3.300-6.200 | 23,2 / 25,1 | groen / groen |
-| FS-15 | Cable crunch (selectorized) | € 4.335 ↑ | € 900-2.300 | € 6.248 ↑ | € 3.300-6.200 | 25,9 / 28,0 | groen / groen |
-| FS-16 | High row (selectorized) | € 4.617 ↑ | € 900-2.300 | € 6.624 ↑ | € 3.300-6.200 | 28,3 / 30,4 | groen / groen |
-| FS-17 | Straight-arm pulldown (selectorized) | € 4.238 ↑ | € 900-2.300 | € 6.087 | € 3.300-6.200 | 24,4 / 26,3 | groen / groen |
-| FS-18 | Preacher cable curl (selectorized) | € 4.505 ↑ | € 900-2.300 | € 6.478 ↑ | € 3.300-6.200 | 27,9 / 30,0 | groen / groen |
-| FS-19 | Seated cable row (selectorized) | € 4.589 ↑ | € 900-2.300 | € 6.584 ↑ | € 3.300-6.200 | 28,2 / 30,3 | groen / groen |
-| FS-20 | Face pull station (selectorized) | € 4.035 ↑ | € 900-2.300 | € 5.818 | € 3.300-6.200 | 23,3 / 25,2 | groen / groen |
-| FS-21 | Kneeling lat (selectorized) | € 4.445 ↑ | € 900-2.300 | € 6.404 ↑ | € 3.300-6.200 | 26,7 / 28,8 | groen / groen |
-| FS-22 | Kabelkolom (selectorized) | € 4.207 ↑ | € 900-2.300 | € 6.032 | € 3.300-6.200 | 24,4 / 26,3 | groen / groen |
-| FS-23 | Leg extension (selectorized, pro-lijn) | € 4.812 ↑ | € 900-2.350 | € 6.793 | € 3.490-7.940 | 29,5 / 31,3 | groen / groen |
-| FS-24 | Seated leg curl (selectorized, pro-lijn) | € 4.814 ↑ | € 900-2.350 | € 6.797 | € 3.490-7.940 | 29,5 / 31,3 | groen / groen |
-| FS-25 | Standing low row (selectorized) | € 4.225 ↑ | € 900-2.300 | € 6.077 | € 3.300-6.200 | 24,2 / 26,2 | groen / groen |
-| FM-01 | Rig 1 vak | € 3.645 ↑ | € 950-1.700 | € 5.033 ↑ | € 2.400-4.600 | 31,3 / 32,0 | groen / oranje |
-| FM-02 | Rig 2 vakken | € 4.810 ↑ | € 1.300-2.300 | € 6.699 ↑ | € 3.300-6.200 | 41,8 / 42,4 | groen / oranje |
-| FM-03 | Rig 3 vakken | € 5.972 ↑ | € 1.650-2.900 | € 8.364 ↑ | € 4.200-7.800 | 52,3 / 52,7 | groen / oranje |
-| FM-04 | Rig 4 vakken | € 7.136 ↑ | € 2.000-3.500 | € 10.030 ↑ | € 5.100-9.400 | 62,8 / 63,0 | groen / oranje |
-| FM-05 | Muurrig 2 vakken | € 4.002 ↑ | € 1.300-2.300 | € 5.296 | € 3.300-6.200 | 35,4 / 34,7 | oranje / oranje |
-| FM-06 | Muurrig 3 vakken | € 5.084 ↑ | € 1.650-2.900 | € 6.749 | € 4.200-7.800 | 45,3 / 44,3 | oranje / oranje |
-| FM-07 | Rig met monkey bars | € 6.069 ↑ | € 1.650-2.900 | € 8.519 ↑ | € 4.200-7.800 | 52,6 / 53,0 | groen / oranje |
-| FM-08 | Rig met ringen | € 4.648 ↑ | € 1.300-2.300 | € 6.498 ↑ | € 3.300-6.200 | 40,8 / 41,3 | groen / oranje |
-| FM-09 | Rig met dipstation | € 4.906 ↑ | € 1.300-2.300 | € 6.816 ↑ | € 3.300-6.200 | 42,7 / 43,3 | groen / oranje |
-| FM-10 | Muurrig met ringen | € 3.668 ↑ | € 1.300-2.300 | € 4.847 | € 3.300-6.200 | 30,4 / 29,1 | oranje / oranje |
-| FM-11 | Rig 2 vakken compleet | € 5.012 ↑ | € 1.300-2.300 | € 6.967 ↑ | € 3.300-6.200 | 43,1 / 43,7 | groen / oranje |
-| FM-12 | Rig 4 vakken met monkey bars | € 7.340 ↑ | € 2.000-3.500 | € 10.338 ↑ | € 5.100-9.400 | 63,5 / 63,8 | groen / oranje |
-| FM-13 | Functional trainer compact | € 8.244 ↑ | € 1.400-2.600 | € 11.979 ↑ | € 3.600-6.800 | 53,8 / 57,5 | groen / groen |
-| FM-14 | Functional trainer breed | € 8.267 ↑ | € 1.600-2.900 | € 12.023 ↑ | € 3.900-7.400 | 53,8 / 57,5 | groen / groen |
-| FM-15 | Muurrig 1 vak | € 2.918 ↑ | € 950-1.700 | € 3.842 | € 2.400-4.600 | 25,4 / 25,2 | oranje / oranje |
-| FM-16 | Muurrig 4 vakken | € 6.168 ↑ | € 2.000-3.500 | € 8.203 | € 5.100-9.400 | 55,3 / 53,9 | oranje / oranje |
-| FM-17 | Rig 3 vakken met ringen en dips | € 5.906 ↑ | € 1.650-2.900 | € 8.279 ↑ | € 4.200-7.800 | 52,2 / 52,5 | groen / oranje |
-| FM-18 | Rig 2 vakken diep | € 4.973 ↑ | € 1.300-2.300 | € 6.885 ↑ | € 3.300-6.200 | 42,7 / 43,0 | groen / oranje |
-| FM-19 | Rig 2 vakken hoog | € 4.758 ↑ | € 1.300-2.300 | € 6.576 ↑ | € 3.300-6.200 | 41,8 / 41,7 | groen / oranje |
-| FM-20 | Muurrig 3 vakken met ringen | € 5.193 ↑ | € 1.650-2.900 | € 6.905 | € 4.200-7.800 | 45,7 / 44,7 | oranje / oranje |
-| FM-21 | Rig 1 vak met dipstation | € 3.473 ↑ | € 950-1.700 | € 4.797 ↑ | € 2.400-4.600 | 30,8 / 31,4 | groen / oranje |
-| FM-22 | Rig 3 vakken monkey bars en dips | € 5.898 ↑ | € 1.650-2.900 | € 8.283 ↑ | € 4.200-7.800 | 52,1 / 52,4 | groen / oranje |
-| FM-23 | Functional trainer met 3 torens | € 12.000 ↑ | € 2.400-4.200 | € 17.480 ↑ | € 5.600-9.800 | 79,1 / 84,6 | groen / groen |
-| FM-24 | Functional trainer extra breed | € 8.284 ↑ | € 1.700-3.000 | € 12.055 ↑ | € 4.200-7.800 | 53,8 / 57,5 | groen / groen |
-| FM-25 | Rig 1 vak diep met opslag | € 3.786 ↑ | € 950-1.700 | € 5.190 ↑ | € 2.400-4.600 | 32,2 / 32,7 | groen / oranje |
-| FO-01 | Halterrek 2 lagen kort | € 2.300 ↑ | € 180-400 | € 3.050 ↑ | € 450-1.100 | 19,0 / 19,9 | groen / groen |
-| FO-02 | Halterrek 2 lagen lang | € 2.778 ↑ | € 300-600 | € 3.716 ↑ | € 700-1.600 | 23,0 / 24,0 | groen / groen |
-| FO-03 | Halterrek 3 lagen | € 3.263 ↑ | € 250-550 | € 4.376 ↑ | € 650-1.400 | 27,2 / 28,6 | groen / groen |
-| FO-04 | Kettlebellrek 2 legplaten | € 3.431 ↑ | € 200-450 | € 4.314 ↑ | € 550-1.200 | 32,4 / 32,8 | groen / groen |
-| FO-05 | Ballenrek 2 lagen | € 2.602 ↑ | € 150-350 | € 3.427 ↑ | € 400-900 | 20,9 / 21,5 | groen / groen |
-| FO-06 | Ballenrek 3 lagen | € 3.151 ↑ | € 200-450 | € 4.162 ↑ | € 500-1.100 | 25,2 / 25,8 | groen / groen |
-| FO-07 | Opbergrek 3 legplaten | € 4.851 ↑ | € 200-450 | € 6.068 ↑ | € 500-1.100 | 45,6 / 46,2 | groen / groen |
-| FO-08 | Halterrek lang met plank | € 4.321 ↑ | € 350-700 | € 5.625 ↑ | € 900-1.900 | 38,4 / 39,7 | groen / groen |
-| FO-09 | Schijvenboom compact | € 1.113 ↑ | € 120-250 | € 1.423 ↑ | € 300-700 | 7,0 / 7,1 | groen / groen |
-| FO-10 | Schijvenboom 8 houders | € 1.363 ↑ | € 200-400 | € 1.741 ↑ | € 450-950 | 8,7 / 8,8 | groen / groen |
-| FO-11 | Bumperplaatrek | € 1.149 ↑ | € 180-350 | € 1.471 ↑ | € 400-850 | 7,0 / 7,1 | groen / groen |
-| FO-12 | Wandstrip schijven | € 809 ↑ | € 100-200 | € 1.042 ↑ | € 250-600 | 4,8 / 4,9 | oranje / oranje |
-| FO-13 | Wandstrip haken | € 858 ↑ | € 60-150 | € 1.070 ↑ | € 150-400 | 5,6 / 5,6 | oranje / oranje |
-| FO-14 | Parallettes hoog (paar) | € 851 ↑ | € 60-130 | € 1.052 ↑ | € 150-300 | 4,5 / 4,5 | groen / groen |
-| FO-15 | Parallettes laag (paar) | € 841 ↑ | € 40-90 | € 1.040 ↑ | € 100-220 | 4,5 / 4,5 | groen / groen |
-| FO-16 | Plyobox staal 50 cm | € 1.217 ↑ | € 80-160 | € 1.496 ↑ | € 180-350 | 8,0 / 8,0 | groen / groen |
-| FO-17 | Plyobox staal 75 cm | € 1.431 ↑ | € 110-200 | € 1.753 ↑ | € 240-420 | 8,7 / 8,8 | groen / groen |
-| FO-18 | Schijvenkar | € 999 ↑ | € 200-400 | € 1.411 ↑ | € 450-900 | 6,1 / 6,3 | groen / groen |
-| FO-19 | Opbergrek 4 legplaten | € 7.393 ↑ | € 250-550 | € 9.216 ↑ | € 650-1.400 | 71,7 / 72,6 | groen / groen |
-| FO-20 | Halterrek 3 lagen lang | € 3.391 ↑ | € 400-800 | € 4.576 ↑ | € 1.000-2.200 | 27,2 / 28,6 | groen / groen |
-| FO-21 | Opbergbank | € 3.052 ↑ | € 120-250 | € 3.878 ↑ | € 300-650 | 28,3 / 28,8 | groen / groen |
-| FO-22 | Wandstrip kettlebells | € 852 ↑ | € 80-180 | € 1.096 ↑ | € 200-450 | 5,2 / 5,2 | oranje / oranje |
-| FO-23 | Wandstrip stangen | € 928 ↑ | € 80-180 | € 1.184 ↑ | € 200-500 | 6,4 / 6,5 | oranje / oranje |
-| FO-24 | Bandenpaal | € 1.245 ↑ | € 60-130 | € 1.587 ↑ | € 150-350 | 8,6 / 8,7 | groen / groen |
-| FO-25 | Schijvenboom bumpers en stangen | € 1.283 ↑ | € 200-400 | € 1.648 ↑ | € 500-1.000 | 7,8 / 7,9 | groen / groen |
-| FX-01 | Juk (yoke) | € 1.375 ↑ | € 300-650 | € 1.940 ↑ | € 900-1.800 | 8,5 / 8,8 | groen / groen |
-| FX-02 | Juk hoog | € 1.396 ↑ | € 400-800 | € 1.981 | € 1.200-2.200 | 8,5 / 8,8 | groen / oranje |
-| FX-03 | Farmers walk (paar) | € 1.403 ↑ | € 150-350 | € 1.794 ↑ | € 400-900 | 9,5 / 9,7 | groen / groen |
-| FX-04 | Laadpaal met greep | € 797 ↑ | € 60-150 | € 999 ↑ | € 150-350 | 4,0 / 4,0 | groen / groen |
-| FX-05 | Frame carry | € 1.617 ↑ | € 250-500 | € 2.145 ↑ | € 600-1.200 | 10,1 / 10,4 | groen / groen |
-| FX-06 | Deadlift-frame | € 1.615 ↑ | € 300-600 | € 2.136 ↑ | € 700-1.500 | 10,2 / 10,5 | groen / groen |
-| FX-07 | Slee duwen en trekken | € 1.297 ↑ | € 250-500 | € 1.598 ↑ | € 600-1.500 | 7,0 / 7,0 | groen / groen |
-| FX-08 | Slee trekken | € 1.062 ↑ | € 150-350 | € 1.303 ↑ | € 400-900 | 4,8 / 4,8 | groen / groen |
-| FX-09 | Log Ø273 | € 1.337 ↑ | € 300-600 | € 1.636 ↑ | € 700-1.500 | 6,2 / 6,2 | groen / groen |
-| FX-10 | Axle Ø50 | € 673 ↑ | € 150-300 | € 840 ↑ | € 300-600 | 2,9 / 2,9 | groen / groen |
-| FX-11 | Stenenplatform | € 1.718 ↑ | € 200-400 | € 2.096 ↑ | € 500-1.100 | 9,1 / 9,1 | groen / groen |
-| FX-12 | Optrekstang buiten | € 1.103 ↑ | € 400-900 | € 1.419 | € 1.200-2.500 | 2,5 / 2,5 | groen / groen |
-| FX-13 | Optrekstation 3 hoogtes | € 1.577 | € 800-1.600 | € 2.056 ↓ | € 2.500-5.000 | 2,9 / 2,9 | groen / groen |
-| FX-14 | Brug buiten | € 1.447 ↑ | € 500-1.000 | € 1.828 | € 1.500-3.000 | 2,8 / 2,8 | groen / groen |
-| FX-15 | Dipstation buiten | € 1.354 ↑ | € 300-700 | € 1.715 | € 1.000-2.200 | 2,8 / 2,8 | groen / groen |
-| FX-16 | Monkey bars buiten | € 2.366 ↑ | € 900-1.800 | € 3.215 | € 3.000-6.000 | 9,5 / 9,7 | groen / groen |
-| FX-17 | Wandrek buiten | € 1.338 ↑ | € 500-1.000 | € 1.765 | € 1.500-3.000 | 3,3 / 3,3 | groen / groen |
-| FX-18 | Buikspierbank buiten | € 1.625 ↑ | € 400-800 | € 2.109 | € 1.200-2.500 | 4,8 / 5,0 | groen / groen |
-| FX-19 | Rekstok 2 hoogtes | € 1.298 ↑ | € 500-1.000 | € 1.678 | € 1.500-3.000 | 2,7 / 2,7 | groen / groen |
-| FX-20 | Push-up stangen | € 1.095 ↑ | € 300-600 | € 1.391 | € 900-1.800 | 2,7 / 2,7 | groen / groen |
-| FX-21 | Schuine ladder | € 2.185 ↑ | € 700-1.400 | € 2.959 | € 2.200-4.500 | 8,5 / 8,7 | groen / groen |
-| FX-22 | Combinatie optrek + brug | € 1.893 | € 1.200-2.500 | € 2.426 ↓ | € 4.000-8.000 | 3,2 / 3,2 | groen / groen |
-| FX-23 | Calisthenics rig 2 vakken | € 2.493 | € 2.000-4.000 | € 3.375 ↓ | € 6.000-12.000 | 8,5 / 8,6 | groen / groen |
-| FX-24 | Opstapblokken 3 hoogtes | € 1.826 ↑ | € 400-800 | € 2.271 | € 1.200-2.400 | 5,0 / 5,1 | groen / groen |
-| FX-25 | Combinatie groot | € 3.049 | € 2.500-5.000 | € 4.163 ↓ | € 7.000-14.000 | 10,0 / 10,2 | groen / groen |
+| FR-01 | Power rack | € 3.549 ↑ | € 300-1.460 | € 5.072 | € 1.400-7.150 | 30,5 / 31,9 | groen / oranje |
+| FR-02 | Half rack | € 3.333 ↑ | € 515-965 | € 4.962 | € 1.860-6.550 | 28,9 / 31,4 | groen / oranje |
+| FR-03 | Squat stands (paar) | € 2.106 ↑ | € 190-650 | € 2.862 ↑ | € 800-1.500 | 18,2 / 18,4 | groen / groen |
+| FR-04 | Opklapbaar wandrek | € 2.968 ↑ | € 475-710 | € 4.063 ↑ | € 900-1.500 | 26,0 / 26,8 | oranje / oranje |
+| FR-05 | Squat rack met optrekstang | € 2.744 ↑ | € 375-600 | € 3.801 ↑ | € 1.500-2.500 | 23,9 / 24,9 | groen / oranje |
+| FR-06 | Optrekstang voor de muur | € 801 ↑ | € 50-250 | € 1.129 ↑ | € 250-600 | 6,1 / 6,3 | oranje / oranje |
+| FR-07 | Dipstation | € 1.310 ↑ | € 130-450 | € 1.734 | € 1.300-2.500 | 10,5 / 10,9 | groen / groen |
+| FR-08 | Schijvenboom | € 1.140 ↑ | € 90-300 | € 1.637 ↑ | € 450-800 | 7,9 / 8,1 | groen / groen |
+| FR-09 | Schijvenrek op wielen | € 1.530 ↑ | € 150-370 | € 2.166 ↑ | € 400-900 | 15,7 / 16,4 | groen / groen |
+| FR-10 | Dumbbellrek 2 lagen | € 1.257 ↑ | € 200-380 | € 1.736 ↑ | € 400-1.000 | 8,8 / 9,0 | groen / groen |
+| FR-11 | Stangenhouder verticaal | € 1.189 ↑ | € 70-150 | € 1.561 ↑ | € 250-500 | 9,4 / 9,6 | groen / groen |
+| FR-12 | Stangenrek voor de muur | € 922 ↑ | € 70-140 | € 1.150 ↑ | € 150-350 | 8,3 / 8,6 | oranje / oranje |
+| FR-13 | Kettlebellrek | € 2.075 ↑ | € 220-370 | € 2.790 ↑ | € 400-800 | 19,6 / 20,8 | groen / groen |
+| FR-14 | Landmine-station | € 811 ↑ | € 50-150 | € 1.165 ↑ | € 150-400 | 6,4 / 6,7 | groen / groen |
+| FB-01 | Vlakke bank | € 1.398 ↑ | € 160-305 | € 1.839 ↑ | € 400-850 | 7,3 / 7,4 | oranje / oranje |
+| FB-02 | Verstelbare bank (FID) | € 2.002 ↑ | € 300-830 | € 2.609 ↑ | € 800-1.950 | 12,2 / 12,4 | oranje / oranje |
+| FB-03 | Bankdrukstation vlak | € 2.294 ↑ | € 600-930 | € 3.159 ↑ | € 1.300-1.900 | 17,0 / 17,8 | groen / groen |
+| FB-04 | Bankdrukstation schuin | € 2.782 ↑ | € 315-900 | € 3.764 ↑ | € 1.000-1.900 | 21,6 / 22,4 | groen / groen |
+| FB-05 | Schouderdrukbank met steunen | € 2.807 ↑ | € 400-900 | € 3.808 ↑ | € 1.300-2.000 | 21,6 / 22,3 | groen / groen |
+| FB-06 | Zitbank 90° | € 1.560 ↑ | € 200-800 | € 2.002 ↑ | € 400-900 | 9,3 / 9,2 | groen / groen |
+| FB-07 | Preacher curl bank | € 1.697 ↑ | € 170-700 | € 2.355 ↑ | € 560-820 | 10,7 / 11,3 | groen / groen |
+| FB-08 | Hyperextension 45° | € 1.304 ↑ | € 130-400 | € 1.738 ↑ | € 700-1.200 | 9,8 / 10,1 | groen / groen |
+| FB-09 | GHD (glute ham developer) | € 1.557 ↑ | € 550-1.100 | € 2.087 | € 1.160-2.700 | 11,5 / 11,9 | groen / groen |
+| FB-10 | Buikbank (decline) | € 1.608 ↑ | € 110-240 | € 2.104 ↑ | € 500-1.000 | 7,5 / 7,7 | groen / groen |
+| FB-11 | Hip thrust bank | € 1.193 ↑ | € 115-380 | € 1.596 ↑ | € 400-900 | 8,7 / 8,9 | groen / groen |
+| FB-12 | Reverse hyper | € 2.009 ↑ | € 475-1.220 | € 2.770 | € 1.500-3.000 | 16,0 / 16,6 | groen / groen |
+| FK-01 | Lat pulldown met gewichtstapel | € 4.953 ↑ | € 600-2.400 | € 7.033 ↑ | € 3.490-5.920 | 28,9 / 31,1 | oranje / oranje |
+| FK-02 | Seated cable row met stapel | € 4.191 ↑ | € 1.640-2.300 | € 5.894 | € 3.000-6.930 | 25,6 / 27,3 | groen / groen |
+| FK-03 | Kabelcrossover (2 stapels) | € 6.183 ↑ | € 1.300-3.800 | € 9.020 | € 4.500-9.850 | 33,0 / 35,6 | groen / groen |
+| FK-04 | Functional trainer | € 8.128 ↑ | € 1.500-4.500 | € 11.860 ↑ | € 4.650-9.500 | 52,1 / 55,6 | groen / groen |
+| FK-05 | Kabeltoren verstelbaar | € 4.216 ↑ | € 800-1.500 | € 6.077 ↑ | € 2.500-4.800 | 26,8 / 28,6 | oranje / oranje |
+| FK-06 | Lat pulldown met schijvenlader | € 2.401 ↑ | € 700-1.150 | € 3.542 ↑ | € 1.500-3.000 | 16,9 / 17,6 | oranje / oranje |
+| FK-07 | Katrolset voor het rack | € 957 ↑ | € 200-530 | € 1.453 ↑ | € 600-1.200 | 7,3 / 7,4 | oranje / oranje |
+| FK-08 | Leg extension met stapel | € 4.997 ↑ | € 900-2.350 | € 7.031 | € 3.490-7.940 | 32,7 / 34,7 | groen / groen |
+| FK-09 | Leg curl zittend met stapel | € 5.087 ↑ | € 900-2.400 | € 7.160 | € 3.490-7.940 | 33,5 / 35,4 | groen / groen |
+| FK-10 | Pec deck / rear delt | € 4.884 ↑ | € 800-2.400 | € 6.855 | € 3.490-6.930 | 31,5 / 33,2 | groen / groen |
+| FK-11 | Wandkatrol met schijvenlader | € 1.192 ↑ | € 150-450 | € 1.715 ↑ | € 500-1.200 | 9,3 / 9,3 | oranje / oranje |
+| FK-12 | Glute kickback met stapel | € 5.265 ↑ | € 1.000-2.300 | € 7.448 ↑ | € 3.170-4.600 | 34,5 / 36,8 | groen / groen |
+| FP-01 | Leg press 45° | € 7.320 ↑ | € 1.000-2.500 | € 9.391 ↑ | € 3.490-8.280 | 62,0 / 63,8 | oranje / oranje |
+| FP-02 | Hack squat | € 5.337 ↑ | € 1.000-1.800 | € 6.845 | € 3.250-8.280 | 47,0 / 47,3 | groen / groen |
+| FP-03 | Belt squat | € 3.744 ↑ | € 1.000-2.200 | € 5.024 | € 2.330-6.600 | 28,3 / 29,2 | oranje / oranje |
+| FP-04 | Chest press iso-lateraal | € 4.743 ↑ | € 800-1.600 | € 6.387 ↑ | € 2.490-5.420 | 32,7 / 33,7 | oranje / oranje |
+| FP-05 | Seated row met borststeun | € 6.169 ↑ | € 900-1.500 | € 8.076 ↑ | € 2.490-4.220 | 44,1 / 45,6 | oranje / oranje |
+| FP-06 | T-bar row met borststeun | € 2.512 ↑ | € 500-1.200 | € 3.105 ↑ | € 1.300-2.330 | 19,1 / 21,3 | oranje / groen |
+| FP-07 | Seated calf raise | € 2.832 ↑ | € 400-500 | € 3.915 ↑ | € 1.160-2.470 | 19,6 / 20,7 | oranje / oranje |
+| FP-08 | Pulldown iso-lateraal | € 5.650 ↑ | € 1.200-1.700 | € 7.426 ↑ | € 2.490-4.340 | 36,8 / 38,2 | oranje / oranje |
+| FP-09 | Schouderdrukmachine | € 4.461 ↑ | € 1.000-1.500 | € 6.001 ↑ | € 2.290-4.340 | 30,2 / 31,2 | oranje / oranje |
+| FP-10 | Hip thrust machine | € 2.998 ↑ | € 1.000-1.500 | € 3.777 | € 1.500-5.150 | 24,4 / 23,5 | oranje / groen |
+| FP-11 | Smithmachine | € 3.914 ↑ | € 700-1.500 | € 5.513 | € 3.500-7.820 | 31,4 / 32,7 | groen / groen |
+| FP-12 | Leg extension / leg curl (schijven) | € 3.122 ↑ | € 740-1.170 | € 3.645 | € 2.290-4.110 | 26,6 / 26,8 | oranje / groen |
+| FS-01 | Chest press (selectorized) | € 5.838 ↑ | € 1.500-2.600 | € 8.370 ↑ | € 3.900-7.800 | 35,5 / 38,3 | oranje / oranje |
+| FS-02 | Shoulder press (selectorized) | € 5.697 ↑ | € 1.500-2.600 | € 8.116 ↑ | € 3.900-7.600 | 35,8 / 38,4 | oranje / oranje |
+| FS-03 | Biceps curl (selectorized) | € 5.464 ↑ | € 1.200-2.200 | € 7.814 ↑ | € 3.300-6.200 | 35,2 / 37,8 | oranje / oranje |
+| FS-04 | Triceps extension (selectorized) | € 5.591 ↑ | € 1.200-2.200 | € 7.934 ↑ | € 3.300-6.200 | 36,3 / 38,9 | oranje / oranje |
+| FS-05 | Abdominal crunch (selectorized) | € 5.568 ↑ | € 1.200-2.300 | € 7.948 ↑ | € 3.300-6.500 | 35,4 / 38,2 | oranje / oranje |
+| FS-06 | Back extension (selectorized) | € 5.514 ↑ | € 1.200-2.300 | € 7.887 ↑ | € 3.300-6.500 | 35,9 / 38,7 | oranje / oranje |
+| FS-07 | Incline chest press (selectorized) | € 5.874 ↑ | € 1.500-2.600 | € 8.421 ↑ | € 3.900-7.800 | 35,5 / 38,3 | oranje / oranje |
+| FS-08 | Pullover (selectorized) | € 5.634 ↑ | € 1.500-2.600 | € 8.082 ↑ | € 3.900-7.200 | 35,4 / 38,5 | oranje / oranje |
+| FS-09 | Seated dip (selectorized) | € 5.605 ↑ | € 1.300-2.400 | € 8.065 ↑ | € 3.500-6.800 | 35,2 / 38,0 | oranje / oranje |
+| FS-10 | Seated calf raise (selectorized) | € 5.554 ↑ | € 1.200-2.200 | € 8.011 ↑ | € 3.300-6.000 | 36,3 / 40,1 | oranje / oranje |
+| FS-11 | Standing calf raise (selectorized) | € 5.462 ↑ | € 1.300-2.400 | € 7.939 ↑ | € 3.500-6.500 | 33,2 / 36,8 | oranje / oranje |
+| FS-12 | Prone leg curl (selectorized) | € 5.533 ↑ | € 1.200-2.300 | € 7.794 ↑ | € 3.300-6.800 | 34,0 / 35,6 | oranje / oranje |
+| FS-13 | Lat pulldown (selectorized) | € 4.921 ↑ | € 900-2.300 | € 7.127 ↑ | € 3.300-6.200 | 28,0 / 30,8 | oranje / oranje |
+| FS-14 | Triceps pushdown (selectorized) | € 4.424 ↑ | € 900-2.300 | € 6.482 ↑ | € 3.300-6.200 | 24,7 / 27,3 | oranje / oranje |
+| FS-15 | Cable crunch (selectorized) | € 4.850 ↑ | € 900-2.300 | € 7.052 ↑ | € 3.300-6.200 | 27,4 / 30,2 | oranje / oranje |
+| FS-16 | High row (selectorized) | € 5.250 ↑ | € 900-2.300 | € 7.552 ↑ | € 3.300-6.200 | 30,8 / 33,6 | oranje / oranje |
+| FS-17 | Straight-arm pulldown (selectorized) | € 4.753 ↑ | € 900-2.300 | € 6.892 ↑ | € 3.300-6.200 | 25,8 / 28,5 | oranje / oranje |
+| FS-18 | Preacher cable curl (selectorized) | € 5.064 ↑ | € 900-2.300 | € 7.348 ↑ | € 3.300-6.200 | 29,6 / 32,5 | oranje / oranje |
+| FS-19 | Seated cable row (selectorized) | € 5.223 ↑ | € 900-2.300 | € 7.510 ↑ | € 3.300-6.200 | 30,7 / 33,5 | oranje / oranje |
+| FS-20 | Face pull station (selectorized) | € 4.395 ↑ | € 900-2.300 | € 6.440 ↑ | € 3.300-6.200 | 24,8 / 27,4 | oranje / oranje |
+| FS-21 | Kneeling lat (selectorized) | € 5.035 ↑ | € 900-2.300 | € 7.267 ↑ | € 3.300-6.200 | 28,9 / 31,8 | oranje / oranje |
+| FS-22 | Kabelkolom (selectorized) | € 4.719 ↑ | € 900-2.300 | € 6.835 ↑ | € 3.300-6.200 | 25,8 / 28,5 | oranje / oranje |
+| FS-23 | Leg extension (selectorized, pro-lijn) | € 5.501 ↑ | € 900-2.350 | € 7.860 | € 3.490-7.940 | 34,9 / 37,7 | oranje / oranje |
+| FS-24 | Seated leg curl (selectorized, pro-lijn) | € 5.368 ↑ | € 900-2.350 | € 7.711 | € 3.490-7.940 | 33,7 / 36,4 | oranje / oranje |
+| FS-25 | Standing low row (selectorized) | € 4.815 ↑ | € 900-2.300 | € 6.940 ↑ | € 3.300-6.200 | 26,4 / 29,1 | oranje / oranje |
+| FM-01 | Rig 1 vak | € 3.958 ↑ | € 950-1.700 | € 5.375 ↑ | € 2.400-4.600 | 35,3 / 35,8 | oranje / oranje |
+| FM-02 | Rig 2 vakken | € 5.149 ↑ | € 1.300-2.300 | € 7.036 ↑ | € 3.300-6.200 | 46,0 / 46,1 | oranje / oranje |
+| FM-03 | Rig 3 vakken | € 6.342 ↑ | € 1.650-2.900 | € 8.712 ↑ | € 4.200-7.800 | 56,7 / 56,5 | oranje / oranje |
+| FM-04 | Rig 4 vakken | € 7.533 ↑ | € 2.000-3.500 | € 10.372 ↑ | € 5.100-9.400 | 67,4 / 66,8 | oranje / oranje |
+| FM-05 | Muurrig 2 vakken | € 4.258 ↑ | € 1.300-2.300 | € 5.633 | € 3.300-6.200 | 38,9 / 38,4 | oranje / oranje |
+| FM-06 | Muurrig 3 vakken | € 5.343 ↑ | € 1.650-2.900 | € 7.089 | € 4.200-7.800 | 48,8 / 48,0 | oranje / oranje |
+| FM-07 | Rig met monkey bars | € 6.824 ↑ | € 1.650-2.900 | € 9.386 ↑ | € 4.200-7.800 | 60,9 / 60,8 | oranje / oranje |
+| FM-08 | Rig met ringen | € 5.062 ↑ | € 1.300-2.300 | € 6.942 ↑ | € 3.300-6.200 | 45,8 / 45,9 | oranje / oranje |
+| FM-09 | Rig met dipstation | € 5.457 ↑ | € 1.300-2.300 | € 7.421 ↑ | € 3.300-6.200 | 49,3 / 49,5 | oranje / oranje |
+| FM-10 | Muurrig met ringen | € 4.001 ↑ | € 1.300-2.300 | € 5.293 | € 3.300-6.200 | 34,7 / 33,6 | oranje / oranje |
+| FM-11 | Rig 2 vakken compleet | € 5.638 ↑ | € 1.300-2.300 | € 7.680 ↑ | € 3.300-6.200 | 50,5 / 50,8 | oranje / oranje |
+| FM-12 | Rig 4 vakken met monkey bars | € 8.195 ↑ | € 2.000-3.500 | € 11.305 ↑ | € 5.100-9.400 | 72,8 / 72,4 | oranje / oranje |
+| FM-13 | Functional trainer compact | € 8.337 ↑ | € 1.400-2.600 | € 12.089 ↑ | € 3.600-6.800 | 54,8 / 58,5 | groen / groen |
+| FM-14 | Functional trainer breed | € 8.360 ↑ | € 1.600-2.900 | € 12.134 ↑ | € 3.900-7.400 | 54,8 / 58,5 | groen / groen |
+| FM-15 | Muurrig 1 vak | € 3.086 ↑ | € 950-1.700 | € 4.177 | € 2.400-4.600 | 28,9 / 28,8 | oranje / oranje |
+| FM-16 | Muurrig 4 vakken | € 6.428 ↑ | € 2.000-3.500 | € 8.545 | € 5.100-9.400 | 58,8 / 57,6 | oranje / oranje |
+| FM-17 | Rig 3 vakken met ringen en dips | € 6.563 ↑ | € 1.650-2.900 | € 9.002 ↑ | € 4.200-7.800 | 59,8 / 59,6 | oranje / oranje |
+| FM-18 | Rig 2 vakken diep | € 5.312 ↑ | € 1.300-2.300 | € 7.222 ↑ | € 3.300-6.200 | 46,9 / 46,8 | oranje / oranje |
+| FM-19 | Rig 2 vakken hoog | € 5.172 ↑ | € 1.300-2.300 | € 7.020 ↑ | € 3.300-6.200 | 46,8 / 46,4 | oranje / oranje |
+| FM-20 | Muurrig 3 vakken met ringen | € 5.526 ↑ | € 1.650-2.900 | € 7.351 | € 4.200-7.800 | 50,0 / 49,2 | oranje / oranje |
+| FM-21 | Rig 1 vak met dipstation | € 3.999 ↑ | € 950-1.700 | € 5.407 ↑ | € 2.400-4.600 | 37,3 / 37,6 | oranje / oranje |
+| FM-22 | Rig 3 vakken monkey bars en dips | € 6.863 ↑ | € 1.650-2.900 | € 9.419 ↑ | € 4.200-7.800 | 62,8 / 62,7 | oranje / oranje |
+| FM-23 | Functional trainer met 3 torens | € 12.151 ↑ | € 2.400-4.200 | € 17.660 ↑ | € 5.600-9.800 | 80,3 / 85,9 | groen / groen |
+| FM-24 | Functional trainer extra breed | € 8.376 ↑ | € 1.700-3.000 | € 12.166 ↑ | € 4.200-7.800 | 54,8 / 58,5 | groen / groen |
+| FM-25 | Rig 1 vak diep met opslag | € 4.099 ↑ | € 950-1.700 | € 5.532 ↑ | € 2.400-4.600 | 36,2 / 36,4 | oranje / oranje |
+| FO-01 | Halterrek 2 lagen kort | € 1.744 ↑ | € 180-400 | € 2.350 ↑ | € 450-1.100 | 12,6 / 13,2 | groen / groen |
+| FO-02 | Halterrek 2 lagen lang | € 2.236 ↑ | € 300-600 | € 3.157 ↑ | € 700-1.600 | 16,5 / 17,4 | groen / groen |
+| FO-03 | Halterrek 3 lagen | € 2.772 ↑ | € 250-550 | € 3.761 ↑ | € 650-1.400 | 20,0 / 21,1 | groen / groen |
+| FO-04 | Kettlebellrek 2 legplaten | € 1.784 ↑ | € 200-450 | € 2.322 ↑ | € 550-1.200 | 11,3 / 11,7 | groen / groen |
+| FO-05 | Ballenrek 2 lagen | € 1.912 ↑ | € 150-350 | € 2.697 ↑ | € 400-900 | 12,8 / 13,2 | groen / groen |
+| FO-06 | Ballenrek 3 lagen | € 2.458 ↑ | € 200-450 | € 3.316 ↑ | € 500-1.100 | 15,6 / 16,1 | groen / groen |
+| FO-07 | Opbergrek 3 legplaten | € 2.480 ↑ | € 200-450 | € 3.224 ↑ | € 500-1.100 | 13,4 / 13,9 | groen / groen |
+| FO-08 | Halterrek lang met plank | € 2.967 ↑ | € 350-700 | € 3.984 ↑ | € 900-1.900 | 19,7 / 20,7 | groen / groen |
+| FO-09 | Schijvenboom compact | € 1.048 ↑ | € 120-250 | € 1.327 ↑ | € 300-700 | 7,0 / 7,1 | groen / groen |
+| FO-10 | Schijvenboom 8 houders | € 1.338 ↑ | € 200-400 | € 1.692 ↑ | € 450-950 | 8,7 / 8,8 | groen / groen |
+| FO-11 | Bumperplaatrek | € 1.085 ↑ | € 180-350 | € 1.377 ↑ | € 400-850 | 7,0 / 7,1 | groen / groen |
+| FO-12 | Wandstrip schijven | € 640 ↑ | € 100-200 | € 812 ↑ | € 250-600 | 4,8 / 4,9 | oranje / oranje |
+| FO-13 | Wandstrip haken | € 706 ↑ | € 60-150 | € 858 ↑ | € 150-400 | 5,6 / 5,6 | oranje / oranje |
+| FO-14 | Parallettes hoog (paar) | € 770 ↑ | € 60-130 | € 925 ↑ | € 150-300 | 4,5 / 4,5 | groen / groen |
+| FO-15 | Parallettes laag (paar) | € 760 ↑ | € 40-90 | € 913 ↑ | € 100-220 | 4,5 / 4,5 | groen / groen |
+| FO-16 | Plyobox staal 50 cm | € 1.242 ↑ | € 80-160 | € 1.510 ↑ | € 180-350 | 8,3 / 8,3 | groen / groen |
+| FO-17 | Plyobox staal 75 cm | € 1.510 ↑ | € 110-200 | € 1.831 ↑ | € 240-420 | 9,2 / 9,2 | groen / groen |
+| FO-18 | Schijvenkar | € 825 ↑ | € 200-400 | € 1.299 ↑ | € 450-900 | 6,1 / 6,3 | groen / groen |
+| FO-19 | Opbergrek 4 legplaten | € 3.783 ↑ | € 250-550 | € 4.896 ↑ | € 650-1.400 | 22,2 / 23,1 | groen / groen |
+| FO-20 | Halterrek 3 lagen lang | € 2.902 ↑ | € 400-800 | € 3.962 ↑ | € 1.000-2.200 | 20,0 / 21,1 | groen / groen |
+| FO-21 | Opbergbank | € 1.788 ↑ | € 120-250 | € 2.346 ↑ | € 300-650 | 12,4 / 12,8 | groen / groen |
+| FO-22 | Wandstrip kettlebells | € 693 ↑ | € 80-180 | € 876 ↑ | € 200-450 | 5,2 / 5,2 | oranje / oranje |
+| FO-23 | Wandstrip stangen | € 794 ↑ | € 80-180 | € 995 ↑ | € 200-500 | 6,4 / 6,5 | oranje / oranje |
+| FO-24 | Bandenpaal | € 1.215 ↑ | € 60-130 | € 1.533 ↑ | € 150-350 | 8,6 / 8,7 | groen / groen |
+| FO-25 | Schijvenboom bumpers en stangen | € 1.240 ↑ | € 200-400 | € 1.577 ↑ | € 500-1.000 | 7,8 / 7,9 | groen / groen |
+| FX-01 | Juk (yoke) | € 1.958 ↑ | € 300-650 | € 2.452 ↑ | € 900-1.800 | 16,5 / 16,5 | groen / groen |
+| FX-02 | Juk hoog | € 1.988 ↑ | € 400-800 | € 2.494 ↑ | € 1.200-2.200 | 16,5 / 16,5 | groen / groen |
+| FX-03 | Farmers walk (paar) | € 1.126 ↑ | € 150-350 | € 1.388 ↑ | € 400-900 | 10,9 / 11,2 | groen / groen |
+| FX-04 | Laadpaal met greep | € 493 ↑ | € 60-150 | € 610 ↑ | € 150-350 | 3,5 / 3,5 | groen / groen |
+| FX-05 | Frame carry | € 1.329 ↑ | € 250-500 | € 1.789 ↑ | € 600-1.200 | 10,1 / 10,4 | groen / groen |
+| FX-06 | Deadlift-frame | € 1.327 ↑ | € 300-600 | € 1.780 ↑ | € 700-1.500 | 10,2 / 10,5 | groen / groen |
+| FX-07 | Slee duwen en trekken | € 1.414 ↑ | € 250-500 | € 1.711 ↑ | € 600-1.500 | 10,0 / 10,0 | groen / groen |
+| FX-08 | Slee trekken | € 1.157 ↑ | € 150-350 | € 1.404 ↑ | € 400-900 | 7,7 / 7,7 | groen / groen |
+| FX-09 | Log Ø273 | € 848 ↑ | € 300-600 | € 1.144 | € 700-1.500 | 6,0 / 6,2 | groen / groen |
+| FX-10 | Axle Ø50 | € 451 ↑ | € 150-300 | € 549 | € 300-600 | 2,9 / 2,9 | groen / groen |
+| FX-11 | Stenenplatform | € 4.994 ↑ | € 200-400 | € 5.991 ↑ | € 500-1.100 | 44,9 / 44,9 | groen / groen |
+| FX-12 | Optrekstang buiten | € 2.613 ↑ | € 400-900 | € 3.370 ↑ | € 1.200-2.500 | 2,7 / 2,7 | groen / groen |
+| FX-13 | Optrekstation 3 hoogtes | € 3.483 ↑ | € 800-1.600 | € 4.826 | € 2.500-5.000 | 3,3 / 3,3 | groen / groen |
+| FX-14 | Brug buiten | € 3.323 ↑ | € 500-1.000 | € 4.447 ↑ | € 1.500-3.000 | 3,2 / 3,2 | groen / groen |
+| FX-15 | Dipstation buiten | € 3.228 ↑ | € 300-700 | € 4.139 ↑ | € 1.000-2.200 | 3,2 / 3,2 | groen / groen |
+| FX-16 | Monkey bars buiten | € 4.363 ↑ | € 900-1.800 | € 6.113 ↑ | € 3.000-6.000 | 9,8 / 10,0 | groen / groen |
+| FX-17 | Wandrek buiten | € 2.847 ↑ | € 500-1.000 | € 4.191 ↑ | € 1.500-3.000 | 3,4 / 3,4 | groen / groen |
+| FX-18 | Buikspierbank buiten | € 3.046 ↑ | € 400-800 | € 3.930 ↑ | € 1.200-2.500 | 5,1 / 5,3 | groen / groen |
+| FX-19 | Rekstok 2 hoogtes | € 2.998 ↑ | € 500-1.000 | € 3.966 ↑ | € 1.500-3.000 | 3,0 / 3,0 | groen / groen |
+| FX-20 | Push-up stangen | € 2.762 ↑ | € 300-600 | € 3.555 ↑ | € 900-1.800 | 3,0 / 3,0 | groen / groen |
+| FX-21 | Schuine ladder | € 4.168 ↑ | € 700-1.400 | € 5.786 ↑ | € 2.200-4.500 | 8,8 / 9,0 | groen / groen |
+| FX-22 | Combinatie optrek + brug | € 4.258 ↑ | € 1.200-2.500 | € 5.757 | € 4.000-8.000 | 3,6 / 3,6 | groen / groen |
+| FX-23 | Calisthenics rig 2 vakken | € 4.690 ↑ | € 2.000-4.000 | € 6.666 | € 6.000-12.000 | 8,9 / 9,0 | groen / groen |
+| FX-24 | Opstapblokken 3 hoogtes | € 4.051 ↑ | € 400-800 | € 4.990 ↑ | € 1.200-2.400 | 5,6 / 5,8 | groen / groen |
+| FX-25 | Combinatie groot | € 5.445 ↑ | € 2.500-5.000 | € 8.298 | € 7.000-14.000 | 10,5 / 10,7 | groen / groen |
 
-Stand na versie 5 fase C (150 toestellen, 300 prijzen): 47 in de band, 4 eronder en 249 erboven. Alle FO-toestellen (opslag) en de thuisversie van bijna alle toestellen liggen erboven.
+Stand na v6 (adviezen Fable 5.2 verwerkt, uurloon € 45): thuis 0 in, 0 onder, 150 boven; pro 29 in, 0 onder, 121 boven. De prijs is hoger dan in v5. Dat komt door wat er nu wel in zit: buigen tegen een echte offerteprijs, een grotere stapel bij FS, plaatsing en keuring bij buiten, RVS-stangen en de bouten en blindklinkmoeren van de zijplaten. Daartegenover staat minder lasuur bij de opslag (gezette bakken, geschroefde zijplaten) en geen dubbele verpakking of handleiding meer.
+
+## Uurloon € 45, € 60 en € 65 (keuze van Ian)
+
+Het uurloon blijft een instelling (Instellingen > Tarieven), standaard € 45. Aantal prijzen per versie:
+
+| Uurloon | Status (thuis; pro) |
+|---|---|
+| € 45 | thuis: 0 in, 0 onder, 150 boven; pro: 29 in, 0 onder, 121 boven |
+| € 60 | thuis: 0 in, 0 onder, 150 boven; pro: 13 in, 0 onder, 137 boven |
+| € 65 | thuis: 0 in, 0 onder, 150 boven; pro: 11 in, 0 onder, 139 boven |
+
+Toestellen die bij minstens één uurloon in of onder de band vallen (↑ = erboven):
+
+| Toestel | Versie | Band | € 45 | € 60 | € 65 |
+|---|---|--:|--:|--:|--:|
+| FR-01 Power rack | pro | € 1.400-7.150 | € 5.072 in | € 6.039 in | € 6.361 in |
+| FR-02 Half rack | pro | € 1.860-6.550 | € 4.962 in | € 5.914 in | € 6.232 in |
+| FR-07 Dipstation | pro | € 1.300-2.500 | € 1.734 in | € 2.065 in | € 2.176 in |
+| FB-09 GHD (glute ham developer) | pro | € 1.160-2.700 | € 2.087 in | € 2.449 in | € 2.569 in |
+| FB-12 Reverse hyper | pro | € 1.500-3.000 | € 2.770 in | € 3.275 ↑ | € 3.444 ↑ |
+| FK-02 Seated cable row met stapel | pro | € 3.000-6.930 | € 5.894 in | € 6.697 in | € 6.965 ↑ |
+| FK-03 Kabelcrossover (2 stapels) | pro | € 4.500-9.850 | € 9.020 in | € 10.068 ↑ | € 10.418 ↑ |
+| FK-08 Leg extension met stapel | pro | € 3.490-7.940 | € 7.031 in | € 8.051 ↑ | € 8.390 ↑ |
+| FK-09 Leg curl zittend met stapel | pro | € 3.490-7.940 | € 7.160 in | € 8.202 ↑ | € 8.549 ↑ |
+| FK-10 Pec deck / rear delt | pro | € 3.490-6.930 | € 6.855 in | € 7.831 ↑ | € 8.156 ↑ |
+| FP-02 Hack squat | pro | € 3.250-8.280 | € 6.845 in | € 8.236 in | € 8.700 ↑ |
+| FP-03 Belt squat | pro | € 2.330-6.600 | € 5.024 in | € 5.883 in | € 6.170 in |
+| FP-10 Hip thrust machine | pro | € 1.500-5.150 | € 3.777 in | € 4.469 in | € 4.699 in |
+| FP-11 Smithmachine | pro | € 3.500-7.820 | € 5.513 in | € 6.474 in | € 6.795 in |
+| FP-12 Leg extension / leg curl (schijven) | pro | € 2.290-4.110 | € 3.645 in | € 4.432 ↑ | € 4.695 ↑ |
+| FS-23 Leg extension (selectorized, pro-lijn) | pro | € 3.490-7.940 | € 7.860 in | € 8.969 ↑ | € 9.339 ↑ |
+| FS-24 Seated leg curl (selectorized, pro-lijn) | pro | € 3.490-7.940 | € 7.711 in | € 8.781 ↑ | € 9.138 ↑ |
+| FM-05 Muurrig 2 vakken | pro | € 3.300-6.200 | € 5.633 in | € 6.762 ↑ | € 7.139 ↑ |
+| FM-06 Muurrig 3 vakken | pro | € 4.200-7.800 | € 7.089 in | € 8.500 ↑ | € 8.970 ↑ |
+| FM-10 Muurrig met ringen | pro | € 3.300-6.200 | € 5.293 in | € 6.282 ↑ | € 6.612 ↑ |
+| FM-15 Muurrig 1 vak | pro | € 2.400-4.600 | € 4.177 in | € 5.025 ↑ | € 5.308 ↑ |
+| FM-16 Muurrig 4 vakken | pro | € 5.100-9.400 | € 8.545 in | € 10.237 ↑ | € 10.801 ↑ |
+| FM-20 Muurrig 3 vakken met ringen | pro | € 4.200-7.800 | € 7.351 in | € 8.799 ↑ | € 9.281 ↑ |
+| FX-09 Log Ø273 | pro | € 700-1.500 | € 1.144 in | € 1.326 in | € 1.387 in |
+| FX-10 Axle Ø50 | pro | € 300-600 | € 549 in | € 636 ↑ | € 665 ↑ |
+| FX-13 Optrekstation 3 hoogtes | pro | € 2.500-5.000 | € 4.826 in | € 5.316 ↑ | € 5.479 ↑ |
+| FX-22 Combinatie optrek + brug | pro | € 4.000-8.000 | € 5.757 in | € 6.371 in | € 6.576 in |
+| FX-23 Calisthenics rig 2 vakken | pro | € 6.000-12.000 | € 6.666 in | € 7.382 in | € 7.620 in |
+| FX-25 Combinatie groot | pro | € 7.000-14.000 | € 8.298 in | € 9.120 in | € 9.393 in |
+
+Met een hoger uurloon vallen er minder toestellen in de band. Een hoger uurloon maakt de prijs niet marktconform. Wat wel helpt, is minder uren: lasmallen (de leercurve), de buislaser voor de gaten (instelling buislaser) en gezette delen in plaats van gelaste. Kiezen welke toestellen in het aanbod blijven, is de beslissing van Ian (zie Advies Fable 5.2, §5).
 
 ## Wat de tabel zegt
 

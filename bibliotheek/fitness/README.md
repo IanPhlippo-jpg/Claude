@@ -351,6 +351,51 @@ een bestellijst, een prijs en een marktband, net als de eerste 50. De catalogus 
 - **Strongman.** Laadpennen Ø48,3 x 8 in S355 met een gelaserde kraag. Snelsluitklemmen zijn een optie. De proeflast is 2,5 x de last (AANNAME: strongman valt buiten EN ISO 20957). Losse werktuigen zoals de log en de axle krijgen geen kantelproef.
 - **Prijs.** Bij kleine werktuigen (laadpaal, farmers, axle) ligt de thuisprijs ver boven de importprijzen. Dat komt door de vaste kosten per toestel: lakkerij, verpakking en handleiding. De buitentoestellen pro liggen onder of in de band van Kompan, Lappset en BarBarian.
 
+## Versie 6: adviezen Fable 5.2 op v5 (2026-11-16)
+
+De 50 punten uit [docs/Advies-Fable-5.2-v5.md](docs/Advies-Fable-5.2-v5.md) (P1 = 12, P2 = 27, P3 = 11). De status per punt staat onderaan dat bestand.
+
+- **Selectorized:**
+  - de nok wikkelt op aan de juiste kant: raakpunt en vloerkatrol aan de opwikkelkant;
+  - de nok is een segment met R = grens · L / stapel; de grens hangt af van de oefening;
+  - de stapel stijgt R·θ en de kabel blijft even lang;
+  - kabelstations zijn 1:1 of 2:1, afhankelijk van de grens;
+  - lagerhuis Ø70 x 12 (Ø50 H7), naafbus, instelschijf, aanslagen en een verstelbare zitting;
+  - de armen zijn van vlakovaal.
+- **Rigs:**
+  - dipstation met een U-zadel, 2 pennen en greep Ø42,4 x 4;
+  - een eigen monkey-ladder;
+  - de ophangbalk aan beide kanten gebout;
+  - vloerankers op elk vrijstaand rig;
+  - schetsplaten aan de voet.
+- **Opslag:**
+  - gezette platen zijn één positie met een uitslag en zetlijnen (DXF-laag ZETLIJN, zetblad);
+  - geschroefde zijplaten en bakken: minder lasuren;
+  - de plyobox is taps, met een deksel van 4 mm op 3 ribben.
+- **Strongman:**
+  - laadpaal met een afneembare T-greep;
+  - log van 1,2 m (35-52 kg);
+  - een eigen stenenplatform (237 kg);
+  - juk met verstelbare jukbalk, pennen van 450 mm en Hardox-sleepstrips.
+- **Buiten (EN 16630):**
+  - palen Ø114/89, 600 mm diep in een poer van 500 x 500 x 800, met een funderingsplan;
+  - ontluchtingsgaten om te verzinken;
+  - een klimzone zonder armaftrek, valtegels met een dikte volgens de valhoogte en een vingertoets;
+  - RVS-stangen (pro) en een bolle kopkap;
+  - plaatsing en keuring zitten in de prijs.
+- **Tekeningen:**
+  - de norm per soort in het titelblok, met EN ISO 13920-BF voor gelaste frames;
+  - het materiaal uit het profiel (S355/C45/E355 met 3.1-certificaat);
+  - in de buigtabel de richting per bocht en de terugvering;
+  - een wand-DXF voor de buislaser.
+- **Web:** de klantmodus (`?klant` of `klant.html`) toont geen werkplaats, kostprijs of marktband. Opties hangen nu af van de reeks.
+- **Prijs:**
+  - verpakking en handleiding worden niet meer dubbel geteld;
+  - de overhead hangt af van de grootteklasse;
+  - buigen, plaatsing en keuring zitten erin.
+  - De tabel met het uurloon op € 45, € 60 en € 65 staat in [docs/Marktprijzen.md](docs/Marktprijzen.md).
+- **Bedrijfskeuzes:** die liggen bij Ian. Er is niets geschrapt: FS-13..22 blijven, semi-pro blijft en de thuislijn blijft.
+
 ## Testen: snel of volledig
 
 `npx vitest run src/qa/qaFitness.test.ts` is de snelle standaardrun (± 30 s). De tests per toestel lopen op een

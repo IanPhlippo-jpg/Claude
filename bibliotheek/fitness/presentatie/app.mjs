@@ -6,6 +6,7 @@ import { SOORTEN, VERSIE, RAL_FITNESS, BEKLEDING } from '../onderdelen.mjs';
 import { OPTIES } from '../opties.mjs';
 import { berekening } from '../bereken.mjs';
 import { kostprijs, STANDAARD } from '../prijzen.mjs';
+import { normVan } from '../blad.mjs';
 import { miniatuur, tekenBalken, alleGeo, PROJ, omhullende } from '../aanzicht.mjs';
 import { scene3d } from '../scene3d.mjs';
 
@@ -48,7 +49,7 @@ function teken() {
   const t = PER_ID[k.id] ?? TOESTELLEN[0], o = toestel(t.id, k.versie, optVan()), kp = kostprijs(o, instKost()), B = berekening(o), x = vr(t.id);
   $('s-maat').hidden = !t.maten; if (t.maten) $('k-maat').innerHTML = t.maten.map((m) => `<label class="kies"><input type="radio" name="maat" value="${m}"${(x.maat ?? 'standaard') === m ? ' checked' : ''}><span>${m}</span></label>`).join('');
   const zw = o.delen.some((d) => /^(Schijfhouder|Laadpen)/.test(d.naam)) || x.chroom === false;
-  $('k-opties').innerHTML = (zw ? `<label class="kies"><input type="checkbox" name="zwart"${x.chroom === false ? ' checked' : ''}><span>Schijfhouders zwart i.p.v. chroom</span></label>` : '') + (OPTIES[t.soort] ?? []).map((p) => `<label class="kies" title="${esc(p.uitleg)}"><input type="checkbox" name="optie" value="${p.id}"${(x.opties ?? []).includes(p.id) ? ' checked' : ''}><span>${esc(p.naam)}</span></label>`).join('');
+  $('k-opties').innerHTML = (zw ? `<label class="kies"><input type="checkbox" name="zwart"${x.chroom === false ? ' checked' : ''}><span>Schijfhouders zwart i.p.v. chroom</span></label>` : '') + (OPTIES[t.optiesSoort ?? t.soort] ?? []).map((p) => `<label class="kies" title="${esc(p.uitleg)}"><input type="checkbox" name="optie" value="${p.id}"${(x.opties ?? []).includes(p.id) ? ' checked' : ''}><span>${esc(p.naam)}</span></label>`).join('');
   const niet = o.gekozenOpties.filter((g) => !g.gelukt).map((g) => g.naam.toLowerCase());
   if (niet.length) $('k-opties').insertAdjacentHTML('beforeend', `<p class="uitleg" style="margin:6px 0 0">Past niet op dit toestel: ${esc(niet.join(', '))}.</p>`);
   document.body.dataset.soort = t.soort;
@@ -59,12 +60,13 @@ function teken() {
   $('s-leer').hidden = !o.kussens.length;
   const last = o.maxLast ? `${o.maxLast} kg` : o.stapels.length ? `stapel ${o.stapels.map((x) => x.n * x.kg).join(' + ')} kg` : '-';
   $('feiten').innerHTML = [['Buitenmaten', `${o.maten.B} x ${o.maten.D} x ${o.maten.H} mm`], ['Vloer', `${o.vloer.toFixed(2).replace('.', ',')} m²`], ['Gewicht', `± ${Math.round(o.massa)} kg`], ['Gebruiker', `max. ${o.V.gebruiker} kg`], ['Last', last]].map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
-  $('veilig').className = `veilig ${B.oordeel === 'rood' ? 'oranje' : B.oordeel}`; $('veilig').textContent = B.oordeel === 'groen' ? 'Berekend volgens EN ISO 20957 (prototype: proeflast nog te doen)' : 'Berekend volgens EN ISO 20957, met punten die we nakijken (prototype: proeflast nog te doen)';
+  $('veilig').className = `veilig ${B.oordeel === 'rood' ? 'oranje' : B.oordeel}`; $('veilig').textContent = B.oordeel === 'groen' ? `Berekend volgens ${normVan(o)} (prototype: proeflast nog te doen)` : `Berekend volgens ${normVan(o)}, met punten die we nakijken (prototype: proeflast nog te doen)`;
   const toon = inst.prijs, bedrag = toon === 'excl' ? kp.verkoop : kp.incl, [lo, hi] = kp.markt.band, max = Math.max(hi * 1.15, kp.incl * 1.1);
   $('prijsvak').hidden = toon === 'geen';
   $('p-label').textContent = toon === 'excl' ? 'Prijs excl. btw' : 'Prijs incl. 21 % btw'; $('p-bedrag').textContent = eur(bedrag); $('p-sub').textContent = `${VERSIE[k.versie].naam.toLowerCase()}${o.maat !== 'standaard' ? ` · ${o.maat}` : ''}, gepoedercoat in RAL ${k.ral}${o.gekozenOpties.some((g) => g.gelukt) ? `, met ${o.gekozenOpties.filter((g) => g.gelukt).map((g) => g.naam.toLowerCase()).join(', ')}` : ''}, zonder levering`;
   $('m-band').style.left = `${(lo / max) * 100}%`; $('m-band').style.width = `${((hi - lo) / max) * 100}%`; $('m-pin').style.left = `${Math.min(100, (kp.incl / max) * 100)}%`;
-  $('m-tekst').textContent = `Vergelijkbare toestellen in de winkel: ${eur(lo)} - ${eur(hi)} incl. btw. Eigen werk in staal, met tekeningen en berekening.`;
+  // klantgericht (P2-26 v6): geen marktband en geen oordeel over de markt in de presentatie
+  $('m-tekst').textContent = 'Eigen werk in staal, met tekeningen en berekening; levertermijn op aanvraag.'; $('m-band').closest('.meter').hidden = true; void lo; void hi; void max;
   $('printkop').innerHTML = `<b>${esc(inst.bedrijf || 'Fitnesstoestellen')}</b> ${esc(inst.contact)}`; $('bedrijf').textContent = inst.bedrijf ? `${inst.bedrijf}${inst.contact ? ` · ${inst.contact}` : ''}` : 'gelast in eigen werkplaats, thuis en pro';
   if (tab === 'tek') {
     const geo = alleGeo(o, false);

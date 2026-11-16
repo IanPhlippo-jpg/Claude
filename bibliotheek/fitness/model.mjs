@@ -72,7 +72,7 @@ export function contact(g1, g2, tol = 0.6) {
 
 // ---------------------------------------------------------------- de bouwer
 export function bouwer(V, stand = 0) {
-  const o = { stand, V, delen: [], koop: [], kussens: [], katrollen: [], kabels: [], stapels: [], bouten: [], pennen: [], lasten: [], reken: [], toetsen: [], trek: [], spleten: [], toon: [], context: [], gebruiker: null, notities: [], muur: null };
+  const o = { stand, V, gezet: [], delen: [], koop: [], kussens: [], katrollen: [], kabels: [], stapels: [], bouten: [], pennen: [], lasten: [], reken: [], toetsen: [], trek: [], spleten: [], toon: [], context: [], gebruiker: null, notities: [], muur: null };
   let groep = 'frame', nr = 0;
   const P = (rol) => PROFIEL[V.P[rol] ?? rol] ?? (() => { throw new Error(`profiel ${rol}`); })();
   const b = {
@@ -83,7 +83,7 @@ export function bouwer(V, stand = 0) {
     staaf(naam, rol, a, bb, opt = {}) {
       const Pf = P(rol), g = balk(a, bb, opt.v ?? standaardV(norm(sub(bb, a))), Pf.b, Pf.h, Pf.vorm === 'buis' || Pf.vorm === 'rond');
       if (Pf.vorm === 'koker') g.r = Pf.ovaal ? Math.min(Pf.b, Pf.h) / 2 : Math.min(2 * Pf.t, Math.min(Pf.b, Pf.h) / 4); // buitenhoekradius EN 10219-2 (2t); vlakovaal: halve breedte
-      const d = { id: `d${++nr}`, soort: 'staaf', naam, groep: opt.groep ?? groep, prof: Pf.id, P: Pf, a, b: bb, u: g.u, v: g.v, w: g.w, L: len(sub(bb, a)), verstek: opt.verstek ?? [0, 0], gaten: (opt.gaten ?? []).map((x) => ({ as: 'w', door: Pf.vorm === 'koker' || Pf.vorm === 'buis' ? 2 : 1, ...x })), geo: [g], kapNodig: opt.kap ?? true, opm: opt.opm ?? '', in: opt.in ?? null, rol: opt.rol ?? rol, westside: opt.westside ?? null };
+      const d = { id: `d${++nr}`, soort: 'staaf', naam, groep: opt.groep ?? groep, prof: Pf.id, P: Pf, a, b: bb, u: g.u, v: g.v, w: g.w, L: len(sub(bb, a)), verstek: opt.verstek ?? [0, 0], gaten: (opt.gaten ?? []).map((x) => ({ as: 'w', door: Pf.vorm === 'koker' || Pf.vorm === 'buis' ? 2 : 1, ...x })), geo: [g], kapNodig: opt.kap ?? true, opm: opt.opm ?? '', in: opt.in ?? null, rol: opt.rol ?? rol, westside: opt.westside ?? null, boring: opt.boring ?? null };
       o.delen.push(d); return d;
     },
     /**
@@ -123,6 +123,22 @@ export function bouwer(V, stand = 0) {
       const d = { id: `d${++nr}`, soort: 'plaat', naam, groep: opt.groep ?? groep, t: r1(t), l: r1(maxx - minx), bmaat: r1(maxy - miny), mn, mx, as: { t: ax(nn), b: ax(ey), l: ax(ex) }, gaten, rond: false, vorm: 'contour', geo, opm: opt.opm ?? '', in: opt.in ?? null, kleur, laser: true, stapel: false,
         contour: { o: o3, ex, ey, n: nn, t, punten: cont.punten, segmenten: cont.segmenten, omtrek: cont.omtrek + uits.reduce((tt, u) => tt + u.omtrek, 0), uitsparingen: uits, minx, miny, opp: opp(cont.punten) - uits.reduce((tt, u) => tt + opp(u.punten), 0) } };
       o.delen.push(d); return d;
+    },
+    /**
+     * gezette plaat (v6, P1-11): de 3D-delen (kinderen) blijven voor de 3D en de controles, de stuklijst, de DXF en het
+     * stukblad krijgen één positie met de uitslag { punten: [[x, y, r]], zetlijnen: [{ a, b, hoek, R, richting, ba }],
+     * uitsparingen } en de dikte t. Kinderen van dezelfde gezette plaat lassen niet aan elkaar (het is een zetting).
+     */
+    gezet(naam, kinderen, opt) {
+      const t = opt.t, ui = opt.uitslag, cont = afronden(ui.punten), uits = (ui.uitsparingen ?? []).map((h) => afronden(h));
+      const xs = cont.punten.map((p) => p[0]), ys = cont.punten.map((p) => p[1]), minx = Math.min(...xs), miny = Math.min(...ys), maxx = Math.max(...xs), maxy = Math.max(...ys);
+      const opp = (pts) => Math.abs(pts.reduce((tt, p, i) => tt + p[0] * pts[(i + 1) % pts.length][1] - pts[(i + 1) % pts.length][0] * p[1], 0)) / 2;
+      const mn = [0, 1, 2].map((i) => Math.min(...kinderen.map((k) => k.mn?.[i] ?? Math.min(...k.geo.map((g) => Math.min(g.a[i], g.b[i])))))), mx = [0, 1, 2].map((i) => Math.max(...kinderen.map((k) => k.mx?.[i] ?? Math.max(...k.geo.map((g) => Math.max(g.a[i], g.b[i]))))));
+      const d = { id: `g${++nr}`, soort: 'plaat', naam, groep: kinderen[0].groep, t: r1(t), l: r1(maxx - minx), bmaat: r1(maxy - miny), mn, mx, as: { t: 2, b: 1, l: 0 }, gaten: [], rond: false, vorm: 'gezet', geo: kinderen[0].geo, opm: opt.opm ?? '', in: null, kleur: opt.kleur ?? kinderen[0].kleur ?? 'frame', laser: true, stapel: false, K: opt.K ?? 0.4,
+        contour: { o: [0, 0, 0], ex: X, ey: Y, n: Z, t, punten: cont.punten, segmenten: cont.segmenten, omtrek: cont.omtrek + uits.reduce((tt, u) => tt + u.omtrek, 0), uitsparingen: uits, minx, miny, opp: opp(cont.punten) - uits.reduce((tt, u) => tt + opp(u.punten), 0) },
+        zetlijnen: ui.zetlijnen.map((z) => ({ ...z, a: [z.a[0] - minx, z.a[1] - miny], b: [z.b[0] - minx, z.b[1] - miny] })), kinderen: kinderen.map((k) => k.id) };
+      for (const k of kinderen) { k.deelVan = d.id; k.gezet = d; }
+      o.gezet.push(d); return d;
     },
     /** plaat als doos van p0 tot p1 (een van de drie maten is de dikte); opt: { gaten: [{ p: [x,y,z], d }], rond, vorm, opm } */
     plaat(naam, p0, p1, opt = {}) {
@@ -182,8 +198,10 @@ export function bouwer(V, stand = 0) {
       }
       lijn.push(pts[pts.length - 1].p);
       for (let i = 1; i < lijn.length; i++) L += len(sub(lijn[i], lijn[i - 1]));
+      // op een nok opgewikkeld stuk (R·θ): hoort bij de lengte, de kabel ligt dan in de groef van de nok
+      L += opt.opgewikkeld ?? 0;
       const key = opt.key ?? V.kabel, dk = KOOP[key].d;
-      const k = { naam, route: pts, lijn, L, key, d: dk, overbrenging: opt.overbrenging ?? 1, last: opt.last ?? 0, begin: opt.begin ?? 'stapel', einde: opt.einde ?? 'greep', slag: opt.slag ?? 0 };
+      const k = { naam, route: pts, lijn, L, key, d: dk, overbrenging: opt.overbrenging ?? 1, last: opt.last ?? 0, begin: opt.begin ?? 'stapel', einde: opt.einde ?? 'greep', slag: opt.slag ?? 0, opgewikkeld: opt.opgewikkeld ?? 0, raak: opt.raak ?? null };
       o.kabels.push(k);
       // de kabel zelf (op lengte + 2 x 150 voor de lussen), persklemmen, kous, eindstuk en karabijn
       b.koop(key, 1, lijn.slice(1).map((q, i) => balk(lijn[i], q, standaardV(norm(sub(q, lijn[i]))), dk, dk, true, 'kabel')).filter((g) => len(sub(g.b, g.a)) > 1), { naam: `${KOOP[key].naam}: ${naam}`, meter: Math.ceil((L + 300) / 100) / 10 });
@@ -299,6 +317,7 @@ export function afwerken(o) {
     if (A.groep !== B.groep || (A.stapel && B.stapel)) continue;
     if ((A.stapel || B.stapel) && !/Bovenplaat/.test((A.stapel ? A : B).naam)) continue;
     if (A.geenLas || B.geenLas) continue;
+    if (A.deelVan && A.deelVan === B.deelVan) continue; // twee vlakken van één gezette plaat: een zetting, geen las
     const c = contactDeel(A, B);
     if (!c || c.lengte < 5) continue;
     const plaatPlaat = A.soort === 'plaat' && B.soort === 'plaat';

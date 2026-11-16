@@ -6,6 +6,7 @@
 import { staander, voetjes, X, Y, Z, balk, doos } from './bouwstenen.mjs';
 import { mt } from './bouwstenen.mjs';
 import { add, mul, norm, cross } from './model.mjs';
+import { uitslagStrook, ontvouw } from './vorm.mjs';
 
 const pro = (b) => b.V.id !== 'thuis';
 const MATEN = ['compact', 'standaard', 'XL'];
@@ -26,6 +27,9 @@ export function houder(b, S, p, dir, L = 250, naam = 'Schijfhouder') {
   const q = [...p]; q[ax] = d[ax] > 0 ? mx[ax] : mn[ax];
   const h = b.staaf(naam, 'b42x3', q, add(q, mul(d, L)), { opm: 'buis Ø42,4 x 3,2 met rubberen huls (Ø48) en eindkap: schijven Ø50 schuiven er vrij over' });
   b.koop('rubberhuls', 1, [balk(add(q, mul(d, 22)), add(q, mul(d, L - 8)), h.v, 48, 48, true, 'rubber')], { naam: `Rubberen huls op ${naam.toLowerCase()}`, meter: Math.round(L - 30) / 1000 });
+  // P3-08 v6: gedraaide eindkap Ø56 met kraag in de accentkleur: de schijven blijven hangen
+  b.o.pronk = b.o.pronk ?? []; b.o.pronk.push(balk(add(q, mul(d, L)), add(q, mul(d, L + 6)), h.v, 56, 56, true, 'accent'), balk(add(q, mul(d, L + 6)), add(q, mul(d, L + 14)), h.v, 44, 44, true, 'accent'));
+  b.koop('eindkapAccent', 1, [], { naam: `Gedraaide eindkap Ø56 met kraag (accentkleur) op ${naam.toLowerCase()}`, groep: 'afwerking' });
   return h;
 }
 
@@ -49,10 +53,11 @@ export function rekLagen(b, def, c) {
     b.staaf('Kopligger', 'licht', [x, y1 - a / 2, H + a / 2], [x, y2 + a / 2, H + a / 2]);
     if (i === 0 || i === xs.length - 1) {
       const sx = i === 0 ? -1 : 1, tz = pro(b) ? 4 : 3;
-      b.contour('Zijplaat', [x + sx * (a / 2 + tz / 2), 0, 0], [0, 1, 0], [0, 0, 1], tz, [[y1 - a / 2, a, 0], [y2 + a / 2, a, 0], [y2 + a / 2, H + a, 40], [y1 - a / 2, H + a, 40]], {
+      const zp = b.contour('Zijplaat', [x + sx * (a / 2 + tz / 2), 0, 0], [0, 1, 0], [0, 0, 1], tz, [[y1 - a / 2, a, 0], [y2 + a / 2, a, 0], [y2 + a / 2, H + a, 40], [y1 + a / 2 + 40, H + a, 30], [y1 - a / 2, a + Math.round((H - a) * 0.55), 60]], {
         uitsparingen: logo ? [[[yc0 - 80, zl - 20, 19.5], [yc0 + 80, zl - 20, 19.5], [yc0 + 80, zl + 20, 19.5], [yc0 - 80, zl + 20, 19.5]]] : [],
-        banden: 8, opm: `gelaserde zijplaat ${tz} mm met ronde hoeken R40${logo ? ' en het logo als uitsparing (placeholder)' : ''}, op de palen en de kopligger gelast (stoppen de goten af)` });
-      if (logo) b.plaat('Logo-achterplaat', [x + sx * (a / 2 - 2), yc0 - 95, zl - 35], [x + sx * (a / 2), yc0 + 95, zl + 35], { kleur: 'logo', opm: 'gelaserd 2 mm in de accentkleur achter de logo-uitsparing, met VHB op de zijplaat' });
+        banden: 8, opm: `gelaserde zijplaat ${tz} mm met ronde hoeken R40${logo ? ' en het logo als uitsparing (placeholder)' : ''}, met 6 blindklinkmoeren M8 op de palen geschroefd (stoppen de goten af)` });
+      zp.geenLas = true; b.koop('boutM8', 6, [], { naam: 'Bout M8 x 16 + blindklinkmoer M8 (zijplaat op de palen)' });
+      if (logo) b.plaat('Logo-achterplaat', [x + sx * (a / 2 - 2), yc0 - 95, zl - 35], [x + sx * (a / 2), yc0 + 95, zl + 35], { kleur: 'logo', opm: 'gelaserd 2 mm in de accentkleur achter de logo-uitsparing, met VHB op de zijplaat' }).geenLas = true;
     }
     return { x, voet, pv, pa };
   });
@@ -68,20 +73,28 @@ export function rekLagen(b, def, c) {
       const ag = b.P('ligger').h, S = add([0, yc, z(yc) - a], mul(n, a / 2 + ag / 2));
       b.staaf(`Gootligger laag ${k + 1}`, 'ligger', [x0, S[1], S[2]], [x1, S[1], S[2]], { v: e1, kap: false, opm: 'over alle eindframes, op de laagarmen gelast; de V-goot erop gelast langs de zetlijn' });
       const F = add(S, mul(n, ag / 2)), Lf = Math.hypot(l.w / 2, l.hV), al = Math.atan2(l.hV, l.w / 2);
+      const flanken = [];
       for (const s of [-1, 1]) {
         const f = norm(add(mul(e1, s * l.w / 2), mul(n, l.hV))), mIn = norm(add(mul(n, l.w / 2), mul(e1, -s * l.hV)));
         const o3 = add(F, mul(n, 0.3 - 2 * Math.sin(al) + (tg / 2) * Math.cos(al)));
-        b.contour(`V-goot laag ${k + 1}`, o3, [1, 0, 0], f, tg, [[x0, 2], [x1, 2], [x1, Lf], [x0, Lf]], { banden: 1, opm: `flank van de V-goot: één gezette plaat ${tg} mm, ${Math.round(2 * Lf)} mm ontwikkeld, flanken ${Math.round(al / RAD)}° en de goot ${Math.round(th / RAD)}° naar voren; rubberen inleg 3 mm` });
+        flanken.push(b.contour(`V-goot laag ${k + 1}`, o3, [1, 0, 0], f, tg, [[x0, 2], [x1, 2], [x1, Lf], [x0, Lf]], { banden: 1, opm: `flank van de V-goot: één gezette plaat ${tg} mm, ${Math.round(2 * Lf)} mm ontwikkeld, flanken ${Math.round(al / RAD)}° en de goot ${Math.round(th / RAD)}° naar voren; rubberen inleg 3 mm` }));
         const m = add(add(o3, mul(f, (Lf + 2) / 2)), mul(mIn, tg / 2 + 1.5));
         rubber.push({ g: balk([x0 + 6, m[1], m[2]], [x1 - 6, m[1], m[2]], f, Lf - 14, 3, false, 'rubber'), opp: ((x1 - x0 - 12) * (Lf - 14)) / 1e6 });
       }
+      // één gezette plaat: uitslag met één zetting (afwijking 2·α van vlak) in het midden (P1-11)
+      b.gezet(`V-goot laag ${k + 1}`, flanken, { t: tg, uitslag: uitslagStrook(x1 - x0, [Lf - 2, Lf - 2], [{ hoek: Math.round((2 * al) / RAD), R: 2 * tg, richting: 'op' }], tg), opm: `V-goot uit één plaat ${tg} mm: 1 zetting ${Math.round((2 * al) / RAD)}° Ri ${2 * tg} (K = 0,4, AANNAME zetterij); rubberen inleg 3 mm` });
     } else {
       for (let q = 0; q < xs.length - 1; q++) {
         const xa = xs[q] + a / 2, xb = xs[q + 1] - a / 2;
         for (const y of [yv, yA]) b.staaf(`Ligger laag ${k + 1}`, 'licht', [xa, y, z(y)], [xb, y, z(y)], { opm: 'op de laagarmen gelast' });
         const zt = Math.max(z(yv), z(yA)) + a / 2, tb = 3, ya = yv - a / 2, yb = yA + a / 2, rand = l.zit ? 0 : 40;
-        b.plaat(`Bak laag ${k + 1}`, [xa, ya, zt], [xb, yb, zt + tb], { opm: rand ? `gezette bak ${tb} mm: bodem met 2 opstaande randen van ${rand} mm (één plaat, 2 zettingen); rubbermat 3 mm` : `zitplaat ${tb} mm, randen omgezet naar onder; het zitkussen erop geschroefd` });
-        if (rand) for (const [y0, y9] of [[ya, ya + tb], [yb - tb, yb]]) b.plaat(`Bak laag ${k + 1}`, [xa, y0, zt + tb], [xb, y9, zt + tb + rand], { opm: `opstaande rand van de gezette bak (${rand} mm), zetting R4` });
+        const bod = b.plaat(rand ? `Bak laag ${k + 1}` : `Zitplaat laag ${k + 1}`, [xa, ya, zt], [xb, yb, zt + tb], { opm: rand ? `bodem van de gezette bak` : `zitplaat ${tb} mm, randen gebroken; het zitkussen erop geschroefd` });
+        bod.geenLas = true; // met 4 bouten M8 op de liggers (P2-25 v6: geen lange lasnaad, de bak is uitneembaar)
+        b.koop('boutM8', 4, [], { naam: `Bout M8 x 20 met ring: bak laag ${k + 1} op de liggers` });
+        if (rand) {
+          const randen = [[ya, ya + tb], [yb - tb, yb]].map(([y0, y9]) => { const r2 = b.plaat(`Bak laag ${k + 1}`, [xa, y0, zt + tb], [xb, y9, zt + tb + rand], { opm: 'opstaande rand van de gezette bak' }); r2.geenLas = true; return r2; });
+          b.gezet(`Bak laag ${k + 1}`, [bod, ...randen], { t: tb, uitslag: uitslagStrook(xb - xa, [rand, yb - ya - 2 * tb, rand], [{ hoek: 90, R: 2 * tb, richting: 'op' }, { hoek: 90, R: 2 * tb, richting: 'op' }], tb), opm: `gezette bak uit één plaat ${tb} mm: bodem met 2 opstaande randen van ${rand} mm, 2 zettingen 90° Ri ${2 * tb} (K = 0,4); rubbermat 3 mm` });
+        }
         if (rand) rubber.push({ g: balk([xa + 4, (ya + yb) / 2, zt + tb + 1.5], [xb - 4, (ya + yb) / 2, zt + tb + 1.5], Y, yb - ya - 2 * tb - 4, 3, false, 'rubber'), opp: ((xb - xa) * (yb - ya)) / 1e6 });
         if (l.zit) b.kussen('Zitkussen', [xa + 30, (ya + yb) / 2, zt + tb], [xb - 30, (ya + yb) / 2, zt + tb], Z, yb - ya - 20, 60);
       }
@@ -132,25 +145,58 @@ export function parallettes(b, def, c) {
   b.reken('Parallette (gebruiker in handstand, op één)', b.o.delen.find((d) => d.naam === 'Parallette'), 'ligger', L - 240, b.V.gebruiker, { proef: 'intrinsiek' });
   b.last('Gebruiker', 100, [0, 0, h + 400], { geval: 'steun' });
 }
-/** plyobox in staal: een dichte doos uit gezette plaat (mantel met 4 ronde zettingen R30, bodem, deksel met antislip),
- *  handgrepen als uitsparing in de zijkanten, een ribbe onder het deksel en rubber eronder */
+/** plyobox in staal (v6, P1-12): taps (onderaan e mm breder per zijde, zoals de stalen boxen van de merken), een mantel
+ *  uit één gezette plaat (4 zettingen R30, gelast op één hoek), bodem, deksel 4 mm op 3 ribben met antislip en een
+ *  rubberen rand, handgrepen als uitsparing in de zijkanten. Belastinggeval: landing op de rand (2 x gebruiker, 30 %
+ *  horizontaal). */
 export function plyobox(b, def, c) {
-  const [B, D, H] = c.maat ?? [600, 500, 500], P = b.P('licht'), a = P.h, tm = 2, td = 3, R = 30, zr = 5, z0 = zr + tm, z1 = H - td;
-  b.koop('rubbermat', 1, [[-1, 0], [1, 0]].map(([sx]) => balk([sx * (B / 2 - 40), -D / 2 + 20, zr / 2], [sx * (B / 2 - 40), D / 2 - 20, zr / 2], X, 50, zr, false, 'rubber')), { naam: 'Rubberstroken 50 x 5 onder de box (antislip, geluid)', oppervlak: (2 * 0.05 * (D - 40)) / 1e3 });
-  const rh = (w, hh) => [[-w / 2, -hh / 2, R], [w / 2, -hh / 2, R], [w / 2, hh / 2, R], [-w / 2, hh / 2, R]];
-  b.contour('Bodem', [0, 0, zr + tm / 2], X, Y, tm, rh(B, D), { banden: 8, opm: `bodem ${tm} mm, gelaserd met ronde hoeken R${R}, aan de mantel gelast` });
-  b.contour('Deksel', [0, 0, H - td / 2], X, Y, td, rh(B, D), { banden: 8, opm: `deksel ${td} mm met ronde hoeken R${R} en antislip (kwartszand), rand gebroken; rondom op de mantel gelast` });
-  // mantel: voor- en achterkant (vlak in x) en de twee zijkanten (vlak in y) met een handgreep; de hoeken zijn zettingen R30
-  const grip = (Lz) => [[[-65, H - 140, 17], [65, H - 140, 17], [65, H - 105, 17], [-65, H - 105, 17]]].map((u) => u.map(([x, y, r]) => [x, Math.min(y, Lz), r]));
-  for (const sy of [-1, 1]) b.contour('Mantel', [0, sy * (D / 2 - tm / 2), 0], X, Z, tm, [[-B / 2 + R, z0], [B / 2 - R, z0], [B / 2 - R, z1], [-B / 2 + R, z1]], { banden: 1, opm: `mantel ${tm} mm: één gezette plaat rond de box, 4 zettingen R${R}, gelast op één hoek` });
-  for (const sx of [-1, 1]) b.contour('Mantel', [sx * (B / 2 - tm / 2), 0, 0], Y, Z, tm, [[-D / 2 + R, z0], [D / 2 - R, z0], [D / 2 - R, z1], [-D / 2 + R, z1]], { banden: 1, uitsparingen: grip(z1), opm: `mantel ${tm} mm (zijkant) met een handgreep 130 x 35 als uitsparing, rand omgezet` });
-  // de ronde zettingen in de hoeken (alleen voor het beeld; ze horen bij de mantelplaat)
+  const [B, D, H] = c.maat ?? [600, 500, 500], P = b.P('licht'), a = P.h, tm = 2, td = c.td ?? 4, R = 30, zr = 5, z0 = zr + tm, z1 = H - td, e = c.taps ?? 100;
+  const Bb = B + 2 * e, Db = D + 2 * e, hz = z1 - z0, Ls = Math.hypot(e, hz), sn = e / Ls, cs = hz / Ls;
+  b.koop('rubbermat', 1, [[-1, 0], [1, 0]].map(([sx]) => balk([sx * (Bb / 2 - 40), -Db / 2 + 20, zr / 2], [sx * (Bb / 2 - 40), Db / 2 - 20, zr / 2], X, 50, zr, false, 'rubber')), { naam: 'Rubberstroken 50 x 5 onder de box (antislip, geluid)', oppervlak: (2 * 0.05 * (Db - 40)) / 1e3 });
+  const rh = (w, hh, r = R) => [[-w / 2, -hh / 2, r], [w / 2, -hh / 2, r], [w / 2, hh / 2, r], [-w / 2, hh / 2, r]];
+  b.contour('Bodem', [0, 0, zr + tm / 2], X, Y, tm, rh(Bb, Db), { banden: 8, opm: `bodem ${tm} mm, gelaserd met ronde hoeken R${R}, aan de mantel gelast` });
+  b.contour('Deksel', [0, 0, H - td / 2], X, Y, td, rh(B, D), { banden: 8, opm: `deksel ${td} mm met ronde hoeken R${R} en antislip (kwartszand), op de mantel en 3 ribben gelast` });
+  // mantel: 4 schuine vlakken (trapezium), de hoeken zijn zettingen R30; de zijkanten met een handgreep
+  const grip = [[-65, Ls - 140, 17], [65, Ls - 140, 17], [65, Ls - 105, 17], [-65, Ls - 105, 17]];
+  const vlakken = [];
+  for (const sy of [-1, 1]) {
+    const ey = norm([0, -sy * e, hz]), o3 = add([0, sy * Db / 2, z0], mul(norm([0, -sy * cs, -sn]), tm / 2));
+    vlakken.push(b.contour('Mantel', o3, X, ey, tm, sy < 0 ? [[-(Bb / 2 - R), 0], [Bb / 2 - R, 0], [B / 2 - R, Ls], [-(B / 2 - R), Ls]] : [[-(Bb / 2 - R), 0], [-(B / 2 - R), Ls], [B / 2 - R, Ls], [Bb / 2 - R, 0]], { banden: 6, opm: 'mantel (voor/achter)' }));
+  }
+  for (const sx of [-1, 1]) {
+    const ey = norm([-sx * e, 0, hz]), o3 = add([sx * Bb / 2, 0, z0], mul(norm([-sx * cs, 0, -sn]), tm / 2));
+    vlakken.push(b.contour('Mantel', o3, Y, ey, tm, sx < 0 ? [[-(Db / 2 - R), 0], [-(D / 2 - R), Ls], [D / 2 - R, Ls], [Db / 2 - R, 0]] : [[-(Db / 2 - R), 0], [Db / 2 - R, 0], [D / 2 - R, Ls], [-(D / 2 - R), Ls]], { banden: 6, uitsparingen: [grip], opm: 'mantel (zijkant) met een handgreep 130 x 35' }));
+  }
+  // uitslag van de mantel: voor → rechts → achter → links, de 4e hoek is de lasnaad
+  const q = (p0, p1, p2, p3) => [p0, p1, p2, p3];
+  const pan = [
+    { q: q([-(Bb / 2 - R), -Db / 2, z0], [Bb / 2 - R, -Db / 2, z0], [B / 2 - R, -D / 2, z1], [-(B / 2 - R), -D / 2, z1]) },
+    { q: q([Bb / 2, -(Db / 2 - R), z0], [Bb / 2, Db / 2 - R, z0], [B / 2, D / 2 - R, z1], [B / 2, -(D / 2 - R), z1]), gaten: [grip.map(([u, v, r]) => [u + (Db / 2 - R), v, r])] },
+    { q: q([Bb / 2 - R, Db / 2, z0], [-(Bb / 2 - R), Db / 2, z0], [-(B / 2 - R), D / 2, z1], [B / 2 - R, D / 2, z1]) },
+    { q: q([-Bb / 2, Db / 2 - R, z0], [-Bb / 2, -(Db / 2 - R), z0], [-B / 2, -(D / 2 - R), z1], [-B / 2, D / 2 - R, z1]), gaten: [grip.map(([u, v, r]) => [u + (Db / 2 - R), v, r])] },
+  ];
+  const ui = ontvouw(pan, [0, 1, 2].map(() => ({ hoek: 90, R, richting: 'op' })), tm);
+  b.gezet('Mantel', vlakken, { t: tm, uitslag: ui, opm: `mantel uit één plaat ${tm} mm, taps (${e} mm per zijde), 3 zettingen 90° Ri ${R} (K = 0,4) en een lasnaad op de 4e hoek; 2 handgrepen 130 x 35` });
+  // de ronde zettingen in de hoeken (alleen voor het beeld): schuine cilinders
   b.o.pronk = b.o.pronk ?? [];
-  for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) b.o.pronk.push(balk([sx * (B / 2 - R), sy * (D / 2 - R), z0], [sx * (B / 2 - R), sy * (D / 2 - R), z1], X, 2 * R, 2 * R, true, 'frame'));
+  for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) b.o.pronk.push(balk([sx * (Bb / 2 - R), sy * (Db / 2 - R), z0], [sx * (B / 2 - R), sy * (D / 2 - R), z1], X, 2 * R, 2 * R, true, 'frame'));
   b.o.pronk.push(balk([-B / 2 + 25, 0, H + 0.4], [B / 2 - 25, 0, H + 0.4], Y, D - 50, 0.8, false, 'eindkap'));
   b.koop('antislip', 1, [], { naam: 'Antislip (kwartszand) op het deksel', oppervlak: Math.round(((B - 50) * (D - 50)) / 1e4) / 100 });
-  const rib = b.staaf('Ribbe', 'licht', [0, -D / 2 + tm, z1 - a / 2], [0, D / 2 - tm, z1 - a / 2], { kap: false, opm: 'ribbe onder het deksel, tegen de mantel gelast' });
-  b.reken('Ribbe onder het deksel (landing, dynamisch x 2)', rib, 'ligger', D, b.V.gebruiker * 2, { proef: 'intrinsiek' });
+  b.koop('rubbermat', 1, [[0, -D / 2, B], [0, D / 2, B]].map(([x, y, l]) => balk([x - l / 2, y, H - 6], [x + l / 2, y, H - 6], Z, 16, 8, false, 'rubber')).concat([-1, 1].map((sx) => balk([sx * B / 2, -D / 2, H - 6], [sx * B / 2, D / 2, H - 6], Z, 16, 8, false, 'rubber'))), { naam: 'Rubberen kantprofiel rond het deksel (U 16 x 8)', oppervlak: ((2 * (B + D)) * 0.03) / 1e3 });
+  // 3 ribben onder het deksel (langs x), tegen de mantel
+  const ribY = [-D / 4, 0, D / 4], xr = B / 2 - tm - 4;
+  const ribben = ribY.map((y) => b.staaf('Ribbe', 'licht', [-xr, y, z1 - a / 2], [xr, y, z1 - a / 2], { kap: false, opm: 'ribbe onder het deksel, tegen de mantel gelast' }));
+  b.reken('Ribbe onder het deksel (landing, dynamisch x 2)', ribben[1], 'ligger', 2 * xr, b.V.gebruiker * 2, { proef: 'intrinsiek' });
+  {
+    // deksel tussen de ribben: strook 200 mm, overspanning D/4, vrij opgelegd (veilige kant)
+    const F = 2 * b.V.gebruiker * 9.81, Lp = D / 4, M = (F * Lp) / 4, W = (200 * td ** 2) / 6, s = M / W;
+    b.toets('Sterkte', `Deksel ${td} mm tussen de ribben (landing)`, `F = 2 · ${b.V.gebruiker} kg · g = ${(F / 1000).toFixed(2).replace('.', ',')} kN; strook 200 mm (AANNAME), overspanning ${Lp} mm vrij opgelegd: M = F·L/4 = ${Math.round(M / 1000)} Nm; W = 200·${td}²/6 = ${Math.round(W)} mm³: σ = ${Math.round(s)} N/mm² ≤ 235`, s / 235, 'EN 1993-1-1 §6.2.5 (plaatstrook)');
+    // landing op 50 mm van de bovenrand met 30 % horizontaal: kantelen om de onderrand (e mm verder uit)
+    const m = b.o.delen.reduce((t, d) => t, 0), Fh = 0.3 * F, Mk = Fh * H / 1000, mBox = (Bb * Db * tm + B * D * td) * 7.85e-6 + 4 * ((B + Bb) / 2) * Ls * tm * 7.85e-6 + 3 * 2 * xr * P.kgm / 1000;
+    const Mt = F * (50 + e) / 1000 + mBox * 9.81 * (Db / 2) / 1000;
+    b.toets('Stabiliteit', 'Landing op de rand (50 mm), 2 x gebruiker, 30 % horizontaal', `kantelmoment 0,3 · ${(F / 1000).toFixed(2).replace('.', ',')} kN · ${H} mm = ${Math.round(Mk)} Nm; tegenmoment: landing ${50 + e} mm binnen de onderrand + box ${Math.round(mBox)} kg op ${Db / 2} mm = ${Math.round(Mt)} Nm`, Mk / Mt, 'AANNAME: belastinggeval sprong op de rand (Fable 5.2 §4.3)');
+    void m;
+  }
   b.last('Gebruiker op de box', 100, [0, 0, H + 900], { geval: 'sprong' });
 }
 /** schijvenkar: voetframe op 4 zwenkwielen, middenpaal met 4 schuine houders en een duwbeugel */

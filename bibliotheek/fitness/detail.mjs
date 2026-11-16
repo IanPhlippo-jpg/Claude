@@ -128,7 +128,9 @@ export function typeplaatPlek(o) {
 }
 /** geen koker (buitentoestellen, strongman): op de langste staande buis aan de voorkant, of op de langste liggende */
 function buisPlek(o) {
-  const st = o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.L > 250 && Math.min(d.P.b, d.P.h) >= 40);
+  // ook de rechte benen van gebogen buizen (bank buiten: het infobord en het typeplaatje op het achterste been, P3-10 v6)
+  const benen = o.delen.filter((d) => d.pad && d.buig && Math.min(d.P.b, d.P.h) >= 40).flatMap((d) => d.buig.hoekpunten.slice(1).map((q, i) => { const a = d.buig.hoekpunten[i], u = norm(sub(q, a)), L = Math.hypot(...sub(q, a)); return { ...d, a, b: q, u, L, pad: null }; }));
+  const st = [...o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.L > 250 && Math.min(d.P.b, d.P.h) >= 40), ...benen.filter((d) => d.L > 250)];
   const d = st.filter((x) => Math.abs(x.u[2]) > 0.99).sort((a, b) => b.L - a.L)[0] ?? st.sort((a, b) => b.L - a.L)[0];
   if (!d) return null;
   const staat = Math.abs(d.u[2]) > 0.99, op = staat ? Z : d.u, vl = !staat && Math.abs(d.u[1]) > 0.9 ? [-1, 0, 0] : [0, -1, 0];

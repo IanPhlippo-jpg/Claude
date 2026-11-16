@@ -49,7 +49,7 @@ export function proUiterlijk(b, def) {
   }
   // 3. verchroomde schijfhouders (hardchroom of RVS-huls): niet gecoat
   const chroom = o.delen.filter((d) => d.soort === 'staaf' && /^(Schijfhouder|Laadpen)/.test(d.naam));
-  if (!o.afwerking.chroom || def.soort === 'opslag') chroom.length = 0; // opslag: rubberen huls in plaats van chroom
+  if (!o.afwerking.chroom || def.soort === 'opslag' || def.soort === 'buiten') chroom.length = 0; // opslag: rubberen huls; strongman: zwart gepassiveerd (P3-09) // opslag: rubberen huls in plaats van chroom
   for (const d of chroom) { d.geo[0].kleur = 'chroom'; d.afwerking = 'hardverchroomd, niet poedercoaten'; }
   if (chroom.length) b.koop('verchromen', chroom.length, [], { naam: `Hardverchromen: ${chroom.length} schijfhouder${chroom.length > 1 ? 's' : ''} (of RVS-huls Ø50 erover)`, groep: 'afwerking' });
   // 4. stapelkap (kabel): zilver/antraciet gezet plaatwerk, voorkant met kijkvenster en sleuf voor de selectiepen
@@ -80,6 +80,7 @@ function stapelKap(b) {
     const vz0 = mn[2] + 60, vz1 = mx[2] - 40;
     d.geo = [stuk(mn[ix], c - sl - vw, 'kappaneel'), stuk(c + sl + vw, mx[ix], 'kappaneel'), stuk(c - sl - vw, c - sl, 'venster', vz0, vz1), stuk(c + sl, c + sl + vw, 'venster', vz0, vz1),
       stuk(c - sl - vw, c - sl, 'kappaneel', mn[2], vz0), stuk(c + sl, c + sl + vw, 'kappaneel', mn[2], vz0), stuk(c - sl - vw, c + sl + vw, 'kappaneel', vz1, mx[2])];
+    { const lx = (w) => w, ax = d.as.l === 2; const u = [c - sl - vw - mn[ix], vz0 - mn[2], c + sl + vw - mn[ix], vz1 - mn[2]]; d.dxfUitsparingen = [ax ? [u[1], u[0], u[3], u[2]] : u]; void lx; }
     d.opm = `gezet plaatwerk 1,5 mm, poedercoat RAL 9006 (zilver); uitsparing 2 x ${Math.round(vw)} x ${Math.round(vz1 - vz0)} voor het kijkvenster (polycarbonaat 4 mm) en een sleuf ${2 * sl} mm voor de selectiepen; 4 x M8 aan de staanders, kanten omgezet`;
     n += 2;
     // instructieplaat op het linkerpaneel, op ooghoogte (of zo hoog als de kap gaat)
@@ -166,10 +167,10 @@ function rekVorm(b, metNaam = true) {
     if (o.delen.some((x) => x !== d && x.geo.some((g) => botsen(G, obb(g, 0.2))))) continue;
     const [p0, p1] = [geo.a, geo.b].map((q, i) => q), mn = [Math.min(p0[0], p1[0]) - 1.5, Math.min(p0[1], p1[1]), m[2] - Wp / 2], mx = [Math.max(p0[0], p1[0]) + 1.5, Math.max(p0[1], p1[1]), m[2] + Wp / 2];
     b.groep('Zijplaat');
-    b.plaat('Zijplaat met naam', mn, mx, { kleur: 'logo', in: d.id, laser: true, opm: `gelaserd 3 mm met de naam als uitsparing (placeholder), poedercoat in de accentkleur; met 3M VHB op ${d.naam.toLowerCase()} gekleefd` });
+    b.plaat('Zijplaat met naam', mn, mx, { kleur: 'logo', in: d.id, laser: true, opm: `gelaserd 3 mm met de naam als uitsparing (placeholder), poedercoat in de accentkleur; op 2 lasbouten M5 op ${d.naam.toLowerCase()}` });
     n++;
   }
-  if (n) b.koop('vhb', 1, [], { naam: `VHB-kleefband voor ${n} zijplaat${n > 1 ? 'en' : ''} met naam`, groep: 'afwerking' });
+  if (n) b.koop('lasbout', 2 * n, [], { naam: `Lasbout M5 x 12 + RVS-dopmoer voor ${n} zijplaat${n > 1 ? 'en' : ''} met naam (P3-11)`, groep: 'afwerking' });
 }
 /** gelaserde logoplaat 3 mm (logo-uitsparing, placeholder) op een vaste koker van het frame, op VHB-tape (geen gaten):
  *  rek = voorkant van de hoogste dwarsligger; anders de buitenkant van de langste staander boven 1,35 m (het typeplaatje
@@ -205,8 +206,10 @@ function logoPlaat(b, def) {
         if (anderen.some((x) => x.d !== d && x.geo.some((g) => botsen(G, obb(g, 0.2))))) continue;
         const [p0, p1] = aabb(geo);
         b.groep('Logoplaat');
-        b.plaat('Logoplaat', p0, p1, { kleur: 'logo', in: d.id, laser: true, opm: `gelaserd 3 mm S235 met logo-uitsparing (placeholder, logobestand volgt), poedercoat in de accentkleur; met 3M VHB-tape op ${d.naam.toLowerCase()} gekleefd (geen gaten in de koker)` });
-        b.koop('vhb', 1, [], { naam: 'VHB-kleefband 3M 5952 voor de logoplaat', groep: 'afwerking' });
+        // P3-11 v6: 2 lasbouten M5 op de koker (boutlassen, geen gat in de koker) in plaats van VHB-tape (laat los door reinigingsmiddelen)
+        const gl = [-1, 1].map((sg) => ({ p: add(c, mul(d.u, sg * (Lp / 2 - 18))), d: 6 }));
+        b.plaat('Logoplaat', p0, p1, { kleur: 'logo', in: d.id, laser: true, gaten: gl, opm: `gelaserd 3 mm S235 met logo-uitsparing (placeholder, logobestand volgt), poedercoat in de accentkleur; 2 gaten Ø6 op 2 lasbouten M5 op ${d.naam.toLowerCase()} met een RVS-dopmoer` });
+        b.koop('lasbout', 2, [], { naam: 'Lasbout M5 x 12 (boutlassen) + RVS-dopmoer voor de logoplaat', groep: 'afwerking' });
         o.logo = { deel: d.id, n, c };
         return;
       }

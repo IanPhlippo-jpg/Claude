@@ -1,7 +1,7 @@
 // Geometriecontroles op het model, gedeeld door de test en de werkplaats: botsingen tussen gedraaide balken (OBB,
 // scheidende-as-stelling), zwevende onderdelen, de kabelloop (in het vlak van elke katrol, niet door profielen) en
 // bereikbaarheid (zithoogtes, grepen, schijfhouders vrij). Node en browser.
-import { sub, dot, cross, len, norm, aabb, contact, add, mul, doosVan } from './model.mjs';
+import { sub, dot, cross, len, norm, aabb, contact, add, mul, doosVan, balk } from './model.mjs';
 import { puntOp, randAfstand, binnen } from './vorm.mjs';
 
 /** OBB van een balk: midden, assen, halve maten (een ronde balk iets kleiner: ingeschreven) */
@@ -376,4 +376,78 @@ export function gezetFouten(o) {
   const uit = [];
   for (const d of o.delen.filter((x) => x.soort === 'plaat' && /gezet|geplooid|omgezet/i.test(x.opm ?? ''))) for (const g of d.gaten) { const m = Math.min(g.x, d.l - g.x, g.y, d.bmaat - g.y), nodig = 3 * d.t + g.d / 2; if (m < nodig) uit.push(`${d.naam}: gat Ø${g.d} op ${Math.round(m)} mm van de rand: in de plooizone (≥ ${Math.round(nodig)})`); }
   return uit;
+}
+
+/** v6 P1-01..03: een kabel die op een nok eindigt wikkelt op (raakpunt en vloerkatrol aan de kant waar de nok naartoe
+ *  draait), de kabellengte is gelijk in stand 0 en stand 1 (± 2 mm), de stapel stijgt R·θ, en de kracht aan de greep
+ *  haalt de grens van de oefening. o = stand 0, o1 = stand 1 (optioneel). */
+export function nokFouten(o, o1 = null) {
+  const uit = [], n = o.nok;
+  for (const k of o.kabels.filter((x) => x.einde === 'nok')) {
+    if (!n) continue; // nok op een staande as (pec deck): geen kantelende hefboom
+    const yk = n.as[0], pf = k.route[k.route.length - 2], raak = k.raak ?? k.route[k.route.length - 1].p;
+    if (Math.sign(raak[1] - yk) !== n.zin) uit.push(`${k.naam}: de nok draait van het raakpunt weg (de kabel wikkelt af en valt slap)`);
+    if (pf?.p && Math.sign(pf.p[1] - yk) !== n.zin) uit.push(`${k.naam}: de vloerkatrol ligt aan de verkeerde kant van de nok`);
+    if (Math.abs(n.slag - n.Rn * n.thMax) > 2) uit.push(`${k.naam}: stapelweg ${n.slag} mm ≠ R·θ = ${Math.round(n.Rn * n.thMax)} mm`);
+    if (o1) { const k1 = o1.kabels.find((x) => x.naam === k.naam); if (k1 && Math.abs(k1.L - k.L) > 2) uit.push(`${k.naam}: kabellengte ${Math.round(k.L)} → ${Math.round(k1.L)} mm tussen stand 0 en 1 (geen gesloten loop)`); }
+    if (n.grens && n.kracht < n.grens) uit.push(`${k.naam}: ${Math.round(n.kracht)} kg aan de greep < grens ${Math.round(n.grens)} kg (${n.oef})`);
+  }
+  return uit;
+}
+
+/** v6 P1-10: thermisch verzinken: elke holle ruimte (buis, koker) heeft minstens 2 openingen (open uiteinden of
+ *  ontluchtingsgaten ≥ Ø8), anders barst ze open in het zinkbad (EN ISO 1461, EN ISO 14713-2) */
+export function ontluchtFouten(o) {
+  if (!o.verzinkt) return [];
+  const uit = [];
+  for (const d of o.delen) {
+    if (d.soort !== 'staaf' || !['buis', 'koker'].includes(d.P?.vorm)) continue;
+    const open = (d.kappen ?? []).filter(Boolean).length, gaten = d.gaten.filter((g) => g.d >= 8).length;
+    if (open + gaten < 2) uit.push(`${d.naam}: ${open} open uiteinde(n) en ${gaten} gat(en) ≥ Ø8: niet te verzinken (ontluchting)`);
+  }
+  return [...new Set(uit)];
+}
+
+/** v6 P1-04: een lagerhuis moet uit te draaien zijn tot de boring: binnendiameter ≤ boring − 1,5 mm, boring > as */
+export function lagerhuisFouten(o) {
+  const uit = [];
+  for (const d of o.delen.filter((x) => x.naam === 'Lagerhuis' && x.boring)) {
+    const di = d.P.b - 2 * d.P.t;
+    if (di > d.boring - 1.5) uit.push(`${d.naam}: binnen Ø${di.toFixed(1)} is niet uit te draaien tot Ø${d.boring} H7 (te weinig materiaal)`);
+  }
+  return [...new Set(uit)];
+}
+/** v6 P1-06: een schijf (gat Ø50,4, Ø450) moet van het vrije uiteinde over elke laadpen tot aan de kraag kunnen: niets vast
+ *  (niet .los) in de cilinder Ø52 voorbij de punt, en niets dan de pen zelf in de schijfzone Ø450 langs de pen */
+export function laadpenFouten(o) {
+  const uit = [];
+  for (const p of o.delen.filter((d) => d.naam === 'Laadpen')) {
+    const u = p.u, punt = p.b, voorbij = obb(balk(punt, add(punt, mul(u, 300)), p.v, 52, 52, true), 0), zone = obb(balk(add(p.a, mul(u, 2)), punt, p.v, 450, 450, true), 0);
+    for (const d of o.delen) {
+      if (d === p || d.los || d.in === p.id || /^Kraag/.test(d.naam)) continue;
+      if (d.geo.some((g) => botsen(voorbij, obb(g, 0.5)))) uit.push(`${p.naam} (${p.groep}): ${d.naam} zit voor de punt: een schijf kan er niet op`);
+      else if (Math.abs(d.u?.[0] * u[0] + d.u?.[1] * u[1] + d.u?.[2] * u[2]) < 0.99 && d.geo.some((g) => botsen(zone, obb(g, 1)) && aabb(g)[1][2] > 15)) uit.push(`${p.naam} (${p.groep}): ${d.naam} zit in de weg van een schijf Ø450`);
+    }
+  }
+  return [...new Set(uit)];
+}
+/** v6 P1-09: een paal in de grond zit ≥ 600 mm in een betonpoer, met de bovenkant van de poer ≥ 200 mm onder het maaiveld */
+export function inbedFouten(o) {
+  const uit = [], poeren = (o.context ?? []).filter((g) => g.kleur === 'beton').map((g) => { const [mn, mx] = aabb(g); return { mn, mx }; });
+  for (const d of o.delen.filter((x) => x.soort === 'staaf' && Math.min(...x.geo.map((g) => aabb(g)[0][2])) < -100)) {
+    const zb = Math.min(...d.geo.map((g) => aabb(g)[0][2])), q = d.geo.find((g) => aabb(g)[0][2] <= zb + 1), c = q ? mul(add(q.a, q.b), 0.5) : d.a;
+    const p = poeren.find((x) => c[0] >= x.mn[0] - 1 && c[0] <= x.mx[0] + 1 && c[1] >= x.mn[1] - 1 && c[1] <= x.mx[1] + 1);
+    if (!p) { uit.push(`${d.naam}: in de grond zonder poer`); continue; }
+    const inbed = p.mx[2] - zb;
+    if (inbed < 600) uit.push(`${d.naam}: ${Math.round(inbed)} mm ingegoten (< 600)`);
+    if (p.mx[2] > -200) uit.push(`${d.naam}: bovenkant poer op ${Math.round(p.mx[2])} mm (minstens 200 mm onder het maaiveld)`);
+  }
+  return [...new Set(uit)];
+}
+/** v6 P1-11: elke plaat die gezet is (opmerking 'gezet'/'zetting'), staat in de stuklijst als uitslag met zetlijnen */
+export function uitslagFouten(o) {
+  const uit = [];
+  for (const d of o.delen) if (d.soort === 'plaat' && !d.deelVan && /gezet|zetting|omgezet|plooi/i.test(d.opm ?? '') && !/geen omgezette|niet gezet/i.test(d.opm ?? '')) uit.push(`${d.naam}: gezet volgens de opmerking, maar de DXF is geen uitslag (geen zetlijnen)`);
+  for (const g of o.gezet ?? []) if (!g.zetlijnen?.length) uit.push(`${g.naam}: gezette plaat zonder zetlijnen`);
+  return [...new Set(uit)];
 }

@@ -22,6 +22,7 @@ Ian: "Er moeten meerdere fitness toestellen zijn in meerdere varianten en ze moe
 - Fase C in blokken van ± 25 (FS, FM, FO, FX), met tests, typecheck en een fotoraster per blok. De snelle testrun is een steekproef, de volledige run gaat met FITNESS_VOLLEDIG=1.
 - Opslag in pro-vormtaal: geen open kokerframes of losse ronde liggers. Lagen 15° naar de gebruiker met een V-goot in gezette plaat en rubber, gezette bakken, een dichte plyobox, een gelaserde basisplaat, houders met eindkap en rubberen huls.
 - Buiten volgens EN 16630: palen in een betonpoer, verzinkt + poedercoat, openingen buiten 89-230 mm, vrije valhoogte ≤ 3 m, valruimte en ondergrond, infobord. Strongman in mat zwart met laadpennen Ø48.
+- v6 (adviezen Fable 5.2): eerst P1, dan P2, dan P3; elke P1 een test met een negatieve proef; het uurloon blijft een instelling (€ 45), met een tabel voor € 60 en € 65; niets schrappen, bedrijfskeuzes bij Ian.
 
 ## Vaste regels (uit eerdere projecten)
 - Tekeningen volgens ISO: ISO 5457 (bladformaat), ISO 7200 (titelblok), ISO 128 (lijnen), ISO 5456-2 (eerste hoekprojectie), ISO 2768-m (algemene toleranties), ISO 2553 (lassymbolen), ISO 7573 (stuklijst).

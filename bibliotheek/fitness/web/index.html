@@ -148,7 +148,8 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 @media (max-width: 880px) { .hoofd { grid-template-columns: 1fr } .band .wrap { grid-template-columns: 1fr } .markt { text-align: left } .drie3d { aspect-ratio: 4 / 4.2 } }
 @media (max-width: 560px) { .tegels { grid-template-columns: 1fr 1fr } .sub a { padding-inline: 7px; font-size: 13.5px } .merk { width: 100% } .raster { grid-template-columns: 1fr 1fr; gap: 8px } .kaart b { font-size: 15px } .kaart .pr { flex-direction: column; gap: 0 } .filters { grid-template-columns: 1fr 1fr } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
-.klant #nav-werk, .klant #nav-inst, .klant #t-werk { display: none !important }
+/* klantmodus (P2-26 v6): geen werkplaats, instellingen, kostprijs, marktband of oordeel over de markt */
+.klant #nav-werk, .klant #nav-inst, .klant #t-werk, .klant .band .markt, .klant .meter, .klant #t-chip, .klant [data-view="werkplaats"], .klant [data-view="instellingen"] { display: none !important }
 .open-punten { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid #c27c0e; background: rgba(194,124,14,.08); font-size: 13px } .open-punten li { margin: 2px 0 }
 .laadduim { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,0,0,.04), rgba(0,0,0,.08), rgba(0,0,0,.04)); }
 </style>
@@ -252,6 +253,8 @@ import { SOORTEN, VERSIE, KOOP, RAL_FITNESS, BEKLEDING } from './js/onderdelen.m
 import { OPTIES } from './js/opties.mjs';
 import { berekening } from './js/bereken.mjs';
 import { kostprijs, STANDAARD, CAT } from './js/prijzen.mjs';
+// klantmodus: ?klant in de link, of de aparte klant.html (data-klant op <html>)
+const KLANT = new URLSearchParams(location.search).has('klant') || document.documentElement.dataset.klant === '1';
 import { UREN, UREN_NAAM } from './js/werkwijze.mjs';
 import { miniatuur, tekenBalken, alleGeo, PROJ, omhullende } from './js/aanzicht.mjs';
 import { alleBladen, stukBladen } from './js/tekeningen.mjs';
@@ -338,13 +341,13 @@ document.addEventListener('change', (e) => {
 });
 /** welke opties passen op dit toestel (één keer bouwen met alle opties van de soort) */
 const pastCache = new Map();
-const passend = (id, v) => { const k = `${id}|${v}`; if (!pastCache.has(k)) { const t = PER_ID[id], ids = (OPTIES[t.soort] ?? []).map((x) => x.id); pastCache.set(k, new Set(toestel(id, v, { opties: ids }).gekozenOpties.filter((x) => x.gelukt).map((x) => x.id))); } return pastCache.get(k); };
+const passend = (id, v) => { const k = `${id}|${v}`; if (!pastCache.has(k)) { const t = PER_ID[id], ids = (OPTIES[t.optiesSoort ?? t.soort] ?? []).map((x) => x.id); pastCache.set(k, new Set(toestel(id, v, { opties: ids }).gekozenOpties.filter((x) => x.gelukt).map((x) => x.id))); } return pastCache.get(k); };
 function tekenVarianten(t, o) {
   const x = variant(t.id);
   $('g-maat').hidden = !t.maten; if (t.maten) { $('k-maat').innerHTML = t.maten.map((m) => `<label><input type="radio" name="maat" value="${m}"${(x.maat ?? 'standaard') === m ? ' checked' : ''}>${m}</label>`).join(''); $('t-maat').textContent = MAATUITLEG[x.maat ?? 'standaard']; }
   const heeftChroom = o.delen.some((d) => /^(Schijfhouder|Laadpen)/.test(d.naam));
   $('k-afw').innerHTML = (heeftChroom ? ['ja', 'nee'].map((v) => `<label><input type="radio" name="chroom" value="${v}"${(x.chroom ?? true) === (v === 'ja') ? ' checked' : ''}>${v === 'ja' ? 'Schijfhouders verchroomd' : 'Schijfhouders zwart'}</label>`).join('') : '') + `<label><input type="checkbox" id="k-logo"${x.logo ?? true ? ' checked' : ''}>Logoplaat</label>`;
-  const opties = OPTIES[t.soort] ?? [], past = passend(t.id, st.versie);
+  const opties = OPTIES[t.optiesSoort ?? t.soort] ?? [], past = passend(t.id, st.versie);
   $('g-opties').hidden = !opties.length;
   $('k-opties').innerHTML = opties.map((p) => `<label title="${esc(p.uitleg)}"${past.has(p.id) ? '' : ' style="opacity:.45"'}><input type="checkbox" name="optie" value="${p.id}"${(x.opties ?? []).includes(p.id) ? ' checked' : ''}${past.has(p.id) ? '' : ' disabled'}>${esc(p.naam)}</label>`).join('');
   const niet = opties.filter((p) => !past.has(p.id)).map((p) => p.naam.toLowerCase());
@@ -367,7 +370,7 @@ function tekenToestel() {
   $('t-veilig').className = `veilig ${B.oordeel}`;
   $('t-veilig').innerHTML = `<b><i class="stip ${B.oordeel}"></i>${B.oordeel === 'groen' ? 'Berekend volgens EN ISO 20957' : B.oordeel === 'oranje' ? `Berekend, met ${nr} punt${nr > 1 ? 'en' : ''} om na te kijken` : 'Berekening niet in orde: zie de werkplaats'}</b><br><small>Prototype: de proeflast op het eerste toestel moet nog gebeuren (geen normclaim).</small>`;
   const [lo, hi] = k.markt.band, max = Math.max(hi * 1.15, k.incl * 1.1), min = 0;
-  $('t-prijs').textContent = eur0(k.incl); $('t-prijs2').textContent = `${eur0(k.verkoop)} excl. btw · ${VERSIE[st.versie].naam.toLowerCase()}${o.maat !== 'standaard' ? ` · ${o.maat}` : ''}${o.gekozenOpties.filter((x) => x.gelukt).length ? ` · ${o.gekozenOpties.filter((x) => x.gelukt).map((x) => x.naam.toLowerCase()).join(', ')}` : ''}`;
+  $('t-prijs').textContent = eur0(k.incl); $('t-prijs2').textContent = KLANT ? `${VERSIE[st.versie].naam}${o.maat !== 'standaard' ? ` · ${o.maat}` : ''} · prototype, levertermijn op aanvraag` : `${eur0(k.verkoop)} excl. btw · ${VERSIE[st.versie].naam.toLowerCase()}${o.maat !== 'standaard' ? ` · ${o.maat}` : ''}${o.gekozenOpties.filter((x) => x.gelukt).length ? ` · ${o.gekozenOpties.filter((x) => x.gelukt).map((x) => x.naam.toLowerCase()).join(', ')}` : ''}`;
   $('t-markt').textContent = `${eur0(lo)} - ${eur0(hi)}`; $('t-markt2').textContent = k.markt.bron.length > 90 ? `${k.markt.bron.slice(0, 88)}…` : k.markt.bron;
   $('t-band').style.left = `${((lo - min) / (max - min)) * 100}%`; $('t-band').style.width = `${((hi - lo) / (max - min)) * 100}%`; $('t-pin').style.left = `${Math.min(100, ((k.incl - min) / (max - min)) * 100)}%`;
   $('t-min').textContent = eur0(min); $('t-max').textContent = eur0(max);
@@ -468,6 +471,7 @@ function toonPagina() {
   const [p, id] = location.hash.slice(1).split('/');
   if (id && PER_ID[id] && id !== st.id) { st.id = id; werkVuil = true; bewaarKeuze(); }
   pagina = ['toestel', 'werkplaats', 'instellingen'].includes(p) ? p : 'catalogus';
+  if (KLANT && (pagina === 'werkplaats' || pagina === 'instellingen')) pagina = 'catalogus'; // de klant ziet geen werkplaats of kostprijs
   document.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== pagina; });
   for (const [nid, pg] of [['nav-cat', 'catalogus'], ['nav-toe', 'toestel'], ['nav-werk', 'werkplaats'], ['nav-inst', 'instellingen']]) { if (pg === pagina) $(nid).setAttribute('aria-current', 'page'); else $(nid).removeAttribute('aria-current'); }
   $('nav-toe').href = `#toestel/${st.id}`; $('nav-werk').href = `#werkplaats/${st.id}`;
@@ -477,7 +481,7 @@ function toonPagina() {
   scrollTo(0, 0);
 }
 addEventListener('hashchange', toonPagina);
-if (new URLSearchParams(location.search).has('klant')) document.body.classList.add('klant'); // klantweergave: geen werkplaats, kostprijs of instellingen
+if (KLANT) document.body.classList.add('klant'); // klantweergave: geen werkplaats, kostprijs of instellingen
 vulInstellingen(); laad(lees('fitness-instellingen', null)); toonPagina();
 (async () => {
   try {

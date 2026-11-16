@@ -192,7 +192,7 @@ export function katrolBeugel(b, naam, c, as, opt = {}) {
     q0[i] = c[i] - gap; q1[i] = c[i] + gap; const kz = opt.kapKant ?? [0, 0, 1];
     const zi = [0, 1, 2].reduce((mm, j) => (Math.abs(kz[j]) > Math.abs(kz[mm]) ? j : mm), 0);
     if (kz[zi] > 0) { q0[zi] = c[zi] + D / 2 + 20; q1[zi] = c[zi] + D / 2 + 22; } else { q1[zi] = c[zi] - D / 2 - 20; q0[zi] = c[zi] - D / 2 - 22; }
-    b.plaat(`Vingerbescherming ${naam}`, q0, q1, { opm: 'plaat 2 mm, gezet; ≤ 5 mm van de kabelgroef (EN ISO 20957-2)' });
+    b.plaat(`Vingerbescherming ${naam}`, q0, q1, { opm: 'vlakke plaat 2 mm (gelaserd), 2 x M5 aan de beugel; ≤ 5 mm van de kabelgroef (EN ISO 20957-2)' });
   }
   b.groep(oud);
   return k;

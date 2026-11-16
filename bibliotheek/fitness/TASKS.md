@@ -106,3 +106,17 @@
   - [x] web-build met de volledige bestandenlijst
   - [x] totaalraster van alle 150 toestellen
   - [x] graphify update, tijdelijke scripts weg
+
+## Versie 6: adviezen Fable 5.2 op v5 (P1 = 12, P2 = 27, P3 = 11) (2026-11-16)
+- [x] Voorfoto's in fitness-fotos-v6 (FS-01, FS-13, FM-09, FO-01, FO-16, FX-04, FX-09, FX-11, FX-12)
+- [x] P1-01..04 FS: draairichting nok (vloerkatrol en goot spiegelen), krachtsverhouding als echte toets (grens per oefening, 1:1/2:1), stapelweg = R·θ, greepweg FS-02/FS-09, lagerhuis dikwandig
+- [x] P1-05 FM dip: greep Ø42,4 x 4, rugplaat met 2 pennen Ø25 en U-zadel, reken en belastinggeval dip
+- [x] P1-06..08 FX: laadpaal met afneembare T-greep, log ≤ 0,5 x maxLast, eigen stenenplatform met steengeval
+- [x] P1-09/10 buiten: paal 600 mm in poer 500 x 500 x 800, funderingsplan-blad, ontluchtingsgaten verzinken
+- [x] P1-11 gezette delen als één deel met uitslag en zetlijnen (K-factor), DXF-laag ZETLIJN, zetblad
+- [x] P1-12 plyobox taps, deksel 4 mm met kruisribben, randlanding
+- [x] Tests: elke P1 met een negatieve proef; steekproef per bouwer; kabelloop FS/FM; maten en opties nieuwe reeksen
+- [x] P2-01..27 (mechanica, buigen, materiaal, tekeningnormen, tests, opties per reeks, prijsmodel, klantmodus, keuring)
+- [x] P3-01..11 uiterlijk per reeks
+- [x] Prijstabel bij € 45 / 60 / 65 (welke toestellen in de band vallen); bedrijfskeuzes bij Ian
+- [x] Volledige run (4348/4348, 218 s), typecheck, graphify, web (met klant.html), presentatie, voor- en nafoto's, rapport met tabel van alle 50 punten

@@ -22,11 +22,11 @@ const gatSleutel = (gaten) => gaten.map((g) => `${g.s ?? `${r0(g.x)},${r0(g.y)}`
 /** alle posities en de kooponderdelen */
 export function stuklijst(o) {
   const per = new Map(), pos = [];
-  for (const d of o.delen) {
-    const key = d.soort === 'staaf' ? `S|${d.naam}|${d.prof}|${r0(lengteStuk(d))}|${d.verstek}|${d.buig ? d.buig.bochten.join(',') : ''}|${gatSleutel(d.gaten)}` : `P|${d.naam}|${d.t}|${r0(d.l)}|${r0(d.bmaat)}|${d.rond}|${gatSleutel(d.gaten)}`;
+  for (const d of [...o.delen.filter((x) => !x.deelVan), ...(o.gezet ?? [])]) {
+    const key = d.vorm === 'gezet' ? `G|${d.naam}|${d.t}|${r0(d.l)}|${r0(d.bmaat)}|${d.zetlijnen.length}` : d.soort === 'staaf' ? `S|${d.naam}|${d.prof}|${r0(lengteStuk(d))}|${d.verstek}|${d.buig ? d.buig.bochten.join(',') : ''}|${gatSleutel(d.gaten)}` : `P|${d.naam}|${d.t}|${r0(d.l)}|${r0(d.bmaat)}|${d.rond}|${gatSleutel(d.gaten)}`;
     if (!per.has(key)) {
       const p = d.soort === 'staaf'
-        ? { soort: 'staaf', naam: d.naam, prof: d.prof, mat: 'S235JR(H)', maat: d.P.naam, L: r0(lengteStuk(d)), zaagT: zaagTekst(d), kg: massa(d), n: 0, gaten: d.gaten, voorbeeld: d, opm: [d.opm, d.buig ? `${buigTekst(d)}; gestrekte lengte ${r0(d.L)} mm + 2 x ${KLEM} klemlengte` : '', d.gaten.length ? `${d.gaten.length} gaten` : '', d.westside ? 'Westside-gatpatroon' : ''].filter(Boolean).join('; '), delen: [], buig: d.buig ?? null }
+        ? { soort: 'staaf', naam: d.naam, prof: d.prof, mat: d.P.mat ?? 'S235JR(H)', maat: d.P.naam, L: r0(lengteStuk(d)), zaagT: zaagTekst(d), kg: massa(d), n: 0, gaten: d.gaten, voorbeeld: d, opm: [d.opm, d.buig ? `${buigTekst(d)}; gestrekte lengte ${r0(d.L)} mm + 2 x ${KLEM} klemlengte` : '', d.gaten.length ? `${d.gaten.length} gaten` : '', d.westside ? 'Westside-gatpatroon' : ''].filter(Boolean).join('; '), delen: [], buig: d.buig ?? null }
         : { soort: 'plaat', naam: d.naam, mat: 'S235JR', maat: d.rond ? `Ø${r0(d.l)} x ${d.t}` : `${r0(d.l)} x ${r0(d.bmaat)} x ${d.t}`, t: d.t, l: r0(d.l), b: r0(d.bmaat), kg: massa(d), n: 0, gaten: d.gaten, voorbeeld: d, opm: [d.opm, d.gaten.length ? `${d.gaten.length} gaten` : '', d.vorm ? `vorm: ${d.vorm === 'contour' ? 'vrije contour (DXF met bogen)' : d.vorm}` : ''].filter(Boolean).join('; '), delen: [], laser: d.laser !== false, snij: snijden(d) };
       per.set(key, p); pos.push(p);
     }
@@ -35,6 +35,7 @@ export function stuklijst(o) {
   // staven eerst (op profiel, dan lengte), dan de laserdelen
   pos.sort((a, b) => (a.soort === b.soort ? (a.soort === 'staaf' ? a.prof.localeCompare(b.prof) || b.L - a.L : b.t - a.t || b.l - a.l) : a.soort === 'staaf' ? -1 : 1));
   pos.forEach((p, i) => { p.pos = i + 1; });
+  for (const g of o.gezet ?? []) for (const id of g.kinderen) { const k = o.delen.find((x) => x.id === id); if (k) k.pos = g.pos; }
   for (const d of o.delen) d.posNr = d.pos.pos;
   return { posities: pos, koop: koopLijst(o), bekleding: bekleding(o) };
 }
@@ -116,11 +117,12 @@ export function nesting(o, sl = stuklijst(o)) {
 
 /** totalen: kg staven en laserdelen, m² voor de coating, laslengte, aantallen */
 export function totalen(o, sl = stuklijst(o)) {
-  let kgStaaf = 0, kgPlaat = 0, opp = 0, gaten = 0, zagen = 0, verstek = 0, laser = 0, bochten = 0, buigPos = 0, snijM = 0, insteken = 0;
+  let kgStaaf = 0, kgPlaat = 0, opp = 0, gaten = 0, zagen = 0, verstek = 0, laser = 0, bochten = 0, buigPos = 0, snijM = 0, insteken = 0, zettingen = 0, zetPos = 0;
+  for (const p of sl.posities) if (p.voorbeeld.zetlijnen?.length) { zettingen += p.voorbeeld.zetlijnen.length * p.n; zetPos += 1; }
   for (const p of sl.posities) {
     if (p.soort === 'staaf') { kgStaaf += p.kg * p.n; opp += (p.voorbeeld.P.omtrek * p.L * p.n) / 1e6; gaten += p.gaten.length * p.n; zagen += p.n; if (p.voorbeeld.verstek.some((a) => a > 0.5)) verstek += p.n; if (p.buig) { bochten += p.buig.bochten.length * p.n; buigPos += 1; } }
     else { kgPlaat += p.kg * p.n; opp += ((p.voorbeeld.kleur === 'kap' ? 1 : 2) * (p.voorbeeld.contour ? p.voorbeeld.contour.opp : p.l * p.b * (p.voorbeeld.rond ? Math.PI / 4 : 1)) * p.n) / 1e6; laser += p.n; if (!p.voorbeeld.stapel && p.snij) { snijM += p.snij.m * p.n; insteken += p.snij.insteken * p.n; } }
   }
   const lasM = o.lassen.reduce((t, l) => t + l.lengte, 0) / 1000;
-  return { kgStaaf, kgPlaat, kg: kgStaaf + kgPlaat, opp, gaten, zagen, verstek, laser, bochten, buigPos, snijM, insteken, lasM, verbindingen: o.lassen.length, kussens: o.kussens.length, katrollen: o.katrollen.length, kabels: o.kabels.length, stapelplaten: o.stapels.reduce((t, s) => t + s.n + 1, 0), bouten: o.bouten.reduce((t, b) => t + b.n, 0) };
+  return { zettingen, zetPos, kgStaaf, kgPlaat, kg: kgStaaf + kgPlaat, opp, gaten, zagen, verstek, laser, bochten, buigPos, snijM, insteken, lasM, verbindingen: o.lassen.length, kussens: o.kussens.length, katrollen: o.katrollen.length, kabels: o.kabels.length, stapelplaten: o.stapels.reduce((t, s) => t + s.n + 1, 0), bouten: o.bouten.reduce((t, b) => t + b.n, 0) };
 }

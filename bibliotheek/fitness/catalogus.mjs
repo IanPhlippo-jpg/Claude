@@ -67,8 +67,7 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   extra('waarschuwing', 1, 'Waarschuwingsstickers: klempunten, pen-instructie, maximale last');
   extra('maskeer', o.delen.reduce((s, d) => s + d.gaten.length, 0) + 10, 'Maskeerdoppen en -pluggen (boringen, lagerzittingen, schroefdraad) voor het poedercoaten');
   extra('vet', 1, 'Smeermiddel voor pennen, geleidestangen en lagers');
-  extra('verpakking', 1, 'Verpakking (pallet, hoekbeschermers, stretchfolie)');
-  extra('handleiding', 1, 'Handleiding NL/FR en montagefiche');
+  // verpakking en handleiding staan in de overhead van de prijs (P2-25 v6: niet dubbel tellen)
   extra('gereedschap', 1, 'Montageset: steeksleutels/doppen 19 en 24, inbus 5 en 6, in een zakje bij de levering');
   extra('kabelgeleider', o.katrollen.length, 'Kabelgeleider (nylon bus in de beugel) bij elke katrol');
   const traan = o.delen.filter((d) => d.soort === 'plaat' && /traanplaat/i.test(d.opm ?? ''));

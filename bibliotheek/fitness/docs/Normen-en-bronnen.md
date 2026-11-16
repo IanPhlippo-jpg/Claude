@@ -115,16 +115,30 @@ stond, is als AANNAME gemarkeerd.
 
 | Regel | Waarde in de controle | Bron |
 |---|---|---|
-| Vrije valhoogte | hangen: greephoogte min 1 m (armlengte); klimmen: hoogste voetsteun, zonder aftrek; staan: het staanvlak; maximaal 3 m | tolymp.de (samenvatting EN 16630 / EN 1176) |
+| Vrije valhoogte | hangen: greephoogte min 1 m (armlengte); bij een stang of ladder vanaf 2 m (muscle-up, op de stang zitten: klimzone) geen aftrek (v6); klimmen: hoogste voetsteun; staan: het staanvlak; maximaal 3 m | tolymp.de (samenvatting EN 16630 / EN 1176); **AANNAME** klimzone, Fable 5.2 P2-11 |
 | Valruimte | X = 2/3·Y + 0,5 m rondom, minimaal 1,5 m | tolymp.de |
-| Ondergrond | valdempend boven 1 m vrije valhoogte (zand/grind 300 mm, of rubbertegels EN 1177); de optie "valtegels" rekent 45 mm (tot 1,5 m) | sportsequip.co.uk; tolymp.de (tegeldikte per valhoogte) |
+| Ondergrond | valdempend boven 1 m vrije valhoogte (zand/grind 300 mm, of rubbertegels EN 1177); de optie "valtegels" kiest de dikte naar de valhoogte: 45 mm tot 1,6 m, 60 mm tot 2,1 m, 80 mm tot 2,8 m | sportsequip.co.uk; tolymp.de (tegeldikte per valhoogte) |
 | Openingen hoofd en nek | geen vrije opening tussen 89 en 230 mm tussen evenwijdige stangen, sporten en liggers | EN 1176-1 §4.2.7 (proefstukken C en D), **AANNAME** dat EN 16630 dezelfde grenzen gebruikt |
-| Vingers | openingen 8-25 mm vermijden | sunshinegym.co.uk (samenvatting EN 16630); nameten op het eerste toestel |
+| Vingers | geen vrije opening tussen 8 en 25 mm tussen stangen, sporten, liggers en palen (eigen toets); afwateringssleuven 6 mm | sunshinegym.co.uk (samenvatting EN 16630); nameten op het eerste toestel |
 | Greepdiameter | Ø 16-45 mm om te omvatten | EN 1176-1 §4.2.4.3, **AANNAME** zelfde grens |
-| Belasting en stabiliteit | horizontaal 30 % van de gebruiker op greephoogte, x 1,5; poer 400 x 400 x 600 met passieve gronddruk Kp = 3 | **AANNAME** (EN 16630 §4.2 nakijken); grondmechanica |
-| Funderingen | palen 500 mm ingegoten, bovenkant poer 300 mm onder het maaiveld | **AANNAME** (EN 1176-1: funderingen in de valruimte onder de ondergrond) |
+| Belasting en stabiliteit | horizontaal 50 % van de gebruiker op greephoogte (zwaaien, kippen, vandalisme), x 1,5; poer 500 x 500 x 800 met de bovenkant op 200 mm: Mp = Kp·γ·b·(D³ − d³)/12, Kp = 3 | **AANNAME** (EN 16630 §4.2 nakijken); grondmechanica, Fable 5.2 P2-13 |
+| Funderingen | palen 600 mm ingegoten in een poer 500 x 500 x 800, bovenkant 200 mm onder het maaiveld en afgeschuind; PE-manchet op de grondlijn; funderingsplan per toestel | EN 1176-1 §4.2.14, **AANNAME** dat EN 16630 hiernaar verwijst |
 | Infobord | gebruikersleeftijd, oefeningen, noodnummer, beheerder | EN 16630 (samenvatting sportsequip.co.uk) |
-| Strongman | proeflast 2,5 x de last; geen kantelproef voor losse werktuigen | **AANNAME**: strongman-werktuigen vallen buiten EN ISO 20957 |
+| Strongman | proeflast 2,5 x de last; geen kantelproef voor losse werktuigen; een los werktuig weegt leeg ≤ de helft van zijn maximale last | **AANNAME**: strongman-werktuigen vallen buiten EN ISO 20957 |
+| Verzinken | elke holle ruimte 2 openingen (open uiteinde of gat ≥ Ø8; palen 2 gaten Ø12 diagonaal); kopkap na het verzinken | EN ISO 1461, EN ISO 14713-2 |
+| Keuring | buitentoestellen: keuring EN 16630 door een erkende instelling, AANNAME € 1.500-3.000 per type (in de prijs verdeeld over de reeks) | Fable 5.2 P2-27 |
+
+## Selectorized (v6)
+
+| Regel | Waarde | Bron |
+|---|---|---|
+| Kracht aan de greep | nok R = grens · L / stapel; grens (kg bij de pro-stapel): druk 100, trek (lat, row) 100, rug 60, been 90, kuit 130, arm 45, romp 45; thuis 60 %, semi 80 % | **AANNAME** uit merktoestellen (Life Fitness Insignia, Matrix Aura), Fable 5.2 P1-02 |
+| Stapel nokstation | thuis 20, semi 24, pro 28 platen van 5 kg (pro 140 kg: kabel Ø6 met factor 6 en katrol 3 kN op de grens) | gymparts.de, jk-sportvertrieb.de |
+| Kabelstation | 2:1 als de halve stapel de grens haalt, anders twee kabels 1:1 | eigen regel |
+| Lagerhuis | binnendiameter ≤ boring − 1,5 mm (uit te draaien tot H7, Ra 1,6) | Fable 5.2 P1-04 |
+| Gebogen stukken | W x 0,85 in de bocht (buitenwand dunner, ovaal) | Fable 5.2 P2-16, **AANNAME** |
+| Gezette plaat | uitslag met K = 0,4 (navragen bij de zetterij), Ri = 2 t | **AANNAME**, Fable 5.2 P1-11 |
+| Toleranties | gelaste frames EN ISO 13920-BF, losse bewerkte stukken ISO 2768-m | EN ISO 13920, Fable 5.2 P2-21 |
 
 Bronnen: [tolymp.de](https://www.tolymp.de/en/your-topics/),
 [sportsequip.co.uk](https://www.sportsequip.co.uk/bsen16630-permanently-installed-outdoor-fitness-equipment),

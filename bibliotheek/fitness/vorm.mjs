@@ -110,3 +110,42 @@ export function banden(poly, n = 10) {
   }
   return uit;
 }
+
+// ---------------------------------------------------------------- uitslag van gezette platen (v6, P1-11)
+/** buigtoeslag (lengte van de neutrale lijn in de zetting): BA = θ·(R + K·t), θ = afwijking van vlak in graden */
+export const buigToeslag = (hoek, R, t, K = 0.4) => (Math.PI / 180) * hoek * (R + K * t);
+/**
+ * uitslag van een prismatisch gezet profiel (goot, bak, U): lengte L, benen [w0 .. wn] (rechte stukken, gemeten tussen
+ * de zettingen), zettingen [{ hoek, R, richting }] tussen de benen. Geeft { punten, zetlijnen: [{ a, b, hoek, R, richting }], B }.
+ */
+export function uitslagStrook(L, benen, zet, t, K = 0.4) {
+  let y = 0; const zl = [];
+  benen.forEach((w, i) => { y += w; if (i < zet.length) { const ba = buigToeslag(zet[i].hoek, zet[i].R, t, K); zl.push({ a: [0, y + ba / 2], b: [L, y + ba / 2], hoek: zet[i].hoek, R: zet[i].R, richting: zet[i].richting ?? 'op', ba }); y += ba; } });
+  return { punten: [[0, 0], [L, 0], [L, y], [0, y]], zetlijnen: zl, B: y };
+}
+/**
+ * uitslag van een mantel uit vlakke panelen in 3D (taps mag): panelen [{ q: [onderL, onderR, bovenR, bovenL], gaten: [[[u, v, r] ...]] }]
+ * waarbij de rechterrand van paneel i de linkerrand van paneel i + 1 is. Tussen twee panelen ligt een strook met de
+ * buigtoeslag (zetting hoek, R). Geeft { punten, zetlijnen, uitsparingen } in het vlak (mm).
+ */
+export function ontvouw(panelen, zet, t, K = 0.4) {
+  const sub3 = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], len3 = (a) => Math.hypot(...a);
+  const lok = (q) => { const o = q[0], u0 = sub3(q[1], o), u = u0.map((x) => x / len3(u0)), w0 = sub3(q[3], o), w1 = sub3(w0, u.map((x) => x * dot3(w0, u))), v = w1.map((x) => x / len3(w1)); return (p) => [dot3(sub3(p, o), u), dot3(sub3(p, o), v)]; };
+  const onder = [], boven = [], zl = [], uits = [];
+  let T = (p) => p; // 2D-transformatie van het huidige paneel
+  panelen.forEach((pn, i) => {
+    const L = lok(pn.q), loc = pn.q.map(L);
+    if (i > 0) {
+      // de linkerrand van dit paneel (loc[0] → loc[3]) op de rechterrand van het vorige, verschoven met de buigtoeslag
+      const vorig = panelen[i - 1], P0 = vorig._2d[1], P1 = vorig._2d[2], ex = [P1[0] - P0[0], P1[1] - P0[1]], le = Math.hypot(...ex), nrm = [ex[1] / le, -ex[0] / le];
+      const ba = buigToeslag(zet[i - 1].hoek, zet[i - 1].R, t, K), A0 = [P0[0] + nrm[0] * ba, P0[1] + nrm[1] * ba], A1 = [P1[0] + nrm[0] * ba, P1[1] + nrm[1] * ba];
+      const dl = [loc[3][0] - loc[0][0], loc[3][1] - loc[0][1]], ang = Math.atan2(A1[1] - A0[1], A1[0] - A0[0]) - Math.atan2(dl[1], dl[0]), c = Math.cos(ang), s = Math.sin(ang);
+      T = (p) => { const x = p[0] - loc[0][0], y = p[1] - loc[0][1]; return [A0[0] + c * x - s * y, A0[1] + s * x + c * y]; };
+      zl.push({ a: [(P0[0] + A0[0]) / 2, (P0[1] + A0[1]) / 2], b: [(P1[0] + A1[0]) / 2, (P1[1] + A1[1]) / 2], hoek: zet[i - 1].hoek, R: zet[i - 1].R, richting: zet[i - 1].richting ?? 'op', ba });
+    }
+    pn._2d = loc.map(T);
+    onder.push(pn._2d[0], pn._2d[1]); boven.push(pn._2d[3], pn._2d[2]);
+    for (const h of pn.gaten ?? []) uits.push(h.map(([u, v, r]) => [...T([u, v]), r ?? 0]));
+  });
+  return { punten: [...onder, ...boven.reverse()], zetlijnen: zl, uitsparingen: uits };
+}
