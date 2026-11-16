@@ -120,3 +120,11 @@
 - [x] P3-01..11 uiterlijk per reeks
 - [x] Prijstabel bij € 45 / 60 / 65 (welke toestellen in de band vallen); bedrijfskeuzes bij Ian
 - [x] Volledige run (4348/4348, 218 s), typecheck, graphify, web (met klant.html), presentatie, voor- en nafoto's, rapport met tabel van alle 50 punten
+
+## Versie 6b: compacte nok (R ≤ 220) met een 2:1-takel naar de stapel (2026-11-16)
+- [x] Voorfoto's FS-01/02/09/23, FK-08/10 in fitness-fotos-v6b
+- [x] Bronnen (merkwaarden nok, 1:1-verhouding, kevlarriem) in docs/Normen-en-bronnen.md
+- [x] nokStation en FK-beenmachines: nok R ≤ 220, nokriem met een losse katrol (2:1: riemkracht 2 x stapel, stapelslag 2·R·θ)
+- [x] Compacte nokkap rond de echte nok; berekening (riem, katrollen, as) en tekeningen bij
+- [x] nokFouten/kabelFouten groen, test R ≤ 220 met een negatieve proef
+- [x] Snelle en volledige run (4348/4348, 288 s), npm run typecheck (fitness schoon), graphify, web, nafoto's

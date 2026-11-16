@@ -120,10 +120,10 @@ for (const t of TT) for (const v of VERSIES) {
       const ids = new Set(o.katrollen.map((k: any) => k.id));
       for (const kb of o.kabels) {
         expect(['stapel', 'anker', 'laadpen', 'slede']).toContain(kb.begin);
-        expect(['greep', 'nok']).toContain(kb.einde);
+        expect(['greep', 'nok', 'anker']).toContain(kb.einde); // v6b: de stapelkabel van de 2:1-takel eindigt aan een anker
         const mid = kb.route.slice(1, -1);
         expect(mid.length, kb.naam).toBeGreaterThan(0);
-        for (const p of mid) expect(p.katrol ? ids.has(p.katrol) : p.los, `${kb.naam}: tussenpunt is een katrol`).toBeTruthy();
+        for (const p of mid) expect(p.katrol ? ids.has(p.katrol) : p.los || p.geleider, `${kb.naam}: tussenpunt is een katrol of een kabelgeleider`).toBeTruthy();
         expect([1, 2]).toContain(kb.overbrenging);
         if (kb.overbrenging === 2) expect(mid.some((p: any) => p.los || /los/.test(p.label ?? '')), 'losse katrol bij 2:1').toBe(true);
         expect(kb.L).toBeGreaterThan(500);
@@ -731,6 +731,10 @@ describe('fitness v6: Fable 5.2 P1, elk met een negatieve proef', () => {
     expect(nokFouten(o, { ...o1, kabels: o1.kabels.map((k: any) => ({ ...k, L: k.L + 50 })) }).some((x: string) => /kabellengte/.test(x))).toBe(true);
     expect(nokFouten({ ...o, nok: { ...o.nok, kracht: o.nok.grens - 1 } }).some((x: string) => /grens/.test(x))).toBe(true);
     expect(nokFouten({ ...o, nok: { ...o.nok, slag: 600 } }).some((x: string) => /stapelweg/.test(x))).toBe(true);
+    // v6b: compacte nok (R ≤ 220, zoals de merken) met een 2:1-takel; negatief: een nok van R 490 wordt gemeld
+    for (const t of NOK) for (const v of VERSIES) expect(toestel(t.id, v).nok.Rn, t.id).toBeLessThanOrEqual(220);
+    expect(nokFouten({ ...o, nok: { ...o.nok, Rn: 490 } }).some((x: string) => /R490 > 220/.test(x))).toBe(true);
+    expect(o.kabels.some((k: any) => k.naam === 'Nokriem' && k.last === 2 * o.nok.G)).toBe(true);
   });
   it('P1-02/03: kabelstations 1:1 of 2:1 naar de grens; greepweg FS-02 en FS-09 ≥ 380 mm', () => {
     for (const t of TOESTELLEN.filter((x: any) => x.soort === 'selectorized')) for (const v of VERSIES) {

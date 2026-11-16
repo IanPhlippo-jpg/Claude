@@ -189,12 +189,16 @@ export function bouwer(V, stand = 0) {
         const q = pts[i]; if (!q.katrol) { lijn.push(q.p); continue; }
         const d1 = norm(sub(q.p, pts[i - 1].p)), d2 = norm(sub(pts[i + 1].p, q.p));
         const n1 = sub(d2, mul(d1, dot(d1, d2))), n2 = sub(d1, mul(d2, dot(d1, d2)));
-        const tin = len(n1) < 1e-6 ? q.p : sub(q.p, mul(norm(n1), q.r)), tuit = len(n2) < 1e-6 ? q.p : add(q.p, mul(norm(n2), q.r));
+        let tin = len(n1) < 1e-6 ? q.p : sub(q.p, mul(norm(n1), q.r)), tuit = len(n2) < 1e-6 ? q.p : add(q.p, mul(norm(n2), q.r));
+        // v6b: van of naar een vrij punt (anker, riemblok, nok) de exacte raaklijn (bij een kort stuk wijkt de benadering af)
+        const exact = (P0, zijde, teken) => { const v = sub(q.p, P0), d = len(v); if (d <= q.r * 1.05 || len(zijde) < 1e-6) return null; const u = norm(v), w = norm(sub(zijde, mul(u, dot(zijde, u)))), be = Math.acos(q.r / d); return add(q.p, mul(add(mul(u, -Math.cos(be)), mul(w, teken * Math.sin(be))), q.r)); };
+        if (!pts[i - 1].katrol && len(n1) > 1e-6) tin = exact(pts[i - 1].p, n1, -1) ?? tin;
+        if (!pts[i + 1].katrol && len(n2) > 1e-6) tuit = exact(pts[i + 1].p, n2, 1) ?? tuit;
         q.in = tin; q.uit = tuit; lijn.push(tin, tuit);
         // een kunststof katrol die te zwaar belast wordt (R = F·|d2 − d1|): de aluminium versie
         const Rk = ((opt.last ?? 0) * 9.81 / (opt.overbrenging ?? 1)) * len(sub(d2, d1));
         if (q.k && !q.k.key.endsWith('pro') && Rk > 0.9 * KOOP[q.k.key].kN * 1000) { const nk = q.k.key === 'katrol90' ? 'katrol90pro' : 'katrol115pro'; q.k.key = nk; q.k.naam = `${KOOP[nk].naam}: ${q.k.label} (zwaar belast)`; }
-        L += q.r * Math.acos(Math.max(-1, Math.min(1, dot(d1, d2))));
+        { const ua = sub(tin, q.p), ub = sub(tuit, q.p); L += len(ua) > 1e-6 && len(ub) > 1e-6 ? q.r * Math.acos(Math.max(-1, Math.min(1, dot(norm(ua), norm(ub))))) : q.r * Math.acos(Math.max(-1, Math.min(1, dot(d1, d2)))); } // boog tussen de echte raakpunten
       }
       lijn.push(pts[pts.length - 1].p);
       for (let i = 1; i < lijn.length; i++) L += len(sub(lijn[i], lijn[i - 1]));

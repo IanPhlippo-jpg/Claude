@@ -132,8 +132,11 @@ stond, is als AANNAME gemarkeerd.
 
 | Regel | Waarde | Bron |
 |---|---|---|
-| Kracht aan de greep | nok R = grens · L / stapel; grens (kg bij de pro-stapel): druk 100, trek (lat, row) 100, rug 60, been 90, kuit 130, arm 45, romp 45; thuis 60 %, semi 80 % | **AANNAME** uit merktoestellen (Life Fitness Insignia, Matrix Aura), Fable 5.2 P1-02 |
-| Stapel nokstation | thuis 20, semi 24, pro 28 platen van 5 kg (pro 140 kg: kabel Ø6 met factor 6 en katrol 3 kN op de grens) | gymparts.de, jk-sportvertrieb.de |
+| Nokstraal | R ≤ 220 mm (v6b). De nok van de merktoestellen is compact, ± 100-220 mm. De vorm volgt de krachtcurve. | **AANNAME**: opgave coördinator na beeldvergelijking met Hammer Strength, Life Fitness en Technogym; geen maat in een publieke bron gevonden. Cam met variabele straal: US-octrooien 4953855 en 5580341 (image-ppubs.uspto.gov) |
+| Krachtverhouding | 2:1-takel. De nokriem trekt een losse katrol en de stapelkabel loopt eromheen. Riemkracht 2 x stapel, stapelslag 2·R·θ. Kracht aan de greep = 2 · stapel · R / L. | Nautilus Impact Leg Extension "1:1 weight ratio" ([productblad](https://shop.corehandf.com/cdn/shop/files/Leg_Extension_9NA-S1312_Nautilus_Impact_Product_Sheet.pdf)); SportsArt: 1:1 (2 handen) en 2:1 (1 hand) ([Status-catalogus](https://www.gosportsart.com/wp-content/uploads/in5-archives/Strength-Catalog-ENG/Strength/Status%20Series%20Catalog.pdf)) |
+| Nokriem | aramide (kevlar), 25 x 3 mm, breukkracht ± 22 kN (factor 6 op 2 x de stapel); riemschijven Ø115, 8 kN | Nautilus Instinct: kevlarriem ([thefitnessoutlet.com](https://www.thefitnessoutlet.com/nautilus-instinct-leg-extension/)); breukkracht en schijf **AANNAME** |
+| Kracht aan de greep | grens (kg bij de pro-stapel): druk 90, trek (lat, row) 100, rug 60, been 90, kuit 130, arm 45, romp 45; thuis 60 %, semi 80 % | **AANNAME** uit merktoestellen (Fable 5.2 P1-02: chest press 90-135 kg) |
+| Stapel nokstation | thuis 20, semi 24, pro 28 platen van 5 kg (pro 140 kg: stapelkabel Ø6 met factor 6 en katrol A 3 kN op de grens) | gymparts.de, jk-sportvertrieb.de |
 | Kabelstation | 2:1 als de halve stapel de grens haalt, anders twee kabels 1:1 | eigen regel |
 | Lagerhuis | binnendiameter ≤ boring − 1,5 mm (uit te draaien tot H7, Ra 1,6) | Fable 5.2 P1-04 |
 | Gebogen stukken | W x 0,85 in de bocht (buitenwand dunner, ovaal) | Fable 5.2 P2-16, **AANNAME** |

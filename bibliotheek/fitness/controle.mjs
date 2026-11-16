@@ -388,8 +388,10 @@ export function nokFouten(o, o1 = null) {
     const yk = n.as[0], pf = k.route[k.route.length - 2], raak = k.raak ?? k.route[k.route.length - 1].p;
     if (Math.sign(raak[1] - yk) !== n.zin) uit.push(`${k.naam}: de nok draait van het raakpunt weg (de kabel wikkelt af en valt slap)`);
     if (pf?.p && Math.sign(pf.p[1] - yk) !== n.zin) uit.push(`${k.naam}: de vloerkatrol ligt aan de verkeerde kant van de nok`);
-    if (Math.abs(n.slag - n.Rn * n.thMax) > 2) uit.push(`${k.naam}: stapelweg ${n.slag} mm ≠ R·θ = ${Math.round(n.Rn * n.thMax)} mm`);
-    if (o1) { const k1 = o1.kabels.find((x) => x.naam === k.naam); if (k1 && Math.abs(k1.L - k.L) > 2) uit.push(`${k.naam}: kabellengte ${Math.round(k.L)} → ${Math.round(k1.L)} mm tussen stand 0 en 1 (geen gesloten loop)`); }
+    if (Math.abs(n.slag - (n.factor ?? 1) * n.Rn * n.thMax) > 2) uit.push(`${k.naam}: stapelweg ${n.slag} mm ≠ ${(n.factor ?? 1) > 1 ? `${n.factor}·` : ''}R·θ = ${Math.round((n.factor ?? 1) * n.Rn * n.thMax)} mm`);
+    // alle kabels en riemen van het toestel: even lang in stand 0 en 1 (ook de stapelkabel over de 2:1-takel)
+    if (o1) for (const k0 of o.kabels) { const k1 = o1.kabels.find((x) => x.naam === k0.naam); if (k1 && Math.abs(k1.L - k0.L) > 2) uit.push(`${k0.naam}: kabellengte ${Math.round(k0.L)} → ${Math.round(k1.L)} mm tussen stand 0 en 1 (geen gesloten loop)`); }
+    if (n.Rn > 220) uit.push(`${k.naam}: nok R${n.Rn} > 220 mm (merken: R ± 100-220)`);
     if (n.grens && n.kracht < n.grens) uit.push(`${k.naam}: ${Math.round(n.kracht)} kg aan de greep < grens ${Math.round(n.grens)} kg (${n.oef})`);
   }
   return uit;

@@ -131,7 +131,7 @@ export function berekening(o) {
     const st = o.stapels[0], extra = kb.begin === 'stapel' && st ? (st.extraKg ?? 0) : 0, K = KOOP[kb.key], F = ((kb.last + extra) * g) / kb.overbrenging, ben = (NORM.kabel.v * F) / (K.MBL * 1000);
     ctl('Kabel', `${kb.naam}: veiligheidsfactor 6`, `F = stapel · g / overbrenging = ${gw(kb.last, 0)} · 9,81 / ${kb.overbrenging} = ${gw(F / 1000, 2)} kN; 6 · F = ${gw((6 * F) / 1000, 2)} kN ≤ breukkracht ${gw(K.MBL, 2)} kN (${K.artikel}; AANNAME: de versnelling zit in de factor 6)`, ben, `${NORM.kabel.bron}; ${K.bron}`);
     const katr = kb.route.filter((p) => p.katrol);
-    const lus = (kb.begin === 'stapel' || kb.begin === 'anker' || kb.begin === 'laadpen' || kb.begin === 'slede') && (kb.einde === 'greep' || kb.einde === 'nok') && kb.route.slice(1, -1).every((p) => p.katrol || p.los);
+    const lus = (kb.begin === 'stapel' || kb.begin === 'anker' || kb.begin === 'laadpen' || kb.begin === 'slede') && (kb.einde === 'greep' || kb.einde === 'nok' || kb.einde === 'anker') && kb.route.slice(1, -1).every((p) => p.katrol || p.los || p.geleider);
     ctl('Kabel', `${kb.naam}: kabelloop en overbrenging`, `${kb.begin} → ${katr.map((p) => p.label).join(' → ')}${kb.route.some((p) => p.los) ? ' (+ losse katrol op de stapel)' : ''} → ${kb.einde}; lengte ${gw(kb.L / 1000, 2)} m (+ 0,3 m voor de lussen); overbrenging ${kb.overbrenging}:1${kb.overbrenging === 2 ? ' (de greep voelt de helft van de stapel en gaat 2 x zo ver)' : ''}`, 0, 'model: gesloten kabelloop', { oordeel: lus ? 'info' : 'rood' });
     for (let i = 1; i < kb.route.length - 1; i++) {
       const p = kb.route[i]; if (!p.katrol) continue;
