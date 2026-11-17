@@ -1483,9 +1483,20 @@ elease; README en docs/04 bijgewerkt
 - [ ] Web/app/artifacts bijwerken, foto's, commit en push
 
 ## Adviesrondje van Fable 5.2 op balustrades, Phlippo CAD (0.5.14) en afzuiging + bureau, daarna verwerken (2026-11-17)
-- [~] Fable 5.2 leest de balustrade-configurator na (bibliotheek/balustrades, normen NBN B 03-004/ANB)
+- [x] Fable 5.2 leest de balustrade-configurator na (Advies-Fable-5.2-v1.md: 8 x P1, 17 x P2, 12 x P3)
 - [x] Fable 5.2 leest het CAD-programma Phlippo CAD 0.5.14 na (docs/32: 3 x P1, 15 x P2, 13 x P3, 12 pariteitspunten)
 - [~] Fable 5.2 leest de inbouwafzuiging en het bureau na (voorbeelden/afzuiging, voorbeelden/bureau)
 - [ ] Rapporten in docs/ zetten, committen en aan Ian samenvatten
-- [~] Alle adviezen verwerken, met tests op de oude fouten (CAD bezig)
+- [~] Alle adviezen verwerken, met tests op de oude fouten (CAD en balustrades bezig)
 - [ ] Artifacts bijwerken, foto's, commit en push
+
+## Phlippo CAD 0.5.15: advies Fable 5.2 verwerken (2026-11-17)
+- [ ] P1-1 Ctrl+S tijdens Edit Component: assembly met bewerkt onderdeel opslaan, nooit het verkeerde document naar een handle (test)
+- [ ] P1-2 herstart voor software-GL vraagt eerst om op te slaan, hoofdproces weigert bij dirty (test)
+- [ ] P1-3 stabiele lichaam-ids (featureId#k) met migratie van oude bodyN, negatieve test in beide kernen
+- [ ] P2 instellingen en shell: Options OK samenvoegen, doc-eigenschappen apart, dode renderer, undo met open paneel, returnToAssembly op id
+- [ ] P2 kernen en snelheid: incrementele rebuild, solver per groep, exacte nabouw met budget/afbreken/fouten, rebuild-worker, mesh-booleans, autosave, bestandsformaat
+- [ ] P2 testpoort: bibliotheektests uit npm test (één lijst), wandklok uit B-rep-tests, e2e-wachthelper, regellengte-test
+- [ ] Alle P3's
+- [ ] Pariteitslijst: haalbare punten; voorstel meerdere documenten/externe verwijzingen voor Ian (niet bouwen)
+- [ ] Versie 0.5.15, typecheck, vitest, e2e P1-1/P1-2/Options, screenshots, graphify update, statustabel in docs/32

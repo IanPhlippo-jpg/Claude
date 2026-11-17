@@ -22,3 +22,11 @@
 - [x] Tests uitbreiden, vitest + typecheck groen
 - [x] Webversie, presentatie, kopie naar Balustradeconfigurator, README/EISEN, graphify update
 - [x] Screenshots (Edge) bekijken en verbeteren
+
+## Advies Fable 5.2 op de balustrades v1 (2026-11-17)
+- [x] EISEN, README, TASKS, Normen-en-bronnen en alle modules lezen
+- [x] Test (490 groen) en typecheck draaien; 33 configuraties doorrekenen (scratch-script, geen code gewijzigd)
+- [x] Bladen en de presentatie renderen (Edge/playwright) en bekijken
+- [x] Bronnen nalezen: Buildwise Contact 2016/4 p. 16-17 en de ANB-fiche EN 1991-1-1
+- [x] Rapport schrijven: docs/Advies-Fable-5.2-v1.md (P1/P2/P3 met bestand:regel, norm en oplossing)
+- [ ] Adviezen verwerken (nog te doen, niet in deze ronde)
