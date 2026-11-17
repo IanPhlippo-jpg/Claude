@@ -143,3 +143,15 @@
 - [x] FS vormtaal: voorstel 1 en 5 gedaan, 2 deels (lagerschild), 3 en 4 niet
 - [x] P3-punten (N-P3-01..07) en halve punten uit v6 (N-P3-08 niet)
 - [x] Snelle run, FITNESS_VOLLEDIG=1, npm run typecheck, graphify, web naar scratchpad/fitness-web, nafoto's, eerlijke statustabel
+
+## Versie 8: de rest van Fable 5.2 v6 (2026-11-17)
+- [x] Voorfoto's in fitness-fotos-v8/voor
+- [x] FS vormtaal 2: lagerschild is de dragende paal (geen vlakovaal paal meer)
+- [x] FS vormtaal 3: zitting en rug op één gebogen ruggengraat (vlakovaal)
+- [x] FS vormtaal 4: toren en station op één gesloten voetlus (geen losse T-voeten)
+- [x] FK-08 / FK-10: gesloten nokkap (kapFouten groen)
+- [x] P2-02: grens per oefening met merkbron (stapel + overbrenging), anders AANNAME met zoekpoging
+- [x] P2-18 op FB, FK en FP (geen oranje meer); R-tabel per buigerij (≥ 2 publieke tabellen)
+- [x] P3-08: open P3 uit v5 (voetflens/genummerde gaten, muurrig, functional trainer, kopligger, kruisvoet)
+- [x] Prijs: modelfouten zoeken (uurloon niet wijzigen)
+- [x] Snelle + volledige run, typecheck, graphify, web + klant, nafoto's v8, statustabel

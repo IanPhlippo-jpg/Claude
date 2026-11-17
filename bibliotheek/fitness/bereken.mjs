@@ -6,6 +6,7 @@
 import { NORM } from './normen.mjs';
 import { KOOP, PROFIEL } from './onderdelen.mjs';
 import { norm, sub, dot, len, aabb } from './model.mjs';
+import { buigKeuze, KANTBANK } from './vorm.mjs';
 
 const kg2N = (kg) => (kg ?? 0) * 9.81;
 const g = 9.81, E = NORM.E.v, fy = NORM.fy.v, fu = NORM.fu.v;
@@ -172,12 +173,27 @@ export function berekening(o) {
   }
   const kappen = o.koop.filter((x) => x.id?.startsWith('kap-')).reduce((t, x) => t + x.n, 0);
   ctl('Afwerking', 'Randen en buisuiteinden', `alle randen braamvrij, lichaamsdragende randen r ≥ 2,5 mm; ${kappen} eindkappen op open uiteinden`, 0, NORM.randen.bron, { oordeel: 'groen' });
+  // ---- v8 (P2-15): buigradius per buigerij uit publieke tabellen; geen tabel = offerte nodig (geen eigen aanname meer)
+  {
+    const gezien = new Set();
+    for (const d of o.delen.filter((x) => x.soort === 'staaf' && x.buig?.bochten?.length)) {
+      const zwaar = !d.staand, k = `${d.prof}|${d.buig.R}|${zwaar}`; if (gezien.has(k)) continue; gezien.add(k);
+      const opties = buigKeuze(d.P, d.buig.R, zwaar), ok = opties.filter((x) => x.ok);
+      const tekst = opties.length ? opties.map((x) => `${x.naam} (${x.methode}): R ≥ ${x.Rmin} ${x.ok ? 'ok' : 'te krap'}`).join('; ') : 'geen publieke tabel voor dit profiel: R met de buigerij afspreken (offerte, eigen matrijs)';
+      ctl('Buigen', `Buigradius ${d.P.naam} R${d.buig.R}${d.P.vorm === 'koker' && Math.abs(d.P.b - d.P.h) > 1 ? (zwaar ? ' (zware as)' : ' (lichte as)') : ''}: ${d.naam}`, tekst, 0, opties[0]?.bron ?? 'geen tabel gevonden (zie docs/Normen-en-bronnen.md)', { oordeel: 'info' });
+    }
+    const ts = [...new Set((o.gezet ?? []).map((g) => g.t))];
+    for (const t of ts) {
+      const Rs = [...new Set((o.gezet ?? []).filter((g) => g.t === t).flatMap((g) => g.zetlijnen.map((z) => z.R)))];
+      ctl('Buigen', `Kantbank ${t} mm: binnenradius per zetterij`, `in het model Ri ${Rs.join(' / ')}; ${KANTBANK.map((kb) => `${kb.naam}: Ri ${kb.Ri[t] ?? '-'}`).join('; ')}. De zetterij krijgt de buitenmaten en past haar eigen inkorting toe`, 0, KANTBANK.map((kb) => kb.bron).join(' en '), { oordeel: 'info' });
+    }
+  }
   // ---- lassen op vlakovaal (P2-18 v6): het vlakke deel van een ovaal is h − b breed; een breder aansluitend profiel
   // komt met zijn randen op de ronding (las in een V-spleet): zadelplaat of een smaller profiel
   {
     const sl = [];
     for (const l of o.lassen ?? []) for (const [Ov, An] of [[l.A, l.B], [l.B, l.A]]) {
-      if (!Ov?.P?.ovaal || An?.soort !== 'staaf' || An.P?.ovaal) continue;
+      if (!Ov?.P?.ovaal || An?.soort !== 'staaf' || An.P?.ovaal || An.zadelOp?.includes(Ov.id)) continue; // v8: met een zadelplaat in orde
       const vlak = Ov.P.h - Ov.P.b, w = Math.min(An.P.b, An.P.h);
       if (w > vlak - 4) sl.push(`${An.naam} (${Math.round(w)} mm) op ${Ov.naam} (vlak ${Math.round(vlak)} mm)`);
     }

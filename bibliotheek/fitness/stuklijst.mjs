@@ -123,6 +123,6 @@ export function totalen(o, sl = stuklijst(o)) {
     if (p.soort === 'staaf') { kgStaaf += p.kg * p.n; opp += (p.voorbeeld.P.omtrek * p.L * p.n) / 1e6; gaten += p.gaten.length * p.n; zagen += p.n; if (p.voorbeeld.verstek.some((a) => a > 0.5)) verstek += p.n; if (p.buig) { bochten += p.buig.bochten.length * p.n; buigPos += 1; } }
     else { kgPlaat += p.kg * p.n; opp += ((p.voorbeeld.kleur === 'kap' ? 1 : 2) * (p.voorbeeld.contour ? p.voorbeeld.contour.opp : p.l * p.b * (p.voorbeeld.rond ? Math.PI / 4 : 1)) * p.n) / 1e6; laser += p.n; if (!p.voorbeeld.stapel && p.snij) { snijM += p.snij.m * p.n; insteken += p.snij.insteken * p.n; } }
   }
-  const lasM = o.lassen.reduce((t, l) => t + l.lengte, 0) / 1000;
+  const lasM = o.lassen.reduce((t, l) => t + (l.naad ?? l.lengte), 0) / 1000; // v8: hechtlassen tellen met hun echte lengte
   return { zettingen, zetPos, kgStaaf, kgPlaat, kg: kgStaaf + kgPlaat, opp, gaten, zagen, verstek, laser, bochten, buigPos, snijM, insteken, lasM, verbindingen: o.lassen.length, kussens: o.kussens.length, katrollen: o.katrollen.length, kabels: o.kabels.length, stapelplaten: o.stapels.reduce((t, s) => t + s.n + 1, 0), bouten: o.bouten.reduce((t, b) => t + b.n, 0) };
 }

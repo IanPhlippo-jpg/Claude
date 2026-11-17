@@ -22,7 +22,7 @@ import { dxfBestanden } from '../../bibliotheek/fitness/dxf.mjs';
 import { add, mul, sub } from '../../bibliotheek/fitness/model.mjs';
 import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
 import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
-import { buigPad, afronden, terugVouwen, uitslagStrook } from '../../bibliotheek/fitness/vorm.mjs';
+import { buigPad, afronden, terugVouwen, uitslagStrook, BUIGERIJEN, KANTBANK, buigKeuze } from '../../bibliotheek/fitness/vorm.mjs';
 import { nokFouten, lagerhuisFouten, laadpenFouten, inbedFouten, ontluchtFouten, uitslagFouten, kapFouten, aanslagFouten, materiaalFouten } from '../../bibliotheek/fitness/controle.mjs';
 import { NOKGRENS, NOKGRENS_BRON } from '../../bibliotheek/fitness/selectorized.mjs';
 import { KOOP } from '../../bibliotheek/fitness/onderdelen.mjs';
@@ -684,14 +684,14 @@ describe('fitness v5 fase C: opslag in pro-vormtaal en buiten (EN 16630)', () =>
     expect(o.delen.filter((d: any) => d.naam === 'Zijplaat' && d.contour.uitsparingen.length === 1).length).toBe(2);
     expect(o.delen.filter((d: any) => d.naam === 'Eindplaat voet').length).toBe(4);
   });
-  it('kettlebellrek: gezette bak met randen; plyobox dicht met handgrepen; schijvenboom op een basisplaat met rubberen hulzen', () => {
+  it('kettlebellrek: gezette bak met randen; plyobox dicht met handgrepen; schijvenboom op een kruisvoet met rubberen hulzen', () => {
     expect(toestel('FO-04', 'pro').delen.filter((d: any) => d.naam === 'Bak laag 1').length).toBe(3);
     const p = toestel('FO-16', 'pro');
     expect(p.delen.filter((d: any) => d.naam === 'Mantel').length).toBe(6); // v7 (N-P1-07): 2 helften, voor- en achtervlak gesplitst
     expect(p.delen.filter((d: any) => d.naam === 'Mantel' && d.contour.uitsparingen.length).length).toBe(2);
     expect(p.delen.some((d: any) => d.naam === 'Deksel') && p.delen.some((d: any) => d.naam === 'Bodem')).toBe(true);
     const s = toestel('FO-10', 'pro');
-    expect(s.delen.some((d: any) => d.naam === 'Basisplaat' && d.contour)).toBe(true);
+    expect(s.delen.filter((d: any) => d.naam === 'Kruisvoet').length).toBe(3); // v8 (P3-07): kruisvoet in plaats van een basisplaat
     expect(s.koop.filter((k: any) => k.key === 'rubberhuls').length).toBe(s.delen.filter((d: any) => /Schijfhouder/.test(d.naam)).length);
     expect(s.koop.some((k: any) => k.key === 'verchromen')).toBe(false);
   });
@@ -856,8 +856,8 @@ describe('fitness v7: Fable 5.2 op v6b, elke P1/P2 met een negatieve proef', () 
       expect(o.delen.some((d: any) => d.naam === 'Takelblok juk'), t.id).toBe(true);
       expect(o.koop.filter((k: any) => /Geleidestang takelblok/.test(k.naam)).length, t.id).toBe(2);
       expect(o.gezet.some((g: any) => g.naam === 'Takelkoker'), t.id).toBe(true);
-      // v6b: 2,0-2,7 m; nu ≤ 2,25 m (een ligmachine ≤ 2,35 m)
-      expect(o.maten.D, `${t.id} ${v} diepte`).toBeLessThanOrEqual(o.delen.some((d: any) => d.naam === 'Ligbalk') ? 2350 : 2250);
+      // v6b: 2,0-2,7 m; nu ≤ 2,25 m (een ligmachine ≤ 2,4 m)
+      expect(o.maten.D, `${t.id} ${v} diepte`).toBeLessThanOrEqual(o.delen.some((d: any) => d.naam === 'Ligbalk') ? 2400 : 2250);
       expect(zwevend(o), t.id).toEqual([]);
     }
     const o = toestel('FS-01', 'pro');
@@ -940,12 +940,11 @@ describe('fitness v7: Fable 5.2 op v6b, elke P1/P2 met een negatieve proef', () 
     const o = toestel('FS-01', 'pro'), st = o.delen.reduce((s: number, d: any) => s + massa(d), 0) + 195 * 1119 * 170 * 7.85e-6;
     expect(Math.abs(st / totalen(o).kg - 1)).toBeGreaterThan(0.05);
   });
-  it('N-P2-02: de grens is een vast getal met een bron (druk en been 110 kg) en de pro-machines halen hem', () => {
-    expect(NOKGRENS.druk).toBe(110); expect(NOKGRENS.been).toBe(110);
-    expect(NOKGRENS_BRON.druk).toMatch(/Life Fitness Insignia Chest Press/);
-    expect(toestel('FS-01', 'pro').nok.kracht).toBeGreaterThanOrEqual(110);
+  it('N-P2-02: de grens is een vast getal met een bron en de pro-machines halen hem (v8: zie P2-02 hieronder)', () => {
+    expect(NOKGRENS.druk).toBe(130); expect(NOKGRENS.been).toBe(130);
+    expect(toestel('FS-01', 'pro').nok.kracht).toBeGreaterThanOrEqual(130);
     // negatief: de stapel van v6b (28 x 5 kg) met R220 aan arm 650 geeft 95 kg
-    expect((2 * 28 * 5 * 220) / Math.hypot(560, 330)).toBeLessThan(110);
+    expect((2 * 28 * 5 * 220) / Math.hypot(560, 330)).toBeLessThan(130);
   });
   it('N-P2-03/N-P2-06: bestelbare kabel en kabelschijven met datablad, geen nokriem; as S355J2+C (geen C45)', () => {
     const o = toestel('FS-01', 'pro');
@@ -997,5 +996,90 @@ describe('fitness v7: Fable 5.2 op v6b, elke P1/P2 met een negatieve proef', () 
     expect(s.delen.filter((d: any) => d.naam === 'Duwpaalhuls').length).toBe(2);
     expect(kostprijs(toestel('FX-13', 'thuis')).regels.some((r: any) => /Keuring/.test(r.wat))).toBe(false);
     expect(kostprijs(toestel('FX-13', 'pro')).regels.some((r: any) => /Keuring/.test(r.wat))).toBe(true);
+  });
+});
+
+describe('fitness v8: de rest van Fable 5.2 v6, elk met een negatieve proef', () => {
+  it('P2-02: de grens per oefening is stapel x verhouding van een merktoestel met productblad (vaste getallen)', () => {
+    expect(NOKGRENS).toEqual({ druk: 130, trek: 130, rug: 130, been: 130, kuit: 130, arm: 90, romp: 65, lagerug: 130 });
+    for (const k of Object.keys(NOKGRENS)) expect(NOKGRENS_BRON[k], k).toMatch(/Nautilus Impact .*pulley ratio 1:1/);
+    for (const id of ['FS-01', 'FS-06', 'FS-12', 'FS-13']) { const o = toestel(id, 'pro'), K = o.nok ?? o.kracht; expect(K.kracht, id).toBeGreaterThanOrEqual(K.grens); }
+    expect(toestel('FS-01', 'pro').nok.grens).toBe(130);
+    // negatief: de stapel van v7 (34 platen) haalt 130 kg niet met R220 aan arm 650
+    expect((2 * 34 * 5 * 220) / Math.hypot(560, 330)).toBeLessThan(130);
+  });
+  it('FS vormtaal: lagerschild is de paal, één gesloten voetlus, zitting en rug op één ruggengraat; geen losse T-voeten', () => {
+    for (const id of ['FS-01', 'FS-09', 'FS-12', 'FS-23']) {
+      const o = toestel(id, 'pro');
+      expect(o.delen.some((d: any) => d.naam === 'Lagerpaal'), id).toBe(false);
+      expect(o.delen.some((d: any) => d.naam === 'Voet lagerpaal'), id).toBe(false);
+      expect(o.delen.filter((d: any) => d.naam === 'Lagerschild' && d.t >= 10).length, id).toBe(4);
+      const lus = o.delen.find((d: any) => d.naam === 'Voetlus');
+      expect(lus?.buig?.bochten.length, id).toBe(2);
+      expect(berekening(o).controles.find((c: any) => /Lagerschild/.test(c.wat))?.oordeel, id).toBe('groen');
+    }
+    for (const id of ['FS-01', 'FS-09']) {
+      const o = toestel(id, 'pro'), sp = o.delen.find((d: any) => d.naam === 'Ruggengraat');
+      expect(sp?.buig?.bochten.length, id).toBe(1);
+      expect(o.delen.some((d: any) => d.naam === 'Zitslede'), id).toBe(true);
+      expect(o.delen.some((d: any) => d.naam === 'Rugpaal' || d.naam === 'Zitpaal'), id).toBe(false);
+      expect(o.pennen.some((p: any) => p.naam === 'Veerpen zitting'), id).toBe(true);
+    }
+  });
+  it('FK-08, FK-09, FK-12 en FK-10: gesloten nokkap of nokkast; zonder kap faalt kapFouten', () => {
+    for (const id of ['FK-08', 'FK-09', 'FK-12']) {
+      const o = toestel(id, 'pro');
+      expect(o.gezet.some((g: any) => /^Nokkap rand/.test(g.naam)), id).toBe(true);
+      expect(o.knepen?.length, id).toBeGreaterThan(0);
+      expect(kapFouten(o), id).toEqual([]);
+      expect(kapFouten({ ...o, kappen: o.kappen.filter((k: any) => k.naam !== 'Nokkap') }).length, id).toBeGreaterThan(0);
+    }
+    const o = toestel('FK-10', 'pro');
+    expect(o.gezet.some((g: any) => g.naam === 'Nokkast')).toBe(true);
+    expect(o.delen.some((d: any) => d.naam === 'Nokkap')).toBe(false);
+  });
+  it('P2-18: geen las over de ronding van een vlakovaal (zadelplaat of de ovaal eindigt op een vlak); zonder zadelplaat oranje', () => {
+    for (const id of ['FB-01', 'FK-01', 'FP-01', 'FP-03', 'FP-04', 'FS-01', 'FS-13']) {
+      const o = toestel(id, 'pro'), B = berekening(o);
+      expect(B.controles.some((c: any) => /P2-18/.test(c.wat)), id).toBe(false);
+    }
+    const o = toestel('FP-04', 'pro');
+    expect(o.delen.some((d: any) => d.naam === 'Zadelplaat')).toBe(true);
+    const zonder = { ...o, delen: o.delen.map((d: any) => ({ ...d, zadelOp: undefined })), lassen: o.lassen.map((l: any) => ({ ...l, A: { ...l.A, zadelOp: undefined }, B: { ...l.B, zadelOp: undefined } })) };
+    expect(berekening(zonder).controles.some((c: any) => /P2-18/.test(c.wat) && c.oordeel === 'oranje')).toBe(true);
+  });
+  it('P2-15: buigradius per buigerij uit 2 publieke tabellen; per bocht staat welke buigerij het kan of dat er een offerte nodig is', () => {
+    expect(new Set(BUIGERIJEN.map((b: any) => b.naam)).size).toBeGreaterThanOrEqual(2);
+    expect(KANTBANK.length).toBeGreaterThanOrEqual(2);
+    expect(buigKeuze({ vorm: 'buis', b: 42.4, h: 42.4 }, 100).some((x: any) => x.ok)).toBe(true);
+    expect(buigKeuze({ vorm: 'buis', b: 42.4, h: 42.4 }, 60).some((x: any) => x.ok)).toBe(false); // negatief: te krap
+    const B = berekening(toestel('FS-01', 'pro'));
+    expect(B.controles.filter((c: any) => c.groep === 'Buigen' && /Buigradius/.test(c.wat)).length).toBeGreaterThan(0);
+  });
+  it('P3-08: voetflenzen met ankers en gatnummers (rigs), muurrig zonder achterstaanders, boog bij de functional trainer, geen kopligger, middenplaat, kruisvoet', () => {
+    const r = toestel('FM-01', 'pro');
+    expect(r.delen.some((d: any) => d.naam === 'Voetbalk')).toBe(false);
+    expect(r.delen.filter((d: any) => d.naam === 'Voetflens').length).toBe(4);
+    expect(r.koop.some((k: any) => k.key === 'gatnummers')).toBe(true);
+    const m = toestel('FM-05', 'pro');
+    expect(m.delen.some((d: any) => d.naam === 'Staander achter')).toBe(false);
+    expect(m.delen.some((d: any) => d.naam === 'Muurstrip')).toBe(true);
+    const ft = toestel('FM-13', 'pro'), boog = ft.delen.find((d: any) => d.naam === 'Bovenligger met greep');
+    expect(boog?.buig?.bochten.length).toBe(4);
+    expect(ft.delen.filter((d: any) => d.naam === 'Optrekgreep').length).toBe(2);
+    expect(toestel('FO-01', 'pro').delen.some((d: any) => d.naam === 'Kopligger')).toBe(false);
+    const fo = toestel('FO-02', 'pro');
+    expect(fo.delen.some((d: any) => d.naam === 'Middenplaat')).toBe(true);
+    expect(botsingen(fo)).toEqual([]);
+    const k = toestel('FO-09', 'pro');
+    expect(k.delen.some((d: any) => d.naam === 'Basisplaat')).toBe(false);
+    expect(k.delen.filter((d: any) => d.naam === 'Kruisvoet').length).toBe(3);
+  });
+  it('N-P2-10: hechtlas bij een dunne plaat op een profiel (geen doorlopende naad); een doorlopende naad telt meer uren', () => {
+    const o = toestel('FX-11', 'pro'), h = o.lassen.filter((l: any) => l.hecht);
+    expect(h.length).toBeGreaterThan(0);
+    for (const l of h) expect(l.naad).toBeLessThan(l.lengte);
+    const vol = { ...o, lassen: o.lassen.map((l: any) => ({ ...l, naad: l.lengte })) };
+    expect(totalen(vol).lasM).toBeGreaterThan(totalen(o).lasM);
   });
 });

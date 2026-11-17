@@ -18,40 +18,59 @@ const MATEN = ['compact', 'standaard', 'XL'];
 export function rigBouw(b, def, c) {
   const V = b.V, a = b.P('staander').b, H = mt(b, c.H ?? (pro(b) ? 2400 : 2300), [-250, 150]), n = c.vakken, wi = c.wi ?? 1120, D = c.D ?? (pro(b) ? 1220 : 1100);
   const yf = 200, yb = yf + D, xs = (i) => (i - n / 2) * (wi + a), extra = new Set(c.extra ?? []), G = def.maxLast?.[V.id] ?? 300;
-  const st = [];
+  const st = [], tf = 10, zf = tf, Pl = b.P('licht');
+  // P3-03 v8: elke staander op een voetflens 180 x 180 x 10 (Fable: 150; 180 houdt de ankergaten buiten de las) met 2 vloerankers (zoals de merken), geen doorlopende voetbalk;
+  // de zijframes onderaan met een onderligger. P3-04 v8: een muurrig heeft geen achterstaanders: een muurstrip (koker 60 x 60)
+  // met een console bovenaan en onderaan.
+  const flens = (S, x, y) => {
+    const g = [[-62, -62], [62, 62]].map(([dx, dy]) => [x + dx, y + dy, 0]);
+    b.plaat('Voetflens', [x - 90, y - 90, 0], [x + 90, y + 90, tf], { gaten: g.map((p) => ({ p, d: 14 })), opm: 'voetflens 180 x 180 x 10 gelaserd, R10, 2 gaten Ø14 diagonaal voor keilbouten M12; de staander rondom erop gelast' });
+    b.bout('Vloeranker', 'vloer', S.groep, [x, y, 0], Z, { key: 'anker', punten: g.map((p) => [p[0], p[1], tf]), lengte: 120 });
+  };
   for (let i = 0; i <= n; i++) {
     const x = xs(i);
     b.groep(`Zijframe ${i + 1}`);
-    const voet = b.staaf('Voetbalk', 'voet', [x, c.muur ? yf - 150 : 0, a / 2], [x, yb + (c.muur ? 0 : 200), a / 2]);
-    const f = staander(b, 'Staander voor', 'staander', x, yf, a, H, westsideGaten(b, a, H)), bk = staander(b, 'Staander achter', 'staander', x, yb, a, H, westsideGaten(b, a, H));
-    const zl = ligger(b, 'Bovenligger zijkant', 'ligger', f, bk, { z: H - a / 2 });
-    ankers(b, voet); // P2-05 v6: ook thuis verankerd (kippen, ringen)
-    st.push({ x, voet, f, b: bk, zl });
+    const f = staander(b, 'Staander voor', 'staander', x, yf, zf, H, westsideGaten(b, zf, H));
+    flens(f, x, yf);
+    let bk;
+    if (c.muur) {
+      bk = staander(b, 'Muurstrip', 'licht', x, yb, 400, H, { opm: 'koker 60 x 60 tegen de muur (muurplaten met keilbouten): draagt de consoles; geen achterstaander tot op de vloer (P3-04)' });
+      ligger(b, 'Muurconsole onder', 'licht', f, bk, { z: 500 });
+    } else {
+      bk = staander(b, 'Staander achter', 'staander', x, yb, zf, H, westsideGaten(b, zf, H));
+      flens(bk, x, yb);
+      ligger(b, 'Onderligger zijkant', 'ligger', f, bk, { z: 160 });
+    }
+    const zl = ligger(b, 'Bovenligger zijkant', c.muur ? 'licht' : 'ligger', f, bk, { z: H - (c.muur ? Pl.h : a) / 2 });
+    st.push({ x, voet: null, f, b: bk, zl });
   }
-  // P3-03 v6: schetsplaat 8 mm met een rond gat tussen staander en voetbalk van de buitenste zijframes (buitenkant);
-  // bovenaan zitten de bouten van de optrekstang en de bovenligger, daar komt geen plaat
-  for (const [i, sx] of [[0, -1], [n, 1]]) {
-    const S = st[i], xp = S.x + sx * (a / 2 + 4);
+  // P3-03 v8: schetsplaat 8 mm met een rond gat op de buitenkant van de buitenste zijframes, in de hoek staander-onderligger
+  if (!c.muur) for (const [i, sx] of [[0, -1], [n, 1]]) {
+    const S = st[i], xp = S.x + sx * (a / 2 + 4), z0 = 160 - a / 2;
     b.groep(`Zijframe ${i + 1}`);
-    for (const [y0, sy] of [[yf, 1], [yb, -1]]) {
-      const yi = y0 + sy * (a / 2), pts = [[y0 - sy * (a / 2), 0], [yi + sy * 200, 0], [yi + sy * 200, a, 30], [yi, a + 200, 30], [y0 - sy * (a / 2), a + 200]];
-      b.contour('Schetsplaat hoek', [xp, 0, 0], [0, 1, 0], [0, 0, 1], 8, sy > 0 ? pts : pts.reverse(), { banden: 8, gaten: [{ x: yi + sy * 62, y: a + 62, d: 30 }], opm: 'schetsplaat 8 mm op de buitenkant, afgeronde punt en een rond gat Ø30 (merkuiterlijk), rondom gelast' });
+    for (const [y0, sy] of [[yf, 1]]) { // alleen vooraan: achteraan zit de geboute onderligger
+      const yi = y0 + sy * (a / 2), pts = [[y0 - sy * (a / 2), z0], [yi + sy * 200, z0], [yi + sy * 200, z0 + a, 30], [yi, z0 + a + 200, 30], [y0 - sy * (a / 2), z0 + a + 200]];
+      b.contour('Schetsplaat hoek', [xp, 0, 0], [0, 1, 0], [0, 0, 1], 8, sy > 0 ? pts : pts.reverse(), { banden: 8, gaten: [{ x: yi + sy * 62, y: z0 + a + 62, d: 30 }], opm: 'schetsplaat 8 mm op de buitenkant, afgeronde punt en een rond gat Ø30 (zoals de merken)' });
     }
   }
+  // P3-03 v8: gatnummers om de 5 gaten gelaserd op de voorkant van de voorste staanders (zie het stukblad)
+  b.o.pronk = b.o.pronk ?? [];
+  for (const S of st) { const gs = (S.f.gaten ?? []).filter((g) => g.westside !== false).map((g) => g.s).sort((p, q) => p - q); gs.forEach((s2, k) => { if (k % 5 === 4) b.o.pronk.push(balk([S.x - a / 2 + 4, yf - a / 2 - 0.4, zf + s2 - 6], [S.x - a / 2 + 4, yf - a / 2 - 0.4, zf + s2 + 6], X, 8, 0.8, false, 'instructie')); }); }
+  b.koop('gatnummers', st.length, [], { naam: 'Gatnummers om de 5 gaten gelaserd op de voorste staanders (lasermarkering, AANNAME)', groep: 'afwerking' });
   // liggers per vak: vooraan een optrekstang (of een gewone ligger), achteraan een bovenligger; onderaan dwars op de voeten
   for (let i = 0; i < n; i++) {
     const L = st[i], R = st[i + 1];
     b.groep('frame');
     ligger(b, 'Optrekstang', 'optrek', L.f, R.f, { z: H - 70 }, { bout: true, groep: `Optrekstang ${i + 1}` });
     ligger(b, 'Bovenligger achter', 'ligger', L.b, R.b, { z: H - a / 2 - 55 }, { bout: true, groep: `Bovenligger achter ${i + 1}` });
-    if (!c.muur) dwarsOp(b, 'Onderligger achter', 'ligger', L.voet, R.voet, i % 2 ? yb - a - 10 : yb + a + 10);
+    if (!c.muur) ligger(b, 'Onderligger achter', 'ligger', L.b, R.b, { z: 160 }, { bout: true, groep: `Onderligger achter ${i + 1}` });
   }
-  if (c.muur) { b.o.muur = yb + a / 2 + 10; for (const s of st) b.plaat('Muurplaat', [s.x - 60, yb + a / 2, 400], [s.x + 60, yb + a / 2 + 10, 700], { gaten: [[-35, 450], [35, 450], [-35, 650], [35, 650]].map(([dx, z]) => ({ p: [s.x + dx, yb + a / 2, z], d: 14 })), opm: 'muurplaat 10 mm, 4 x M12 keilbout in beton' }); b.o.verankerd = 'muur'; b.o.anker = { arm: 300, z: 550, n: 4 * st.length, kg: G / 2 };
+  if (c.muur) { b.o.muur = yb + Pl.b / 2 + 10; for (const s of st) b.plaat('Muurplaat', [s.x - 60, yb + Pl.b / 2, 400], [s.x + 60, yb + Pl.b / 2 + 10, 700], { gaten: [[-35, 450], [35, 450], [-35, 650], [35, 650]].map(([dx, z]) => ({ p: [s.x + dx, yb + a / 2, z], d: 14 })), opm: 'muurplaat 10 mm, 4 x M12 keilbout in beton' }); b.o.verankerd = 'muur'; b.o.anker = { arm: 300, z: 550, n: 4 * st.length, kg: G / 2 };
     // de muur als context (lichtgrijs, hoort niet bij het toestel) en de koppen van de keilbouten in de muurplaten
     const x0 = st[0].x - 400, x1 = st[n].x + 400, zm = (H + 300) / 2;
     b.o.context.push(balk([x0, b.o.muur + 60, zm], [x1, b.o.muur + 60, zm], Z, H + 300, 120, false, 'muur'));
     b.o.pronk = b.o.pronk ?? [];
-    for (const s of st) for (const [dx, z] of [[-35, 450], [35, 450], [-35, 650], [35, 650]]) b.o.pronk.push(balk([s.x + dx, yb + a / 2 - 9, z], [s.x + dx, yb + a / 2 - 1, z], X, 19, 19, false, 'zink', { zes: true }), balk([s.x + dx, yb + a / 2 - 1, z], [s.x + dx, yb + a / 2, z], X, 26, 26, true, 'ring'));
+    for (const s of st) for (const [dx, z] of [[-35, 450], [35, 450], [-35, 650], [35, 650]]) b.o.pronk.push(balk([s.x + dx, yb + Pl.b / 2 - 9, z], [s.x + dx, yb + Pl.b / 2 - 1, z], X, 19, 19, false, 'zink', { zes: true }), balk([s.x + dx, yb + a / 2 - 1, z], [s.x + dx, yb + a / 2, z], X, 26, 26, true, 'ring'));
     b.koop('keilbout', 4 * st.length, [], { naam: 'Keilbout M12 x 120 verzinkt in beton (muurplaten)', groep: 'afwerking' }); }
   else b.o.verankerd = 'vloer';
   // P2-05 v6: zwaaien/kippen aan de optrekstang (0,5 x gebruiker horizontaal, AANNAME): alleen verankerd

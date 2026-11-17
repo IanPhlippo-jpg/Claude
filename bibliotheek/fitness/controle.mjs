@@ -158,6 +158,7 @@ export function gatFouten(o) {
       if (d.soort === 'staaf' && d.in && Math.abs(dot(d.u, f.as)) > 0.98) continue; // de as zelf
       const gat = G.find((g) => g.deel === d && Math.abs(dot(g.as, f.as)) > 0.98 && afstandTotLijn(g.p, f.p, f.as) <= 0.5);
       if (!gat) { uit.push(`${f.soort} ${f.naam} (Ø${f.d}) gaat door ${d.naam} zonder gat`); continue; }
+      if (gat.g.zitting && gat.d > f.d + 10) continue; // v8: gat voor een ingelaste buis (lagerhuis, bus): de pen zit in de buis
       const zit = f.soort === 'lager' ? (/Lageroor|Lagerhuis/.test(d.naam) ? 'lager' : 'pen') : f.soort; // de lagerzitting zit alleen in het oor of het lagerhuis
       const [lo, hi] = SPELING[zit], sp = gat.d - (zit === 'lager' ? f.lager : f.d);
       if (sp < lo - 1e-6 || sp > hi + 1e-6) uit.push(`${zit} ${f.naam}: gat Ø${gat.d} in ${d.naam} past niet bij Ø${zit === 'lager' ? `${f.lager} (lager)` : f.d} (speling ${sp.toFixed(1)}, ${lo}-${hi})`);
@@ -170,7 +171,7 @@ export function gatFouten(o) {
       const L = d.L, s = g.g.s, e = 1.5 * g.d;
       if (s < e - 0.5 || L - s < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} op ${Math.round(s)} mm, randafstand < 1,5 x Ø (${Math.round(e)})`);
       if (d.P.vorm === 'koker') {
-        const w = g.g.as === 'v' ? d.P.h : d.P.b, r = d.P.ovaal ? Math.min(d.P.b, d.P.h) / 2 : 2 * d.P.t;
+        const w = (g.g.as === 'v') !== !!d.staand ? d.P.h : d.P.b, r = d.P.ovaal ? Math.min(d.P.b, d.P.h) / 2 : 2 * d.P.t;
         if (g.d / 2 > w / 2 - r + 0.01) uit.push(`${d.naam}: gat Ø${g.d} valt in de hoekradius (vlak ${Math.round(w - 2 * r)} mm)`);
         else if (w / 2 < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} te dicht bij de zijkant (${w / 2} < ${Math.round(e)})`);
       }

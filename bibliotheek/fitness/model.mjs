@@ -114,7 +114,20 @@ export function bouwer(V, stand = 0) {
       const nn = cross(ex, ey), cont = afronden(hoekpunten), uits = (opt.uitsparingen ?? []).map((h) => afronden(h)), kleur = opt.kleur ?? 'frame';
       const P3 = (x, y, z = 0) => add(add(add(o3, mul(ex, x)), mul(ey, y)), mul(nn, z));
       const xs = cont.punten.map((p) => p[0]), ys = cont.punten.map((p) => p[1]), minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
-      const geo = banden(cont.punten, opt.banden ?? 10).filter((x) => x.x1 - x.x0 > 1).map((x) => { const yc = (x.y0 + x.y1) / 2; return balk(P3(x.x0, yc), P3(x.x1, yc), ey, x.y1 - x.y0, t, false, kleur, { seg: true }); });
+      // v8: uitsparingen tellen mee in de 3D-banden (een ligger door een uitsparing botst niet met de plaat)
+      const gaatjes = uits.map((h) => { const xs2 = h.punten.map((q) => q[0]), ys2 = h.punten.map((q) => q[1]); return [Math.min(...xs2), Math.max(...xs2), Math.min(...ys2), Math.max(...ys2)]; }).concat(opt.leegte ?? []); // leegte: inkepingen in de rand (alleen voor de 3D-banden)
+      const strook = (poly, a, b2) => { const xs = []; for (let k = 0; k < poly.length; k++) { const p = poly[k], q = poly[(k + 1) % poly.length]; if (p[1] >= a && p[1] <= b2) xs.push(p[0]); for (const yy of [a, b2]) if ((p[1] - yy) * (q[1] - yy) < 0) xs.push(p[0] + ((q[0] - p[0]) * (yy - p[1])) / (q[1] - p[1])); } return xs.length >= 2 ? { y0: a, y1: b2, x0: Math.min(...xs), x1: Math.max(...xs) } : null; };
+      let basis = banden(cont.punten, opt.banden ?? 10);
+      if (gaatjes.length) { // banden die precies op de randen van de uitsparingen breken
+        const ys = cont.punten.map((q) => q[1]), y0 = Math.min(...ys), y1 = Math.max(...ys), br = [...new Set([...Array.from({ length: 31 }, (_, k) => y0 + ((y1 - y0) * k) / 30), ...gaatjes.flatMap((h) => [h[2], h[3]])].map((v) => Math.round(v * 100) / 100))].filter((v) => v >= y0 && v <= y1).sort((p, q) => p - q);
+        basis = br.slice(1).map((v, k) => strook(cont.punten, br[k], v)).filter(Boolean);
+      }
+      const bandRij = basis.flatMap((x) => {
+        let stukken = [[x.x0, x.x1]];
+        for (const [h0, h1, k0, k1] of gaatjes) if (k0 <= x.y0 + 0.01 && k1 >= x.y1 - 0.01) stukken = stukken.flatMap(([p0, p1]) => (h1 <= p0 || h0 >= p1 ? [[p0, p1]] : [[p0, h0], [h1, p1]].filter(([q0, q1]) => q1 - q0 > 1)));
+        return stukken.map(([p0, p1]) => ({ ...x, x0: p0, x1: p1 }));
+      });
+      const geo = bandRij.filter((x) => x.x1 - x.x0 > 1).map((x) => { const yc = (x.y0 + x.y1) / 2; return balk(P3(x.x0, yc), P3(x.x1, yc), ey, x.y1 - x.y0, t, false, kleur, { seg: true }); });
       const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
       for (const [x, y] of cont.punten) for (const z of [-t / 2, t / 2]) { const q = P3(x, y, z); for (let i = 0; i < 3; i++) { mn[i] = Math.min(mn[i], q[i]); mx[i] = Math.max(mx[i], q[i]); } }
       const ax = (v) => [0, 1, 2].sort((i, j) => Math.abs(v[j]) - Math.abs(v[i]))[0];
@@ -350,7 +363,10 @@ export function afwerken(o) {
     if (!c || c.lengte < 5) continue;
     const plaatPlaat = A.soort === 'plaat' && B.soort === 'plaat';
     const tmin = Math.min(dikte(A), dikte(B)), a = Math.min(o.V.las, Math.max(3, Math.floor(0.7 * tmin)), tmin); // keel ≤ dunste wand (P3-01)
-    o.lassen.push({ a: A.id, b: B.id, A, B, lengte: Math.round(c.lengte), p: c.p, keel: a, soort: plaatPlaat ? 'hoek2' : 'hoek', rondom: !plaatPlaat && (A.soort === 'staaf' || B.soort === 'staaf'), groep: A.groep });
+    // v8 (N-P2-10): een dunne plaat (≤ 10 mm) die over meer dan 400 mm op een profiel of plaat ligt (dekplaat, middenplaat,
+    // bodem) krijgt een hechtlas 50 mm om de 200 mm (25 % van de lengte), geen doorlopende naad: zo rekent de werkplaats ook
+    const dun = (A.soort === 'plaat' && A.t <= 10) || (B.soort === 'plaat' && B.t <= 10), hecht = dun && c.lengte > 400;
+    o.lassen.push({ a: A.id, b: B.id, A, B, lengte: Math.round(c.lengte), naad: Math.round(hecht ? Math.max(200, 0.25 * c.lengte) : c.lengte), hecht, p: c.p, keel: a, soort: plaatPlaat ? 'hoek2' : 'hoek', rondom: !plaatPlaat && (A.soort === 'staaf' || B.soort === 'staaf'), groep: A.groep });
   }
   // eindkappen: open koker- of buisuiteinden die niets raken
   const alleGeo = [...staal.flatMap((d) => d.geo.map((g) => ({ g, d }))), ...o.koop.flatMap((d) => d.geo.map((g) => ({ g, d }))), ...o.kussens.flatMap((d) => d.geo.map((g) => ({ g, d })))];

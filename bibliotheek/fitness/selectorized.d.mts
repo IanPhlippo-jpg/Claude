@@ -9,3 +9,5 @@ export declare const kabelStapel: (b: any) => number;
 export declare function nokStation(b: any, def: any, c: any): void;
 export declare function kabelStation(b: any, def: any, c: any): void;
 export declare const SELECTORIZED: any[];
+export declare function nokKappen(b: any, c: any): void;
+export declare function vloerGoot(b: any, c: any): void;

@@ -35,7 +35,7 @@ export function houder(b, S, p, dir, L = 250, naam = 'Schijfhouder') {
 
 /** rek met lagen: c = { L, lagen: [{ z, d (diepte), helling (mm hoger achteraan, standaard 15° bij halters), soort: 'halter'|'bal'|'plank', zit }], kg (per laag) } */
 export function rekLagen(b, def, c) {
-  // eindframe: paal voor en paal achter op een voet met ronde eindplaten, een kopligger bovenop en aan de buitenkant
+  // eindframe: paal voor en paal achter op een voet met ronde eindplaten (v8: geen kopligger) en aan de buitenkant
   // een gelaserde zijplaat met logo. Per laag een arm tussen de palen (schuin bij een helling). Halters en ballen: een
   // gootligger over alle frames met een V-goot in gezette plaat en rubberen inleg; plank: twee liggers met een gezette bak.
   const L = mt(b, c.L ?? 1500, [-300, 400]), P = b.P('licht'), a = P.b, Dm = Math.max(...c.lagen.map((l) => l.d));
@@ -48,9 +48,12 @@ export function rekLagen(b, def, c) {
   const zLaag = Math.min(...lagen.map((l) => l.z)) - 1.5 * a, zl = (a + zLaag) / 2, logo = logoAan(b) && zLaag - a >= 90, yc0 = (y1 + y2) / 2;
   const frames = xs.map((x, i) => {
     b.groep(`Eindframe ${i + 1}`);
+    // P3-06 v8: geen kopligger meer (de zijplaat sluit het eindframe af); een middenpoot is één gelaserde plaat 10 mm in de
+    // vorm van de zijplaat (de laagarmen ertegen gelast), geen palen en voet
+    const midden = i > 0 && i < xs.length - 1;
+    if (midden) return { x, voet: null, pv: null, pa: null, midden: true };
     const voet = b.staaf('Voet', 'licht', [x, 0, a / 2], [x, D, a / 2]); voetjes(b, voet, 2); rondeVoet(b, voet);
     const pv = staander(b, 'Paal voor', 'licht', x, y1, a, H), pa = staander(b, 'Paal achter', 'licht', x, y2, a, H);
-    b.staaf('Kopligger', 'licht', [x, y1 - a / 2, H + a / 2], [x, y2 + a / 2, H + a / 2]);
     if (i === 0 || i === xs.length - 1) {
       const sx = i === 0 ? -1 : 1, tz = pro(b) ? 4 : 3;
       const zp = b.contour('Zijplaat', [x + sx * (a / 2 + tz / 2), 0, 0], [0, 1, 0], [0, 0, 1], tz, [[y1 - a / 2, a, 0], [y2 + a / 2, a, 0], [y2 + a / 2, H + a, 40], [y1 + a / 2 + 40, H + a, 30], [y1 - a / 2, a + Math.round((H - a) * 0.55), 60]], {
@@ -101,6 +104,25 @@ export function rekLagen(b, def, c) {
     }
   }
   if (rubber.length) b.koop('rubbermat', 1, rubber.map((r) => r.g), { naam: 'Rubberen inleg in de goten en bakken (3 mm, gelijmd)', oppervlak: Math.round(rubber.reduce((s, r) => s + r.opp, 0) * 100) / 100 });
+  // de middenplaat (P3-06 v8): pas nu, met een uitsparing voor elke ligger en goot die door de plaat loopt
+  for (const fr of frames.filter((f) => f.midden)) {
+    const xp = fr.x + a / 2 + 5, arms = b.o.delen.filter((d) => /^Laagarm/.test(d.naam) && Math.abs(d.a[0] - fr.x) < 1);
+    const top = (y) => Math.max(...arms.map((d) => { const t = (y - d.a[1]) / (d.b[1] - d.a[1]); return d.a[2] + (d.b[2] - d.a[2]) * Math.max(0, Math.min(1, t)); })) + a / 2 - 8;
+    const yA = y1 - a / 2, yB = y2 + a / 2, tA = top(yA), tB = top(yB), tl = (y) => tA + ((tB - tA) * (y - yA)) / (yB - yA);
+    const door = b.o.delen.filter((d) => { if (/^Laagarm|^Zijplaat|^Logo|^Middenplaat/.test(d.naam)) return false; const [mn, mx] = doos(d); return mn[0] < xp + 6 && mx[0] > xp - 6 && mn[2] < Math.max(tl(mn[1]), tl(mx[1])) + 2 && mx[1] > yA && mn[1] < yB; }).map((d) => doos(d));
+    // dicht bij de bovenrand: een inkeping in de rand; lager: een uitsparing
+    const kerf = door.filter(([mn, mx]) => mx[2] > Math.min(tl(mn[1]), tl(mx[1])) - 25).map(([mn, mx]) => [Math.max(yA + 10, mn[1] - 3), Math.min(yB - 10, mx[1] + 3), mn[2] - 3]).sort((p, q) => q[0] - p[0]);
+    const rand = [[yB, tB, 20]];
+    for (const [k0, k1, kz] of kerf) rand.push([k1, tl(k1), 0], [k1, kz, 3], [k0, kz, 3], [k0, tl(k0), 0]);
+    rand.push([yA, tA, 20]);
+    const poly = [[yA, 0, 0], [yB, 0, 0], ...rand];
+    const uit = door.filter(([mn, mx]) => mx[2] <= Math.min(tl(mn[1]), tl(mx[1])) - 25).map(([mn, mx]) => [Math.max(yA + 8, mn[1] - 3), Math.max(8, mn[2] - 3), Math.min(yB - 8, mx[1] + 3), mx[2] + 3])
+      .filter(([p0, q0, p1, q1]) => p1 - p0 > 5 && q1 - q0 > 5).map(([p0, q0, p1, q1]) => [[p0, q0, 3], [p1, q0, 3], [p1, q1, 3], [p0, q1, 3]]);
+    b.groep(`Eindframe ${frames.indexOf(fr) + 1}`);
+    b.contour('Middenplaat', [xp, 0, 0], [0, 1, 0], [0, 0, 1], 10, poly, { banden: 8, uitsparingen: uit, leegte: kerf.map(([k0, k1, kz]) => [k0, k1, kz, kz + 400]), opm: `middenpoot: gelaserde plaat 10 mm (geen palen en voet), de laagarmen ertegen gelast; ${uit.length} uitsparing(en) en ${kerf.length} inkeping(en) voor de liggers en goten; 2 rubberen voetjes` });
+    b.koop(b.V.voetje, 2, [y1, y2].map((yy) => balk([xp, yy, -8], [xp, yy, 0], X, 50, 50, true, 'rubber')), { naam: 'Rubbervoet onder de middenplaat' });
+    b.groep('frame');
+  }
   const G = c.kg ?? 200, sp = Math.max(...xs.slice(1).map((x, i) => x - xs[i]));
   const gl = b.o.delen.find((d) => /^Gootligger/.test(d.naam)), lg = b.o.delen.find((d) => /^Ligger laag/.test(d.naam));
   if (gl) b.reken('Gootligger van een laag (volle goot tussen 2 eindframes)', gl, 'ligger', sp, 0, { g: Math.round((G * sp) / L), proef: 'opslagpen' });
@@ -108,7 +130,7 @@ export function rekLagen(b, def, c) {
   c.lagen.forEach((l, k) => b.last(`Laag ${k + 1} vol`, G, [0, l.d / 2, l.z], { geval: 'vol' }));
 }
 
-/** paal met houders op een gelaserde basisplaat (of een wandstrip): c = { H, houders: [{ z, dir: [x,y], L }], muur, voet } */
+/** paal met houders op een kruisvoet uit 2 kokers (v8, P3-07; of een wandstrip): c = { H, houders: [{ z, dir: [x,y], L }], muur, voet } */
 export function paalHouders(b, def, c) {
   const P = b.P(c.rol ?? 'staander'), a = P.b, H = mt(b, c.H ?? 1500, [-200, 200]);
   const f = Math.min(1, H / (c.H ?? 1500)); // compact: de houders schuiven mee naar beneden
@@ -120,10 +142,16 @@ export function paalHouders(b, def, c) {
     for (const h of c.houders) houder(b, p, [0, 0, 300 + h.z * f], [h.dir[0], h.dir[1], h.dir[2] ?? 0], h.L ?? 200, h.naam ?? 'Houder');
     b.o.verankerd = 'muur'; b.o.anker = { arm: 250, z: 600, n: 4, kg: (c.kg ?? 100) };
   } else {
-    // basisplaat: gelaserd, ronde hoeken, 4 rubberpads eronder; paal erop met 4 driehoekschotten en een kopplaat
-    const B = c.voet ?? 700, tb = pro(b) ? 12 : 10, zr = 8, R = Math.round(B * 0.18), zb = zr + tb, tk = 8;
-    b.koop('rubbermat', 1, [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sy]) => balk([sx * (B / 2 - 70), sy * (B / 2 - 70), 0], [sx * (B / 2 - 70), sy * (B / 2 - 70), zr], X, 80, 80, true, 'rubber')), { naam: 'Rubberpads Ø80 x 8 onder de basisplaat (4 stuks, gelijmd)', oppervlak: 0.03 });
-    b.contour('Basisplaat', [0, 0, zr + tb / 2], X, Y, tb, [[-B / 2, -B / 2, R], [B / 2, -B / 2, R], [B / 2, B / 2, R], [-B / 2, B / 2, R]], { banden: 12, opm: `gelaserde basisplaat ${tb} mm met ronde hoeken R${R}, rand gebroken; de paal erop gelast met 4 driehoekschotten` });
+    // P3-07 v8: een kruisvoet uit 2 kokers (zoals de merken) in plaats van een basisplaat van 46-76 kg: één koker langs x,
+    // twee halve langs y ertegen gelast, ronde eindplaten 8 mm en een rubbervoet onder elk uiteinde; de paal erop met 4 schotten
+    const B = c.voet ?? 700, Pk = b.P('ligger'), zr = 8, zb = zr + Pk.h, tk = 8, zm = zr + Pk.h / 2;
+    b.staaf('Kruisvoet', 'ligger', [-B / 2, 0, zm], [B / 2, 0, zm], { opm: 'koker, de doorlopende poot van de kruisvoet' });
+    for (const sy of [-1, 1]) b.staaf('Kruisvoet', 'ligger', [0, sy * (Pk.b / 2), zm], [0, sy * (B / 2), zm], { opm: 'koker, halve poot tegen de doorlopende gelast' });
+    for (const [ex, ey] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const q = [ex * B / 2, ey * B / 2, zm], t = 8, h = Pk.h / 2 + 12;
+      b.plaat('Eindplaat kruisvoet', [q[0] + (ex ? ex * 0 : -h), q[1] + (ey ? ey * 0 : -h), zm - h], [q[0] + (ex ? ex * t : h), q[1] + (ey ? ey * t : h), zm + h], { rond: true, opm: 'ronde eindplaat 8 mm, rondom gelast (accentkleur)' });
+    }
+    b.koop('rubbermat', 1, [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([ex, ey]) => balk([ex * (B / 2 - 40), ey * (B / 2 - 40), 0], [ex * (B / 2 - 40), ey * (B / 2 - 40), zr], X, 60, 60, true, 'rubber')), { naam: 'Rubberpads Ø60 x 8 onder de kruisvoet (4 stuks, gelijmd)', oppervlak: 0.012 });
     const p = staander(b, 'Paal', 'staander', 0, 0, zb, zb + H);
     for (const d of [X, Y, [-1, 0, 0], [0, -1, 0]]) b.contour('Schot', [d[0] * a / 2, d[1] * a / 2, zb], d, Z, tk, [[0, 0], [110, 0], [110, 12], [12, 110], [0, 110]], { banden: 6, opm: `driehoekschot ${tk} mm, hoek afgeschuind, tegen de paal en op de basisplaat gelast` });
     b.contour('Kopplaat', [0, 0, zb + H + 4], X, Y, 8, [[-a / 2 - 5, -a / 2 - 5, 8], [a / 2 + 5, -a / 2 - 5, 8], [a / 2 + 5, a / 2 + 5, 8], [-a / 2 - 5, a / 2 + 5, 8]], { banden: 4, opm: 'kopplaat 8 mm met ronde hoeken R8, 5 mm overstek, rondom gelast' });

@@ -1,7 +1,7 @@
 // De catalogus: alle toestellen van de vier soorten, en toestel(id, versie) dat het model bouwt (met cache).
 // Node en browser.
 import { VERSIE } from './onderdelen.mjs';
-import { bouwer, afwerken } from './model.mjs';
+import { bouwer, afwerken, add, sub, mul, dot, len, norm } from './model.mjs';
 import { REKKEN } from './rekken.mjs';
 import { snoeiWestside, knelAfstanden, klemLengte, boutLengte } from './controle.mjs';
 import { KOOP } from './onderdelen.mjs';
@@ -40,7 +40,8 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   def.bouw.call(def, b, V);
   proUiterlijk(b, def);
   optiesBouwen(b, def);
-  const o = afwerken(b.o);
+  let o = afwerken(b.o);
+  if (zadelplaten(b, o)) { o.koop = o.koop.filter((k) => !String(k.id).startsWith('kap-')); o = afwerken(b.o); } // v8 (P2-18)
   snoeiWestside(o);
   o.def = def; o.id = id; o.versie = versie; o.naam = def.naam; o.maxLast = def.maxLast?.[versie] ?? 0; o.stand = stand; o.maat = (def.maten ?? []).includes(opt.maat) ? opt.maat : 'standaard';
   for (const p of o.pennen) if (!p.F && p.factor === 'vanghaak' && o.maxLast) p.F = o.maxLast / 2; // J-cup, spotter, safety: de halve last per kant
@@ -80,3 +81,37 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   return o;
 }
 export const leegCache = () => cache.clear();
+
+/**
+ * v8 (P2-18): een profiel dat breder is dan het vlakke deel van een vlakovaal (h − b − 4 mm) komt met zijn randen op de
+ * ronding (las in een V-spleet). Dan komt er automatisch een gelaserde zadelplaat 8 mm op het vlakke deel van de ovaal,
+ * zo breed als het profiel + 30 mm; het profiel wordt op de plaat gelast (niet meer op de ovaal). AANNAME: het profiel is
+ * 8 mm korter (de zaaglengte in de stuklijst telt dat niet). Geeft het aantal zadelplaten.
+ */
+function zadelplaten(b, o) {
+  let n = 0;
+  const gezien = new Set();
+  for (const l of o.lassen ?? []) for (const [Ov, An] of [[l.A, l.B], [l.B, l.A]]) {
+    if (!Ov?.P?.ovaal || An?.soort !== 'staaf' || An.P?.ovaal) continue;
+    const vlak = Ov.P.h - Ov.P.b, w = Math.min(An.P.b, An.P.h); if (w <= vlak - 4) continue;
+    const k = `${Ov.id}|${An.id}`; if (gezien.has(k)) continue; gezien.add(k);
+    const p = l.p, best = Ov.geo.map((g) => { const L = len(sub(g.b, g.a)), t0 = dot(sub(p, g.a), g.u), t = Math.max(0, Math.min(L, t0)), q = add(g.a, mul(g.u, t)); return { g, q, d: len(sub(p, q)), eind: (t0 < 2 && g === Ov.geo[0]) || (t0 > L - 2 && g === Ov.geo[Ov.geo.length - 1]) }; }).sort((x, y) => x.d - y.d)[0];
+    if (!best) continue;
+    // de ovaal eindigt op het vlak van het andere profiel: las rondom de ovaal op een vlak, geen V-spleet (geen plaat nodig)
+    if (best.eind) { An.zadelOp = [...(An.zadelOp ?? []), Ov.id]; continue; }
+    const { g, q } = best, r = sub(p, q);
+    let nn = sub(r, mul(g.u, dot(r, g.u)));
+    const door = len(nn) < 1; // het profiel gaat dwars door de ovaal (bv. een schijfhouder): een plaat aan beide kanten
+    if (door) nn = sub(An.u, mul(g.u, dot(An.u, g.u)));
+    if (len(nn) < 0.1) continue;
+    const nh = norm(nn), he = Math.abs(dot(nh, g.v)) * g.bw / 2 + Math.abs(dot(nh, g.w)) * g.bh / 2, m = w + 30;
+    const ex = g.u, ey = norm([nh[1] * ex[2] - nh[2] * ex[1], nh[2] * ex[0] - nh[0] * ex[2], nh[0] * ex[1] - nh[1] * ex[0]]), t0 = dot(sub(p, q), ex);
+    const o3 = add(add(q, mul(ex, t0)), mul(nh, he + 4));
+    const oud = b.huidig; b.groep(Ov.groep);
+    for (const kant of door ? [1, -1] : [1]) b.contour('Zadelplaat', kant > 0 ? o3 : add(add(q, mul(ex, t0)), mul(nh, -(he + 4))), ex, ey, 8, [[-m / 2, -m / 2, 3], [m / 2, -m / 2, 3], [m / 2, m / 2, 3], [-m / 2, m / 2, 3]], { banden: 2, in: An.id, gaten: door ? [{ x: 0, y: 0, d: An.P.b + 1, zitting: true }] : [], opm: `zadelplaat 8 mm op het vlakke deel van ${Ov.naam} (${Ov.P.naam}): ${An.naam} (${Math.round(w)} mm) is breder dan het vlak (${Math.round(vlak)} mm); las niet in de V-spleet van de ronding (P2-18)${door ? '; het profiel gaat door de plaat (gat + 1 mm)' : ''}` });
+    b.groep(oud);
+    An.zadelOp = [...(An.zadelOp ?? []), Ov.id];
+    n++;
+  }
+  return n;
+}

@@ -292,3 +292,33 @@ Alleen "gedaan" als het punt volledig af is; anders "deels" of "niet", met wat e
 | P3-08 t/m P3-11 | opgelost | opgelost | |
 
 Telling van de 50: 36 opgelost of gedaan, 9 deels, 5 niet (waarvan 2 keuze van Ian).
+
+---
+
+## 8. Status na de tweede ronde (v8, 2026-11-17)
+
+Wat in v7 deels of niet was, en nu is aangepakt. Getest: snelle run en `FITNESS_VOLLEDIG=1` groen (zie het verslag), `npm run typecheck` zonder fouten.
+
+| Punt | v7 | v8 | Wat er gebeurd is |
+|---|---|---|---|
+| N-P2-02 / P1-02 grens per oefening | deels | gedaan | Per soort stapel x katrolverhouding van een merktoestel met productblad: Nautilus Impact, "pulley ratio 1:1" (druk, trek, rug, been, kuit, lage rug 130 kg, arm 90 kg, romp 65 kg). Vaste getallen in de test. Blijft AANNAME: thuis 60 % en semi 80 % (geen merkdata), en dat de nok gemiddeld ± 1:1 geeft. De nokstapel volgt per toestel uit de grens (tot 44 platen), as Ø55, las nok a6 |
+| N-P1-02 FK-08 / FK-10 | open | gedaan | FK-08, FK-09 en FK-12 dezelfde gesloten nokkap + vloergoot als FS (kapFouten groen, negatieve proef); FK-10 een gesloten nokkast onder de dwarsligger |
+| N-P2-13 / P2-18 vlakovaal | deels | gedaan | Automatische zadelplaat 8 mm als een profiel breder is dan het vlakke deel (FB, FK, FP, FS); eindigt de ovaal op een vlak, dan is er geen plaat nodig; dwars door de ovaal: een plaat aan beide kanten. Geen enkel P2-18-oranje meer in de catalogus |
+| N-P2-13 / P2-15 R per buigerij | niet | gedaan | `BUIGERIJEN` (Biegetechnik Sachsen doornbuigen en rondwalsen, Rogue Fab) en `KANTBANK` (247TailorSteel, Bystronic) in vorm.mjs; per bocht zegt de berekening welke buigerij het kan. Open: voor koker 60-80, 100x50, 120x60 en vlakovaal bestaat geen publieke tabel: daar staat "offerte bij de buigerij" (de radius in het model is niet aangepast) |
+| N-P3-08 / P3-03 rigs | deels | gedaan | Voetflens 180 x 180 x 10 met 2 ankers per staander in plaats van een voetbalk (150 zoals voorgesteld laat de ankergaten in de las vallen), onderliggers, schetsplaat met rond gat in de voorste benedenhoek, gatnummers om de 5 gaten (lasermarkering) |
+| N-P3-08 / P3-04 muurrigs | niet | gedaan | Geen achterstaanders: een muurstrip 60 x 60 met muurplaten en een console boven en onder |
+| N-P3-08 / P3-05 functional trainers | niet | deels | Bovenligger als boog in vlakovaal (4 bochten) met 2 optrekgrepen. De torens 15° naar binnen draaien is niet gedaan: de toren in het model kan niet draaien (alle kappen zijn assen-evenwijdig) |
+| N-P3-08 / P3-06 kopligger | deels | gedaan | Kopligger weg; de middenpoot (FO-02/03/08/20) is één gelaserde plaat 10 mm met uitsparingen en inkepingen voor de liggers en goten |
+| N-P3-08 / P3-07 kruisvoet | niet | gedaan | FO-09/10/11/24/25: kruisvoet uit 2 kokers met ronde eindplaten en rubberpads in plaats van de basisplaat |
+| §4 voorstel 2 lagerschild | deels | gedaan | Dubbel lagerschild 2 x 10 mm met ronde kop is de paal (berekend, groen); geen vlakovaal lagerpaal meer |
+| §4 voorstel 3 ruggengraat | niet | gedaan | Zitting en rug op één gebogen vlakovaal (1 bocht), de zitting op een slede met veerpen (4 hoogtes) |
+| §4 voorstel 4 voetlus | niet | gedaan | Gebogen koker (U) + achterligger achter de takelkoker; de linkerpoot sluit aan op de torenvoet; geen T-voeten |
+| N-P2-10 prijs | deels | deels | Nieuwe modelfout weg: een dunne plaat die lang op een profiel ligt, kreeg een doorlopende naad (nu hechtlas 25 %; FX-11 € 5.991 → € 4.352). Telling boven de markt: thuis + pro 271 van 300 (v7 270), semi 138 van 150 (v7 146), pro 122 van 150. FS pro 24 van 25: de grens van 130 kg vraagt tot 40 platen. Uurloon en marges niet gewijzigd |
+
+### De 50 vorige punten (na v8)
+
+Veranderd tegenover de tabel van v7: P1-02 gedaan, P2-15 gedaan, P2-18 gedaan, P3-01 gedaan (vormtaal FS §4: alle 5 voorstellen), P3-03 gedaan, P3-04 gedaan, P3-06 gedaan, P3-07 gedaan, P3-05 deels (boog wel, 15° niet). Ongewijzigd deels: P2-25 (prijs, Ian), P2-27 (verzekering, Ian), P3-02 (latstang en zitting). Ongewijzigd niet: P2-04 en P2-23 (keuze van Ian).
+
+Telling van de 50: 44 opgelost of gedaan, 4 deels, 2 niet (beide keuze van Ian).
+
+Nieuwe punten (29): 27 gedaan, 2 deels (N-P2-10 prijs; N-P3-08 alleen voor P3-05 de draaiing van de torens), 0 niet. Bij N-P2-13 blijft voor een paar profielen "offerte bij de buigerij" staan omdat er geen publieke tabel bestaat. Wat nog oranje staat in de berekening: "Verankerd in de vloer/muur" (een montage-opdracht, bewust oranje) en 4 sterktes tussen 90 en 100 % (FK-06 lat-arm, FP hefboomarm).

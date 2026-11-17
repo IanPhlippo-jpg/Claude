@@ -166,3 +166,36 @@ export function ontvouw(panelen, zet, t, K = 0.4) {
   });
   return { punten: [...onder, ...boven.reverse()], zetlijnen: zl, uitsparingen: uits };
 }
+
+// ---------------------------------------------------------------- buigradius per buigerij (v8, P2-15 / N-P2-12)
+/**
+ * Publieke tabellen van buigerijen (centerline-radius CLR in mm, staal S235). Per regel: soort ('rond' Ø, 'vierkant' H,
+ * 'rechthoek-zwaar' / 'rechthoek-licht' H x B), het bereik van het profiel en de kleinste radius.
+ */
+export const BUIGERIJEN = [
+  { naam: 'Biegetechnik Sachsen', methode: 'doornbuigen', bron: 'https://cdn.techpilot.com/public/110782/documents/ffc195a4-6a1b-4db2-9852-88b16368c706/biegerei_03-20.pdf', regels: [
+    { soort: 'rond', van: 26.9, tot: 42.4, R: 100 }, { soort: 'rond', van: 42.5, tot: 48.3, R: 150 },
+    { soort: 'vierkant', van: 40, tot: 40, R: 80 }, { soort: 'vierkant', van: 41, tot: 50, R: 145 } ] },
+  { naam: 'Biegetechnik Sachsen', methode: 'rondwalsen', bron: 'https://cdn.techpilot.com/public/110782/documents/dff0071d-2495-4c41-8509-45ec4263b013/rundformen_tab_12-20.pdf', regels: [
+    { soort: 'rond', van: 21.3, tot: 88.9, R: 305 }, { soort: 'vierkant', van: 40, tot: 60, R: 500 },
+    { soort: 'rechthoek-zwaar', van: 40, tot: 80, R: 1000 }, { soort: 'rechthoek-licht', van: 40, tot: 120, R: 500 } ] },
+  { naam: 'Rogue Fab', methode: 'rotary draw zonder doorn', bron: 'https://www.roguefab.com/tube-capacity-chart/', regels: [
+    { soort: 'rond', van: 38.1, tot: 38.1, R: 89 }, { soort: 'rond', van: 38.2, tot: 44.5, R: 114 },
+    { soort: 'vierkant', van: 25.4, tot: 31.8, R: 114 }, { soort: 'vierkant', van: 31.9, tot: 38.1, R: 152 } ] },
+];
+/** kantbank (luchtbuigen, staal): binnenradius Ri per plaatdikte uit 2 publieke tabellen */
+export const KANTBANK = [
+  { naam: '247TailorSteel', bron: 'https://247tailorsteel.com/en/submission-guidelines/guidelines-for-bending', Ri: { 1: 1.4, 1.5: 1.65, 2: 1.88, 3: 2.75, 4: 3.02, 5: 3.62, 6: 4.62, 8: 8 } },
+  { naam: 'Bystronic (V = 6-8 t)', bron: 'https://www.bystronic.com (Bending tool catalogue, capacity chart air bending)', Ri: { 1: 1.2, 1.5: 2, 2: 2.5, 3: 3.5, 4: 6, 5: 8, 6: 8, 8: 9.5, 10: 15.5 } },
+];
+/**
+ * welke buigerij kan profiel P op radius R buigen: [{ naam, methode, Rmin, ok }]. Vlakovaal: de tabellen van een
+ * rechthoek (zware of lichte as); geen tabel = leeg (offerte nodig).
+ */
+export function buigKeuze(P, R, zwaar = true) {
+  const rond = P.vorm === 'buis' || P.vorm === 'rond', vk = !rond && Math.abs(P.b - P.h) < 1;
+  const soort = rond ? 'rond' : vk ? 'vierkant' : zwaar ? 'rechthoek-zwaar' : 'rechthoek-licht', maat = rond || vk ? P.b : Math.max(P.b, P.h);
+  const uit = [];
+  for (const bg of BUIGERIJEN) for (const r of bg.regels) if (r.soort === soort && maat >= r.van - 0.1 && maat <= r.tot + 0.1) uit.push({ naam: bg.naam, methode: bg.methode, Rmin: r.R, ok: R >= r.R - 0.5, bron: bg.bron });
+  return uit;
+}

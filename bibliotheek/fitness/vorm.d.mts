@@ -13,3 +13,6 @@ export declare const terugzet: (hoek: number, R: number, t: number) => number;
 export declare function uitslagStrook(L: number, benen: number[], zet: { hoek: number; R: number; richting?: string }[], t: number, K?: number): { punten: number[][]; zetlijnen: any[]; B: number; buiten: number[]; zet: any[]; K: number };
 export declare function terugVouwen(ui: any, t: number): number[];
 export declare function ontvouw(panelen: { q: number[][]; gaten?: number[][][] }[], zet: { hoek: number; R: number; richting?: string }[], t: number, K?: number): { punten: number[][]; zetlijnen: any[]; uitsparingen: number[][][] };
+export declare const BUIGERIJEN: any[];
+export declare const KANTBANK: any[];
+export declare function buigKeuze(P: any, R: number, zwaar?: boolean): { naam: string; methode: string; Rmin: number; ok: boolean; bron: string }[];

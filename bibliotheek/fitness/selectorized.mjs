@@ -3,23 +3,30 @@
 // naar een vloerkatrol, onder de toren door naar een geleid takelblok achter de toren (2:1) dat de stapel heft (v7). De gebruiker zit, ligt
 // of staat in een station (zitting, rug-, borst-, arm- of ligkussen) en duwt of trekt aan een rol, een greep of een
 // kussen op de hefboom. Alles in de pro-vormtaal (ovaalbuis, kappen) van de bestaande kabelmachines. Node en browser.
-import { staander, ligger, voetjes, katrolBeugel, X, Y, Z, balk, add, mul, sub, norm } from './bouwstenen.mjs';
+import { staander, ligger, voetjes, katrolBeugel, kussenOp, X, Y, Z, balk, add, mul, sub, norm } from './bouwstenen.mjs';
 import { cirkelPunten } from './vorm.mjs';
-import { toren, bovenKatrol, onderKatrol, vloer, zitting, gewicht, isPro } from './kabel.mjs';
+import { toren, bovenKatrol, onderKatrol, vloer, zitting, gewicht, isPro, voetPunten } from './kabel.mjs';
 import { uitslagStrook } from './vorm.mjs';
 import { KOOP } from './onderdelen.mjs';
 
 const rad = (g) => (g * Math.PI) / 180;
 const MATEN = ['compact', 'standaard', 'XL'];
 
-/** grens aan de greep per soort oefening, in kg bij de pro-stapel (thuis 60 %, semi 80 %). N-P2-02 v7: vaste waarden met
- *  een bron per waarde in NOKGRENS_BRON (docs/Normen-en-bronnen.md); de test vergelijkt met deze getallen, niet met zichzelf */
-export const NOKGRENS = { druk: 110, trek: 100, rug: 60, been: 110, kuit: 130, arm: 45, romp: 45 };
+/** grens aan de greep per soort oefening, in kg bij de pro-stapel (thuis 60 %, semi 80 %: AANNAME, geen merkdata voor
+ *  thuistoestellen gevonden). v8 (P2-02): per soort de stapel x katrolverhouding van een merktoestel met een productblad;
+ *  Nautilus Impact geeft voor alle selectorized toestellen "pulley ratio 1:1" (Core Health & Fitness, productbladen).
+ *  AANNAME: met een nok is de gemiddelde verhouding aan de greep ook ± 1:1 (merken geven de kracht aan de greep niet op). */
+export const NOKGRENS = { druk: 130, trek: 130, rug: 130, been: 130, kuit: 130, arm: 90, romp: 65, lagerug: 130 };
+const NI = (m, kg) => `Nautilus Impact ${m}: stapel ${kg} kg, pulley ratio 1:1 (corehandf.com, productblad ${m.replace(/ /g, '_')})`;
 export const NOKGRENS_BRON = {
-  druk: 'Life Fitness Insignia Chest Press: stapel 130 kg (standaard), 152 kg (zwaar) (lifefitness.com, catalogus Insignia Series); grens 110 kg = ± 85 % (AANNAME: overbrenging nok ± 0,85)',
-  been: 'zelfde orde als druk (Life Fitness Insignia Leg Extension/Leg Curl: stapel 100-130 kg, AANNAME); Fable 5.2 v6: 110-120 kg',
-  trek: 'AANNAME: merkwaarden lat pulldown 100-120 kg bij 1:1', rug: 'AANNAME: merkwaarden row 60-90 kg', kuit: 'AANNAME: merkwaarden calf 130 kg',
-  arm: 'AANNAME: merkwaarden curl/triceps 45-70 kg (2:1)', romp: 'AANNAME: merkwaarden ab/back 45-70 kg (2:1)',
+  druk: `${NI('Chest Press 9NA-S4301', 130)}; ook Shoulder Press 9NA-S4307 en Dip 9NA-S5303 130 kg; Life Fitness Insignia Chest Press 130/152 kg (verhouding niet opgegeven)`,
+  trek: `${NI('Lat Pull Down 9NA-S3305', 130)}; Hammer Strength Select Lat Pulldown 295 lb, Cybex Prestige 245/305 lb (verhouding niet opgegeven)`,
+  rug: `${NI('Low Row 9NA-S3306', 130)}; ook Vertical Row 9NA-S3301 130 kg`,
+  been: `${NI('Leg Extension 9NA-S1312', 130)}; Seated Leg Curl 130 kg, Leg Curl 90 kg; Life Fitness Insignia Leg Extension 130/152 kg`,
+  kuit: `${NI('Standing Calf 9NA-S1309', 130)}; Matrix Ultra Calf Extension 135/180 kg (verhouding niet opgegeven)`,
+  arm: `${NI('Biceps Curl 9NA-S5301', 90)}; ook Tricep Extension 9NA-S5302 90 kg`,
+  romp: `${NI('Abdominal 9NA-S6301', 65)}`,
+  lagerug: `${NI('Low Back 9NA-S3302', 130)}`,
 };
 /** v6b: de nok van de merken is compact (R ± 100-220 mm, zie docs/Normen-en-bronnen.md); de kracht komt uit een 2:1-takel.
  *  v7 (N-P1-01): het takelblok hangt geleid achter de toren (2 geleidestangen Ø25 met lineaire lagers, in een gesloten koker);
@@ -30,9 +37,9 @@ export const NOK_KABEL = { stapel: 'kabel6s', nok: 'kabel8s' }, NOK_SCHIJF = { s
 const FV = { thuis: 0.6, semi: 0.8, pro: 1 };
 /** stapel van een nokstation: thuis 20, semi 26, pro 34 platen van 5 kg (v7: pro 170 kg haalt de grens 110 kg met nok R ≤ 220) */
 export const nokStapel = (b) => ({ thuis: 20, semi: 26, pro: 34 }[b.V.id] ?? 20);
-/** stapel van een kabelstation (1:1 of 2:1 aan de greep, kabel Ø6 van de fitnesshandel): thuis 18, semi 20, pro 22 platen
+/** stapel van een kabelstation (1:1 of 2:1 aan de greep, kabel Ø6 van de fitnesshandel): thuis 18, semi 22, pro 26 platen (v8: trek 130 kg 1:1 bij pro)
  *  (v7, N-P1-03: met de echte massa blijven kabel en katrollen onder 90 %; de grens trek 100 kg haalt pro nog 1:1) */
-export const kabelStapel = (b) => ({ thuis: 18, semi: 20, pro: 22 }[b.V.id] ?? 18);
+export const kabelStapel = (b) => ({ thuis: 18, semi: 22, pro: 26 }[b.V.id] ?? 18);
 
 /**
  * nokstation: c = { as: [y, z] draaipunt, hoek (graden bij stand 1, teken = draairichting), oef (soort voor de grens),
@@ -42,8 +49,10 @@ export const kabelStapel = (b) => ({ thuis: 18, semi: 20, pro: 22 }[b.V.id] ?? 1
  */
 export function nokStation(b, def, c) {
   const xl = -230, V = b.V, P = b.P('ligger'), Pb = b.P('bank'), [yk, zk] = c.as, aT = b.P('toren').b;
-  const n = nokStapel(b), G = n * V.stapelKg, L = Math.hypot(...c.armen[0].naar), grens = NOKGRENS[c.oef ?? 'druk'] * (FV[V.id] ?? 1);
-  const Rmax = Math.min(NOK_RMAX, zk - 160), Rn = Math.min(Rmax, Math.max(100, Math.ceil((grens * L * 1.12) / (NOK_TAKEL * G) / 10) * 10)); // v7: 12 % marge (benutting ≤ 0,9)
+  // v8: de stapel per toestel: minstens nokStapel, en genoeg om met R max de grens te halen (max. 44 platen)
+  const L = Math.hypot(...c.armen[0].naar), grens = NOKGRENS[c.oef ?? 'druk'] * (FV[V.id] ?? 1), Rmax = Math.min(NOK_RMAX, zk - 160);
+  const n = Math.min(44, Math.max(nokStapel(b), Math.ceil((grens * L * 1.02) / (NOK_TAKEL * Rmax) / V.stapelKg))), G = n * V.stapelKg;
+  const Rmax_ = Rmax, Rn = Math.min(Rmax, Math.max(100, Math.ceil((grens * L * 1.02) / (NOK_TAKEL * G) / 10) * 10)); void Rmax_;
   const sg = Math.sign(c.hoek) || 1, thMax = rad(Math.min(75, Math.abs(c.hoek))), wik = Math.round(Rn * thMax), slag = NOK_TAKEL * wik;
   // v7: kabelschijven met datablad (Rema RZ): rs voor de stapelkabel (Ø6), rn voor de nokkabel (Ø8); de vloerkabel loopt op zc
   const rs = KOOP[NOK_SCHIJF.stapel].D / 2, rn = KOOP[NOK_SCHIJF.nok].D / 2, OH = 15, zc = aT + 25, zf = zc + rn;
@@ -59,25 +68,29 @@ export function nokStation(b, def, c) {
   const yStat = Math.max(yk + 250 + 40, ...(c.station ?? []).map(stY), ...armY), yt0 = Math.max(ytMin, yStat + 78 + 40, yk + 200 + 255);
   const T = toren(b, { x0: -155, yt: c.toren7 ?? yt0, H: Ht, voorVoet: 200, ogen: [xl + 155], n, slag, onderHoog: OH,
     doorvoer: [[xl - 16, zc - 14, 4], [xl + 16, zc - 14, 4], [xl + 16, zc + 14, 4], [xl - 16, zc + 14, 4]], openAchter: [[xl - 70, zAo, 6], [xl + 70, zAo, 6], [xl + 70, Ht + 10, 6], [xl - 70, Ht + 10, 6]] });
-  const { vl } = vloer(b, T, 0);
-  const xo = c.xo ?? 360, xh = xo - P.b / 2, Pas = b.P('r50'); // v7: as Ø50 (stapel 170 kg pro)
+  // ---- vormtaal v8 (Fable §4 voorstel 2 en 4): toren en station op één gesloten voetlus (gebogen koker, geen losse
+  // T-voeten); de lagers zitten in een dubbel gelaserd lagerschild (2 x 10 mm, ronde kop) dat zelf de paal is
+  const XR = -T.x0 + T.xs, yF = 40, a = P.b, xh = XR + 35, Pas = b.P('r55'); // v8: as Ø55 (stapel tot 200 kg) // XR = de lijn van de linker torenvoet
+  const lus = b.buis('Voetlus', 'ligger', [[-XR, T.yt - 200, a / 2], [-XR, yF + a / 2, a / 2], [XR, yF + a / 2, a / 2], [XR, T.yt + 300, a / 2]], { vlak: [0, 0, 1], R: 3 * a, opm: `koker ${P.naam ?? 'ligger'} gebogen tot een U (2 bochten R${3 * a}): voorvoet en twee zijliggers in één stuk; de linkerpoot sluit aan op de torenvoet` });
+  voetPunten(b, [[-XR, yF + a], [XR, yF + a], [XR, T.yt + 260], [-XR, (yF + T.yt) / 2], [XR, (yF + T.yt) / 2]], 'de voetlus');
+  const [vmn] = [T.voor.mn ?? T.voor.a];
+  const vl = b.staaf('Vloerligger', 'ligger', [0, yF + a - 1, a / 2], [0, Math.min(T.voor.a[1], T.voor.b[1]) - a / 2, a / 2], { opm: 'koker tussen de voetlus en de voorligger van de toren: draagt de zitting en de rug' });
+  void vmn; void lus;
+  const Ps = 10, hull = omhul([[yk - 150, a], [yk + 150, a], ...Array.from({ length: 24 }, (_, i) => (2 * Math.PI * i) / 24).map((m) => [yk + 100 * Math.cos(m), zk + 100 * Math.sin(m)])]);
   for (const sx of [-1, 1]) {
-    // N-P2-13 v7 (P2-18): de vlakovaal staat op een voetplaat 12 mm (zadelplaat) op de voet: geen las over de ronding
-    staander(b, 'Lagerpaal', 'frameO', sx * xo, yk, P.h + 12, zk + 60, { opm: 'vlakovaalbuis op een voetplaat 12 mm' });
-    b.plaat('Voetplaat lagerpaal', [sx * xo - 50, yk - 80, P.h], [sx * xo + 50, yk + 80, P.h + 12], { opm: 'voetplaat 12 mm: de vlakovaal rondom erop gelast, de plaat op de voet gelast (de ovaal raakt de koker niet)' });
-    const pv = b.staaf('Voet lagerpaal', 'ligger', [sx * xo, yk - 250, P.h / 2], [sx * xo, yk + 250, P.h / 2]); voetjes(b, pv, 2);
-    ligger(b, 'Dwarsvoet lagerpaal', 'ligger', vl, pv, { y: yk, z: P.h / 2 }, { as: 0 });
-    b.staaf('Lagerhuis', 'b70x12', [sx * (xh - 60), yk, zk], [sx * xh, yk, zk], { boring: 55, kap: false, opm: 'buis Ø70 x 12 E355 naadloos (binnen Ø46), uitgedraaid Ø55 H7, Ra 1,6, voor 2 flensglijlagers GFM-5055-30 (wand 7,5 mm); tegen de lagerpaal gelast, na het lassen draaien (P1-04)' });
+    for (const dx of [-25, 25]) b.contour('Lagerschild', [sx * (XR + dx), 0, 0], [0, 1, 0], [0, 0, 1], Ps, hull.map(([y, z]) => [y, z, 0]), { banden: 10, gaten: [{ x: yk, y: zk, d: 70.5, zitting: true }], opm: `lagerschild ${Ps} mm S355 gelaserd: de paal van het lager (2 per kant, 50 mm uit elkaar), op de voetlus en rond het lagerhuis gelast` });
+    for (const sy of [-1, 1]) b.plaat('Schildrib', [sx * (XR - 20), yk + sy * 140 - 5, a], [sx * (XR + 20), yk + sy * 140 + 5, a + 300], { opm: 'rib 10 mm tussen de twee lagerschilden (doos), op de voetlus gelast' });
+    b.staaf('Lagerhuis', 'b70x12', [sx * (xh - 70), yk, zk], [sx * xh, yk, zk], { boring: 60, kap: false, opm: 'buis Ø70 x 12 E355 naadloos (binnen Ø46), uitgedraaid Ø60 H7 (wand 5 mm), Ra 1,6, voor 2 flensglijlagers GFM-5560-30; door beide lagerschilden gelast, na het lassen draaien (P1-04)' });
   }
-  // vormtaal v7 (Fable §4 voorstel 2): een gelaserd lagerschild 3 mm met ronde kop over de buitenkant van elke lagerpaal
-  // (in de kleur van de kappen): het toestel leest als één zijwand, het lagerhuis en de stelring zitten erachter
-  { const Pf = b.P('frameO'), hull = omhul([[yk - 120, P.h + 14], [yk + 120, P.h + 14], ...Array.from({ length: 20 }, (_, i) => (2 * Math.PI * i) / 20).map((m) => [yk + 95 * Math.cos(m), zk + 95 * Math.sin(m)])]);
-    b.groep('Afscherming nok');
-    for (const sx of [-1, 1]) b.contour('Lagerschild', [sx * (xo + Pf.b / 2 + 3), 0, 0], [0, 1, 0], [0, 0, 1], 3, hull.map(([y, z]) => [y, z, 0]), { kleur: 'kap', banden: 8, gaten: [{ x: yk, y: zk, d: 40 }], opm: 'lagerschild 3 mm DC01 gelaserd, met 4 x M6 op afstandsbussen aan de lagerpaal; afdekdop Ø40 over het asuiteinde' });
-    b.groep('frame'); }
+  {
+    // het lagerschild als paal: in het vlak (breed) en uit het vlak (2 platen op 50 mm), stapelkracht 2 x G op de as (helft per kant)
+    const F = 1.5 * NOK_TAKEL * G * 9.81 / 2, hS = zk - a, bS = 300, Win = (2 * Ps * bS * bS) / 6, I = 2 * ((bS * Ps ** 3) / 12 + bS * Ps * 25 * 25), Wout = I / 30;
+    const sig = (0.5 * F * hS) / Win + (F * 300) / Wout;
+    b.toets('Sterkte', 'Lagerschild (2 x 10 mm) als paal: buiging in en uit het vlak', `F = 1,5 · 2 · ${G} kg · g / 2 = ${(F / 1000).toFixed(2)} kN per kant; in het vlak 50 % horizontaal op ${Math.round(hS)} mm: σ = ${((0.5 * F * hS) / Win).toFixed(0)} N/mm²; uit het vlak excentriciteit 300 mm (AANNAME, zoals de vroegere lagerpaal): σ = ${((F * 300) / Wout).toFixed(0)} N/mm²; samen ${sig.toFixed(0)} ≤ 235`, sig / 235, 'EN 1993-1-1 §6.2.5 (doorsnede aan de voet, 2 platen 300 x 10)');
+  }
   b.groep('Hefboom');
   const th = sg * thMax * b.stand, rot = (p) => { const dy = p[1] - yk, dz = p[2] - zk; return [p[0], yk + dy * Math.cos(th) - dz * Math.sin(th), zk + dy * Math.sin(th) + dz * Math.cos(th)]; }, rotD = (d) => sub(rot(add([0, yk, zk], d)), [0, yk, zk]);
-  const as = b.staaf('As hefboom', 'r50', [-(xh - 1), yk, zk], [xh - 1, yk, zk], { kap: false, in: 'lagerhuis', opm: `rond Ø${Pas.b} h9 S355J2+C (lasbaar: nok en instelschijf worden erop gelast), in 2 lagerhuizen; stelringen DIN 705 buiten de huizen` });
+  const as = b.staaf('As hefboom', 'r55', [-(xh - 1), yk, zk], [xh - 1, yk, zk], { kap: false, in: 'lagerhuis', opm: `rond Ø${Pas.b} h9 S355J2+C (lasbaar: nok en instelschijf worden erop gelast), in 2 lagerhuizen; stelringen DIN 705 buiten de huizen` });
   // nok als segment: de raaklijn ligt op hoek a0 (0 = +y, π = -y); het opgewikkelde stuk ligt achter het raakpunt
   const a0 = sg > 0 ? 0 : Math.PI, m0 = a0 + sg * rad(20), m1 = a0 - sg * (thMax + rad(15)), N = 14;
   const boog = Array.from({ length: N + 1 }, (_, i) => m0 + ((m1 - m0) * i) / N).map((m) => [Rn * Math.cos(m + th), Rn * Math.sin(m + th), 0]);
@@ -86,7 +99,7 @@ export function nokStation(b, def, c) {
   function i0(m) { return Math.abs(m - m1) < 1e-9; }
   const nokPts = sg > 0 ? [...boog, ...naaf].reverse() : [...boog, ...naaf];
   const nok = b.contour(`Nok (R${Rn})`, [xl, yk, zk], Y, [0, 0, 1], 12, nokPts, { in: as.id, banden: 10, gaten: [{ x: 0, y: 0, d: Pas.b, zitting: true }], opm: `nokschijf (segment) R${Rn} x 12, 2 platen + tussenring met kabelgroef Ø8 (R4,5), op de as gelast; segment over ${Math.round((thMax * 180) / Math.PI + 35)}°, radiale stopkant tegen de aanslagbout` });
-  const rolArm = V.id === 'thuis' ? 'o80x40x3' : 'o100x50x3', Pa0 = b.P(rolArm), xmax = xh - 60 - Pa0.b / 2 - 8 - 24; // P3-01 v6: armen in vlakovaal; v7: plaats voor de instelschijf
+  const rolArm = V.id === 'thuis' ? 'o80x40x3' : 'o100x50x3', Pa0 = b.P(rolArm), xmax = xh - 70 - Pa0.b / 2 - 8 - 24; // P3-01 v6: armen in vlakovaal; v7: plaats voor de instelschijf
   // N-P2-13 v7 (P2-03): bij een rol is de arm langer dan de rolpositie: de rol zit op een slede met een veerpen in 5 gaten
   // (L 340-440 mm om de 33 mm), zo past de machine bij korte en lange benen
   const rolL = c.einde === 'rol' ? [340, 373, 407, 440] : [];
@@ -102,8 +115,8 @@ export function nokStation(b, def, c) {
   // twee losse armen met elk een greep: elk een eigen schijf en pen; armen die aan elkaar vastzitten (dwarsgreep, kussen): één pen
   const gepind = c.einde === 'greep' && armen.length > 1 ? armen : [armen.reduce((m, x) => (Math.abs(x.a.x) > Math.abs(m.a.x) ? x : m), armen[0])];
   // één arm (beenmachines): de schijf staat naast het rechter lagerhuis, buiten de zitting; de armbus loopt door tot een penarm
-  const enkel = armen.length === 1, xsE = xh - 60 - 13;
-  for (const { a } of armen) { const x1 = enkel ? xsE - 7 : a.x + 35; const bus = b.staaf('Armbus', 'b70x12', [a.x - 35, yk, zk], [x1, yk, zk], { in: as.id, boring: 55, kap: false, opm: `buis Ø70 x 12 E355 (binnen Ø46) uitgedraaid Ø55 H7, ${Math.round(x1 - a.x + 25)} mm; draait VRIJ op de as op glijbussen iglidur GSM-5055-50; de hefboomarm${enkel ? ' en de penarm' : ''} rond de bus gelast; niet aan de as gelast` }); bus.geenLasMet = ['As hefboom']; }
+  const enkel = armen.length === 1, xsE = xh - 70 - 13;
+  for (const { a } of armen) { const x1 = enkel ? xsE - 7 : a.x + 35; const bus = b.staaf('Armbus', 'b70x12', [a.x - 35, yk, zk], [x1, yk, zk], { in: as.id, boring: 60, kap: false, opm: `buis Ø70 x 12 E355 (binnen Ø46) uitgedraaid Ø60 H7, ${Math.round(x1 - a.x + 25)} mm; draait VRIJ op de as op glijbussen iglidur GSM-5560-50; de hefboomarm${enkel ? ' en de penarm' : ''} rond de bus gelast; niet aan de as gelast` }); bus.geenLasMet = ['As hefboom']; }
   // N-P2-13 v7 (P2-18): de vlakovaal arm hangt tussen twee naafplaten 8 mm die op de armbus gelast zijn (geen buis dwars
   // door de ronding van de ovaal); de arm begint 62 mm uit de as
   for (const { a } of armen) {
@@ -112,7 +125,7 @@ export function nokStation(b, def, c) {
     for (const sx of [-1, 1]) b.contour('Naafplaat arm', [a.x + sx * (Pa0.b / 2 + 4), yk, zk], Y, [0, 0, 1], 8, pts, { in: as.id, banden: 6, gaten: [{ x: 0, y: 0, d: 70.5, zitting: true }, { x: 110 * c0[0], y: 110 * c0[1], d: V.gat }], opm: 'naafplaat 8 mm, rond de armbus gelast; de vlakovaal arm ertussen gelast (vlakke zijden)' });
     void La;
   }
-  b.koop('glij50s', enkel ? 2 : armen.length, [], { naam: 'Glijbus GSM-5055-50 in de armbus (de arm draait vrij op de as)' });
+  b.koop('glij55s', enkel ? 2 : armen.length, [], { naam: 'Glijbus GSM-5560-50 in de armbus (de arm draait vrij op de as)' });
   const Rs = 150, Rp = 110, alfa = (a) => Math.atan2(a.naar[1], a.naar[0]);
   for (const { a } of gepind) {
     const s = enkel ? 1 : Math.sign(a.x) || 1, xs2 = enkel ? xsE : a.x + s * (35 + 2 + 5), al = alfa(a);
@@ -137,15 +150,15 @@ export function nokStation(b, def, c) {
   else if (c.einde === 'dwars') b.staaf('Greep', 'greep', rot([armen[0].a.x + Math.sign(-armen[0].a.x) * (Pa0.b / 2 - 0.5), e0[1], e0[2]]), rot([armen[armen.length - 1].a.x - Math.sign(armen[armen.length - 1].a.x) * (Pa0.b / 2 - 0.5), e0[1], e0[2]]), { opm: 'dwarsgreep tussen de armen, rubber handvat' });
   else if (c.einde === 'kussen') { const nn = norm(rotD(c.kussenN ?? [0, -1, 0])), xa = Math.abs(armen[0].a.x) - Pa0.b / 2 + 0.5, pl = b.staaf('Kussenligger arm', rolArm, rot([-xa, e0[1], e0[2]]), rot([xa, e0[1], e0[2]]), { v: nn, kap: true }), h0 = pl.P.b / 2 + 0.5; b.kussen('Armkussen', add(rot([-160, e0[1], e0[2]]), mul(nn, h0)), add(rot([160, e0[1], e0[2]]), mul(nn, h0)), nn, 220, 60); }
   b.groep('frame');
-  b.koop('glij50', 4, [], { naam: 'Flensglijlager GFM-5055-30 in de 2 lagerhuizen (2 per huis)' });
-  b.koop('stelring50', 2 + 2 * armen.length, [], { naam: 'Stelring DIN 705 Ø50: as in de lagerhuizen en de armbussen opzij' });
-  for (const sx of [-1, 1]) b.pen(`As hefboom in het lagerhuis ${sx < 0 ? 'L' : 'R'}`, [sx * (xh - 30), yk, zk], X, { d: Pas.b, lengte: 58, snedes: 1, t: 10, a: 'frame', b: 'Hefboom', uit: [-200, 0, 0], F: NOK_TAKEL * G * 0.6, factor: 'extrinsiekPen', gelast: 'As hefboom' });
+  b.koop('glij55', 4, [], { naam: 'Flensglijlager GFM-5560-30 in de 2 lagerhuizen (2 per huis)' });
+  b.koop('stelring55', 2 + 2 * armen.length, [], { naam: 'Stelring DIN 705 Ø55: as in de lagerhuizen en de armbussen opzij' });
+  for (const sx of [-1, 1]) b.pen(`As hefboom in het lagerhuis ${sx < 0 ? 'L' : 'R'}`, [sx * (xh - 35), yk, zk], X, { d: Pas.b, lengte: 58, snedes: 1, t: 10, a: 'frame', b: 'Hefboom', uit: [-200, 0, 0], F: NOK_TAKEL * G * 0.6, factor: 'extrinsiekPen', gelast: 'As hefboom' });
   const kracht = (NOK_TAKEL * G * Rn) / L;
   {
     // as: buiging (kabel aan de nok + armkracht) en torsie (kabelkracht x Rn), von Mises (P2-01)
-    const kf = 2.5, Fc = kf * 1.5 * NOK_TAKEL * G * 9.81, Ls = 2 * (xh - 30), xc = xl + Ls / 2, M = (Fc * xc * (Ls - xc)) / Ls * 1.6, W = (Math.PI * Pas.b ** 3) / 32, Tt = Fc * Rn, tau = Tt / (2 * W), sv = Math.hypot(M / W, Math.sqrt(3) * tau);
+    const kf = 2.5, Fc = kf * 1.5 * NOK_TAKEL * G * 9.81, Ls = 2 * (xh - 35), xc = xl + Ls / 2, M = (Fc * xc * (Ls - xc)) / Ls * 1.6, W = (Math.PI * Pas.b ** 3) / 32, Tt = Fc * Rn, tau = Tt / (2 * W), sv = Math.hypot(M / W, Math.sqrt(3) * tau);
     b.toets('Sterkte', 'As van de hefboom: buiging en torsie (2 lagers)', `proeflast kabel ${kf} · 1,5 · ${NOK_TAKEL} x ${G} kg · g = ${(Fc / 1000).toFixed(2)} kN aan de nok, armkracht erbij (x 1,6, AANNAME); overspanning ${Ls} mm: M ≤ ${(M / 1e6).toFixed(3)} kNm, σ = ${(M / W).toFixed(0)} N/mm²; torsie T = F·R = ${(Tt / 1e6).toFixed(2)} kNm, τ = T/Wp = ${tau.toFixed(0)} N/mm²; σv = √(σ² + 3τ²) = ${sv.toFixed(0)} N/mm² ≤ fy = ${Pas.fy ?? 235} (${Pas.naam})`, sv / (Pas.fy ?? 235), 'EN 1993-1-1 §6.2.5 en §6.2.7 (as op 2 steunpunten, von Mises)');
-    { const aw = 4, rw = Pas.b / 2, Tq = Fc * Rn, tw = Tq / (2 * Math.PI * rw * rw * aw); b.toets('Lassen', 'Las nok op de as (torsie)', `hoeklas a${aw} rondom Ø${Pas.b}: τ = T / (2·π·r²·a) = ${(Tq / 1e6).toFixed(2).replace('.', ',')} kNm / (2·π·${rw}²·${aw}) = ${tw.toFixed(0)} N/mm² ≤ fvw,d = 208`, tw / 208, 'EN 1993-1-8 §4.5.3 (vereenvoudigd)'); }
+    { const aw = 6, rw = Pas.b / 2, Tq = Fc * Rn, tw = Tq / (2 * Math.PI * rw * rw * aw); b.toets('Lassen', 'Las nok op de as (torsie)', `hoeklas a${aw} rondom Ø${Pas.b}: τ = T / (2·π·r²·a) = ${(Tq / 1e6).toFixed(2).replace('.', ',')} kNm / (2·π·${rw}²·${aw}) = ${tw.toFixed(0)} N/mm² ≤ fvw,d = 208`, tw / 208, 'EN 1993-1-8 §4.5.3 (vereenvoudigd)'); }
     b.toets('Krachtsverhouding', `Nok: kracht aan ${c.einde === 'rol' ? 'de rol' : c.einde === 'kussen' ? 'het kussen' : 'de greep'} tegenover de stapel`, `2:1-takel x nok R${Rn} / arm ${Math.round(L)} mm = ${((NOK_TAKEL * Rn / L) * 100).toFixed(0)} % van de stapel (${G} kg): ${Math.round(kracht)} kg aan het einde van de arm ≥ grens ${Math.round(grens)} kg (${c.oef ?? 'druk'}, ${V.naam.toLowerCase()}); stapelweg 2·R·θ = ${slag} mm bij ${Math.round((thMax * 180) / Math.PI)}°; greepweg L·θ = ${Math.round(L * thMax)} mm`, grens / kracht, `grens: ${NOKGRENS_BRON[c.oef ?? 'druk']}; hefboomwet`, { oordeel: kracht >= grens ? 'groen' : 'rood' }); // een eis (≥ grens), geen sterkte: geen oranje zone
   }
   b.o.nok = { Rn, L, G, kracht, grens, slag, greepweg: Math.round(L * thMax), oef: c.oef ?? 'druk', zin: sg, as: [yk, zk], thMax, factor: NOK_TAKEL };
@@ -157,7 +170,13 @@ export function nokStation(b, def, c) {
   const zA = T.H - aT - 15 - rs, yA = T.yt + rs, yB = yA + 2 * rs + 2 * 25 + 10, yL = yB + 2 * rs, yP = yL - rn, yAnk = yL + rs, yE = yAnk + 50;
   const du = Math.round(Rn * Math.abs(th)), zL0 = zA - 2 * rs - 70, zL = zL0 - du, zJ = zL - rs - 42, zOog = zJ - 12 - 20;
   const arm = b.staaf('Takelarm', 'toren', [xl, T.yt + aT / 2, T.H - aT / 2], [xl, yE, T.H - aT / 2], { opm: 'koker achter de toren, tegen de bovenligger gelast: draagt de katrol B, het anker van de stapelkabel en de geleidestangen' });
-  const tv = b.staaf('Takelvoet', 'toren', [xl, T.yt + 100 + aT / 2, aT / 2], [xl, yE, aT / 2], { opm: 'koker op de vloer achter de toren, tegen de achterligger gelast: draagt de katrol D en de geleidestangen' }); voetjes(b, tv, 1);
+  // de voetlus achter: zijligger links (achter de torenvoet), rechts verlengd, en een achterligger achter de takelkoker
+  const yR = yE + 40;
+  b.staaf('Voetlus achter L', 'ligger', [-XR, T.yt + 300, a / 2], [-XR, yR - a / 2, a / 2], { opm: 'koker in de lijn van de linker torenvoet, tot de achterligger' });
+  b.staaf('Voetlus achter R', 'ligger', [XR, T.yt + 300, a / 2], [XR, yR - a / 2, a / 2], { opm: 'koker in het verlengde van de voetlus' });
+  b.staaf('Voetlus achterligger', 'ligger', [-XR - a / 2, yR, a / 2], [XR + a / 2, yR, a / 2], { opm: 'koker: sluit de voetlus achter de takelkoker' });
+  voetPunten(b, [[-XR, yR], [XR, yR]], 'de achterligger');
+  const tv = b.staaf('Takelvoet', 'toren', [xl, T.yt + 100 + aT / 2, aT / 2], [xl, yR - a / 2, aT / 2], { opm: 'koker op de vloer achter de toren, tussen de achterligger van de toren en die van de voetlus: draagt de katrol D en de geleidestangen' }); void tv;
   const pa = katrolBeugel(b, 'A (boven de stapel)', [xl, yA, zA], X, { tot: { as: 2, w: T.H - aT }, kap: 'ligger', key: NOK_SCHIJF.stapel });
   const pb = katrolBeugel(b, 'B (achter de toren)', [xl, yB, zA], X, { tot: { as: 2, w: T.H - aT }, kap: 'ligger', key: NOK_SCHIJF.stapel }); pb.kapTekst = 'in de gesloten takelkoker';
   const pd = katrolBeugel(b, 'D (onder het takelblok)', [xl, yP, zc + rn], X, { tot: { as: 2, w: aT }, kap: 'ligger', key: NOK_SCHIJF.nok }); pd.kapTekst = 'in de gesloten takelkoker';
@@ -205,7 +224,6 @@ export function nokStation(b, def, c) {
   takelKoker(b, { xl, T, aT, yE });
   b.groep('frame');
   b.reken('Hefboomarm (kracht aan het einde)', armen[0].d, 'uitkrager', L, 0, { g: (NOK_TAKEL * G * Rn) / L / armen.length, proef: 'extrinsiek', las: true, dwars: true });
-  b.reken('Lagerpaal (één van de twee, nokkabel 2 x stapel)', b.o.delen.find((d) => d.naam === 'Lagerpaal'), 'staanderM', zk - P.h, 0, { g: (NOK_TAKEL * G) / 2, proef: 'extrinsiek', e: 300, las: true });
   b.last('Gebruiker', 100, [0, yk + (c.gebruiker ?? 230), 800], { geval: 'station' }); b.last('Stapel hoog', G, [0, T.yt, 1000], { geval: 'station' });
   void isPro; void gewicht; void arm; void bovenKatrol; void onderKatrol;
 }
@@ -222,7 +240,7 @@ function omhul(pts) {
  * omhullende als contour en een gezette rand rondom (één strook, stapbuigen), alleen een gat voor de as. De kabel gaat aan
  * de onderkant over in de vloergoot naar de toren. Registreert de kap en de inlopende knepen voor kapFouten.
  */
-function nokKappen(b, { xl, yk, zk, Rn, m0, m1, sg, thMax, rn, yf, zf, zc, aT, yr }) {
+export function nokKappen(b, { xl, yk, zk, Rn, m0, m1, sg, thMax, rn, yf, zf, zc, aT, yr }) {
   const o = b.o, t = 1.5, bk = 32, lo = Math.min(m0, m1) + Math.min(0, sg * thMax) - rad(8), hi = Math.max(m0, m1) + Math.max(0, sg * thMax) + rad(8);
   const pts = [
     ...Array.from({ length: 17 }, (_, i) => lo + ((hi - lo) * i) / 16).map((m) => [yk + (Rn + 25) * Math.cos(m), zk + (Rn + 25) * Math.sin(m)]),
@@ -258,8 +276,8 @@ function nokKappen(b, { xl, yk, zk, Rn, m0, m1, sg, thMax, rn, yf, zf, zc, aT, y
 }
 /** N-P2-05 v7: lage vloergoot in traanplaat 3 mm (betreedbaar) over de nokkabel van de nokkap tot de toren; de benen
  *  springen in boven liggers die de goot kruist */
-function vloerGoot(b, { xl, yf, rn, zc, T, aT }) {
-  const o = b.o, tg = 3, zg = zc + 22, w = 60, y0 = yf + rn + 30, y1 = T.yt - T.dpl / 2 - 22 - 2;
+export function vloerGoot(b, { xl, yf, rn, zc, T, aT, tot = null }) {
+  const o = b.o, tg = 3, zg = zc + 22, w = 60, y0 = yf + rn + 30, y1 = tot ?? T.yt - T.dpl / 2 - 22 - 2;
   if (y1 - y0 < 20) return;
   const hind = o.delen.filter((d) => d.kleur !== 'kap' && !d.deelVan && d.mn && d.mx[0] > xl - w / 2 - 1 && d.mn[0] < xl + w / 2 + 1 && d.mn[2] < zg && d.mx[1] > y0 && d.mn[1] < y1 && d.mn[2] < 5)
     .map((d) => [Math.max(y0, d.mn[1] - 2), Math.min(y1, d.mx[1] + 2), d.mx[2] + 2]).sort((p, q) => p[0] - q[0]);
@@ -314,7 +332,8 @@ export function kabelStation(b, def, c) {
   for (const s2 of [-1, 1]) b.staaf('Schetsplaat lat-arm', 's60x10', [-60 + s2 * (Pb.b / 2 + 5), T.yt + a / 2, T.H + 40], [-60 + s2 * (Pb.b / 2 + 5), T.yt - a / 2 - 150, T.H + 40], { v: X, kap: false, opm: 'schetsplaat 60 x 10 naast de arm (vermoeiing)' });
   const pa = bovenKatrol(b, T, -60, 'voor', 'A (boven de stapel)');
   const pb = katrolBeugel(b, 'B (vooraan de arm)', [-60, yb, T.H - 15 - r], X, { tot: { as: 2, w: T.H + opB * ((yk - yb) / (yk - yb + 60)) - 4 }, kap: false });
-  const pc = bovenKatrol(b, T, 60, 'voor', 'C (laag, boven de stapel)'), pd = onderKatrol(b, T, 60, 'D (laag, onderaan)');
+  // v8: C draait de kabel 180° (2 x de kabelkracht): een stalen Rema RZ-0.5 (4,9 kN) in plaats van de alu fitnesskatrol (3 kN)
+  const rC = KOOP.rz05.D / 2, pc = katrolBeugel(b, 'C (laag, boven de stapel)', [60, T.yt - rC, T.H - T.a - 15 - rC], X, { tot: { as: 2, w: T.H - T.a }, kap: 'ligger', key: 'rz05' }), pd = onderKatrol(b, T, 60, 'D (laag, onderaan)');
   let pL = null;
   if (ov === 2) {
     b.groep(`stapel ${T.s.naam}`);
@@ -340,8 +359,33 @@ export function kabelStation(b, def, c) {
   b.last('Gebruiker in het station', 100, [0, yb + 200, 700], { geval: 'kabel' }); b.last('Stapel (hoogste stand)', G, [0, T.yt, T.s.top + T.s.slag - 150], { geval: 'kabel' });
 }
 
+/**
+ * ruggengraat (v8): één vlakovaal die over de vloerligger loopt en met één bocht R150 omhoog gaat tot boven de rugleuning.
+ * De zitting zit op een slede (vlakovaal één maat groter) die over het staande deel schuift, met een veerpen in 4 gaten
+ * om de 45 mm (zithoogte); de rugleuning zit op het bovenste deel.
+ */
+function ruggengraat(b, vl, zit, rug, P) {
+  const Po = b.P('bankO'), Pl = b.P('bankLicht'), [ys, z] = zit.zit, lang = zit.lang ?? 340, breed = zit.breed ?? 320, yr = rug.rug[0], R = 3 * Po.b, zc = P.h + Po.b / 2;
+  const y0 = ys - lang / 2 + 40, L1 = yr - y0, zTop = z - 73 - Pl.h, zS0 = zTop - 100, zS1 = zTop + Pl.h;
+  const sVan = (zz) => L1 - R + (Math.PI * R) / 2 + (zz - zc - R), gaten = [-1, 0, 1, 2].map((k) => zS0 + 50 + k * 45).filter((zz) => zz - zc - R > 25 && zz < rug.rug[1] - 40);
+  const sp = b.buis('Ruggengraat', 'bankO', [[0, y0, zc], [0, yr, zc], [0, yr, rug.rug[2]]], { vlak: [1, 0, 0], staand: true, R, gaten: gaten.map((zz) => ({ s: sVan(zz), d: b.V.gat, as: 'w' })), opm: `vlakovaal ${Po.naam ?? ''} gebogen (1 bocht 90° R${R}): ligt op de vloerligger, staat achter de zitting en draagt zitting en rugleuning; ${gaten.length} gaten voor de zithoogte` });
+  const oud = b.huidig; b.groep('Zitting');
+  const sl = b.staaf('Zitslede', b.V.id === 'thuis' ? 'o100x50x3' : 'o120x60x3', [0, yr, zS0], [0, yr, zS1], { v: [0, 1, 0], in: sp.id, kap: false, gaten: [{ s: 50, d: b.V.gat, as: 'v' }], opm: 'vlakovaal één maat groter, schuift over de ruggengraat (PE-glijstrips); veerpen voor de zithoogte' });
+  const front = yr - b.P(b.V.id === 'thuis' ? 'o100x50x3' : 'o120x60x3').b / 2;
+  const zb = b.staaf('Zitbalk', 'bankLicht', [0, ys - lang / 2 + 20, z - 73 - Pl.h / 2], [0, front, z - 73 - Pl.h / 2], { opm: 'tegen de zitslede gelast (uitkragend)' });
+  b.plaat('Kussenplaat', [-70, ys - 80, z - 73], [70, ys + 80, z - 68], { gaten: [[-50, -60], [50, -60], [50, 60], [-50, 60]].map(([dx, dy]) => ({ p: [dx, ys + dy, z - 73], d: 9 })) });
+  kussenOp(b, 'Zitting', zb, lang, breed, { op: 5, schuif: (ys - (ys - lang / 2 + 20 + front) / 2) });
+  b.groep(oud);
+  b.pen('Veerpen zitting', [0, yr, zS0 + 50], [0, 1, 0], { d: b.V.pin, key: b.V.pin25, snedes: 2, t: 3, a: oud, b: 'Zitting', uit: [0, 160, 0], F: b.V.gebruiker, factor: 'extrinsiekPen', lengte: 120 });
+  b.kussen('Rugleuning', [0, yr - Po.b / 2, rug.rug[1]], [0, yr - Po.b / 2, rug.rug[2]], [0, -1, 0], rug.breed ?? 320, 68);
+  b.reken('Ruggengraat (zitting uitkragend, gebruiker)', sp, 'staanderM', zS0 - P.h, 0, { g: b.V.gebruiker, proef: 'extrinsiek', e: yr - ys, las: true });
+  void sl;
+}
 /** het station: zitting, rug-, borst-, lig- en armkussens op palen op de vloerligger, handgrepen en een platform */
 function station(b, vl, delen, Pb, P) {
+  // vormtaal v8 (Fable §4 voorstel 3): zitting en rug op één gebogen ruggengraat in vlakovaal
+  const zit = delen.find((s) => s.zit), rug = delen.find((s) => s.rug);
+  if (zit && rug && (zit.verstel ?? true)) { ruggengraat(b, vl, zit, rug, P); delen = delen.filter((s) => s !== zit && s !== rug); }
   for (const s of delen) {
     if (s.zit) zitting(b, vl, s.zit[0], s.zit[1], s.lang ?? 340, s.breed ?? 320, { verstel: s.verstel ?? true }); // P2-02 v6: zitting op een veerpen, verstelbaar
     else if (s.rug) { staander(b, 'Rugpaal', 'bank', 0, s.rug[0], P.h, s.rug[2]); b.kussen('Rugleuning', [0, s.rug[0] - Pb.h / 2, s.rug[1]], [0, s.rug[0] - Pb.h / 2, s.rug[2]], [0, -1, 0], s.breed ?? 320, 68); }
@@ -368,7 +412,7 @@ function station(b, vl, delen, Pb, P) {
 
 const MS = (t, p, bt, bp) => ({ thuis: t, pro: p, bronT: bt, bronP: bp });
 // soort oefening per nokstation (bepaalt de grens aan de greep, P1-02)
-const OEF = { 'FS-01': 'druk', 'FS-02': 'druk', 'FS-03': 'arm', 'FS-04': 'arm', 'FS-05': 'romp', 'FS-06': 'romp', 'FS-07': 'druk', 'FS-08': 'rug', 'FS-09': 'druk', 'FS-10': 'kuit', 'FS-11': 'kuit', 'FS-12': 'been', 'FS-23': 'been', 'FS-24': 'been' };
+const OEF = { 'FS-01': 'druk', 'FS-02': 'druk', 'FS-03': 'arm', 'FS-04': 'arm', 'FS-05': 'romp', 'FS-06': 'lagerug', 'FS-07': 'druk', 'FS-08': 'rug', 'FS-09': 'druk', 'FS-10': 'kuit', 'FS-11': 'kuit', 'FS-12': 'been', 'FS-23': 'been', 'FS-24': 'been' };
 const S = (id, naam, kort, uitleg, spieren, oefeningen, maxLast, markt, cfg) => ({ id, soort: 'selectorized', naam, kort, uitleg, spieren, oefeningen, maxLast, markt, maten: MATEN, cfg: { oef: OEF[id], ...cfg }, bouw(b) { nokStation(b, this, this.cfg); } });
 const OEFK = { 'FS-13': 'trek', 'FS-14': 'arm', 'FS-15': 'romp', 'FS-16': 'trek', 'FS-17': 'rug', 'FS-18': 'arm', 'FS-19': 'trek', 'FS-20': 'arm', 'FS-21': 'trek', 'FS-22': 'arm', 'FS-25': 'trek' };
 const K = (id, naam, kort, uitleg, spieren, oefeningen, markt, cfg) => ({ id, soort: 'selectorized', naam, kort, uitleg, spieren, oefeningen, markt, maten: MATEN, cfg: { oef: OEFK[id], ...cfg }, bouw(b) { kabelStation(b, this, this.cfg); } });

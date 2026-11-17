@@ -160,6 +160,31 @@ Bronnen: [tolymp.de](https://www.tolymp.de/en/your-topics/),
 - Overbrenging nok: de losse katrol op de stapel halveert de kracht aan de nok (stapel stijgt de helft van de kabelweg);
   voor 2 x de stapel aan de nok moet de losse katrol aan de kant van de nok zitten (geleid takelblok).
 
+## v8: grens per oefening, buigradius per buigerij
+
+**Grens (stapel x katrolverhouding, pro):** Nautilus Impact productbladen (https://www.corehandf.com/cdn/shop/files/Product_<Naam>_Impact_Nautilus_Product_Sheets.pdf), elk met "pulley ratio 1:1":
+
+| Soort | Toestel | Stapel |
+|---|---|---|
+| druk | Chest Press 9NA-S4301, Shoulder Press 9NA-S4307, Dip 9NA-S5303 | 130 kg |
+| trek | Lat Pull Down 9NA-S3305 | 130 kg |
+| rug | Low Row 9NA-S3306, Vertical Row 9NA-S3301 | 130 kg |
+| been | Leg Extension 9NA-S1312, Seated Leg Curl 9NA-S1313 | 130 kg (Leg Curl 90 kg) |
+| kuit | Standing Calf 9NA-S1309 | 130 kg |
+| arm | Biceps Curl 9NA-S5301, Tricep Extension 9NA-S5302 | 90 kg |
+| romp | Abdominal 9NA-S6301 | 65 kg |
+| lage rug | Low Back 9NA-S3302 | 130 kg |
+
+Ter vergelijking (verhouding niet opgegeven): Life Fitness Insignia Chest Press en Leg Extension 130/152 kg, Torso Rotation 85/100 kg; Hammer Strength Select Lat Pulldown 295 lb; Cybex Prestige Lat Pulldown 245/305 lb; Matrix Ultra Calf 135/180 kg; Technogym Selection 900 Leg Press 190/250 kg; Body-Solid GLP-STK 2:1 (210 lb geeft 420 lb). AANNAME: met een nok is de gemiddelde verhouding aan de greep ± 1:1; thuis 60 % en semi 80 % (geen merkdata).
+
+**Buigradius (centerline), publieke tabellen:**
+- Biegetechnik Sachsen, doornbuigen: rond Ø26,9-42,4 R100, Ø48,3 R150; vierkant 40x40x3 R80, 50x50x4 R145.
+- Biegetechnik Sachsen, rondwalsen S235: rond tot Ø88,9 R305; vierkant 40-60 R500; rechthoek zware as 40x20-80x40 R1000, lichte as tot 120x40 R500.
+- Rogue Fab, rotary draw zonder doorn: vierkant 25,4-31,8 R114, 38,1 R152; rond 38,1 R89, 44,5 R114.
+- Geen publieke tabel gevonden voor koker 60x60-80x80, 100x50, 120x60 en voor vlakovaal: die bochten krijgen in de berekening "offerte bij de buigerij".
+
+**Kantbank (binnenradius Ri, staal):** 247TailorSteel (t 1 / 1,5 / 2 / 3 / 4 / 5 / 6 / 8: Ri 1,4 / 1,65 / 1,88 / 2,75 / 3,02 / 3,62 / 4,62 / 8) en Bystronic (V = 6-8 t: Ri 1,2 / 2 / 2,5 / 3,5 / 6 / 8 / 8 / 9,5). De zetterij krijgt de buitenmaten.
+
 ## Wat nog open is
 
 - **Stabiliteit:** de hellingshoek (10°) in EN ISO 20957-1:2013/2024.

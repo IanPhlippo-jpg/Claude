@@ -424,6 +424,25 @@ De 50 punten uit [docs/Advies-Fable-5.2-v5.md](docs/Advies-Fable-5.2-v5.md) (P1 
   kettingmaten, diagonalen en paalhoogte, boormal 1:1 + gatentabel CSV, verstelbare rolarm 340-440, uitneembaar duwframe,
   zadelplaten bij vlakovaal (FS), lagerschild, kantelen onder trek met ankerkoppel, keuring alleen semi en pro.
 
+## Versie 8: de rest van Fable 5.2 v6 (2026-11-17)
+
+- **Grens per oefening met bron** (P2-02): stapel x katrolverhouding van Nautilus Impact (productbladen Core Health &
+  Fitness, "pulley ratio 1:1"): druk, trek, rug, been, kuit en lage rug 130 kg, arm 90 kg, romp 65 kg (pro; thuis 60 %,
+  semi 80 % blijft AANNAME). De stapel van een nokmachine volgt per toestel uit de grens (tot 44 platen); kabelstation pro
+  26 platen; katrol C van het kabelstation is een stalen Rema RZ-0.5.
+- **Vormtaal FS** (Fable §4): het dubbele lagerschild (2 x 10 mm) is de paal; toren en station staan op één gesloten
+  voetlus (gebogen koker + achterligger, geen T-voeten); zitting en rug op één gebogen ruggengraat in vlakovaal, de
+  zitting op een slede met veerpen. As Ø55.
+- **FK-08, FK-09, FK-12:** dezelfde gesloten nokkap + vloergoot als FS; **FK-10:** een gesloten nokkast onder de dwarsligger.
+- **P2-18:** een zadelplaat 8 mm wordt automatisch geplaatst als een profiel breder is dan het vlakke deel van een
+  vlakovaal (`zadelplaten` in catalogus.mjs); eindigt de ovaal op een vlak, dan is er geen plaat nodig. Geen oranje meer.
+- **P2-15:** tabellen van buigerijen (`BUIGERIJEN`, `KANTBANK` in vorm.mjs) uit publieke bronnen; per bocht zegt de
+  berekening welke buigerij het kan of dat er een offerte nodig is.
+- **P3 uit v5:** voetflenzen 180 x 180 x 10 met 2 ankers en gatnummers op de rigs, muurrigs met een muurstrip in plaats
+  van achterstaanders, de bovenligger van de functional trainers als boog met 2 optrekgrepen, geen kopligger in de
+  opslagrekken, de middenpoot als plaat, de schijvenbomen op een kruisvoet.
+- **Prijs:** een dunne plaat die lang op een profiel ligt, krijgt een hechtlas (25 %) in plaats van een doorlopende naad.
+
 ## Testen: snel of volledig
 
 `npx vitest run src/qa/qaFitness.test.ts` is de snelle standaardrun (± 30 s). De tests per toestel lopen op een
