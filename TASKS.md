@@ -1474,3 +1474,10 @@ elease; README en docs/04 bijgewerkt
 - [x] Alle adviezen van de treindoos verwerken, met tests op de oude fouten (57 gedaan, 5 deels; firmware 2.1.0, 159 tests, TRN-22 meetblad)
 - [x] Fitness: FS-nokken compact maken zoals bij de pro-merken (R ≤ 220 mm i.p.v. R 490, 2:1-takel op de stapel)
 - [x] Web/app/artifacts bijwerken, foto's, commit en push (fitness v11, trein-app v8)
+
+## Nieuw adviesrondje van Fable 5.2 op fitness v6b en treindoos v6 (firmware 2.1.0, situatieplan, tv), daarna verwerken (2026-11-17)
+- [~] Fable 5.2 leest de fitnesscatalogus v6b na (nakijken of de 50 vorige punten echt opgelost zijn + nieuwe punten)
+- [x] Fable 5.2 leest treindoos v6 / firmware 2.1.0 / situatieplan en tv na (Advies-Fable-5.2-v7.md: 48 echt opgelost, 14 deels; nieuw 1 x P1, 8 x P2, 14 x P3)
+- [ ] Rapporten in docs/ zetten, committen en aan Ian samenvatten
+- [ ] Alle adviezen verwerken, met tests op de oude fouten
+- [ ] Web/app/artifacts bijwerken, foto's, commit en push
