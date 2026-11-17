@@ -97,7 +97,7 @@ export async function scene3d(houder) {
     const beton = new THREE.MeshStandardMaterial({ color: '#d4cfc5', roughness: 0.92 }), vloer = new THREE.MeshStandardMaterial({ color: k.plaats === 'buiten' ? '#8f8a80' : '#b9a58a', roughness: 0.8 });
     const add = (m) => m && groep.add(m);
     // ---- context: vloerplaat aan de loopkant, trap, en een lagere vloer
-    const vd = k.vloerdikte, rand = k.bevestiging === 'zij' ? 0 : 100;
+    const vd = k.vloerdikte, rand = o.rand?.hart ?? (k.bevestiging === 'zij' ? 0 : 100);
     const blok = (s, t0, t1, z0, z1, w0, w1, mat) => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(t1 - t0, z1 - z0, w1 - w0), mat), tm = (t0 + t1) / 2, wm = (w0 + w1) / 2;
       m.position.set(...v3([s.p0[0] + s.d[0] * tm + s.N[0] * wm, s.p0[1] + s.d[1] * tm + s.N[1] * wm, (z0 + z1) / 2])); m.rotation.y = Math.atan2(s.d[1], s.d[0]);
@@ -139,7 +139,8 @@ export async function scene3d(houder) {
       if (p.rol === 'glas') { add(paneel(p.pts, p.dikte, p.N, glas)); continue; }
       const al = patroon(p.patroon), mat = al ? staal.clone() : staal;
       if (al) { mat.alphaMap = al; mat.alphaTest = 0.5; mat.side = THREE.DoubleSide; }
-      add(paneel(p.pts, 3, p.N, mat));
+      if (p.stukken) { for (const st of p.stukken) add(paneel(st, p.dikte ?? 3, p.N, mat)); continue; } // trapplint: convexe stukken
+      add(paneel(p.pts, p.dikte ?? 3, p.N, mat));
     }
     for (const p of o.platen) {
       const c = p.rol === 'console' ? [p.p[0] + p.N[0] * 5, p.p[1] + p.N[1] * 5, (p.z[0] + p.z[1]) / 2] : p.rol === 'muurplaat' ? [p.p[0], p.p[1], (p.z[0] + p.z[1]) / 2] : [p.p[0], p.p[1], (p.z[0] + p.z[1]) / 2];

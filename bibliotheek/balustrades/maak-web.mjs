@@ -23,5 +23,8 @@ while (rij.length) {
   for (const i of imports(t)) if (i.startsWith('./') && !nodig.has(i.slice(2))) { nodig.add(i.slice(2)); rij.push(i.slice(2)); }
 }
 for (const f of nodig) writeFileSync(join(doel, 'js/taatsdeuren', f), readFileSync(join(TD, f), 'utf8'));
-writeFileSync(join(doel, 'index.html'), readFileSync(join(HERE, 'web/index.html'), 'utf8'));
-console.log(`index.html + ${eigen.length} modules + ${nodig.size} taatsdeuren-modules -> ${doel}`);
+const html = readFileSync(join(HERE, 'web/index.html'), 'utf8');
+writeFileSync(join(doel, 'index.html'), html);
+// klantversie (P2-16, zoals de fitnesscatalogus): dezelfde pagina zonder werkplaats, instellingen en kostprijs
+writeFileSync(join(doel, 'klant.html'), `<!doctype html><html lang="nl"><head><meta charset="utf-8"><script>document.documentElement.dataset.klant = '1';</script></head><body style="margin:0">\n${html}\n</body></html>`);
+console.log(`index.html + klant.html + ${eigen.length} modules + ${nodig.size} taatsdeuren-modules -> ${doel}`);

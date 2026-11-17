@@ -8,7 +8,9 @@ Dubbelklik op Balustrades.html: hij opent in je browser (Edge, Chrome, Firefox o
    (woning, kantoor, publiek) voor de berekening.
 3. Bevestiging: bovenop de vloer of tegen de zijkant, en de handregel.
 4. Glas en kleur: het glas, de RAL-kleur en de structuur.
-Rechts: of het voldoet aan de norm (NBN B 03-004) en de prijs per strekkende meter naast de marktprijs.
-Instellingen: de naam van je zaak, je contact, welke prijs de klant ziet, je uurloon en je marge (op dit toestel bewaard).
+Rechts bovenaan: wat gecontroleerd is (hoogte, openingen en beklimbaarheid volgens NBN B 03-004, de sterkte voorberekend) en wat niet (na te kijken),
+   en de prijs per strekkende meter naast de marktprijs. Buiten: de wind (postcode, terrein, hoogte). Ondergrond: draagvloer en chape.
+Instellingen: de naam van je zaak, je contact, welke prijs de klant ziet en de btw (21 of 6 %). Uurloon en marge staan achter
+   een code die je de eerste keer zelf kiest: de klant ziet ze niet. Offerte: klant, werf en geldigheid, dan afdrukken of PDF.
 
-Prijzen opgezocht op 2026-11-13.
+Prijzen opgezocht op 2026-11-17.

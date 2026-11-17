@@ -149,3 +149,53 @@ Prijzen die incl. btw opgegeven waren, zijn gedeeld door 1,21.
 - de Hilti-prijzen;
 - een rozet voor 40x40;
 - de prijslijsten van Belgische verzinkerijen.
+
+## Aanvullingen na het advies van Fable 5.2 (opgezocht op 2026-11-17)
+
+| Kort | Bron |
+|---|---|
+| C2018B | Buildwise, Contact 2018/4 nr. 5 "Dimensionering van borstweringen: meer dan alleen maar schokproeven" (zelfde pdf als C2018) |
+| WInt | Buildwise, handleiding Wind Interactive 2023: <https://www.buildwise.be/media/yqipvfem/wind_interactive_help_nl_2023.pdf> |
+| KUL | KU Leuven/Odisee, cursus EN 1991-1-4 + ANB: <https://lirias.kuleuven.be/retrieve/526288> |
+| W-fiche | Buildwise-fiche NBN EN 1991-1-4 + ANB (04/2012): <https://www.buildwise.be/media/d3vj3ghx/nbn-en-1991-1-4.pdf> |
+| QR2500 | Q-railing glasklem MOD 2500: <https://q-railing.com/en/shop/products/142500-000-12/> |
+| QR5015 | Q-railing borgpen MOD 5015: <https://q-railing.com/en/shop/products/205015-22/> |
+| QR2100 | Q-railing glasklem MOD 2100: <https://q-railing.com/en/shop/products/142100-000-12/> |
+
+**Lasten (NBN B 03-004:2017 volgens C2016 en C2018B):**
+
+| Regel | Waarde | Bron |
+|---|---|---|
+| Horizontale lasten | lijnlast qk,h, puntlast Qk,h1 (beschermingshoogte), puntlast Qk,h2 (meest ongunstige plaats eronder), elk apart | C2018B |
+| Qk,h2 op de vulling | 0,5 kN | ANB voetnoot 3 (volgens Fable 5.2); C2018B noemt de last maar geen waarde |
+| Omgekeerde last | 0,5 kN/m, alle categorieën, als dat ongunstiger is | C2018B |
+| Verticale last | Qk,v = 1 kN op de handgreep of de meest ongunstige plaats, alle categorieën; volglas alleen met een gedecentreerde regel | C2018B, C2016 |
+| Wind | enkel gecombineerd met de lijnlast qk,h | C2016, C2018B |
+| Schokproeven | zacht lichaam 50 kg van 300 (A), 450 (B), 700 mm (C, D); hard lichaam 0,5 kg van 750 mm; niet op glas | C2018B (niet gecontroleerd in de configurator) |
+| Openingen ≤ 110 mm | niet letterlijk in C2016 (daar alleen de onderkant van de klimzone): **AANNAME** tot de normtekst ingezien is | Fable 5.2 P2-3 |
+| Driehoek langs de trap | geen aparte regel gevonden: bol 110 mm (**AANNAME**) | C2016, C2018B |
+
+**Wind (EN 1991-1-4 + ANB):**
+- vb,0 volgens de postcode: 23, 24, 25 of 26 m/s, zonder overgang tussen zones (WInt, KUL). **Een waarde 26,2 m/s
+  staat in geen enkele gevonden Belgische bron.** De configurator rekent standaard met 26 m/s.
+- Terreincategorieën 0-IV met z0 = 0,003 / 0,01 / 0,05 / 0,3 / 1 m en zmin = 1 / 1 / 2 / 5 / 10 m (W-fiche).
+- **AANNAME:** cdir = cseason = c0 = 1, kI = 1 (de Belgische ANB heeft een eigen formule voor kI, niet gevonden),
+  ρ = 1,25 kg/m³.
+- cp,net voor een vrijstaande wand (EN 1991-1-4 tabel 7.9); open vulling cf = 2,0 op de netto oppervlakte (**AANNAME**).
+- ψ0: wind 0,6; nuttige last A-D 0,7; E 1,0 (EN1990-fiche, ANB:2013; de ANB:2021 niet nagekeken).
+
+**Glas en klemmen:**
+- MOD 2100 is voor glas 6-10 mm (QR2100): niet voor 55.2 (10,76) of 66.2 (12,76). De configurator gebruikt de MOD 2500
+  (6-12,76 mm, vlak, Ø42,4, Ø48,3) met borgpen MOD 5015 ("for MOD 2500/2600").
+- Een grootste ruitmaat per klem is niet gevonden (de montagehandleiding vraagt een account): **AANNAME** 1200 x 1000
+  mm en 1,2 m².
+- ω = 0,1 voor PVB (**AANNAME**, was 0,3).
+
+**Ankers en ondergrond:**
+- Randafstand voorste ankers c = 100 mm (**AANNAME**); betonrandbreuk volgens EN 1992-4 §7.2.2.5 (vereenvoudigd).
+- Bout M12 8.8 in staal: Ft,Rd = 48,6 kN (EN 1993-1-8 tabel 3.4).
+- Welfsels, metselwerk en hout: geen rekenwaarde (oranje of rood).
+- Lengte FIS A volgens de opbouw: 130, 160, 210, 260 of 300 mm (**AANNAME**: handelslengtes, nakijken bij fischer).
+
+**Niet nagekeken:** γM0 in de Belgische ANB bij EN 1993-1-1 (blijft **AANNAME**), de ANB:2021 bij EN 1990, de normtekst
+NBN B 03-004:2017 zelf.

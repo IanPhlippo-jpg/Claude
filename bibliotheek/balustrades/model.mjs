@@ -5,9 +5,9 @@
 // hij horizontaal wordt), de staanders, spijlen, staven, platen en het glas worden lager of schuin.
 // Coördinaten in mm: x, y in het grondvlak, z omhoog; de lijn begint in de oorsprong en loopt langs +x; de val-kant
 // (vide, trapgat) ligt links (+N). Werkt in Node en in de browser.
-import { PROFIEL, SOORTEN, STIJL, ANKER, RAND, GLASOPBOUW, PATROON } from './onderdelen.mjs';
-import { NORM, vereisteHoogte, nietBeklimbaar } from './normen.mjs';
-import { kiesStaander, kiesGlas, kiesAnkerU, plaatVoor } from './bereken.mjs';
+import { PROFIEL, SOORTEN, STIJL, ANKER, RAND, GLASOPBOUW, PATROON, RANDAFSTAND } from './onderdelen.mjs';
+import { NORM, vereisteHoogte, nietBeklimbaar, trapDriehoek } from './normen.mjs';
+import { kiesStaander, kiesGlas, kiesAnkerU } from './bereken.mjs';
 
 export const STD = {
   soort: 'spijlen', stijl: 'S1', vorm: 'recht', plaats: 'binnen', L1: 4000, L2: 2500, L3: 2500, hoek: 90, optrede: 180, aantrede: 250,
@@ -16,8 +16,19 @@ export const STD = {
   // onder een schuin dak: per uiteinde aan/uit, dakhelling (°), hoogte onder het dak aan de muur (mm), spleet loodrecht op het dak (mm)
   dakBegin: false, dakBeginHelling: 45, dakBeginMuur: 600, dakBeginSpleet: 40,
   dakEind: false, dakEindHelling: 45, dakEindMuur: 600, dakEindSpleet: 40,
+  // ondergrond (P1-2): draagvloer en de opbouw erboven (chape, isolatie, tegels) in mm
+  ondergrond: 'beton', opbouw: 0,
+  // wind buiten (P1-1): vb,0 volgens de postcode (ANB: 23-26 m/s; 26 = de kust, voorzichtig), terrein, hoogte boven het maaiveld (m)
+  windVb: 26, terrein: 'II', windHoogte: 6,
+  // trap (P1-7): een dichte trapboom tot boven de treden, of een trapplint die de treden volgt
+  trapboom: false, trapPlint: true,
+  // secties (P2-11): grootste lengte van een gelast deel (vervoer, zinkbad, oven)
+  sectieMax: 3000,
+  // wat Ian heeft nagekeken (P1-8): ids uit nakijkLijst()
+  nagekeken: [],
 };
-export const GRENZEN = { L: [600, 12000], H: [900, 1300], hoek: [60, 170], optrede: [140, 220], aantrede: [200, 340], afstand: [300, 2000], tussenruimte: [40, 150], vloerdikte: [180, 400], helling: [15, 60], muur: [0, 2500], spleet: [10, 150] };
+export const GRENZEN = { L: [600, 12000], H: [900, 1300], hoek: [60, 170], optrede: [140, 220], aantrede: [200, 340], afstand: [300, 2000], tussenruimte: [40, 150], vloerdikte: [180, 400], helling: [15, 60], muur: [0, 2500], spleet: [10, 150], opbouw: [0, 200], windHoogte: [1, 100], sectieMax: [1200, 6000] };
+export const ONDERGRONDEN = { beton: 'Volle betonplaat', welfsel: 'Holle welfsels', hout: 'Houten roostering', staal: 'Stalen ligger', metselwerk: 'Metselwerk' };
 export const VORMEN = { recht: 'Recht', hoek: 'Met een hoek (L)', u: 'Twee hoeken (U)', trap: 'Langs een trap' };
 /** muurplaat aan een laag uiteinde onder het dak: lasergesneden 80 x h x 8, 2 ankers M10 in het knieschot */
 export const MUURPLAAT = { b: 80, t: 8, onder: 20 };
@@ -33,7 +44,7 @@ export function normaliseer(in0 = {}) {
   if (!SOORTEN[k.soort]) k.soort = STD.soort;
   const S = SOORTEN[k.soort];
   if (!S.stijlen.some((s) => s.id === k.stijl)) k.stijl = S.stijlen[0].id;
-  const velden = [['L1', GRENZEN.L], ['L2', GRENZEN.L], ['L3', GRENZEN.L], ['H', GRENZEN.H], ['hoek', GRENZEN.hoek], ['optrede', GRENZEN.optrede], ['aantrede', GRENZEN.aantrede], ['tussenruimte', GRENZEN.tussenruimte], ['vloerdikte', GRENZEN.vloerdikte]];
+  const velden = [['L1', GRENZEN.L], ['L2', GRENZEN.L], ['L3', GRENZEN.L], ['H', GRENZEN.H], ['hoek', GRENZEN.hoek], ['optrede', GRENZEN.optrede], ['aantrede', GRENZEN.aantrede], ['tussenruimte', GRENZEN.tussenruimte], ['vloerdikte', GRENZEN.vloerdikte], ['opbouw', GRENZEN.opbouw], ['windHoogte', GRENZEN.windHoogte], ['sectieMax', GRENZEN.sectieMax]];
   for (const e of ['dakBegin', 'dakEind']) for (const [n, g] of DAKVELD) velden.push([e + n, GRENZEN[g]]);
   for (const [veld, gr] of velden) {
     const v = Number(k[veld]);
@@ -54,6 +65,13 @@ export function normaliseer(in0 = {}) {
   if (!['boven', 'zij'].includes(k.bevestiging)) k.bevestiging = 'boven';
   if (!['chemisch', 'keil'].includes(k.anker)) k.anker = 'chemisch';
   if (!NORM.lijnlast[k.cat]) k.cat = 'A';
+  if (!ONDERGRONDEN[k.ondergrond]) k.ondergrond = 'beton';
+  if (!NORM.windSnelheid.includes(Number(k.windVb))) k.windVb = STD.windVb; else k.windVb = Number(k.windVb);
+  if (!NORM.terrein[k.terrein]) k.terrein = STD.terrein;
+  for (const b of ['trapboom', 'trapPlint']) k[b] = k[b] === true || k[b] === 'true' || k[b] === 1;
+  if (!Array.isArray(k.nagekeken)) k.nagekeken = [];
+  k.valhoogte = Number.isFinite(Number(k.valhoogte)) ? Number(k.valhoogte) : 3;
+  if (k.anker === 'keil' && k.opbouw > 0 && k.ondergrond === 'beton') m.push(`Door de opbouw van ${k.opbouw} mm past geen keilbout (klemlengte): chemisch anker met een langere stang.`);
   const st = STIJL(k.soort, k.stijl);
   k.hr = k.handregel === 'stijl' || !S.handregels.includes(k.handregel) ? st.handregel : k.handregel;
   if (k.afstand !== 'auto') { const a = Number(k.afstand); k.afstand = Number.isFinite(a) ? klem(Math.round(a), GRENZEN.afstand) : 'auto'; }
@@ -76,15 +94,19 @@ export function segmenten(k) {
   return segs;
 }
 
+/** hoogte van de handregel (mm): plat 50x8, rond Ø42,4, koker 50x30 liggend */
+export const HRH = { rond: 42.4, plat: 8, koker: 30, geen: 0 };
+/** het profiel van de handregel */
+export const hrProfiel = (k) => (k.hr === 'rond' ? (k.soort === 'glasstaal' ? 'inox42' : 'buis42') : k.hr === 'koker' ? 'koker50x30x3' : 'plat50x8');
 /** de vaste maten in de hoogte (mm boven de vloerlijn of de trapneuslijn), per soort en handregel */
 export function hoogtes(k, trap = false) {
   const hr = k.hr, H = k.H, onder = trap ? NORM.openingTrap.v : 70;
-  const hrH = hr === 'rond' ? 42.4 : hr === 'plat' ? 8 : 0;
+  const hrH = HRH[hr] ?? 0;
   const h = { H, hrH, onder };
   if (k.soort === 'glasU') { h.glasOnder = k.bevestiging === 'zij' ? -100 : 10; h.glasBoven = H - (hr === 'rond' ? 30 : 0); h.profiel = 110; return h; }
   if (k.soort === 'glasstaal') {
-    h.staanderTop = hr === 'rond' ? H - 42.4 - 50 : H - 8;
-    h.glasOnder = trap ? 50 : 80; h.glasBoven = (hr === 'rond' ? H - 42.4 - 50 : H - 8) - 60;
+    h.staanderTop = hr === 'rond' ? H - 42.4 - 50 : H - hrH;
+    h.glasOnder = trap ? 50 : 80; h.glasBoven = h.staanderTop - 60;
     return h;
   }
   h.staanderTop = H - hrH;
@@ -176,27 +198,36 @@ function paneelVorm(s, offN, z0, boven) {
 export function ontwerp(keuzes = {}) {
   const { k, meldingen } = normaliseer(keuzes);
   const S = SOORTEN[k.soort], st = STIJL(k.soort, k.stijl), segs = segmenten(k);
-  const o = { k, S, st, segs, meldingen, staanders: [], delen: [], panelen: [], klemmen: [], platen: [], ankers: [], muurAnkers: [], openingen: [], hoeken: 0, knikken: 0, lengte: segs.reduce((t, s) => t + s.L3, 0) };
+  const o = { k, S, st, segs, meldingen, staanders: [], delen: [], panelen: [], klemmen: [], platen: [], ankers: [], muurAnkers: [], openingen: [], vulling: [], secties: [], werfnaden: [], hoeken: 0, knikken: 0, lengte: segs.reduce((t, s) => t + s.L3, 0) };
   o.hoeken = segs.filter((s) => s.i > 0 && s.draai).length; o.knikken = segs.filter((s, i) => i > 0 && s.alfa !== segs[i - 1].alfa).length;
   o.trapLengte = segs.filter((s) => s.alfa).reduce((t, s) => t + s.L3, 0);
   o.vereist = vereisteHoogte(k); o.klim = nietBeklimbaar(k);
-  if (k.vorm === 'trap') o.treden = Math.max(1, Math.round(segs[0].Lh / k.aantrede));
+  if (k.vorm === 'trap') { o.treden = Math.max(1, Math.round(segs[0].Lh / k.aantrede)); o.trede = { g: segs[0].Lh / o.treden, r: (segs[0].Lh / o.treden) * Math.tan(segs[0].alfa) }; }
   o.dak = dakEinden(k, segs); o.dakKnikken = o.dak.filter((e) => e.nodig).length;
   for (const e of o.dak) if (!e.nodig) meldingen.push(`${e.kant === 'begin' ? 'Begin' : 'Einde'}: het dak staat aan de muur al hoog genoeg (${e.muur} mm ≥ H + spleet); er is geen afschuining nodig.`);
   o.vl = (s, t) => verlaging(o, s, t);
+  o.hrProf = hrProfiel(k);
   const q = NORM.lijnlast[k.cat];
   if (k.soort === 'glasU') return glasU(o, q);
   // ---------------------------------------------------------------- staanders en hun afstand
-  const keus = kiesStaander(k, segs);
+  const keus = kiesStaander(k);
   o.staander = keus; const P = PROFIEL[keus.prof];
   o.ankerType = keus.anker; o.voet = keus.voet;
-  const zij = k.bevestiging === 'zij';
+  const zij = k.bevestiging === 'zij', opb = k.opbouw ?? 0, diep = !zij && opb > 40;
+  // randafstand (P1-5): de voorste ankers op c ≥ 100 mm van de vloerrand; het staanderhart staat dus op c + e
+  const e0 = zij ? 0 : keus.voet.b / 2 - 25;
+  o.rand = zij ? { hart: 0, c: 60, e: 0 } : { hart: RANDAFSTAND.c + e0, c: RANDAFSTAND.c, e: e0 };
+  o.ankerLengte = ankerLengte(o, keus.voet.t);
   const tWand = zij ? P.b / 2 : Math.max(P.b / 2, keus.voet.b / 2 + 5); // eindstaander tegen het knieschot: de voetplaat blijft uit de muur
+  const bp = zij ? P.b : keus.voet.b; // breedte van de voet langs de lijn
   for (const s of segs) {
-    const eerste = s.i === 0, laatste = s.i === segs.length - 1;
+    const eerste = s.i === 0, laatste = s.i === segs.length - 1, trap = !!s.alfa && !zij, naTrap = !zij && s.i > 0 && !!segs[s.i - 1].alfa && !s.alfa;
     const eA = eerste ? o.dak.find((e) => e.nodig && e.kant === 'begin') : null, eB = laatste ? o.dak.find((e) => e.nodig && e.kant === 'eind') : null;
-    const begin = eA?.muurplaat ? { t: MUURPLAAT.t / 2, w: MUURPLAAT.t, muur: true } : { t: eerste ? (eA ? tWand : P.b / 2) : 0, w: P.b };
-    const einde = eB?.muurplaat ? { t: s.Lh - MUURPLAAT.t / 2, w: MUURPLAAT.t, muur: true } : { t: laatste ? s.Lh - (eB ? tWand : P.b / 2) : s.Lh, w: P.b };
+    // langs de trap (P2-1): de voetplaat ligt volledig op een trede; de knikstaander staat op de laatste trede
+    const tBegin = eerste ? (eA ? tWand : trap ? Math.max(P.b, bp) / 2 : P.b / 2) : naTrap ? -bp / 2 : 0;
+    const begin = eA?.muurplaat ? { t: MUURPLAAT.t / 2, w: MUURPLAAT.t, muur: true } : { t: tBegin, w: P.b };
+    const tEinde = laatste ? s.Lh - (eB ? tWand : trap ? Math.max(P.b, bp) / 2 : P.b / 2) : trap ? s.Lh - bp / 2 : s.Lh;
+    const einde = eB?.muurplaat ? { t: s.Lh - MUURPLAAT.t / 2, w: MUURPLAAT.t, muur: true } : { t: tEinde, w: P.b };
     // een staander onder elke knik van de handregel (als er plaats is)
     const vast = [begin];
     for (const e of [eA, eB].filter(Boolean).sort((a, b) => a.tKnik - b.tKnik)) {
@@ -204,42 +235,56 @@ export function ontwerp(keuzes = {}) {
       if (e.tKnik - v.t >= (v.w + P.b) / 2 + 60 && einde.t - e.tKnik >= (einde.w + P.b) / 2 + 60) vast.push({ t: e.tKnik, w: P.b, knik: true });
     }
     vast.push(einde);
+    const g = trap ? o.trede.g : 0;
     const alle = [vast[0]];
     for (let i = 1; i < vast.length; i++) {
-      const a = vast[i - 1], b = vast[i], span3 = (b.t - a.t) / Math.cos(s.alfa), n = Math.max(1, Math.ceil(span3 / keus.a - 1e-6));
+      const a = vast[i - 1], b = vast[i];
+      if (trap) {
+        // tussenstaanders midden op een trede, om de kt treden (kt · g + g/2 ≤ a · cos α)
+        const kt = Math.max(1, Math.floor((keus.a * Math.cos(s.alfa) - g / 2) / g));
+        for (let tr = kt; (tr + 0.5) * g < b.t - g / 2; tr += kt) if ((tr + 0.5) * g > a.t + g / 2) alle.push({ t: (tr + 0.5) * g, w: P.b });
+        alle.push(b); continue;
+      }
+      const span3 = (b.t - a.t) / Math.cos(s.alfa), n = Math.max(1, Math.ceil(span3 / keus.a - 1e-6));
       for (let j = 1; j <= n; j++) alle.push(j === n ? b : { t: a.t + ((b.t - a.t) * j) / n, w: P.b });
     }
     s.steunen = alle; s.posten = alle.map((x) => x.t);
     s.velden = alle.slice(1).map((b, j) => ({ ta: alle[j].t + alle[j].w / 2, tb: b.t - b.w / 2, muurA: !!alle[j].muur, muurB: !!b.muur }));
     s.veld3 = Math.max(...alle.slice(1).map((b, j) => (b.t - alle[j].t) / Math.cos(s.alfa))); s.veldH = Math.max(...alle.slice(1).map((b, j) => b.t - alle[j].t));
-    alle.forEach((x, j) => { if ((j === 0 && !eerste) || x.muur) return; o.staanders.push({ seg: s.i, t: x.t, p: s.punt(x.t), hoek: j === alle.length - 1 && !laatste, eind: (eerste && j === 0) || (laatste && j === alle.length - 1), knik: !!x.knik, wand: (eA && eerste && j === 0) || (eB && laatste && j === alle.length - 1) }); });
+    const zTrede = (t) => (trap ? Math.min(o.treden - 1, Math.max(0, Math.floor((t + 1e-6) / g))) * o.trede.r : null);
+    alle.forEach((x, j) => { if ((j === 0 && !eerste) || x.muur) return; const zt = zTrede(x.t); o.staanders.push({ seg: s.i, t: x.t, p: s.punt(x.t), zVoet: zt == null ? null : s.p0[2] + zt, trede: zt == null ? null : Math.round(zt / o.trede.r) + 1, hoek: j === alle.length - 1 && !laatste, eind: (eerste && j === 0) || (laatste && j === alle.length - 1), knik: !!x.knik, wand: (eA && eerste && j === 0) || (eB && laatste && j === alle.length - 1) }); });
   }
   o.afstand = Math.max(...segs.map((s) => s.veld3));
   const h = hoogtes(k);
   const offN = zij ? 10 + 30 + P.h / 2 : 0; // zij: plaat 10 + afstandhouder 30 voor de vloerrand
   o.offN = offN;
   const NN = (s) => s.N;
+  const buiten = k.plaats === 'buiten', dGat = buiten ? 10 : 6;
   // staanders
   for (const [i, sp] of o.staanders.entries()) {
     const s = segs[sp.seg], hh = hoogtes(k, !!s.alfa), voet = add(sp.p, NN(s), offN), vl = o.vl(s, sp.t);
     const drager = k.soort === 'glasstaal' && k.hr === 'rond';
-    const z0 = zij ? -250 : o.voet.t, z1 = hh.staanderTop - vl.v;
+    const zb = (sp.zVoet ?? sp.p[2]) - (diep ? opb : 0); // onderkant van de voetplaat (absoluut)
+    const z1 = hh.staanderTop - vl.v, za = zij ? sp.p[2] - 250 - opb : zb + o.voet.t;
     const schuin = vl.v > 0.5 && !drager && !sp.knik;
-    const deel = { rol: 'staander', prof: keus.prof, a: [voet[0], voet[1], voet[2] + z0], b: [voet[0], voet[1], voet[2] + z1], zaag: [0, schuin ? r1(vl.th) : 0], zin: [1, 1], seg: s.i, N: s.N, cat: 'basis', nr: i, ...(schuin ? { snijB: snijDak(s, vl), dak: { hoek: r1(vl.th) } } : {}) };
+    const deel = { rol: 'staander', prof: keus.prof, a: [voet[0], voet[1], za], b: [voet[0], voet[1], voet[2] + z1], zaag: [0, schuin ? r1(vl.th) : 0], zin: [1, 1], seg: s.i, N: s.N, cat: 'basis', nr: i, trede: sp.trede, ...(schuin ? { snijB: snijDak(s, vl), dak: { hoek: r1(vl.th) } } : {}) };
+    // ontluchtingsgaten (P2-10): diagonaal onder en boven, en achter elke regel (de regel is open in de staander)
+    const L = deel.b[2] - deel.a[2], regels = k.soort === 'spijlen' || (k.soort === 'staven' && st.vulling === 'plaat') ? [hh.onderregel ? (hh.onderregel[0] + hh.onderregel[1]) / 2 : null, k.soort === 'spijlen' && hh.bovenregel ? (hh.bovenregel[0] + hh.bovenregel[1]) / 2 : null].filter((x) => x != null) : [];
+    deel.ontlucht = [{ z: 25, d: dGat, kant: 'onder' }, { z: Math.round(L - 25), d: dGat, kant: 'boven' }, ...regels.map((z) => ({ z: Math.round(voet[2] + z - deel.a[2]), d: dGat, kant: 'achter de regel' }))];
     o.delen.push(deel);
     if (zij) {
-      o.platen.push({ rol: 'console', seg: s.i, p: add(sp.p, s.N, 5), N: s.N, d: s.d, w: P.b + 60, h: 230, t: 10, z: [sp.p[2] - 250, sp.p[2] - 20], cat: 'zij', gaten: [[0, -60], [0, -190]] });
-      for (const zz of [-90, -160]) o.delen.push({ rol: 'afstandhouder', prof: 'koker40x40x3', a: add(add(sp.p, s.N, 10), [0, 0, zz]), b: add(add(sp.p, s.N, 40), [0, 0, zz]), zaag: [0, 0], zin: [1, 1], seg: s.i, N: s.N, cat: 'zij', dwars: true });
+      o.platen.push({ rol: 'console', seg: s.i, p: add(sp.p, s.N, 5), N: s.N, d: s.d, w: P.b + 60, h: 230, t: 10, z: [sp.p[2] - 250 - opb, sp.p[2] - 20 - opb], cat: 'zij', gaten: [[0, -60], [0, -190]] });
+      // P2-6: de afstandhouders 170 mm uit elkaar (40 en 210 mm onder de vloerpas), het moment gaat als koppel
+      for (const zz of [-40, -210]) o.delen.push({ rol: 'afstandhouder', prof: 'koker40x40x3', a: add(add(sp.p, s.N, 10), [0, 0, zz - opb]), b: add(add(sp.p, s.N, 40), [0, 0, zz - opb]), zaag: [0, 0], zin: [1, 1], seg: s.i, N: s.N, cat: 'zij', dwars: true });
     } else {
       const vp = o.voet;
-      o.platen.push({ rol: 'voetplaat', seg: s.i, p: [...sp.p], N: s.N, d: s.d, w: vp.b, h: vp.l, t: vp.t, z: [sp.p[2], sp.p[2] + vp.t], cat: 'basis', gaten: vp.gaten });
+      o.platen.push({ rol: 'voetplaat', seg: s.i, p: [sp.p[0], sp.p[1], zb], N: s.N, d: s.d, w: vp.b, h: vp.l, t: vp.t, z: [zb, zb + vp.t], cat: 'basis', gaten: vp.gaten, trede: sp.trede });
     }
-    for (const g of (zij ? [[0, -60], [0, -190]] : o.voet.gaten)) o.ankers.push({ p: zij ? add(add(sp.p, [0, 0, g[1]], 1), s.N, 0) : add(add(sp.p, s.d, g[0]), s.N, g[1]), richting: zij ? s.N.map((x) => -x) : [0, 0, -1], seg: s.i, zij });
+    for (const gg of (zij ? [[0, -60], [0, -190]] : o.voet.gaten)) o.ankers.push({ p: zij ? add(add(sp.p, [0, 0, gg[1] - opb], 1), s.N, 0) : [...add(add(sp.p, s.d, gg[0]), s.N, gg[1]).slice(0, 2), zb], richting: zij ? s.N.map((x) => -x) : [0, 0, -1], seg: s.i, zij });
     if (drager) o.delen.push({ rol: 'drager', prof: 'koop', koop: 'handregeldrager', a: [voet[0], voet[1], voet[2] + z1], b: [voet[0], voet[1], voet[2] + z1 + 50], seg: s.i, N: s.N, cat: 'basis' });
   }
   // handregel per segment (verstek op de hoeken en de knik van de trap; onder het dak een knik waar hij horizontaal wordt)
-  const hrProf = k.hr === 'rond' ? (k.soort === 'glasstaal' ? 'inox42' : 'buis42') : 'plat50x8';
-  for (const s of segs) handregel(o, s, (t) => hoogtes(k, !!s.alfa).H - hoogtes(k, !!s.alfa).hrH / 2 - o.vl(s, t).d, offN, { prof: hrProf });
+  for (const s of segs) handregel(o, s, (t) => hoogtes(k, !!s.alfa).H - hoogtes(k, !!s.alfa).hrH / 2 - o.vl(s, t).d, offN, { prof: o.hrProf });
   // muurplaten aan de lage uiteinden
   for (const e of o.dak.filter((x) => x.muurplaat)) muurplaat(o, e, offN);
   // de vulling per veld
@@ -252,11 +297,14 @@ export function ontwerp(keuzes = {}) {
       if (k.soort === 'spijlen') vulSpijlen(o, k, s, veld, hh, pa, pb, helling, cat, offN);
       else if (k.soort === 'staven') vulStaven(o, k, s, veld, hh, pa, pb, helling, cat, offN, st);
       else vulGlas(o, k, s, veld, hh, pa, pb, helling, offN);
+      // langs de trap (P1-7): een plint die de treden volgt, onder de onderste regel of het glas
+      if (s.alfa && !k.trapboom && k.trapPlint) trapPlint(o, s, veld, k.soort === 'glasstaal' ? hh.glasOnder - 10 : hh.onder, offN);
     }
   }
   // openingen tussen de staander en de vulling, en onderaan
   o.openingen.push({ wat: k.soort === 'glasstaal' ? 'onder het glas' : plintAan(k, o) ? 'onder de plint' : 'onder de onderregel', mm: k.soort === 'glasstaal' ? hoogtes(k).glasOnder : plintAan(k, o) ? 50 : hoogtes(k).onder, max: NORM.opening.v });
   if (o.staanders.some((x) => x.wand)) o.openingen.push({ wat: 'tussen het knieschot en de eindstaander', mm: r1(tWand - P.b / 2), max: NORM.opening.v });
+  if (zij) { const dv = k.soort === 'spijlen' ? PROFIEL[st.spijl].h : k.soort === 'glasstaal' ? GLASOPBOUW[kiesGlas(k).opbouw].dikte : 3; o.openingen.push({ wat: 'tussen de vloerrand en de vulling (zijmontage, horizontaal)', mm: r1(offN - dv / 2), max: NORM.opening.v }); }
   // gaten voor de glasklemmen (blindklinkmoer M8) in de staander waar de klem zit (niet op een muurplaat)
   for (const kl of o.klemmen) {
     if (kl.muur) continue;
@@ -264,10 +312,104 @@ export function ontwerp(keuzes = {}) {
     for (const d of o.delen) if (d.rol === 'staander') { const dd = Math.hypot(d.a[0] - kl.p[0], d.a[1] - kl.p[1]); if (dd < bd) { bd = dd; best = d; } }
     if (best) (best.gaten ??= []).push({ z: Math.round(kl.p[2] - best.a[2]), kant: kl.d });
   }
-  if (k.vorm === 'trap') o.openingen.push({ wat: 'trapneus tot de onderste regel (trap)', mm: hoogtes(k, true).onder, max: NORM.openingTrap.v, trap: true });
+  if (k.vorm === 'trap') { o.openingen.push({ wat: 'trapneus tot de onderste regel (trap)', mm: hoogtes(k, true).onder, max: NORM.openingTrap.v, trap: true }); trapOpening(o, k.soort === 'glasstaal' ? hoogtes(k, true).glasOnder : hoogtes(k, true).onder); }
   o.glas = k.soort === 'glasstaal' ? kiesGlas(k) : null;
   o.openingen = uniek(o.openingen);
+  vullingVoorBerekening(o, P);
+  secties(o, P);
   return o;
+}
+
+/** lengte van de ankerstang (mm) bij een chemisch anker: opbouw (≤ 40) + voetplaat + hef + 25 (moer, ring, uitsteek), naar de handelslengte (AANNAME) */
+function ankerLengte(o, t) {
+  const k = o.k, A = ANKER[o.ankerType]; if (!A?.mortel) return null;
+  const opb = k.bevestiging === 'zij' || k.opbouw > 40 ? 0 : k.opbouw ?? 0, nodig = opb + t + A.hef + 25;
+  return [130, 160, 210, 260, 300].find((x) => x >= nodig) ?? 300;
+}
+
+/**
+ * trapplint (P1-7): lasergesneden plaat 4 mm onder de onderste regel (of het glas) die de treden volgt, 30 mm boven elke
+ * trede en 30 mm voor elk stootbord, zodat de driehoek trede / stootbord / regel dicht is. topV = bovenkant boven de neuslijn.
+ */
+function trapPlint(o, s, veld, topV, offN) {
+  const { g, r } = o.trede, tan = Math.tan(s.alfa), sp = NORM.trapPlintSpeling.v, n = o.treden;
+  const ta = veld.ta + 2, tb = veld.tb - 2; if (tb - ta < 20) return;
+  const top = (t) => t * tan + topV, niveau = (t) => Math.min(n - 1, Math.max(0, Math.floor((t + sp) / g))) * r + sp, bodem = (t) => Math.min(niveau(t), top(t) - 15);
+  const ts = new Set([ta, tb]);
+  for (let i = 1; i < n; i++) { const R = i * g - sp; if (R > ta && R < tb) ts.add(R); }
+  for (let i = 0; i < n; i++) { const tx = (i * r + sp - topV + 15) / tan; if (tx > ta && tx < tb) ts.add(tx); }
+  const bod = [];
+  for (const t of [...ts].sort((a, b) => a - b)) {
+    const L = bodem(t - 1e-6), R = bodem(t + 1e-6);
+    if (t === ta) bod.push([t, R]); else if (t === tb) bod.push([t, L]); else { bod.push([t, L]); if (Math.abs(R - L) > 0.01) bod.push([t, R]); }
+  }
+  const P = (t, z) => [s.p0[0] + s.d[0] * t + s.N[0] * offN, s.p0[1] + s.d[1] * t + s.N[1] * offN, s.p0[2] + z];
+  const omtrek = [[ta, top(ta)], [tb, top(tb)], ...bod.slice().reverse()], zmin = Math.min(...bod.map((x) => x[1]));
+  const stukken = [];
+  for (let i = 0; i < bod.length - 1; i++) { const [t1, z1] = bod[i], [t2, z2] = bod[i + 1]; if (t2 - t1 > 0.5) stukken.push([P(t1, z1), P(t2, z2), P(t2, top(t2)), P(t1, top(t1))]); }
+  o.panelen.push({ rol: 'trapplint', patroon: 'vlak', pts: omtrek.map(([t, z]) => P(t, z)), uv: omtrek.map(([t, z]) => [t - ta, z - zmin]), stukken, dikte: 4, seg: s.i, N: s.N, w: tb - ta, h: Math.max(top(ta), top(tb)) - zmin, helling: r1(deg(s.alfa)), cat: 'trap', trapplint: true, treden: bod.length });
+}
+/** de driehoek trede / stootbord / onderste regel langs de trap als opening (P1-7); v = onderkant boven de neuslijn */
+function trapOpening(o, v) {
+  const k = o.k, { g, r } = o.trede, d = trapDriehoek(r, g, v), plint = !k.trapboom && k.trapPlint && k.soort !== 'glasU';
+  const mm = k.trapboom ? 0 : plint ? NORM.trapPlintSpeling.v : d;
+  o.openingen.push({ wat: 'driehoek trede / stootbord / onderste regel (trap)', mm: r1(mm), max: NORM.openingTrapDriehoek.v, trap: true, bron: NORM.openingTrapDriehoek.bron,
+    formule: k.trapboom ? 'dichte trapboom tot boven de treden: geen driehoek' : plint ? `trapplint volgt de treden op ${NORM.trapPlintSpeling.v} mm (zonder plint: ingeschreven cirkel Ø${Math.round(d)} mm)` : `ingeschreven cirkel 2ρ = a + b − c, a = ${Math.round(g)} · (1 + ${Math.round(v)} / ${Math.round(r)}), b = ${Math.round(r)} + ${Math.round(v)}: Ø${Math.round(d)} mm ≤ ${NORM.openingTrapDriehoek.v} mm`,
+    uitleg: 'Een kind kan tussen de trede en de onderste regel door: zet de trapplint aan, of monteer tegen een dichte trapboom.' });
+}
+/** de vulling voor de puntlast Qk,h2 (P1-6): spijl, staaf, regel, plaat, plint */
+function vullingVoorBerekening(o) {
+  const k = o.k, st = o.st, velden = o.segs.flatMap((s) => (s.velden ?? []).map((v) => (v.tb - v.ta) / Math.cos(s.alfa))), vw = velden.length ? Math.max(...velden) : 1000;
+  const lang = (d) => Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1], d.b[2] - d.a[2]);
+  if (k.soort === 'spijlen') {
+    const sp = o.delen.filter((d) => d.rol === 'spijl'); o.spijlLengte = sp.length ? Math.max(...sp.map(lang)) : k.H - 100;
+    o.vulling.push({ soort: 'staaf', wat: 'Spijl', prof: st.spijl, L: o.spijlLengte }, { soort: 'regel', wat: 'Onderregel', prof: 'koker40x20x2', L: vw });
+  } else if (k.soort === 'staven') {
+    if (st.vulling === 'staven') o.vulling.push({ soort: 'staaf', wat: 'Horizontale staaf', prof: st.staaf, L: vw });
+    else o.vulling.push({ soort: 'regel', wat: 'Onderregel', prof: 'koker40x20x2', L: vw });
+  }
+  for (const rol of ['plaat', 'plint', 'trapplint']) {
+    const p = o.panelen.filter((x) => x.rol === rol).sort((a, b) => b.w * b.h - a.w * a.h)[0];
+    if (p) o.vulling.push({ soort: 'plaat', wat: rol === 'plaat' ? `Plaat ${PATROON[p.patroon]?.naam ?? ''}` : rol === 'plint' ? 'Plint' : 'Trapplint', t: p.dikte, h: p.h, L: p.w, open: PATROON[p.patroon]?.open ?? 0, randen: rol === 'trapplint' ? 3 : 2 });
+  }
+}
+/**
+ * secties (P2-11): elk gelast deel ten hoogste sectieMax lang (vervoer, trapgat, zinkbad, oven); een werfnaad op een
+ * staander (geboute lip in de regels, insteekmof in de handregel) en op elke hoek of knik; buiten om de ± 6 m een
+ * uitzetvoeg (sleufgaten in de lip, voeg 10 mm). De handregel wordt op elke werfnaad in een veld gesplitst.
+ */
+function secties(o, P) {
+  const k = o.k, max = k.sectieMax ?? 3000, buiten = k.plaats === 'buiten';
+  let nr = 1;
+  for (const s of o.segs) {
+    const pts = s.posten ?? [0, s.Lh];
+    let van = 0;
+    if (s.i > 0) o.werfnaden.push({ seg: s.i, t: 0, soort: s.draai ? 'hoek' : 'knik' });
+    for (let j = 1; j < pts.length; j++) {
+      if ((pts[j] - van) / Math.cos(s.alfa) > max && j > 1 && pts[j - 1] > van + 1) {
+        const t = pts[j - 1];
+        o.secties.push({ nr: nr++, seg: s.i, van, tot: t });
+        o.werfnaden.push({ seg: s.i, t, soort: 'veld' });
+        if (P) splitsHandregel(o, s.i, t + P.b / 2);
+        van = t;
+      }
+    }
+    o.secties.push({ nr: nr++, seg: s.i, van, tot: s.Lh });
+  }
+  for (const x of o.secties) { const s = o.segs[x.seg]; x.lengte = (x.tot - x.van) / Math.cos(s.alfa); x.staanders = o.staanders.filter((p) => p.seg === x.seg && p.t >= x.van - 1 && p.t <= x.tot + 1).length; }
+  let sinds = 0;
+  o.werfnaden.forEach((n, i) => { sinds += o.secties[i].lengte; if (buiten && sinds >= 6000 - 1) { n.uitzet = true; sinds = 0; } });
+}
+/** de handregel van segment seg in twee stukken op t (werfnaad met insteekmof) */
+function splitsHandregel(o, seg, t) {
+  const s = o.segs[seg], proj = (p) => (p[0] - s.p0[0]) * s.d[0] + (p[1] - s.p0[1]) * s.d[1];
+  const i = o.delen.findIndex((d) => d.rol === 'handregel' && d.seg === seg && Math.min(proj(d.a), proj(d.b)) < t - 1 && Math.max(proj(d.a), proj(d.b)) > t + 1);
+  if (i < 0) return;
+  const d = o.delen[i], ta = proj(d.a), tb = proj(d.b), f = (t - ta) / (tb - ta), m = d.a.map((x, j) => x + (d.b[j] - x) * f);
+  const A = { ...d, b: m, zaag: [d.zaag[0], 0], zin: [d.zin[0], 1], vlakB: null, snijB: null, werfnaad: 'B' }, B = { ...d, a: m, zaag: [0, d.zaag[1]], zin: [1, d.zin[1]], vlakA: null, snijA: null, werfnaad: 'A' };
+  if (d.dak) { A.dak = { ...d.dak, horizontaal: Math.round(Math.abs(t - ta)) }; B.dak = { ...d.dak, horizontaal: Math.round(Math.abs(tb - t)) }; }
+  if (d.L) { A.L = d.L * f; B.L = d.L * (1 - f); }
+  o.delen.splice(i, 1, A, B);
 }
 
 /**
@@ -312,6 +454,8 @@ function muurplaat(o, e, offN) {
 const aantal = (W, d, g) => Math.max(1, g <= NORM.opening.v ? Math.ceil((W - g) / (d + g) - 1e-9) : Math.floor((W - g) / (d + g) + 1e-9));
 /** per soort opening alleen de grootste (de vulling geeft er één per veld) */
 const uniek = (lijst) => { const m = new Map(); for (const x of lijst) { const y = m.get(x.wat); if (!y || x.mm > y.mm) m.set(x.wat, x); } return [...m.values()]; };
+/** plaatdikte (mm) van de vulling: 3 binnen, 4 buiten (verzinken: vlakke plaat ≥ 4 mm trekt minder krom, P2-10) */
+export const PLAATDIKTE = (k) => (k.plaats === 'buiten' ? 4 : 3);
 const plintAan = (k, o) => k.plint !== false && o.klim && STIJL(k.soort, k.stijl).vulling === 'staven';
 
 function vulSpijlen(o, k, s, veld, hh, pa, pb, helling, cat, offN) {
@@ -330,6 +474,7 @@ function vulSpijlen(o, k, s, veld, hh, pa, pb, helling, cat, offN) {
     const dak = vl.v > 0.05;
     o.delen.push({ rol: 'spijl', prof: sp, a: add(voet, [0, 0, hh.onderregel[1]]), b: add(voet, [0, 0, z1]), zaag: [helling, dak ? r1(vl.th) : helling], zin: dak ? [1, 1] : [1, -1], seg: s.i, N: s.N, cat, ...(dak ? { snijB: snijDak(s, vl), dak: { hoek: r1(vl.th) } } : {}) });
   }
+  o.spijlSteek = Math.max(o.spijlSteek ?? 0, d + gat);
   o.openingen.push({ wat: 'tussen de spijlen', mm: r1(gat), max: NORM.opening.v, seg: s.i });
   if (boven) o.openingen.push({ wat: 'tussen de handregel en de bovenregel', mm: 70, max: NORM.opening.v });
 }
@@ -343,10 +488,10 @@ function vulStaven(o, k, s, veld, hh, pa, pb, helling, cat, offN, st) {
     const z0 = hh.onderregel[1];
     if (veld.schuin) {
       const boven = stuklijn(kn, veld.ta + 2, veld.tb - 2, top);
-      o.panelen.push(vlak(z0, boven, { rol: 'plaat', patroon: st.patroon, dikte: 3, seg: s.i, N: s.N, helling, cat }));
+      o.panelen.push(vlak(z0, boven, { rol: 'plaat', patroon: st.patroon, dikte: PLAATDIKTE(k), seg: s.i, N: s.N, helling, cat }));
     } else {
       const w = veld.wH - 4;
-      o.panelen.push({ rol: 'plaat', patroon: st.patroon, pts: [pa(z0), pb(z0), pb(top0), pa(top0)].map((p, i) => add(p, s.d, i === 0 || i === 3 ? 2 : -2)), dikte: 3, seg: s.i, N: s.N, w, h: top0 - z0, helling, cat });
+      o.panelen.push({ rol: 'plaat', patroon: st.patroon, pts: [pa(z0), pb(z0), pb(top0), pa(top0)].map((p, i) => add(p, s.d, i === 0 || i === 3 ? 2 : -2)), dikte: PLAATDIKTE(k), seg: s.i, N: s.N, w, h: top0 - z0, helling, cat });
     }
     const pat = PATROON[st.patroon];
     o.klimPatroon = pat.klim;
@@ -358,8 +503,8 @@ function vulStaven(o, k, s, veld, hh, pa, pb, helling, cat, offN, st) {
   if (plint) {
     if (veld.schuin) {
       const f = (t) => Math.min(NORM.klimZone.tot, top(t)), boven = stuklijn(kn, veld.ta + 2, veld.tb - 2, f, NORM.klimZone.tot, top);
-      o.panelen.push(vlak(50, boven, { rol: 'plint', patroon: 'vlak', dikte: 3, seg: s.i, N: s.N, helling, cat }));
-    } else o.panelen.push({ rol: 'plint', patroon: 'vlak', pts: [pa(50), pb(50), pb(NORM.klimZone.tot), pa(NORM.klimZone.tot)].map((p, i) => add(p, s.d, i === 0 || i === 3 ? 2 : -2)), dikte: 3, seg: s.i, N: s.N, w: veld.wH - 4, h: NORM.klimZone.tot - 50, helling, cat });
+      o.panelen.push(vlak(50, boven, { rol: 'plint', patroon: 'vlak', dikte: 4, seg: s.i, N: s.N, helling, cat }));
+    } else o.panelen.push({ rol: 'plint', patroon: 'vlak', pts: [pa(50), pb(50), pb(NORM.klimZone.tot), pa(NORM.klimZone.tot)].map((p, i) => add(p, s.d, i === 0 || i === 3 ? 2 : -2)), dikte: 4, seg: s.i, N: s.N, w: veld.wH - 4, h: NORM.klimZone.tot - 50, helling, cat });
     zb = NORM.klimZone.tot;
   }
   const hoogst = veld.schuin ? Math.max(...stuklijn(kn, veld.ta, veld.tb, top).map(([, z]) => z)) : top0;
@@ -435,7 +580,12 @@ function glasU(o, q) {
   }
   o.openingen.push({ wat: 'onder het glas (in het profiel)', mm: 0, max: NORM.opening.v });
   o.openingen.push({ wat: 'voeg tussen de glasplaten', mm: 8, max: NORM.opening.v });
+  if (zij) o.openingen.push({ wat: 'tussen de vloerrand en het glas (zijmontage, horizontaal)', mm: r1(off - g.dikte / 2), max: NORM.opening.v });
+  if (k.vorm === 'trap') trapOpening(o, zij ? hh.glasOnder : 0);
+  o.rand = zij ? { hart: 0, c: 60, e: 0 } : { hart: RANDAFSTAND.c, c: RANDAFSTAND.c, e: 0 };
+  o.ankerLengte = ankerLengte(o, 0);
   o.staanders = []; o.openingen = uniek(o.openingen);
+  secties(o, null);
   return o;
 }
 

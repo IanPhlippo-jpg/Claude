@@ -203,11 +203,15 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
         <div class="groep">
           <fieldset><legend>Plaats</legend><div class="keuze" id="k-plaats"></div></fieldset>
           <div class="veld"><label for="cat">Gebruik (belasting EN 1991-1-1 + ANB)</label><select id="cat"></select></div>
-          <label class="schakel" for="hoog" style="margin-top:8px"><input type="checkbox" id="hoog"> Valhoogte 12 m of meer (H ≥ 1200)</label>
+          <label class="schakel" for="hoog" style="margin-top:8px"><input type="checkbox" id="hoog"> Valhoogte 12 m of meer (H ≥ 1200, ook langs de trap)</label>
+          <div id="v-wind" style="margin-top:8px"><span class="lab">Wind buiten (EN 1991-1-4 + ANB)</span><div class="drie"><div class="veld"><label for="windVb">vb,0 (m/s, postcode)</label><select id="windVb"></select></div><div class="veld"><label for="terrein">Terrein</label><select id="terrein"></select></div><div class="veld"><label for="windHoogte">Hoogte boven maaiveld (m)</label><input id="windHoogte" type="number" step="1" inputmode="numeric"></div></div><p class="info" id="i-wind"></p></div>
+          <div id="v-trap" style="margin-top:8px"><label class="schakel" for="trapboom"><input type="checkbox" id="trapboom"> Dichte trapboom tot boven de treden</label><label class="schakel" for="trapPlint"><input type="checkbox" id="trapPlint"> Trapplint die de treden volgt (driehoek ≤ 110)</label></div>
         </div>
         <div class="groep">
           <fieldset><legend>Bevestiging</legend><div class="keuze" id="k-bevestiging"></div></fieldset>
           <fieldset><legend>Anker</legend><div class="keuze" id="k-anker"></div><p class="info" id="i-anker"></p></fieldset>
+          <div class="twee"><div class="veld"><label for="ondergrond">Draagvloer</label><select id="ondergrond"></select></div><div class="veld"><label for="opbouw">Opbouw: chape + isolatie (mm)</label><input id="opbouw" type="number" step="10" inputmode="numeric"></div></div>
+          <div class="veld" style="margin-top:8px"><label for="sectieMax">Grootste gelaste sectie (mm)</label><input id="sectieMax" type="number" step="100" inputmode="numeric"></div>
         </div>
         <div class="groep">
           <fieldset id="f-handregel"><legend>Handregel</legend><div class="keuze" id="k-handregel"></div></fieldset>
@@ -262,6 +266,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
     <div class="tegel"><span>Uren werkplaats</span><b id="t-uren"></b></div><div class="tegel"><span>Kostprijs</span><b id="t-kost"></b></div>
   </div>
   <section class="deel"><h2>Berekening <small id="b-sub"></small></h2><div class="tabelvak"><table id="berekening"></table></div></section>
+  <section class="deel"><h2>Na te kijken vóór de uitvoering <small>pas als alles afgevinkt is, is het ontwerp nagekeken</small></h2><ul class="stappen" id="nakijken"></ul></section>
   <section class="deel"><h2>Montage <small>per verbinding: draaien, uit elkaar schuiven, en het montageblad</small></h2>
     <div class="mtabs" id="mtabs" role="group" aria-label="Verbinding"></div>
     <div class="montage"><div>
@@ -278,6 +283,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
   <section class="deel"><h2>Boringen <small>ISO 15786</small></h2><div class="blad" id="w-boringen"></div></section>
   <section class="deel"><h2>Bestellijst en zaagplan <small>kooponderdelen met artikel en staven van 6 m</small></h2><div class="blad" id="w-bestel"></div></section>
   <section class="deel"><h2>Plaatsingsblad</h2><div class="blad" id="w-plaatsing"></div></section>
+  <section class="deel"><h2>Samenstelling per sectie <small>gemaat vooraanzicht met de controlematen voor de lasmal</small></h2><div id="w-secties"></div></section>
   <section class="deel"><h2>Kostprijs</h2><div class="tabelvak"><table id="prijs"></table></div></section>
   <section class="deel"><h2>Werkwijze</h2><ol class="stappen" id="stappen"></ol></section>
   <section class="deel"><h2>Zaaglijst</h2><div class="tabelvak"><table id="zaag"></table></div></section>
@@ -286,7 +292,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 
 <!-- ============ INSTELLINGEN ============ -->
 <div data-view="instellingen" hidden><div class="wrap">
-  <header class="wkop"><div><h1>Instellingen</h1><p>Uurloon, marge per soort, verzinken, coaten, plaatsen en de glasprijzen. Wijzigingen worden meteen bewaard.</p></div></header>
+  <header class="wkop"><div><h1>Instellingen</h1><p>Uurloon, marge per soort, verzinken, coaten, plaatsen, de vaste post per opdracht en de glasprijzen. Wijzigingen worden meteen bewaard.</p><p class="info" id="i-uurloon"></p></div></header>
   <div class="knoppen"><button class="knop" type="button" id="terug">Alles terug naar de standaard</button></div>
   <p class="status" id="i-status" aria-live="polite"></p>
   <div class="inst">
@@ -301,15 +307,16 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 <dialog id="stukvenster" aria-labelledby="sv-titel"><header><b id="sv-titel"></b><span class="knoppen" style="margin:0"><button class="knop" type="button" id="sv-vorige">Vorige</button><button class="knop" type="button" id="sv-volgende">Volgende</button><button class="knop" type="button" id="sv-svg">SVG</button><button class="knop vol" type="button" id="sv-sluit">Sluiten</button></span></header><div class="blad" id="sv-blad"></div></dialog>
 
 <script type="module">
-import { ontwerp, STD, VORMEN, GRENZEN } from './js/model.mjs';
+import { ontwerp, STD, VORMEN, GRENZEN, ONDERGRONDEN } from './js/model.mjs';
 import { SOORTEN, STIJL, RAL, AFWERKINGEN, GLASTINT, GLASOPBOUW, ANKER, PROFIEL } from './js/onderdelen.mjs';
 import { NORM } from './js/normen.mjs';
-import { berekening } from './js/bereken.mjs';
-import { kostprijs, CAT, MARKT, MARKTBAND, STANDAARD } from './js/prijzen.mjs';
+import { berekening, conformiteit } from './js/bereken.mjs';
+import { kostprijs, CAT, MARKT, MARKTBAND, STANDAARD, UURLOON_UITLEG } from './js/prijzen.mjs';
 import { UREN } from './js/werkwijze.mjs';
 import { vooraanzicht, alleBladen, stukBladen } from './js/tekeningen.mjs';
 import { montageBladen } from './js/montage.mjs';
-import { dossierHtml, lijstenCsv } from './js/dossier.mjs';
+import { dossierHtml, lijstenCsv, dossierBladen, btwFactor } from './js/dossier.mjs';
+const KLANT = document.documentElement.dataset.klant === '1'; // klant.html (P2-16): geen werkplaats, geen instellingen, geen kostprijs
 
 const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -337,11 +344,16 @@ $('k-bevestiging').innerHTML = radio('bevestiging', [['boven', 'Bovenop de vloer
 $('k-anker').innerHTML = radio('anker', [['chemisch', 'Chemisch anker'], ['keil', 'Keilbout']]);
 $('cat').innerHTML = opties(['A', 'B', 'C', 'D', 'E', 'C5'].map((c) => [c, `${NORM.lijnlast[c].naam} · ${g(NORM.lijnlast[c].q, 1)} kN/m`]));
 $('tussenruimte').innerHTML = opties([[100, '100 (norm ≤ 110)'], [80, '80'], [60, '60'], [120, '120 (te groot)']]);
-$('afstand').innerHTML = opties([['auto', 'Automatisch (berekend)'], [800, '800 mm'], [1000, '1000 mm'], [1200, '1200 mm'], [1500, '1500 mm']]);
+$('afstand').innerHTML = opties([['auto', 'Automatisch (berekend)'], [800, '800 mm'], [1000, '1000 mm'], [1200, '1200 mm'], [1500, '1500 mm'], [2000, '2000 mm']]);
+$('ondergrond').innerHTML = opties(Object.entries(ONDERGRONDEN));
+$('windVb').innerHTML = opties(NORM.windSnelheid.map((v) => [v, `${v} m/s${v === 26 ? ' (kust)' : ''}`]));
+$('terrein').innerHTML = opties(Object.entries(NORM.terrein).map(([t, x]) => [t, x.naam]));
+$('i-uurloon').textContent = UURLOON_UITLEG;
 $('k-ral').innerHTML = RAL.map((c) => `<label title="RAL ${esc(c.code)} ${esc(c.naam)}"><input type="radio" name="ral" value="${c.code}" id="ral-${c.code}"><span class="proef${c.metallic ? ' metallic' : ''}" style="--kleur:${c.hex}"></span><span class="c">${c.code === 'brons' ? 'Brons' : c.code}</span></label>`).join('');
 $('k-lak').innerHTML = Object.entries(AFWERKINGEN).map(([v, a]) => `<label title="${esc(a.uitleg)}"><input type="radio" name="lak" value="${v}" id="lak-${v}"><span class="proef lak-${v}"></span><span>${esc(a.naam)}</span></label>`).join('');
 $('k-glasTint').innerHTML = Object.entries(GLASTINT).map(([v, x]) => `<label title="${esc(x.naam)}"><input type="radio" name="glasTint" value="${v}" id="glasTint-${v}"><span class="proef glasproef" style="--tint:${x.tint};--dek:${x.dekking}"></span><span>${esc(x.naam)}</span></label>`).join('');
 $('k-toon').innerHTML = radio('toon', [['verkoop', 'Prijs excl. btw'], ['verkoopBtw', 'Prijs incl. btw'], ['kostprijs', 'Kostprijs']]);
+if (KLANT) { for (const id of ['nav-werk', 'nav-inst']) { $(id).hidden = true; $(id).style.display = 'none'; } }
 
 // kleine tekening (2 m recht) per soort en per stijl
 const duim = (k, w = 150, h = 70) => { const o = ontwerp({ ...k, vorm: 'recht', L1: 2000, H: 1100, cat: 'A', plaats: 'binnen', bevestiging: 'boven' }), s = Math.min((w - 8) / 2000, (h - 8) / 1250); return alsBeeld(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${vooraanzicht(o, s, (w - 2000 * s) / 2, h - 4, { maten: false })}</svg>`, w, h); };
@@ -352,8 +364,11 @@ function bouwStijlen() { const S = SOORTEN[st.soort]; $('stijlen').innerHTML = S
 const DAKV = ['dakBegin', 'dakEind'].flatMap((e) => ['Helling', 'Muur', 'Spleet'].map((n) => e + n));
 $('soorten').addEventListener('click', (e) => { const b = e.target.closest('[data-soort]'); if (!b) return; st.soort = b.dataset.soort; st.stijl = SOORTEN[st.soort].stijlen[0].id; st.handregel = 'stijl'; st.glas = 'auto'; bouwStijlen(); teken(); });
 $('stijlen').addEventListener('click', (e) => { const b = e.target.closest('[data-stijl]'); if (!b) return; st.stijl = b.dataset.stijl; st.handregel = 'stijl'; teken(); });
-for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede', ...DAKV]) $(id).addEventListener('change', () => { st[id] = +$(id).value; teken(); });
-for (const id of ['dakBegin', 'dakEind']) $(id).addEventListener('change', () => { st[id] = $(id).checked; teken(); });
+for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede', 'opbouw', 'windHoogte', 'sectieMax', ...DAKV]) $(id).addEventListener('change', () => { st[id] = +$(id).value; teken(); });
+for (const id of ['dakBegin', 'dakEind', 'trapboom', 'trapPlint']) $(id).addEventListener('change', () => { st[id] = $(id).checked; teken(); });
+for (const id of ['ondergrond', 'terrein']) $(id).addEventListener('change', () => { st[id] = $(id).value; teken(); });
+$('windVb').addEventListener('change', () => { st.windVb = +$('windVb').value; teken(); });
+$('nakijken').addEventListener('change', (e) => { const id = e.target.dataset?.nk; if (!id) return; const s = new Set(st.nagekeken ?? []); if (e.target.checked) s.add(id); else s.delete(id); st.nagekeken = [...s]; teken(); });
 for (const k of ['vorm', 'plaats', 'bevestiging', 'anker', 'handregel', 'ral', 'lak', 'glasTint']) $(`k-${k}`).addEventListener('change', (e) => { st[k] = e.target.value; if (k === 'vorm') { if (e.target.value === 'trap' && st.L2 > 3000) st.L2 = 1500; st.H = e.target.value === 'trap' && !st.L2 ? 1000 : Math.max(st.H, 1100); } teken(); });
 for (const k of ['cat', 'tussenruimte', 'afstand', 'glas']) $(k).addEventListener('change', () => { st[k] = k === 'tussenruimte' ? +$(k).value : k === 'afstand' && $(k).value !== 'auto' ? +$(k).value : $(k).value; teken(); });
 $('hoog').addEventListener('change', () => { st.valhoogte = $('hoog').checked ? 12 : 3; if ($('hoog').checked && st.H < 1200) st.H = 1200; teken(); });
@@ -366,7 +381,7 @@ let huidig = null;
 function teken() {
   const S = SOORTEN[st.soort], sty = STIJL(st.soort, st.stijl);
   document.body.dataset.soort = st.soort;
-  const o = ontwerp(st), k = o.k, B = berekening(o), kp = kostprijs(o, inst), mb = MARKTBAND[st.soort];
+  const o = ontwerp(st), k = o.k, B = berekening(o), C = conformiteit(o, B), kp = kostprijs(o, inst), mb = MARKTBAND[st.soort];
   Object.assign(st, { L1: k.L1, L2: k.L2, L3: k.L3, H: k.H, hoek: k.hoek, optrede: k.optrede, aantrede: k.aantrede, dakBegin: k.dakBegin, dakEind: k.dakEind }, Object.fromEntries(DAKV.map((x) => [x, k[x]])));
   document.querySelectorAll('[data-soort]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.soort === st.soort));
   document.querySelectorAll('[data-stijl]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.stijl === sty.id));
@@ -374,7 +389,10 @@ function teken() {
   $('b-markt').textContent = `${eur0(mb.laag)} – ${eur0(mb.hoog)}`; $('b-markt2').textContent = `zonder plaatsen; geplaatst ${eur0(mb.laagPl)} – ${eur0(mb.hoogPl)}`;
   $('nr').textContent = `${sty.id} · ${S.kort}`; $('naam').textContent = sty.naam; $('uitleg').textContent = sty.uitleg;
   // velden
-  for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede', ...DAKV]) $(id).value = k[id];
+  for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede', 'opbouw', 'windHoogte', 'sectieMax', ...DAKV]) $(id).value = k[id];
+  for (const id of ['ondergrond', 'terrein']) $(id).value = k[id]; $('windVb').value = String(k.windVb); $('trapboom').checked = !!k.trapboom; $('trapPlint').checked = !!k.trapPlint;
+  $('v-wind').hidden = k.plaats !== 'buiten'; $('v-trap').hidden = k.vorm !== 'trap';
+  $('i-wind').textContent = B.wind ? `qp = ${g(B.wind.qp, 2)} kN/m² op ${g(B.wind.z)} m; op de balustrade ${g(B.wind.f, 2)} kN/m² (${B.wind.dicht ? 'dichte wand' : 'open vulling'})` : '';
   // onder een schuin dak: per uiteinde de lengte van het schuine stuk en of het past
   for (const [id, kant] of [['dakBegin', 'begin'], ['dakEind', 'eind']]) {
     const kan = k.vorm !== 'trap' || (kant === 'eind' && k.L2 > 0);
@@ -398,18 +416,18 @@ function teken() {
   $('g-kleur').hidden = k.soort === 'glasU' || sty.staander === 'inox';
   const kleur = RAL.find((c) => c.code === k.ral) ?? RAL[0]; $('k-lak').style.setProperty('--kleur', kleur.hex);
   $('g-ral').innerHTML = `<i style="--kleur:${kleur.hex}"></i><span><b>${kleur.code === 'brons' ? 'Brons' : `RAL ${kleur.code}`}</b> ${esc(kleur.naam)}${k.plaats === 'buiten' ? ' · eerst thermisch verzinkt' : ''}</span>`;
-  $('i-anker').textContent = `${ANKER[o.ankerType].naam}${k.plaats === 'buiten' ? ' in RVS A4' : ''}${o.staander ? `, ${o.staander.voet.gaten.length} per staander` : `, om de ${o.ankerAfstand} mm`}.`;
+  $('i-anker').textContent = `${ANKER[o.ankerType].naam}${o.ankerLengte ? ` (stang ${o.ankerLengte} mm)` : ''}${k.plaats === 'buiten' ? ' in RVS A4' : ''}${o.staander ? `, ${o.staander.voet.gaten.length} per staander, voorste ankers ${Math.round(o.rand.c)} mm van de rand` : `, om de ${o.ankerAfstand} mm`}.`;
   $('melding').hidden = !o.meldingen.length; $('melding').textContent = o.meldingen.join(' ');
   // veiligheid (kort, zonder werkplaatsschema's)
   const fout = B.controles.filter((c) => c.oordeel === 'rood'), let_ = B.controles.filter((c) => c.oordeel === 'oranje');
   $('veilig').className = `veilig ${B.oordeel}`;
-  $('veilig').innerHTML = `<b><span class="stip ${B.oordeel}"></span>${B.oordeel === 'groen' ? 'Voldoet aan NBN B 03-004 en de berekening' : B.oordeel === 'oranje' ? 'Voldoet, met punten om na te kijken' : 'Voldoet niet'}</b><ul>${[`Hoogte ${k.H} mm (≥ ${o.vereist})`, `Openingen ${o.openingen.filter((x) => !x.klim).map((x) => g(x.mm)).join(', ')} mm (≤ 110)`, ...fout.map((c) => `${c.wat}${c.uitleg ? `: ${c.uitleg}` : ''}`), ...let_.slice(0, 2).map((c) => `Na te kijken: ${c.wat}`)].slice(0, 5).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  $('veilig').innerHTML = `<b><span class="stip ${B.oordeel}"></span>${B.oordeel === 'rood' ? 'Voldoet niet' : esc(C.kort)}</b><ul>${[`Hoogte ${k.H} mm (≥ ${o.vereist})`, `Openingen ${o.openingen.filter((x) => !x.klim).map((x) => g(x.mm)).join(', ')} mm (≤ 110)`, ...fout.map((c) => `${c.wat}${c.uitleg ? `: ${c.uitleg}` : ''}`), ...let_.slice(0, 2).map((c) => `Na te kijken: ${c.wat}`), `Niet inbegrepen: ${C.open.map((x) => x.wat.split(':')[0].split('(')[0].trim().toLowerCase()).join('; ')}`].slice(0, 6).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
   // prijs per meter met toeslagen en marktmeter
-  const btw = inst.toon === 'verkoopBtw' ? 1.21 : 1, kost = inst.toon === 'kostprijs';
+  const btw = inst.toon === 'verkoopBtw' ? btwFactor(inst) : 1, kost = inst.toon === 'kostprijs' && !KLANT;
   const perM = kost ? kp.kostprijs / kp.meter : kp.perMeter * btw;
-  $('p-label').textContent = kost ? 'Kostprijs per meter' : `Prijs per strekkende meter ${btw > 1 ? 'incl.' : 'excl.'} btw`;
+  $('p-label').textContent = kost ? 'Kostprijs per meter' : `Prijs per strekkende meter ${btw > 1 ? `incl. ${Math.round((btw - 1) * 100)} %` : 'excl.'} btw`;
   $('p-bedrag').textContent = `${eur0(perM)}/m`;
-  $('p-sub').textContent = `${g(kp.meter, 2)} m: ${eur0((kost ? kp.kostprijs : kp.verkoop) * (kost ? 1 : btw))} ${kp.plaatsen.inbegrepen ? 'geplaatst' : 'zonder plaatsen'}${btw > 1 || kost ? '' : ` · incl. 21 % btw ${eur0(kp.verkoop * 1.21)}`}`;
+  $('p-sub').textContent = `${g(kp.meter, 2)} m: ${eur0((kost ? kp.kostprijs : kp.verkoop) * (kost ? 1 : btw))} ${kp.plaatsen.inbegrepen ? 'geplaatst' : 'zonder plaatsen'}${btw > 1 || kost ? '' : ` · incl. ${Math.round((btwFactor(inst) - 1) * 100)} % btw ${eur0(kp.verkoop * btwFactor(inst))}`}`;
   const zonder = kp.perMeterZonder, top = Math.max(mb.hoog * 1.5, zonder * 1.08), pct = (v) => `${Math.min(100, (v / top) * 100)}%`;
   $('m-band').style.left = pct(mb.laag); $('m-band').style.width = `calc(${pct(mb.hoog)} - ${pct(mb.laag)})`; $('m-pin').style.left = pct(zonder); $('m-max').textContent = `${eur0(top)}/m`;
   const binnen = zonder <= mb.hoog;
@@ -442,19 +460,22 @@ function tekenWerk() {
   $('t-lengte').textContent = `${g(o.lengte / 1000, 2)} m`; $('t-staanders').textContent = o.staander ? `${o.staanders.length} x ${Math.round(o.afstand)}` : '-';
   $('t-kg').textContent = `${g(kp.gewicht)} kg`; $('t-glas').textContent = kp.glas ? `${g(kp.glas, 2)} m²` : '-';
   $('t-uren').textContent = `${g(kp.uren - (kp.plaatsen.inbegrepen ? kp.plaatsen.uren : 0), 1)} u`; $('t-kost').textContent = eur0(kp.kostprijs);
-  $('b-sub').textContent = `oordeel ${B.oordeel}: groen ≤ 90 % benut, oranje 90-100 % of een aanname, rood > 100 %`;
+  const C = conformiteit(o, B);
+  $('b-sub').textContent = `${C.label}: groen ≤ 90 % benut, oranje 90-100 % of een aanname, rood > 100 %`;
+  $('nakijken').innerHTML = C.niet.map((x) => `<li><label class="schakel"><input type="checkbox" data-nk="${esc(x.id)}"${(k.nagekeken ?? []).includes(x.id) ? ' checked' : ''}> ${esc(x.wat)}</label></li>`).join('');
   $('berekening').innerHTML = `<thead><tr><th></th><th>Controle</th><th>Berekening</th><th>Benut</th><th>Bron</th></tr></thead><tbody>${B.controles.map((c) => `<tr><td><span class="stip ${c.oordeel}" title="${c.oordeel}"></span></td><td><b>${esc(c.groep)}</b><br>${esc(c.wat)}${c.uitleg ? `<br><small>${esc(c.uitleg)}</small>` : ''}</td><td class="form">${esc(c.formule)}</td><td class="n">${c.oordeel === 'info' ? '' : `${Math.round(c.benut * 100)} %`}</td><td class="bron">${esc(c.bron)}</td></tr>`).join('')}</tbody>`;
-  const bl = alleBladen(o, meta);
+  const D = dossierBladen(o, meta), bl = D.bladen;
   for (const [id, el] of [['overzicht', 'w-overzicht'], ['stuklijst', 'w-stuklijst'], ['lassen', 'w-lassen'], ['boringen', 'w-boringen'], ['bestel', 'w-bestel'], ['plaatsing', 'w-plaatsing']]) { const b = bl.find((x) => x.id === id); $(el).innerHTML = b ? beeld(b.svg, b.titel) : '<p class="status" style="padding:12px">Niet gelast: het U-profiel en het glas worden geklemd en geschroefd.</p>'; }
-  huidig.stukken = stukBladen(o, meta); huidig.bladen = bl;
+  $('w-secties').innerHTML = bl.filter((x) => x.id.startsWith('sectie')).map((b) => `<div class="blad" style="margin-bottom:12px">${beeld(b.svg, b.titel)}</div>`).join('') || '<p class="status" style="padding:12px">Geen gelaste secties (U-profiel).</p>';
+  huidig.stukken = D.stukken; huidig.bladen = bl; huidig.montageGen = D.montage;
   $('stukknoppen').innerHTML = huidig.stukken.map((x) => `<button type="button" class="stukknop" data-pos="${x.pos}"><span class="nr">${x.pos}</span><span>${esc(x.p.naam)}<small>${x.p.n} st · ${esc(x.p.maat)}${x.p.L ? ` · ${x.p.L} mm · ${esc(x.p.zaagT)}` : ''}</small></span></button>`).join('');
   const bron = (b) => (/^https?:/.test(b) ? `<a href="${esc(b)}" target="_blank" rel="noopener">${esc(b.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a>` : esc(b));
-  $('prijs').innerHTML = `<thead><tr><th>Wat</th><th>Deel</th><th>Bedrag</th><th>Bron</th></tr></thead><tbody>${kp.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td>${esc(CAT[r.cat])}</td><td class="n">${eur(r.bedrag)}</td><td class="bron">${bron(r.bron)}</td></tr>`).join('')}<tr><td><b>Materiaal</b></td><td></td><td class="n">${eur(kp.materiaal)}</td><td></td></tr><tr><td><b>Arbeid</b> ${g(kp.uren, 2)} u x ${eur(inst.uurloon)}</td><td></td><td class="n">${eur(kp.arbeid)}</td><td class="bron">uren uit de werkwijze (instellingen)</td></tr><tr><td><b>Kostprijs</b></td><td></td><td class="n"><b>${eur(kp.kostprijs)}</b></td><td></td></tr><tr><td>Verkoop met ${kp.marge} % marge</td><td></td><td class="n"><b>${eur(kp.verkoop)}</b></td><td class="bron">${eur(kp.perMeter)}/m · incl. btw ${eur(kp.verkoop * 1.21)}</td></tr>${kp.plaatsen.inbegrepen ? '' : `<tr class="apart"><td>Plaatsen, apart (${g(kp.plaatsen.uren, 1)} u)</td><td></td><td class="n">+ ${eur(kp.plaatsen.verkoop)}</td><td class="bron">als de klant het vraagt</td></tr>`}</tbody>`;
+  $('prijs').innerHTML = `<thead><tr><th>Wat</th><th>Deel</th><th>Bedrag</th><th>Bron</th></tr></thead><tbody>${kp.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td>${esc(CAT[r.cat])}</td><td class="n">${eur(r.bedrag)}</td><td class="bron">${bron(r.bron)}</td></tr>`).join('')}<tr><td><b>Materiaal</b></td><td></td><td class="n">${eur(kp.materiaal)}</td><td></td></tr><tr><td><b>Arbeid</b> ${g(kp.uren, 2)} u x ${eur(inst.uurloon)}</td><td></td><td class="n">${eur(kp.arbeid)}</td><td class="bron">uren uit de werkwijze (instellingen)</td></tr><tr><td><b>Kostprijs</b></td><td></td><td class="n"><b>${eur(kp.kostprijs)}</b></td><td></td></tr><tr><td>Verkoop met ${kp.marge} % marge</td><td></td><td class="n"><b>${eur(kp.verkoop)}</b></td><td class="bron">${eur(kp.perMeter)}/m · incl. ${Math.round((btwFactor(inst) - 1) * 100)} % btw ${eur(kp.verkoop * btwFactor(inst))}</td></tr>${kp.plaatsen.inbegrepen ? '' : `<tr class="apart"><td>Plaatsen, apart (${g(kp.plaatsen.uren, 1)} u)</td><td></td><td class="n">+ ${eur(kp.plaatsen.verkoop)}</td><td class="bron">als de klant het vraagt</td></tr>`}</tbody>`;
   $('stappen').innerHTML = kp.stappen.map((x) => `<li${x.apart ? ' class="apart"' : ''}><b>${esc(x.titel)}</b> <span class="uur">${g(x.uren, 2)} u${x.proces ? ` · ${esc(x.proces)}` : ''}${x.apart ? ' · apart' : ''}</span><br>${esc(x.tekst)}</li>`).join('');
   $('zaag').innerHTML = `<thead><tr><th>Pos</th><th>Wat</th><th>Profiel</th><th>Lengte</th><th>Zaagsnede</th><th>n</th></tr></thead><tbody>${kp.stuklijst.posities.filter((p) => p.L).map((p) => `<tr><td class="n">${p.pos}</td><td>${esc(p.naam)}</td><td>${esc(p.maat)}</td><td class="n">${p.L}</td><td>${esc(p.zaagT)}</td><td class="n">${p.n}</td></tr>`).join('')}</tbody>`;
   $('markt-sub').textContent = MARKTBAND[k.soort].tekst;
   $('markt').innerHTML = `<thead><tr><th>Verkoopprijs elders</th><th>€/m excl. btw</th><th>Plaatsen</th><th>Bron</th></tr></thead><tbody>${MARKT.filter((m) => m.soort === k.soort).map((m) => `<tr><td>${esc(m.wat)}</td><td class="n">${eur0(m.prijs)}${m.prijsHoog ? ` – ${eur0(m.prijsHoog)}` : ''}</td><td>${m.montage ? 'inbegrepen' : 'niet inbegrepen'}</td><td class="bron">${bron(m.bron)}</td></tr>`).join('')}<tr><td><b>Deze balustrade</b></td><td class="n"><b>${eur0(kp.perMeterZonder)}</b></td><td>niet inbegrepen (+ ${eur0(kp.plaatsen.perMeter)}/m)</td><td class="bron">marge ${kp.marge} %</td></tr></tbody>`;
-  mb = montageBladen(o, meta); huidig.montage = mb;
+  mb = huidig.montageGen ?? montageBladen(o, meta); huidig.montage = mb;
   if (!mb.some((x) => x.id === montageId)) montageId = mb[0].id;
   $('mtabs').innerHTML = mb.map((x, i) => `<button type="button" data-m="${x.id}" aria-pressed="${x.id === montageId}">${i + 1}. ${esc(x.titel)}<small>${esc(x.sub)}</small></button>`).join('');
   toonMontage(); werkVuil = false;
@@ -490,8 +511,8 @@ $('herstel').addEventListener('click', () => v3d?.herstel());
 $('foto').addEventListener('click', async () => { await klaar; if (!dl || !v3d) return; const url = v3d.beeld(), bin = atob(url.split(',')[1]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); try { await dl.save({ filename: `balustrade-${st.soort}-${st.stijl}.jpg`, data: new Blob([u], { type: 'image/jpeg' }) }); } catch {} });
 
 // ---------- instellingen
-const TARIEF = [['uurloon', 'Uurloon', '€/u', () => inst.uurloon, (v) => { inst.uurloon = v; }], ...Object.keys(SOORTEN).map((s) => [`marge.${s}`, `Marge ${SOORTEN[s].kort.toLowerCase()}`, '%', () => inst.marge[s], (v) => { inst.marge[s] = v; }]), ['staal', 'Staalprijs', '€/kg', () => inst.staal, (v) => { inst.staal = v; }], ['verzinken', 'Thermisch verzinken', '€/kg', () => inst.verzinken, (v) => { inst.verzinken = v; }], ['coat', 'Poedercoaten', '€/m² staal', () => inst.coat, (v) => { inst.coat = v; }], ['plaatsenPerM', 'Plaatsen', 'uur per meter', () => inst.plaatsenPerM, (v) => { inst.plaatsenPerM = v; }], ['vormglas', 'Vormglas (schuine kant)', '% op de rechthoek', () => inst.vormglas, (v) => { inst.vormglas = v; }]];
-const UUR_LABEL = { voorbereiden: ['Voorbereiden', 'per opdracht'], zaagPerStuk: ['Zagen', 'per stuk'], voetplaat: ['Staander op voetplaat', 'per staander'], console: ['Staander met console', 'per staander'], regel: ['Regel lassen', 'per regel'], spijl: ['Spijl lassen', 'per spijl'], staaf: ['Horizontale staaf', 'per staaf'], plaat: ['Plaat of plint', 'per plaat'], handregelPerM: ['Handregel lassen', 'per meter'], verstek: ['Verstek (hoek, knik)', 'per verstek'], trapMal: ['Trap uitzetten', 'per trap'], trapFactor: ['Trap: extra op schuine stukken', 'deel'], klemgat: ['Gat + klinkmoer', 'per klem'], uprofiel: ['U-profiel op maat', 'per stuk'], coatKlaar: ['Naar de coater', 'per opdracht'], plaatsenPerM: ['(zie Tarief)', ''], glasPerPlaat: ['Glas plaatsen', 'per plaat'], zijFactor: ['Zijmontage: extra op plaatsen', 'deel'], dakKnik: ['Onder het dak: knik en mal', 'per afschuining'], dakStuk: ['Onder het dak: schuin stuk', 'per stuk'], muurplaat: ['Muurplaat passen en lassen', 'per plaat'], dakPlaatsen: ['Onder het dak: meten en stellen', 'per afschuining'] };
+const TARIEF = [['uurloon', 'Uurloon', '€/u', () => inst.uurloon, (v) => { inst.uurloon = v; }], ...Object.keys(SOORTEN).map((s) => [`marge.${s}`, `Marge ${SOORTEN[s].kort.toLowerCase()}`, '%', () => inst.marge[s], (v) => { inst.marge[s] = v; }]), ['staal', 'Staalprijs', '€/kg', () => inst.staal, (v) => { inst.staal = v; }], ['verzinken', 'Thermisch verzinken', '€/kg', () => inst.verzinken, (v) => { inst.verzinken = v; }], ['coat', 'Poedercoaten hekwerk', '€/m² aanzicht', () => inst.coat, (v) => { inst.coat = v; }], ['coatLfm', 'Poedercoaten staanders en handregel (glas)', '€/lopende m', () => inst.coatLfm, (v) => { inst.coatLfm = v; }], ['km', 'Rit (enkele afstand x 2)', 'km per rit', () => inst.km, (v) => { inst.km = v; }], ['kmPrijs', 'Bestelwagen', '€/km', () => inst.kmPrijs, (v) => { inst.kmPrijs = v; }], ['heatsoak', 'Heat-soak-test glas', '€/m²', () => inst.heatsoak, (v) => { inst.heatsoak = v; }], ['risicoGlas', 'Risico glasbreuk', '% van het glas', () => inst.risicoGlas, (v) => { inst.risicoGlas = v; }], ['btw', 'Btw (21 of 6)', '%', () => inst.btw, (v) => { inst.btw = v === 6 ? 6 : 21; }], ['plaatsenPerM', 'Plaatsen', 'uur per meter', () => inst.plaatsenPerM, (v) => { inst.plaatsenPerM = v; }], ['vormglas', 'Vormglas (schuine kant)', '% op de rechthoek', () => inst.vormglas, (v) => { inst.vormglas = v; }]];
+const UUR_LABEL = { voorbereiden: ['Voorbereiden', 'per opdracht'], zaagPerStuk: ['Zagen', 'per stuk'], voetplaat: ['Staander op voetplaat', 'per staander'], console: ['Staander met console', 'per staander'], regel: ['Regel lassen', 'per regel'], spijl: ['Spijl lassen', 'per spijl'], staaf: ['Horizontale staaf', 'per staaf'], plaat: ['Plaat of plint', 'per plaat'], handregelPerM: ['Handregel lassen', 'per meter'], verstek: ['Verstek (hoek, knik)', 'per verstek'], trapMal: ['Trap uitzetten', 'per trap'], trapFactor: ['Trap: extra op schuine stukken', 'deel'], klemgat: ['Gat + klinkmoer', 'per klem'], uprofiel: ['U-profiel op maat', 'per stuk'], coatKlaar: ['Naar de coater', 'per opdracht'], plaatsenPerM: ['(zie Tarief)', ''], glasPerPlaat: ['Glas plaatsen', 'per plaat'], zijFactor: ['Zijmontage: extra op plaatsen', 'deel'], dakKnik: ['Onder het dak: knik en mal', 'per afschuining'], dakStuk: ['Onder het dak: schuin stuk', 'per stuk'], muurplaat: ['Muurplaat passen en lassen', 'per plaat'], dakPlaatsen: ['Onder het dak: meten en stellen', 'per afschuining'], opmeten: ['Opmeten bij de klant', 'per opdracht'], tekenen: ['Offerte en tekening', 'per opdracht'], ritten: ['Ritten (coater, werf)', 'aantal'], ritUren: ['Rit, laden en lossen', 'per rit'], opruimen: ['Opruimen', 'per opdracht'], glasPersonen: ['Glas plaatsen', 'personen'], ontluchtGat: ['Ontluchtingsgat boren', 'per gat'], werfnaad: ['Werfnaad (lip, insteekmof)', 'per naad'], plaatsenPersonen: ['Plaatsen per meter', 'personen'] };
 $('i-tarief').innerHTML = `<tbody>${TARIEF.map(([k, n, e]) => `<tr><td>${esc(n)}</td><td class="uitl">${esc(e)}</td><td class="n"><input type="number" step="0.01" min="0" data-t="${k}" id="t-${k.replace('.', '-')}"></td></tr>`).join('')}</tbody>`;
 $('i-uren').innerHTML = `<thead><tr><th>Handeling</th><th>Per</th><th>Uur</th></tr></thead><tbody>${Object.keys(UREN).filter((k) => k !== 'plaatsenPerM').map((k) => `<tr><td>${esc(UUR_LABEL[k]?.[0] ?? k)}</td><td class="uitl">${esc(UUR_LABEL[k]?.[1] ?? '')}</td><td class="n"><input type="number" step="0.01" min="0" data-u="${k}" id="u-${k}"></td></tr>`).join('')}</tbody>`;
 $('i-glas').innerHTML = `<thead><tr><th>Glas</th><th>Webshop</th><th>Jouw prijs</th></tr></thead><tbody>${Object.entries(GLASOPBOUW).map(([k, x]) => `<tr><td>${esc(x.naam)}<br><small class="uitl">${esc(x.bron)}</small></td><td class="n">${eur(x.webshop)}</td><td class="n"><input type="number" step="0.01" min="0" data-g="${k}" id="g-${k.replace('.', '-')}"></td></tr>`).join('')}</tbody>`;
@@ -519,7 +540,7 @@ const laad = (d) => { if (!d) return; inst = { ...JSON.parse(JSON.stringify(STD_
 
 // ---------- pagina's: #balustrade, #werkplaats, #instellingen
 function toonPagina() {
-  const h = location.hash.slice(1); pagina = h === 'werkplaats' || h === 'instellingen' ? h : 'balustrade';
+  const h = location.hash.slice(1); pagina = !KLANT && (h === 'werkplaats' || h === 'instellingen') ? h : 'balustrade';
   document.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== pagina; });
   for (const [id, p] of [['nav-bal', 'balustrade'], ['nav-werk', 'werkplaats'], ['nav-inst', 'instellingen']]) { if (p === pagina) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current'); }
   if (pagina === 'werkplaats' && werkVuil) tekenWerk();

@@ -7,7 +7,8 @@ import { tekenScène } from '../taatsdeuren/montage.mjs';
 import { KLEUR } from '../taatsdeuren/verbinding.mjs';
 import { PROFIEL, ANKER, GLASOPBOUW, KOOP } from './onderdelen.mjs';
 import { hoogtes } from './model.mjs';
-import { esc, eersteHoek, naamVan, maatTekst } from './blad.mjs';
+import { esc, eersteHoek, naamVan, maatTekst, bladNr, vandaag } from './blad.mjs';
+import { keelDun } from './bereken.mjs';
 
 // ---------------------------------------------------------------- prisma's (zoals taatsdeuren/verbinding.mjs)
 const P = (as, pts, a0, a1, pts1 = null) => ({ as, pts, a0, a1, pts1 });
@@ -83,9 +84,9 @@ export function montage(o) {
       delen: [
         { naam: 'Vloerrand (beton)', kleur: BETON, solids: [doos(-160, 160, -300, 0, -320, 0)], geenNr: true },
         { naam: `Console ${vp.b} x 230 x ${vp.t}`, nr: 2, label: `lasergesneden, ${vp.gaten.length} x Ø${A.plaatgat}`, kleur: KLEUR.plaat, uit: [0, 0, 70], solids: [doos(-vp.b / 2, vp.b / 2, -250, -20, 0, vp.t)] },
-        { naam: 'Afstandhouders koker 40x40x3', nr: 3, label: '30 lang, haaks', kleur: STAAL, uit: [0, 0, 130], solids: [doos(-20, 20, -110, -70, vp.t, vp.t + 30), doos(-20, 20, -180, -140, vp.t, vp.t + 30)] },
+        { naam: 'Afstandhouders koker 40x40x3', nr: 3, label: '30 lang, haaks', kleur: STAAL, uit: [0, 0, 130], solids: [doos(-20, 20, -60, -20, vp.t, vp.t + 30), doos(-20, 20, -230, -190, vp.t, vp.t + 30)] },
         { naam: `Staander ${Pf.naam}`, nr: 1, label: 'loopt 250 mm onder de vloerpas door', kleur: postKleur, uit: [0, 0, 210], solids: staanderSolids(Pf, 0, vp.t + 30 + Pf.h / 2, -250, 220) },
-        { naam: 'Lasnaad', label: 'hoeklas a3 rondom', kleur: KLEUR.las, alleenSamen: true, solids: [doos(-23, 23, -113, -110, vp.t, vp.t + 30), doos(-23, 23, -183, -180, vp.t, vp.t + 30)] },
+        { naam: 'Lasnaad', label: 'hoeklas a3 rondom', kleur: KLEUR.las, alleenSamen: true, solids: [doos(-23, 23, -63, -60, vp.t, vp.t + 30), doos(-23, 23, -233, -230, vp.t, vp.t + 30)] },
         ...ankerDelen(A, vp.gaten.map(([x, y]) => [x, y, vp.t]), 'z', 4, buiten, [0, 0, 300]),
       ],
       gaten: [{ p: [vp.gaten[0][0], vp.gaten[0][1], vp.t], volg: `Console ${vp.b} x 230 x ${vp.t}`, tekst: `${vp.gaten.length} x Ø${A.plaatgat} in de console; Ø${A.gat} x ${A.diep} in de vloerrand` }],
@@ -100,11 +101,11 @@ export function montage(o) {
       delen: [
         { naam: `Staander ${Pf.naam}`, nr: 1, kleur: STAAL, solids: staanderSolids(Pf, -Pf.b / 2, 0, 0, 380) },
         { naam: 'Onderregel koker 40x20x2', nr: 2, label: 'tussen de staanders, haaks', kleur: STAAL, uit: [60, -60, 0], solids: [doos(0, 360, 60, 80, -20, -18), doos(0, 360, 60, 80, 18, 20), doos(0, 360, 60, 62, -18, 18), doos(0, 360, 78, 80, -18, 18)] },
-        { naam: `Spijlen ${S.naam}`, nr: 3, label: `tussenruimte ${Math.round(gap)} mm (≤ 110)`, kleur: STAAL, uit: [60, 120, 0], solids: [0, 1, 2].map((i) => S.vorm === 'rond' ? cil('y', gap + S.b / 2 + i * (gap + S.b), 0, S.b / 2, 80, 380, 12) : doos(gap + i * (gap + S.b), gap + S.b + i * (gap + S.b), 80, 380, -S.h / 2, S.h / 2)) },
-        { naam: 'Lasnaad', label: 'hoeklas a3 rondom', kleur: KLEUR.las, alleenSamen: true, solids: [0, 1, 2].map((i) => doos(gap - 2 + i * (gap + S.b), gap + S.b + 2 + i * (gap + S.b), 80, 83, -S.h / 2 - 2, S.h / 2 + 2)) },
+        { naam: `Spijlen ${S.naam}`, nr: 3, label: `tussenruimte ${String(Math.round(gap * 10) / 10).replace('.', ',')} mm (≤ 110)`, kleur: STAAL, uit: [60, 120, 0], solids: [0, 1, 2].map((i) => S.vorm === 'rond' ? cil('y', gap + S.b / 2 + i * (gap + S.b), 0, S.b / 2, 80, 380, 12) : doos(gap + i * (gap + S.b), gap + S.b + i * (gap + S.b), 80, 380, -S.h / 2, S.h / 2)) },
+        { naam: 'Lasnaad', label: `hoeklas a${keelDun(2)} rondom`, kleur: KLEUR.las, alleenSamen: true, solids: [0, 1, 2].map((i) => doos(gap - 2 + i * (gap + S.b), gap + S.b + 2 + i * (gap + S.b), 80, 83, -S.h / 2 - 2, S.h / 2 + 2)) },
       ],
-      middelen: [['Hoeklas spijl op regel', 'a3 rondom', 'ISO 2553'], ['Hoeklas regel tegen staander', 'a3 rondom', 'ISO 2553'], ['Latje als mal', `${Math.round(gap)} mm`, '']],
-      stappen: ['Leg de staanders op de lastafel, regels ertussen haaks hechten.', `Zet de spijlen met een latje van ${Math.round(gap)} mm als mal, hecht onder en boven.`, 'Las rondom, beurtelings links en rechts zodat het veld vlak blijft; slijp de lassen vlak.'], kijk: { yaw: -28, pitch: 20 } });
+      middelen: [['Hoeklas spijl op regel', `a${keelDun(2)} rondom (wand 2 mm)`, 'ISO 2553'], ['Hoeklas regel tegen staander', `a${keelDun(2)} rondom`, 'ISO 2553'], ['Latje als mal', `${Math.floor(gap)} mm (opening ${String(Math.round(gap * 10) / 10).replace('.', ',')})`, '']],
+      stappen: ['Leg de staanders op de lastafel, regels ertussen haaks hechten.', `Zet de spijlen met een latje van ${Math.floor(gap)} mm als mal (opening ${String(Math.round(gap * 10) / 10).replace('.', ',')} mm), hecht onder en boven.`, 'Las rondom, beurtelings links en rechts zodat het veld vlak blijft; slijp de lassen vlak.'], kijk: { yaw: -28, pitch: 20 } });
   } else if (k.soort === 'staven') {
     const pl = o.st.vulling === 'plaat';
     const S = pl ? null : PROFIEL[o.st.staaf];
@@ -112,9 +113,9 @@ export function montage(o) {
       delen: [
         { naam: `Staander ${Pf.naam}`, nr: 1, kleur: STAAL, solids: staanderSolids(Pf, -Pf.b / 2, 0, 0, 600) },
         ...(pl ? [{ naam: 'Plaat 3 mm (lasergesneden)', nr: 2, label: 'in het midden van de staander', kleur: '#8f969e', uit: [80, 0, 80], solids: [doos(2, 360, 80, 600, -1.5, 1.5)] }, { naam: 'Lasnaad', label: 'a3 30(150) aan beide kanten', kleur: KLEUR.las, alleenSamen: true, solids: [doos(0, 3, 150, 180, -4, 4), doos(0, 3, 330, 360, -4, 4), doos(0, 3, 510, 540, -4, 4)] }]
-          : [{ naam: 'Plint 3 mm', nr: 2, label: 'dicht van 50 tot 450 mm: niet beklimbaar', kleur: '#8f969e', uit: [80, 0, 80], solids: [doos(2, 360, 50, 450, -1.5, 1.5)] }, { naam: `Staven ${S.naam}`, nr: 3, label: 'tussenruimte ≤ 110 mm', kleur: STAAL, uit: [80, 60, 0], solids: [0, 1].map((i) => S.vorm === 'rond' ? cil('x', 470 + i * 120, 0, S.b / 2, 0, 360, 12) : doos(0, 360, 470 + i * 120, 470 + i * 120 + S.b, -S.h / 2, S.h / 2)) }, { naam: 'Lasnaad', label: 'a3 rondom', kleur: KLEUR.las, alleenSamen: true, solids: [0, 1].map((i) => doos(0, 3, 466 + i * 120, 470 + i * 120 + S.b + 4, -S.h / 2 - 2, S.h / 2 + 2)) }]),
+          : [{ naam: 'Plint 4 mm', nr: 2, label: 'dicht van 50 tot 450 mm: niet beklimbaar', kleur: '#8f969e', uit: [80, 0, 80], solids: [doos(2, 360, 50, 450, -1.5, 1.5)] }, { naam: `Staven ${S.naam}`, nr: 3, label: 'tussenruimte ≤ 110 mm', kleur: STAAL, uit: [80, 60, 0], solids: [0, 1].map((i) => S.vorm === 'rond' ? cil('x', 470 + i * 120, 0, S.b / 2, 0, 360, 12) : doos(0, 360, 470 + i * 120, 470 + i * 120 + S.b, -S.h / 2, S.h / 2)) }, { naam: 'Lasnaad', label: 'a3 rondom', kleur: KLEUR.las, alleenSamen: true, solids: [0, 1].map((i) => doos(0, 3, 466 + i * 120, 470 + i * 120 + S.b + 4, -S.h / 2 - 2, S.h / 2 + 2)) }]),
       ],
-      middelen: pl ? [['Onderbroken hoeklas', 'a3 30(150)', 'ISO 2553']] : [['Hoeklas staaf tegen staander', 'a3 rondom', 'ISO 2553'], ['Plint', 'onderbroken a3 30(150)', 'ISO 2553']],
+      middelen: pl ? [[k.plaats === 'buiten' ? 'Hoeklas rondom (buiten, verzinken)' : 'Onderbroken hoeklas', k.plaats === 'buiten' ? `a${keelDun(4)} doorgelast` : `a${keelDun(3)} 30(150)`, 'ISO 2553']] : [['Hoeklas staaf tegen staander', `a${keelDun(3)} rondom`, 'ISO 2553'], ['Plint 4 mm', k.plaats === 'buiten' ? `a${keelDun(4)} rondom doorgelast` : `onderbroken a${keelDun(4)} 30(150)`, 'ISO 2553']],
       stappen: pl ? ['Plaat in het midden van de staanders op afstandsblokjes.', 'Hecht om de 150 mm aan beide kanten, beurtelings.', 'Onderbroken lassen 30 mm; niet doorlassen zodat de plaat niet trekt.'] : ['Plint tussen de staanders, onderbroken gelast.', 'Staven met afstandsblokjes als mal (≤ 110 mm), hechten en rondom lassen.', 'Lassen vlak slijpen.'],
       let: pl ? '' : 'Horizontale staven zijn beklimbaar: de plint tot 450 mm is verplicht in een woning (NBN B 03-004).', kijk: { yaw: -28, pitch: 18 } });
   } else {
@@ -128,20 +129,20 @@ export function montage(o) {
         { naam: `Glas ${G.naam}`, nr: 5, label: '12 mm van de staander, op rubbertjes', kleur: GLAS, alpha: 0.55, uit: [300, 0, 0], solids: [doos(12, 380, 20, 260, -t / 2, t / 2)] },
       ],
       gaten: inox ? [] : [{ p: [0, 130, 0], volg: `Staander ${Pf.naam}`, tekst: 'Ø11 doorgaand in één wand, blindklinkmoer M8' }],
-      middelen: [['Glasklem Q-railing MOD 2100', '4 per glasplaat', 'Q-railing'], inox ? ['Bevestiging op de buis', 'volgens Q-railing', ''] : ['Blindklinkmoer M8 RVS', '1 per klem', 'ISO 15983'], ['Bolkopschroef M8x16 RVS', '1 per klem', 'ISO 7380']],
+      middelen: [['Glasklem Q-railing MOD 2500 met borgpen MOD 5015', '4 per glasplaat', 'Q-railing'], inox ? ['Bevestiging op de buis', 'volgens Q-railing', ''] : ['Blindklinkmoer M8 RVS', '1 per klem', 'ISO 15983'], ['Bolkopschroef M8x16 RVS', '1 per klem', 'ISO 7380']],
       stappen: ['Boor Ø11 in de staander, 120 mm van boven en onder het glas (stuktekening), zet de blindklinkmoer.', 'Na het coaten: klemmen losjes vastschroeven.', 'Glas erin met de rubbers, uitlijnen (voeg gelijk), klemmen aandraaien.'], let: 'Geen staal tegen glas: altijd de rubbers van de klem.', kijk: { yaw: -40, pitch: 18 } });
   }
   // ---- handregel (op de staander, verstek op de hoek als er een is)
   const hoek = o.hoeken > 0 || o.knikken > 0, rond = k.hr === 'rond', inoxHr = rond && k.soort === 'glasstaal';
-  const top = 300, hrY = rond ? top + (inoxHr ? 50 : 0) + 21.2 : top + 4;
-  const hrA = rond ? P('x', cirkel(hrY, 0, 21.2, 20), -360, hoek ? 0 : 360) : hoek ? P('y', [[-360, -25], [-25, -25], [25, 25], [-360, 25]], top, top + 8) : doos(-360, 360, top, top + 8, -25, 25);
-  const hrB = hoek ? (rond ? P('z', cirkel(0, hrY, 21.2, 20), -360, 0) : P('y', [[-25, -360], [25, -360], [25, 25], [-25, -25]], top, top + 8)) : null;
-  sc.push({ id: 'handregel', titel: hoek ? 'Handregel in verstek op de hoekstaander' : 'Handregel op de staander', sub: `${rond ? (inoxHr ? 'inox Ø42,4 op een drager' : 'buis Ø42,4x2,6') : 'platstaal 50x8'} op ${Pf.naam}`, materiaal: inoxHr ? 'inox' : 'staal',
+  const top = 300, hrY = rond ? top + (inoxHr ? 50 : 0) + 21.2 : top + 4, hrDik = k.hr === 'koker' ? 30 : 8;
+  const hrA = rond ? P('x', cirkel(hrY, 0, 21.2, 20), -360, hoek ? 0 : 360) : hoek ? P('y', [[-360, -25], [-25, -25], [25, 25], [-360, 25]], top, top + hrDik) : doos(-360, 360, top, top + hrDik, -25, 25);
+  const hrB = hoek ? (rond ? P('z', cirkel(0, hrY, 21.2, 20), -360, 0) : P('y', [[-25, -360], [25, -360], [25, 25], [-25, -25]], top, top + hrDik)) : null;
+  sc.push({ id: 'handregel', titel: hoek ? 'Handregel in verstek op de hoekstaander' : 'Handregel op de staander', sub: `${rond ? (inoxHr ? 'inox Ø42,4 op een drager' : 'buis Ø42,4x2,6') : k.hr === 'koker' ? 'koker 50x30x3' : 'platstaal 50x8'} op ${Pf.naam}`, materiaal: inoxHr ? 'inox' : 'staal',
     delen: [
       { naam: `Staander ${Pf.naam}`, nr: 1, kleur: postKleur, solids: staanderSolids(Pf, 0, 0, 0, top) },
       ...(inoxHr ? [{ naam: 'Handregeldrager RVS', nr: 3, label: 'geschroefd op de staander', kleur: INOX, uit: [0, 60, 0], solids: [cil('y', 0, 0, 8, top, top + 50, 12), doos(-20, 20, top, top + 4, -20, 20)] }] : []),
-      { naam: `Handregel ${rond ? 'Ø42,4' : '50x8'}${hoek ? ' (lijn 1)' : ''}`, nr: 2, label: hoek ? 'verstek op de hoek' : 'doorlopend over de staanders', kleur: inoxHr ? INOX : STAAL, uit: [-120, 130, 0], solids: [rond ? (hoek ? P('x', cirkel(hrY, 0, 21.2, 20), -360, 0) : P('x', cirkel(hrY, 0, 21.2, 20), -360, 360)) : hrA] },
-      ...(hoek ? [{ naam: `Handregel ${rond ? 'Ø42,4' : '50x8'} (lijn 2)`, nr: 4, label: 'verstek op de hoek', kleur: inoxHr ? INOX : STAAL, uit: [0, 130, -120], solids: [rond ? P('z', cirkel(0, hrY, 21.2, 20), -360, 0) : hrB] }] : []),
+      { naam: `Handregel ${rond ? 'Ø42,4' : k.hr === 'koker' ? '50x30' : '50x8'}${hoek ? ' (lijn 1)' : ''}`, nr: 2, label: hoek ? 'verstek op de hoek' : 'doorlopend over de staanders', kleur: inoxHr ? INOX : STAAL, uit: [-120, 130, 0], solids: [rond ? (hoek ? P('x', cirkel(hrY, 0, 21.2, 20), -360, 0) : P('x', cirkel(hrY, 0, 21.2, 20), -360, 360)) : hrA] },
+      ...(hoek ? [{ naam: `Handregel ${rond ? 'Ø42,4' : k.hr === 'koker' ? '50x30' : '50x8'} (lijn 2)`, nr: 4, label: 'verstek op de hoek', kleur: inoxHr ? INOX : STAAL, uit: [0, 130, -120], solids: [rond ? P('z', cirkel(0, hrY, 21.2, 20), -360, 0) : hrB] }] : []),
       ...(inoxHr ? [] : [{ naam: 'Lasnaad', label: hoek ? 'V-naad in het verstek, a3 op de staander' : 'a3 aan beide zijden', kleur: KLEUR.las, alleenSamen: true, solids: [doos(-Pf.b / 2 - 2, Pf.b / 2 + 2, top - 3, top, -Pf.h / 2 - 3, -Pf.h / 2), doos(-Pf.b / 2 - 2, Pf.b / 2 + 2, top - 3, top, Pf.h / 2, Pf.h / 2 + 3)] }]),
     ],
     middelen: inoxHr ? [['Handregeldrager', '1 per staander', ''], ['Eindkap Ø42,4', '2', '']] : [['Hoeklas', 'a3 aan beide zijden', 'ISO 2553'], ...(hoek ? [['V-naad in het verstek', 'doorgelast, vlak geslepen', 'ISO 2553']] : [])],
@@ -155,7 +156,7 @@ export function montage(o) {
 
 /** montage van de knik onder het dak: x rechts (de vlakke kant), het schuine stuk zakt naar links naar de muur */
 function dakScène(o, e, Pf, postKleur, rond, inoxHr) {
-  const k = o.k, th = e.thE, c = Math.cos(th), s = Math.sin(th), tn = Math.tan(th), top = 320, hh = rond ? 42.4 : 8, r = hh / 2;
+  const k = o.k, th = e.thE, c = Math.cos(th), s = Math.sin(th), tn = Math.tan(th), top = 320, hh = rond ? 42.4 : k.hr === 'koker' ? 30 : 8, r = hh / 2;
   const K = [0, top + r], n = [(1 + c) / Math.hypot(1 + c, s), s / Math.hypot(1 + c, s)], u2 = [-c, -s], perp = [-s, c], L2 = Math.min(420, (top - 60) / s);
   const opMiter = (o2) => -o2 * (n[0] * perp[0] + n[1] * perp[1]) / (n[0] * u2[0] + n[1] * u2[1]);
   const hrKl = inoxHr ? INOX : STAAL, mp = o.platen.find((p) => p.rol === 'muurplaat');
@@ -226,12 +227,12 @@ export function montageBlad(o, sc, meta = {}) {
   const tx = W4 - 10 - 100, ty = H4 - 10 - 24, veld = (x, r, kop, w, h = 2.3, vet = false) => { if (x) el.push(L(tx + x, ty + r * 8, tx + x, ty + r * 8 + 8)); el.push(T(tx + x + 1, ty + r * 8 + 2.5, kop, 1.6, { kleur: '#555' }), T(tx + x + 1, ty + r * 8 + 6.5, w, h, { vet })); };
   el.push(`<rect x="${tx}" y="${ty}" width="100" height="24" fill="#fff" stroke="#111" stroke-width="0.5"/>`, L(tx, ty + 8, tx + 100, ty + 8), L(tx, ty + 16, tx + 100, ty + 16));
   veld(0, 0, 'Titel', `Montage: ${sc.titel}`.slice(0, 40), 2.5, true); el.push(eersteHoek(tx + 82, ty + 1.5, 0.32));
-  veld(0, 1, 'Balustrade', maatTekst(o).slice(0, 34), 2.1); veld(62, 1, 'Tekeningnummer', `${meta.nr ?? 'BA'}-M${meta.i ?? 1}`, 2.3, true);
-  veld(0, 2, 'Opgesteld', 'Ian · laswerken', 2.1); veld(36, 2, 'Uitgifte', meta.datum ?? '', 2.1); veld(62, 2, 'Blad', meta.blad ?? '1 / 1', 2.1);
+  veld(0, 1, 'Balustrade', maatTekst(o).slice(0, 34), 2.1); veld(62, 1, 'Tekeningnummer', meta.start ? bladNr(meta.nr, meta.start + (meta.i ?? 1) - 1) : `${meta.nr ?? 'BA'}-M${meta.i ?? 1}`, 2.3, true);
+  veld(0, 2, 'Opgesteld', 'Ian · laswerken', 2.1); veld(36, 2, 'Uitgifte', meta.datum || vandaag(), 2.1); veld(62, 2, 'Blad', meta.blad ?? '1 / 1', 2.1);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W4} ${H4}" width="${W4}mm" height="${H4}mm" font-family="Arial, Helvetica, sans-serif"><rect width="${W4}" height="${H4}" fill="#fff"/>${el.join('\n')}</svg>`;
 }
 /** alle montagebladen: [{ id, titel, sub, scène, svg }] */
 export function montageBladen(o, meta = {}) {
   const sc = montage(o);
-  return sc.map((s, i) => ({ id: s.id, titel: s.titel, sub: s.sub, scène: s, svg: montageBlad(o, s, { ...meta, i: i + 1, blad: `${i + 1} / ${sc.length}` }) }));
+  return sc.map((s, i) => ({ id: s.id, titel: s.titel, sub: s.sub, scène: s, svg: montageBlad(o, s, { ...meta, i: i + 1, blad: meta.start ? `${meta.start + i} / ${meta.totaal}` : `${i + 1} / ${sc.length}` }) }));
 }

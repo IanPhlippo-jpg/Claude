@@ -164,3 +164,41 @@ De echte ankers reken je na met fischer FIXPERIENCE.
 
 De bovengrens is € 600/m. De kit alleen kost al € 420-520/m aan materiaal, en de inox U-handregel komt daar ± € 60/m
 bij.
+
+## Advies Fable 5.2 v1 verwerkt (2026-11-17): gewijzigde keuzes
+
+Zie [docs/Advies-Fable-5.2-v1.md](docs/Advies-Fable-5.2-v1.md) (statustabel onderaan). Wat er anders is dan hierboven:
+- **Wind buiten (P1-1):** EN 1991-1-4 + ANB. vb,0 hangt af van de postcode: 23, 24, 25 of 26 m/s (geen 26,2: dat staat
+  in geen enkele Belgische bron). Standaard 26 m/s (kust, voorzichtig), terrein II, 6 m boven het maaiveld; alle drie
+  in te vullen. De wind wordt enkel met de lijnlast gecombineerd (Contact 2016/4): lijnlast + 0,6 · wind of wind +
+  0,7 · lijnlast (ψ0 uit EN 1990 + ANB, AANNAME dat die hier gelden).
+- **Ondergrond (P1-2):** volle betonplaat, holle welfsels, hout, stalen ligger of metselwerk, plus de opbouw (chape +
+  isolatie). Tot 40 mm opbouw: chemisch anker met een langere stang, de hef telt vanaf de draagvloer. Boven 40 mm:
+  de voetplaat op de draagvloer, vóór de chape. Welfsels: injectie met zeefhuls (geen rekenwaarde: oranje; zijmontage
+  rood). Hout: rood, laten rekenen. Staal: bouten M12 8.8. Door een opbouw geen keilbout.
+- **Verticale last (P1-3):** Qk,v = 1 kN op de handregel (Contact 2018/4). Waar de vulling de handregel niet draagt
+  (glas, horizontale staven) een koker 50x30x3 in plaats van platstaal 50x8 (G1 en H2).
+- **Glas tussen klemmen (P1-4):** Q-railing MOD 2500 (6-12,76 mm; de MOD 2100 is maar voor 6-10 mm) met borgpen
+  MOD 5015. Ruit ten hoogste 1200 x 1000 mm en 1,2 m² (AANNAME); de controle blijft oranje zonder attest.
+  Rekenbreedte = de helft van de ruitbreedte. Grootste staanderafstand voor glas 1250 mm.
+- **Randafstand (P1-5):** de voorste ankers 100 mm van de vloerrand; het staanderhart dus op 100 + e mm (145 bij een
+  voetplaat 140).
+- **Vulling (P1-6):** puntlast 0,5 kN onder de beschermingshoogte. Stijl S1 wordt Ø14. Plint 4 mm; plaat buiten 4 mm.
+- **Trap (P1-7, P2-1):** een trapplint 4 mm die de treden volgt (30 mm boven de trede, 30 mm voor het stootbord), of
+  een dichte trapboom. Elke voetplaat staat volledig op een trede. Bij 12 m valhoogte ook langs de trap 1200 mm.
+- **Tekst (P1-8):** "Hoogte, openingen en beklimbaarheid volgens NBN B 03-004; sterkte voorberekend op ..." met de
+  lijst wat niet gecontroleerd is. Pas als Ian alles afvinkt (werkplaats) staat er "nagekeken".
+- **Zijmontage (P2-6):** afstandhouders op 40 en 210 mm onder de vloerpas.
+- **Glas in het U-profiel (P2-8):** ω = 0,1 (was 0,3): 1010.4 ook in een woning; glas boven het profiel ≤ 1100 mm.
+- **Glasbestelling (P2-9):** 1B1 (EN 12600), EN ISO 12543 / EN 14449, EN 12150, heat-soak EN 14179.
+- **Ontluchting (P2-10):** elke staander diagonaal onder en boven en achter elke regel; buiten Ø10, binnen Ø6.
+- **Secties (P2-11):** gelaste delen ≤ 3 m (instelbaar), werfnaad met lip en insteekmof, buiten om de ± 6 m een
+  uitzetvoeg.
+- **Lassen (P2-12):** geen EXC2; ISO 9606-1, ISO 5817-C, 100 % visueel. Dunne wanden a2.
+- **Bladen (P2-13, P2-14):** doorlopende nummers BA-01 ... en blad n / totaal; datum altijd; schalen ISO 5455; snijlijn
+  A-A; gelast ISO 13920-BF; een samenstellingstekening per sectie.
+- **Prijs (P2-15):** uurloon blijft € 45 (instelling van Ian). Erbij: een vaste post per opdracht (opmeten 1,5 u,
+  offerte 1,5 u, 3 ritten van 1 u + km, opruimen 1 u), glas plaatsen met 2 personen, coaten per m² aanzicht
+  (Coatinc hekwerk) of per lopende meter (glas), heat-soak, 5 % risico glas, inox 1.4404 buiten.
+- **Klant (P2-16):** in de presentatie staan uurloon en marge achter een code; de web heeft een klant.html.
+- **Btw (P3-10):** 21 % of 6 % (woning ouder dan 10 jaar).

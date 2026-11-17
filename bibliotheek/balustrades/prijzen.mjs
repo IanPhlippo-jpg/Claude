@@ -2,12 +2,12 @@
 // verzinken, en de uren uit de werkwijze. Elke regel hoort bij een categorie (basis, hoek, trap, glas, zij, buiten,
 // plaatsen), zodat de klant de toeslagen ziet en de prijs per strekkende meter naast de markt ligt. Elke prijs heeft een
 // bron; 'SCHATTING' = geen publieke prijs gevonden. Opgezocht op 2026-11-13. Node en browser.
-import { PROFIEL, KOOP, STAALPRIJS, GLASOPBOUW, GLASTINT, PATROON, RAL, METALLIC } from './onderdelen.mjs';
+import { PROFIEL, KOOP, STAALPRIJS, GLASOPBOUW, GLASTINT, PATROON, RAL, METALLIC, INOX316 } from './onderdelen.mjs';
 import { PRIJS as DEUR } from '../taatsdeuren/prijzen.mjs';
 import { stuklijst, totalen, zaagplan } from './stuklijst.mjs';
-import { stappen, UREN } from './werkwijze.mjs';
+import { stappen, UREN, vastUren } from './werkwijze.mjs';
 
-export const CAT = { basis: 'Balustrade', hoek: 'Hoeken', trap: 'Trap (schuin)', glas: 'Glas en klemmen', zij: 'Zijmontage', buiten: 'Buiten: thermisch verzinken', dak: 'Afschuining onder het dak', plaatsen: 'Plaatsen' };
+export const CAT = { opdracht: 'Opdracht: opmeten, tekenen, transport', basis: 'Balustrade', hoek: 'Hoeken', trap: 'Trap (schuin)', glas: 'Glas en klemmen', zij: 'Zijmontage', buiten: 'Buiten: thermisch verzinken', dak: 'Afschuining onder het dak', plaatsen: 'Plaatsen' };
 export const PRIJS = {
   staal: STAALPRIJS,
   zaagverlies: { v: 0.1, bron: 'SCHATTING: 10 % zaagverlies; restlengtes gaan naar de volgende opdracht' },
@@ -19,7 +19,11 @@ export const PRIJS = {
     lamel: { v: 110, bron: 'SCHATTING: plaat + lasersnijden van het patroon € 60-150/m² (± € 1,4 per m snijlengte)' },
     cirkel: { v: 100, bron: 'SCHATTING: plaat + lasersnijden van het patroon' },
   },
-  coat: { v: 30, bron: 'Coatinc Rhein-Main prijslijst 09/2025: hekwerk € 32,95/m², palen en rails € 13,45/lfm (coatinc.com); hier € 30 per m² staaloppervlak incl. voorbehandeling' },
+  coat: { v: 32.95, bron: 'Coatinc Rhein-Main prijslijst 09/2025: hekwerk € 32,95/m² (AANNAME: per m² aanzicht, zoals coaters hekwerk rekenen), palen en rails € 13,45/lfm (coatinc.com)' },
+  coatLfm: { v: 13.45, bron: 'Coatinc Rhein-Main prijslijst 09/2025: palen en rails € 13,45 per lopende meter (glas met staanders: alleen staanders en handregel)' },
+  km: { v: 0.43, bron: 'SCHATTING € 0,43/km (bestelwagen: brandstof, slijtage, verzekering; Belgische kilometervergoeding 2026 ± € 0,43)' },
+  heatsoak: { v: 12, bron: 'SCHATTING € 12/m² voor de heat-soak-test (EN 14179) bij de glasleverancier' },
+  risicoGlas: { v: 5, bron: 'SCHATTING 5 % van het glas als post voor een gebroken of beschadigde ruit (transport, plaatsen)' },
   coatMin: { v: 150, bron: 'Coatinc: kleinste factuur € 150' },
   verzinken: { v: 1.1, bron: 'SCHATTING België € 0,80-1,40/kg (hausjournal.net: vanaf € 0,70/kg, kleine opdrachten € 1,50/kg)' },
   verzinkMin: { v: 120, bron: 'SCHATTING: minimum per opdracht € 75-150' },
@@ -30,7 +34,9 @@ export const PRIJS = {
   metallic: METALLIC,
 };
 /** instellingen (pagina Instellingen): uurloon, marge per soort, verzinkprijs, coatprijs, plaatsen per meter */
-export const STANDAARD = { uurloon: 45, marge: { spijlen: 30, staven: 30, glasstaal: 25, glasU: 15 }, verzinken: PRIJS.verzinken.v, coat: PRIJS.coat.v, staal: PRIJS.staal.v, plaatsenPerM: UREN.plaatsenPerM, vormglas: PRIJS.vormglas.v * 100, glasPrijs: Object.fromEntries(Object.entries(GLASOPBOUW).map(([k, g]) => [k, g.prijs])), toon: 'verkoop' };
+export const STANDAARD = { uurloon: 45, marge: { spijlen: 30, staven: 30, glasstaal: 25, glasU: 15 }, verzinken: PRIJS.verzinken.v, coat: PRIJS.coat.v, coatLfm: PRIJS.coatLfm.v, staal: PRIJS.staal.v, plaatsenPerM: UREN.plaatsenPerM, vormglas: PRIJS.vormglas.v * 100, glasPrijs: Object.fromEntries(Object.entries(GLASOPBOUW).map(([k, g]) => [k, g.prijs])), toon: 'verkoop', km: 40, kmPrijs: PRIJS.km.v, heatsoak: PRIJS.heatsoak.v, risicoGlas: PRIJS.risicoGlas.v, btw: 21 };
+/** het uurloon is een instelling: € 45/u is wat Ian koos (EISEN); de vaste kosten van de zaak (werkplaats, bestelwagen, verzekering, sociale bijdragen) zitten er niet in (SCHATTING markt: € 55-70/u, bij een boekhouder navragen) */
+export const UURLOON_UITLEG = 'Uurloon (instelling): € 45/u is de keuze van Ian. Als kostprijs-uurtarief met werkplaats, bestelwagen, verzekering en sociale bijdragen ligt het voor een zelfstandige in België eerder op € 55-70/u (SCHATTING, navragen bij een boekhouder).';
 
 const r2 = (x) => Math.round(x * 100) / 100;
 const gw = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toString().replace('.', ',');
@@ -38,26 +44,28 @@ const gw = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toString().replace(
 /** de kostprijs: regels { wat, bedrag, bron, cat }, stappen met uren, totalen en de prijs per meter */
 export function kostprijs(o, inst = {}) {
   const I = { ...STANDAARD, ...inst, marge: { ...STANDAARD.marge, ...(inst.marge ?? {}) }, glasPrijs: { ...STANDAARD.glasPrijs, ...(inst.glasPrijs ?? {}) } };
-  const k = o.k, sl = stuklijst(o), T = totalen(o, sl), regels = [], buiten = k.plaats === 'buiten', inox = o.st?.staander === 'inox';
+  const k = o.k, sl = stuklijst(o), T = totalen(o, sl), regels = [], buiten = k.plaats === 'buiten', inox = o.st?.staander === 'inox', inoxF = buiten ? 1 + INOX316.meer : 1;
   const regel = (wat, bedrag, bron, cat = 'basis') => { if (bedrag > 0.004) regels.push({ wat, bedrag: r2(bedrag), bron, cat }); };
   // ---- staal en inox per positie (+ zaagverlies)
   const staalKat = {};
   for (const p of sl.posities) {
     if (p.soort !== 'staaf') continue;
-    const P = PROFIEL[p.prof], bedrag = (P.koop ? (P.eurM * p.L) / 1000 : p.kg * I.staal) * p.n * (1 + PRIJS.zaagverlies.v), cat = p.cat === 'trap' ? 'basis' : p.cat;
+    const P = PROFIEL[p.prof], bedrag = (P.koop ? (P.eurM * p.L * inoxF) / 1000 : p.kg * I.staal) * p.n * (1 + PRIJS.zaagverlies.v), cat = p.cat === 'trap' ? 'basis' : p.cat;
     staalKat[cat] = (staalKat[cat] ?? 0) + bedrag;
   }
-  for (const [cat, b] of Object.entries(staalKat)) regel(cat === 'zij' ? 'Afstandhouders koker 40x40x3' : `Staven staal${inox ? ' en inox' : ''} (zaaglijst, ${Math.round(T.kg)} kg, + 10 % zaagverlies)`, b, `${PRIJS.staal.bron}; inox: ${PROFIEL.inox42.bron}`, cat);
+  for (const [cat, b] of Object.entries(staalKat)) regel(cat === 'zij' ? 'Afstandhouders koker 40x40x3' : `Staven staal${inox ? ` en inox${buiten ? ' 1.4404' : ''}` : ''} (zaaglijst, ${Math.round(T.kg)} kg, + 10 % zaagverlies)`, b, `${PRIJS.staal.bron}; inox: ${PROFIEL.inox42.bron}${inox && buiten ? `; ${INOX316.bron}` : ''}`, cat);
   // ---- laser: voetplaten, consoles, platen
   for (const p of sl.posities.filter((x) => x.soort === 'laser')) {
     if (p.rol === 'muurplaat') regel(`${p.naam} ${p.maat} (${p.n} st, lasergesneden)`, p.n * (p.kg * PRIJS.laserPerKg.v + PRIJS.laserPerDeel.v), PRIJS.laserPerKg.bron, 'dak');
-    else if (p.rol === 'voetplaat' || p.rol === 'console') regel(`${p.naam} ${p.maat} (${p.n} st, lasergesneden${inox && p.rol === 'voetplaat' ? ', RVS' : ''})`, p.n * (p.kg * (inox && p.rol === 'voetplaat' ? PRIJS.inoxPlaatPerKg.v : PRIJS.laserPerKg.v) + PRIJS.laserPerDeel.v), inox ? PRIJS.inoxPlaatPerKg.bron : PRIJS.laserPerKg.bron, p.rol === 'console' ? 'zij' : 'basis');
-    else { const pr = PRIJS.plaat[p.patroon] ?? PRIJS.plaat.vlak; regel(`${p.naam} ${p.maat} (${p.n} st)`, p.n * (p.b * p.l) / 1e6 * pr.v + p.n * PRIJS.laserPerDeel.v, pr.bron, 'basis'); }
+    else if (p.rol === 'voetplaat' || p.rol === 'console') regel(`${p.naam} ${p.maat} (${p.n} st, lasergesneden${inox && p.rol === 'voetplaat' ? ', RVS' : ''})`, p.n * (p.kg * (inox && p.rol === 'voetplaat' ? PRIJS.inoxPlaatPerKg.v * inoxF : PRIJS.laserPerKg.v) + PRIJS.laserPerDeel.v), inox ? PRIJS.inoxPlaatPerKg.bron : PRIJS.laserPerKg.bron, p.rol === 'console' ? 'zij' : 'basis');
+    else { const pr = PRIJS.plaat[p.patroon] ?? PRIJS.plaat.vlak, dik = (p.t ?? 3) / 3; regel(`${p.naam} ${p.maat} (${p.n} st)`, p.n * (p.b * p.l) / 1e6 * pr.v * dik + p.n * PRIJS.laserPerDeel.v, `${pr.bron}${dik > 1 ? '; naar de dikte geschaald' : ''}`, p.rol === 'trapplint' ? 'trap' : 'basis'); }
   }
   // ---- glas
   if (T.glasM2) {
     const g = o.glas, tint = GLASTINT[k.glasTint] ?? GLASTINT.helder, pm2 = I.glasPrijs[g.opbouw] ?? g.prijs;
     regel(`Glas ${g.naam}, ${tint.naam.toLowerCase()} (${gw(T.glasM2, 2)} m², ${sl.posities.filter((p) => p.soort === 'glas').reduce((t, p) => t + p.n, 0)} platen)`, T.glasM2 * pm2 * (1 + tint.meer) * (o.knikken || k.vorm === 'trap' ? 1.08 : 1), `${g.bron}${tint.bron ? `; ${tint.bron}` : ''}${k.vorm === 'trap' ? '; parallellogram + 8 % (SCHATTING)' : ''}`, 'glas');
+    regel(`Heat-soak-test EN 14179 (${gw(T.glasM2, 2)} m²)`, T.glasM2 * (I.heatsoak ?? PRIJS.heatsoak.v), PRIJS.heatsoak.bron, 'glas');
+    regel(`Risico glasbreuk (${I.risicoGlas ?? PRIJS.risicoGlas.v} % van het glas)`, (T.glasM2 * pm2 * (1 + tint.meer) * (I.risicoGlas ?? PRIJS.risicoGlas.v)) / 100, PRIJS.risicoGlas.bron, 'glas');
     // vormglas onder het dak: de omschreven rechthoek + de vormtoeslag, het verschil met de echte oppervlakte apart
     const vorm = sl.posities.filter((p) => p.soort === 'glas' && p.vorm), vt = (I.vormglas ?? PRIJS.vormglas.v * 100) / 100;
     if (vorm.length) { const n = vorm.reduce((t, p) => t + p.n, 0), extra = vorm.reduce((t, p) => t + p.n * (p.rechthoek * (1 + vt) - p.m2), 0); regel(`Vormglas met schuine kant (${n} plat${n > 1 ? 'en' : ''}): omschreven rechthoek + ${Math.round(vt * 100)} %`, extra * pm2 * (1 + tint.meer), PRIJS.vormglas.bron, 'dak'); }
@@ -74,24 +82,30 @@ export function kostprijs(o, inst = {}) {
       if (x.key === 'qrZij') regel(`Meerprijs zijmontageprofiel MOD 8240 (${gw(st, 2)} x 2,5 m)`, st * (KOOP.qrZij.prijs - KOOP.qrTop.prijs), x.bron, 'zij');
       continue;
     }
-    if (buiten && /A4/.test(x.naam)) { const gewoon = x.key === 'faz12a4' ? KOOP.faz12 : KOOP.fisa12; regel(`${x.naam} (${x.n} ${x.eenheid})`, x.n * gewoon.prijs, gewoon.bron, 'basis'); regel(`Meerprijs RVS A4-ankers buiten (${x.n} st)`, x.n * (x.prijs - gewoon.prijs), x.bron, 'buiten'); continue; }
+    if (buiten && /a4$/.test(x.key)) { const gewoon = KOOP[x.key.replace(/a4$/, '')]; regel(`${x.naam} (${x.n} ${x.eenheid})`, x.n * gewoon.prijs, gewoon.bron, 'basis'); regel(`Meerprijs RVS A4-ankers buiten (${x.n} st)`, x.n * (x.prijs - gewoon.prijs), x.bron, 'buiten'); continue; }
     regel(`${x.naam} (${x.n} ${x.eenheid})`, bedrag, `${x.winkel}: ${x.bron}`, cat);
   }
   // ---- afwerking: binnen poedercoat; buiten thermisch verzinken + poedercoat (duplex); inox geen coating
   const kleur = RAL.find((c) => c.code === k.ral) ?? RAL[0], meer = kleur.metallic ? 1 + PRIJS.metallic.v : 1;
   const coatOpp = inox ? 0 : T.opp;
   if (coatOpp > 0 || k.soort === 'glasU') {
-    if (k.soort !== 'glasU') regel(`Poedercoaten RAL ${kleur.code} ${kleur.naam} (${gw(coatOpp, 2)} m² staal)`, Math.max(PRIJS.coatMin.v, coatOpp * I.coat * meer), PRIJS.coat.bron, 'basis');
+    // P2-15: hekwerk per m² aanzicht (spijlen, staven, platen); glas met staanders: staanders en handregel per lopende meter
+    const lfm = o.delen.filter((d) => ['staander', 'handregel'].includes(d.rol) && d.prof !== 'koop').reduce((t, d) => t + Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1], d.b[2] - d.a[2]), 0) / 1000, aanzicht = (o.lengte * o.k.H) / 1e6;
+    const coat = k.soort === 'glasstaal' ? { tekst: `${gw(lfm, 1)} m staanders en handregel`, bedrag: lfm * (I.coatLfm ?? PRIJS.coatLfm.v), bron: PRIJS.coatLfm.bron } : { tekst: `${gw(aanzicht, 2)} m² aanzicht`, bedrag: aanzicht * I.coat, bron: PRIJS.coat.bron };
+    if (k.soort !== 'glasU') regel(`Poedercoaten RAL ${kleur.code} ${kleur.naam} (${coat.tekst})`, Math.max(PRIJS.coatMin.v, coat.bedrag * meer), `${coat.bron}; ${PRIJS.coatMin.bron}`, 'basis');
     if (buiten && k.soort !== 'glasU') {
       const kgZ = T.kg;
       regel(`Thermisch verzinken (${Math.round(kgZ)} kg) en klaarmaken voor de poedercoat`, Math.max(PRIJS.verzinkMin.v, kgZ * I.verzinken) + kgZ * PRIJS.verputzen.v, `${PRIJS.verzinken.bron}; ${PRIJS.verputzen.bron}`, 'buiten');
     }
   }
   // ---- uren
-  const S = stappen(o, sl, { ...UREN, plaatsenPerM: I.plaatsenPerM ?? UREN.plaatsenPerM });
+  const S = stappen(o, sl, { ...UREN, ...(inst.uren ?? {}), plaatsenPerM: I.plaatsenPerM ?? UREN.plaatsenPerM });
   const lasUren = S.filter((s) => /lassen|Spijlen|staven|Platen|Handregel|Staanders/i.test(s.titel)).reduce((t, s) => t + s.uren, 0);
   if (lasUren) regel(`Lasdraad en gas (${gw(lasUren)} lasuren)`, lasUren * PRIJS.lassen.v, PRIJS.lassen.bron, 'basis');
   regel('Klein materiaal (schijven, ontvetter, kit)', (o.lengte / 1000) * PRIJS.klein.v, PRIJS.klein.bron, 'basis');
+  // P2-15: de ritten met de bestelwagen (de uren staan in de werkwijze)
+  const U = { ...UREN, ...(inst.uren ?? {}) };
+  regel(`Ritten bestelwagen (${U.ritten} x ${I.km ?? STANDAARD.km} km)`, U.ritten * (I.km ?? STANDAARD.km) * (I.kmPrijs ?? PRIJS.km.v), PRIJS.km.bron, 'opdracht');
   // ---- per categorie
   const marge = (I.marge[k.soort] ?? 25) / 100;
   const perCat = Object.fromEntries(Object.keys(CAT).map((c) => [c, { materiaal: 0, uren: 0 }]));
@@ -107,7 +121,7 @@ export function kostprijs(o, inst = {}) {
     regels, stappen: S.map((s) => ({ ...s, apart: s.cats.plaatsen && !metPl })), perCat, materiaal, uren, arbeid, kostprijs, verkoop, marge: marge * 100, meter: r2(m),
     perMeter: r2(verkoop / m), perMeterZonder: r2(zonderPl / m), basisPerMeter: r2(perCat.basis.verkoop / m),
     plaatsen: { uren: perCat.plaatsen.uren, kost: perCat.plaatsen.kost, verkoop: perCat.plaatsen.verkoop, perMeter: r2(perCat.plaatsen.verkoop / m), inbegrepen: metPl },
-    gewicht: r2(T.kg), glas: r2(T.glasM2), oppervlak: r2(T.opp), stuklijst: sl, instellingen: I,
+    gewicht: r2(T.kg), glas: r2(T.glasM2), oppervlak: r2(T.opp), stuklijst: sl, instellingen: I, vast: { uren: r2(vastUren(U)), kost: perCat.opdracht.kost },
   };
 }
 

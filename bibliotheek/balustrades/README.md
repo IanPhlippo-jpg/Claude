@@ -12,10 +12,10 @@ De eisen en de keuzes staan in [EISEN.md](EISEN.md). De normwaarden en de bronne
 
 | Soort | Opbouw | Stijlen |
 |---|---|---|
-| Spijlen | staanders, handregel en onderregel, met verticale spijlen ertussen; gelast en gepoedercoat | Ø12, Ø16 + ronde handregel, vierkant 12, plat 40x8, vierkant 14 dicht |
+| Spijlen | staanders, handregel en onderregel, met verticale spijlen ertussen; gelast en gepoedercoat | Ø14 (Ø12 haalt de puntlast op de vulling niet), Ø16 + ronde handregel, vierkant 12, plat 40x8, vierkant 14 dicht |
 | Horizontaal of plaat | staanders met horizontale staven boven een dichte plint tot 450 mm, of met een plaat | staven Ø16 of 50x8, plaat vlak, geperforeerd, lasergesneden lamellen of cirkels |
-| Glas met staanders | gehard-gelaagd glas (55.2 of 66.2) in 4 glasklemmen tussen stalen of inox staanders, met een handregel | koker + platte handregel, koker + inox handregel, inox Ø48,3 |
-| Glas in een U-profiel | volglas geklemd in Q-railing Easy Glass Smart, 88.4 of 1010.4 | met of zonder inox U-handregel |
+| Glas met staanders | gehard-gelaagd glas (55.2 of 66.2) in 4 glasklemmen Q-railing MOD 2500 met borgpen tussen stalen of inox staanders, met een handregel | koker + handregel koker 50x30, koker + inox handregel, inox Ø48,3 |
+| Glas in een U-profiel | volglas geklemd in Q-railing Easy Glass Smart, 1010.4 (88.4 haalt de doorbuiging niet met ω = 0,1) | met of zonder inox U-handregel |
 
 **Lijnen:**
 - recht;
@@ -26,15 +26,27 @@ De eisen en de keuzes staan in [EISEN.md](EISEN.md). De normwaarden en de bronne
 **Bevestiging en afstand:**
 - bovenop de vloer (voetplaat met 4 ankers) of tegen de zijkant (console met afstandhouders);
 - chemisch anker (fischer FIS V Plus + FIS A) of keilbout (fischer FAZ II);
-- de staanderafstand volgt uit de berekening, of je kiest hem zelf.
+- de staanderafstand volgt uit de berekening, of je kiest hem zelf (boven de grens van de soort: rood);
+- de ondergrond: volle betonplaat, holle welfsels, hout, stalen ligger of metselwerk, en de opbouw (chape + isolatie)
+  erboven. Boven 40 mm opbouw komt de voetplaat op de draagvloer, vóór de chape;
+- de voorste ankers 100 mm van de vloerrand (het staanderhart dus op 100 + e);
+- langs een trap staat elke voetplaat op een trede; een trapplint volgt de treden (driehoek ≤ 110 mm);
+- lange lijnen in gelaste secties (standaard ≤ 3 m) met werfnaden, buiten om de ± 6 m een uitzetvoeg.
 
-**Veiligheid (NBN B 03-004, EN 1991-1-1 + ANB, NBN S 23-002):**
-- hoogte;
-- openingen ≤ 110 mm;
+**Veiligheid (NBN B 03-004, EN 1991-1-1 + ANB, EN 1991-1-4 + ANB, NBN S 23-002):**
+- hoogte (ook 1200 mm langs de trap bij 12 m valhoogte);
+- openingen ≤ 110 mm, ook de driehoek langs de trap en de spleet aan de vloerrand;
 - niet beklimbaar tussen 110 en 450 mm;
-- de staander (buiging, doorbuiging, las);
-- de voetplaat en de ankers (trek per anker);
-- het glas.
+- buiten de wind (vb,0 23-26 m/s, terrein, hoogte), gecombineerd met de lijnlast;
+- de staander (buiging, doorbuiging met de handregel, las);
+- de voetplaat en de ankers (trek per anker, dwarskracht naar de rand, de ondergrond);
+- de handregel horizontaal en onder de verticale last van 1 kN;
+- de vulling onder de puntlast van 0,5 kN;
+- het glas (spanning, doorbuiging, ruitmaat tussen de klemmen).
+
+De klant leest alleen wat gecontroleerd is: "Hoogte, openingen en beklimbaarheid volgens NBN B 03-004; sterkte
+voorberekend op ...". Wat niet gecontroleerd is (schokproeven, glas na breuk, de ondergrond ter plaatse, de ankers in
+FIXPERIENCE, de normtekst), staat erbij en vinkt Ian af in de werkplaats.
 
 Elke controle krijgt een oordeel groen, oranje of rood, met de formule en de bron.
 
@@ -155,18 +167,23 @@ Daarnaast zijn er tests die nakijken:
 
 ## Prijzen per meter (voorbeelden, excl. btw)
 
-Recht 4,5 m, binnen, bovenop de vloer, woning, standaardinstellingen (uurloon € 45):
+Recht 4,5 m, binnen, bovenop de vloer, woning, standaardinstellingen (uurloon € 45, vaste post per opdracht 7 u + 3 ritten),
+na het advies van Fable 5.2 (2026-11-17):
 
 | Balustrade | Staander / glas | Zonder plaatsen | Geplaatst | Markt (zonder plaatsen) |
 |---|---|--:|--:|--:|
-| Spijlen Ø12 | koker 40x40x3, 1115 h.o.h. | € 262 | € 349 | € 200-400 |
-| Spijlen Ø16 + ronde handregel | koker 40x40x3 | € 288 | € 376 | € 200-400 |
-| Horizontale staven Ø16 + plint | koker 40x40x3 | € 282 | € 370 | € 250-450 |
-| Geperforeerde plaat | koker 40x40x3 | € 369 | € 457 | € 250-450 |
-| Glas 55.2 tussen stalen kokers | koker 40x40x4, 1487 h.o.h. | € 361 | € 460 | € 300-450 |
-| Glas tussen inox staanders | inox Ø48,3 | € 458 | € 568 | € 300-450 (premium) |
-| Glas 88.4 in U-profiel + U-handregel | Q-railing Easy Glass Smart | € 544 | € 640 | € 340-600 |
-| Glas 88.4 in U-profiel zonder handregel | idem | € 480 | € 576 | € 340-600 |
+| Spijlen Ø14 | koker 40x40x3, 1115 h.o.h. | € 387 | € 480 | € 200-400 |
+| Spijlen Ø16 + ronde handregel | koker 40x40x3 | € 408 | € 501 | € 200-400 |
+| Horizontale staven Ø16 + plint | koker 40x40x3 | € 398 | € 491 | € 250-450 |
+| Geperforeerde plaat | koker 40x40x3 | € 423 | € 516 | € 250-450 |
+| Glas 55.2 tussen stalen kokers | koker 40x40x4, 1115 h.o.h. | € 550 | € 680 | € 300-450 |
+| Glas tussen inox staanders | inox Ø48,3, 890 h.o.h. | € 625 | € 764 | € 300-450 (premium) |
+| Glas 1010.4 in U-profiel + U-handregel | Q-railing Easy Glass Smart | € 722 | € 836 | € 340-600 |
+| Glas 1010.4 in U-profiel zonder handregel | idem | € 660 | € 775 | € 340-600 |
+
+De glasbalustrades liggen nu boven de markt: dikker glas in het U-profiel (ω = 0,1), heat-soak, een post risico glas,
+de klemmen MOD 2500 met borgpen, glas plaatsen met 2 personen en de vaste post. Spijlen 4 m geplaatst: € 510/m tegen
+€ 568/m bij Urban Steel (LANCO). De marktband staat er ter vergelijking; de test eist niet meer dat de prijs erin valt.
 
 Bronnen van de marktprijzen:
 - Urban Steel (BE);

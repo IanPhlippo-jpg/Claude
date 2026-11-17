@@ -59,14 +59,21 @@ input[type="number"], input[type="text"], select { width: 100%; padding: 7px 9px
 .meter { margin-top: 10px } .lat { position: relative; height: 9px; border-radius: 99px; background: var(--lijn2) } .bandje { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: color-mix(in srgb, var(--goed) 35%, transparent) } .pin { position: absolute; top: -5px; width: 4px; height: 19px; margin-left: -2px; background: var(--inkt) }
 .opbouw { margin-top: 8px; font-size: 13px; display: grid; gap: 2px } .opbouw div { display: flex; justify-content: space-between; gap: 8px } .opbouw span:last-child { font-family: var(--mono) }
 dialog { border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); max-width: min(520px, calc(100vw - 24px)); width: 100%; padding: 18px }
-.printkop { display: none }
-@media (max-width: 900px) { main { grid-template-columns: 1fr } aside.keuzes { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--lijn) } .beeld { min-height: 360px } }
+.printkop, #offerte { display: none }
+.samen { position: sticky; top: 0; z-index: 2; background: var(--vlak); padding: 10px 0 12px; border-bottom: 1px solid var(--lijn) } .samen .prijs { margin-top: 8px; padding: 10px 12px } .samen .prijs b { font-size: 32px }
+.samen .knoppen { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; align-items: center }
+aside.keuzes { counter-reset: stap } .stap:not([hidden]) h2 i::before { counter-increment: stap; content: counter(stap) }
+.veilig ul { margin: 6px 0 0; padding-left: 18px } .veilig small { color: var(--zacht) }
+.vink { display: flex; gap: 8px; align-items: center; font-size: 13.5px; margin-top: 8px } .vink input { width: auto }
+#offerte h1 { font: 700 22px var(--kop); margin: 0 0 4px } #offerte table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin: 8px 0 } #offerte td, #offerte th { border-bottom: 1px solid #ccc; padding: 4px 6px; text-align: left } #offerte .n { text-align: right }
+@media (max-width: 900px) { main { grid-template-columns: 1fr } aside.keuzes { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--lijn) } .beeld { min-height: 360px } .samen { position: static } }
 @media (max-width: 420px) { .stalen { grid-template-columns: repeat(4, minmax(0, 1fr)) } header.balk span { display: none } }
-@media print { header.balk, .tabs, .hint, .knop, dialog { display: none !important } main { grid-template-columns: 1fr } aside.keuzes { max-height: none; position: static; border: 0 } .printkop { display: block } .beeld { min-height: 340px } }
+@media print { header.balk, .tabs, .hint, .knop, dialog, .samen .knoppen { display: none !important } main { grid-template-columns: 1fr } aside.keuzes { max-height: none; position: static; border: 0 } .printkop { display: block } .beeld { min-height: 340px }
+  body.offerte-druk main { display: none } body.offerte-druk #offerte { display: block; padding: 10mm } }
 </style>
 </head>
 <body>
-<header class="balk"><b>Balustrades</b><span id="bedrijf">op maat, gelast in eigen werkplaats</span><div class="rechts"><button class="knop" type="button" id="instKnop">Instellingen</button><button class="knop vol" type="button" id="print">Afdrukken / PDF</button></div></header>
+<header class="balk"><b>Balustrades</b><span id="bedrijf">op maat, gelast in eigen werkplaats</span><div class="rechts"><button class="knop" type="button" id="instKnop">Instellingen</button><button class="knop" type="button" id="offerteKnop">Offerte</button><button class="knop vol" type="button" id="print">Afdrukken / PDF</button></div></header>
 <main>
   <section class="toneel">
     <div class="printkop" id="printkop"></div>
@@ -75,25 +82,40 @@ dialog { border: 1px solid var(--lijn); background: var(--vlak); color: var(--in
     <div class="beeld"><div id="drie" data-paneel="drie"><p id="laden">3D wordt geladen…</p><span class="hint">Slepen om te draaien · scrollen of knijpen om te zoomen</span></div><div id="tekening" data-paneel="tek" hidden></div></div>
   </section>
   <aside class="keuzes" aria-label="Keuzes">
-    <div class="stap"><h2><i>1</i>Soort</h2><div class="soorten" id="soorten"></div><div class="veld" style="margin-top:8px"><label for="stijl">Stijl</label><select id="stijl"></select></div><p class="uitleg" id="i-stijl"></p></div>
-    <div class="stap"><h2><i>2</i>Plaats en vorm</h2><div class="keuze" id="k-plaats"></div><div class="keuze" id="k-vorm" style="margin-top:8px"></div>
+    <div class="samen" id="samen">
+      <div class="veilig" id="veilig"></div>
+      <div class="prijs" id="prijsvak"><small id="p-label"></small><b id="p-bedrag"></b><small id="p-sub"></small><div class="meter"><div class="lat"><span class="bandje" id="m-band"></span><span class="pin" id="m-pin"></span></div></div><small id="m-tekst"></small><div class="opbouw" id="p-opbouw"></div></div>
+      <div class="knoppen"><label class="kies" style="display:inline-block"><input type="checkbox" id="plaatsen"><span>Met plaatsen</span></label></div>
+    </div>
+    <div class="stap"><h2><i></i>Soort</h2><div class="soorten" id="soorten"></div><div class="veld" style="margin-top:8px"><label for="stijl">Stijl</label><select id="stijl"></select></div><p class="uitleg" id="i-stijl"></p></div>
+    <div class="stap"><h2><i></i>Plaats en vorm</h2><div class="keuze" id="k-plaats"></div><div class="keuze" id="k-vorm" style="margin-top:8px"></div>
       <div class="twee" style="margin-top:8px"><div class="veld"><label for="L1" id="l-L1">Lengte (mm)</label><input id="L1" type="number" step="10"></div><div class="veld" id="v-L2"><label for="L2" id="l-L2">Lengte 2 (mm)</label><input id="L2" type="number" step="10"></div><div class="veld" id="v-L3"><label for="L3">Lengte 3 (mm)</label><input id="L3" type="number" step="10"></div><div class="veld"><label for="H">Hoogte (mm)</label><input id="H" type="number" step="10"></div></div>
       <div class="veld" style="margin-top:8px"><label for="cat">Gebruik</label><select id="cat"></select></div>
+      <label class="vink" for="hoog"><input type="checkbox" id="hoog"> Valhoogte 12 m of meer (hoogte 1200 mm)</label>
+      <label class="vink" for="trapboom" id="v-trapboom"><input type="checkbox" id="trapboom"> Dichte trapboom tot boven de treden (anders een plint die de treden volgt)</label>
+      <div id="v-wind" style="margin-top:8px"><span class="lbl">Wind (buiten)</span><div class="drie" style="margin-top:4px"><div class="veld"><label for="windVb">vb,0 m/s</label><select id="windVb"></select></div><div class="veld"><label for="terrein">Terrein</label><select id="terrein"></select></div><div class="veld"><label for="windHoogte">Hoogte m</label><input id="windHoogte" type="number" step="1"></div></div><p class="uitleg">vb,0 volgens de postcode (23 tot 26 m/s, kust 26); de hoogte van de balustrade boven het maaiveld.</p></div>
       <div style="margin-top:10px"><span class="lbl">Onder een schuin dak</span><div class="dakkant"><label class="kies" style="display:inline-block"><input type="checkbox" id="dakBegin"><span>Begin afschuinen</span></label><div class="drie" id="v-dakBegin" style="margin-top:6px"><div class="veld"><label for="dakBeginHelling">Helling °</label><input id="dakBeginHelling" type="number" step="1"></div><div class="veld"><label for="dakBeginMuur">Muur mm</label><input id="dakBeginMuur" type="number" step="10"></div><div class="veld"><label for="dakBeginSpleet">Spleet mm</label><input id="dakBeginSpleet" type="number" step="5"></div></div><p class="uitleg" id="i-dakBegin"></p></div><div class="dakkant"><label class="kies" style="display:inline-block"><input type="checkbox" id="dakEind"><span>Einde afschuinen</span></label><div class="drie" id="v-dakEind" style="margin-top:6px"><div class="veld"><label for="dakEindHelling">Helling °</label><input id="dakEindHelling" type="number" step="1"></div><div class="veld"><label for="dakEindMuur">Muur mm</label><input id="dakEindMuur" type="number" step="10"></div><div class="veld"><label for="dakEindSpleet">Spleet mm</label><input id="dakEindSpleet" type="number" step="5"></div></div><p class="uitleg" id="i-dakEind"></p></div></div></div>
-    <div class="stap"><h2><i>3</i>Bevestiging</h2><div class="keuze" id="k-bevestiging"></div><div class="keuze" id="k-handregel" style="margin-top:8px"></div></div>
-    <div class="stap" id="s-glas"><h2><i>4</i>Glas</h2><div class="stalen" id="k-glasTint"></div></div>
-    <div class="stap" id="s-kleur"><h2><i>5</i>Kleur en structuur</h2><div class="stalen" id="k-ral"></div><div class="stalen" id="k-lak" style="margin-top:8px;grid-template-columns:repeat(3,minmax(0,1fr))"></div></div>
-    <div class="stap"><label class="kies" style="display:inline-block"><input type="checkbox" id="plaatsen"><span>Met plaatsen</span></label>
-      <div class="veilig" id="veilig"></div>
-      <div class="prijs" id="prijsvak"><small id="p-label"></small><b id="p-bedrag"></b><small id="p-sub"></small><div class="meter"><div class="lat"><span class="bandje" id="m-band"></span><span class="pin" id="m-pin"></span></div></div><small id="m-tekst"></small><div class="opbouw" id="p-opbouw"></div></div></div>
+    <div class="stap"><h2><i></i>Bevestiging en ondergrond</h2><div class="keuze" id="k-bevestiging"></div><div class="keuze" id="k-handregel" style="margin-top:8px"></div>
+      <div class="twee" style="margin-top:8px"><div class="veld"><label for="ondergrond">Draagvloer</label><select id="ondergrond"></select></div><div class="veld"><label for="opbouw">Chape + isolatie (mm)</label><input id="opbouw" type="number" step="10"></div></div><p class="uitleg" id="i-ondergrond"></p></div>
+    <div class="stap" id="s-glas"><h2><i></i>Glas</h2><div class="stalen" id="k-glasTint"></div></div>
+    <div class="stap" id="s-kleur"><h2><i></i>Kleur en structuur</h2><div class="stalen" id="k-ral"></div><div class="stalen" id="k-lak" style="margin-top:8px;grid-template-columns:repeat(3,minmax(0,1fr))"></div></div>
   </aside>
 </main>
+<section id="offerte" aria-label="Offerte"></section>
 <dialog id="inst"><h2 style="margin-top:0">Instellingen</h2>
   <div class="veld"><label for="i-bedrijf">Naam van de zaak</label><input id="i-bedrijf" type="text"></div>
   <div class="veld" style="margin-top:8px"><label for="i-contact">Contact (telefoon, e-mail)</label><input id="i-contact" type="text"></div>
-  <div class="veld" style="margin-top:8px"><label for="i-prijs">Prijs voor de klant</label><select id="i-prijs"><option value="verkoop">Prijs excl. btw</option><option value="verkoopBtw">Prijs incl. btw</option><option value="geen">Geen prijs</option></select></div>
-  <div class="twee" style="margin-top:8px"><div class="veld"><label for="i-uurloon">Uurloon (€)</label><input id="i-uurloon" type="number"></div><div class="veld"><label for="i-marge">Marge (%) deze soort</label><input id="i-marge" type="number"></div></div>
+  <div class="twee" style="margin-top:8px"><div class="veld"><label for="i-prijs">Prijs voor de klant</label><select id="i-prijs"><option value="verkoop">Prijs excl. btw</option><option value="verkoopBtw">Prijs incl. btw</option><option value="geen">Geen prijs</option></select></div><div class="veld"><label for="i-btw">Btw</label><select id="i-btw"><option value="21">21 %</option><option value="6">6 % (woning ouder dan 10 jaar, geplaatst)</option></select></div></div>
+  <div id="ianDeel" hidden style="margin-top:10px;border-top:1px solid var(--lijn);padding-top:8px"><span class="lbl">Werkplaats (alleen voor Ian)</span>
+    <div class="twee" style="margin-top:6px"><div class="veld"><label for="i-uurloon">Uurloon (€)</label><input id="i-uurloon" type="number"></div><div class="veld"><label for="i-marge">Marge (%) deze soort</label><input id="i-marge" type="number"></div></div></div>
+  <div class="twee" id="slotDeel" style="margin-top:10px;align-items:end"><div class="veld"><label for="i-code" id="l-code">Code werkplaats</label><input id="i-code" type="password" inputmode="numeric" autocomplete="off"></div><button class="knop" type="button" id="i-open">Openen</button></div>
+  <p class="uitleg" id="i-slot">Uurloon en marge staan achter een code: de klant ziet ze niet.</p>
   <p class="uitleg">Bewaard op dit toestel.</p><button class="knop vol" type="button" id="i-sluit">Klaar</button></dialog>
+<dialog id="offerteVenster"><h2 style="margin-top:0">Offerte</h2>
+  <div class="veld"><label for="o-klant">Klant</label><input id="o-klant" type="text"></div>
+  <div class="veld" style="margin-top:8px"><label for="o-adres">Adres van de werf</label><input id="o-adres" type="text"></div>
+  <div class="veld" style="margin-top:8px"><label for="o-geldig">Geldig (dagen)</label><input id="o-geldig" type="number" value="30"></div>
+  <div class="knoppen" style="margin-top:12px;display:flex;gap:8px"><button class="knop vol" type="button" id="o-druk">Offerte afdrukken / PDF</button><button class="knop" type="button" id="o-sluit">Sluiten</button></div></dialog>
 <script>/*APP*/</script>
 </body>
 </html>

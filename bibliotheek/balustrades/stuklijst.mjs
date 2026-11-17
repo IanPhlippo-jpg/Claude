@@ -2,6 +2,7 @@
 // verstek of schuin langs de trap) en gewicht; de zaaglijst, het zaagplan (staven van 6 m, eerst de langste), de
 // laserlijst (voetplaten, consoles, platen), de glaslijst en de bestellijst van de kooponderdelen. Node en browser.
 import { PROFIEL, KOOP, ANKER, GLASOPBOUW, GLASTINT, PATROON } from './onderdelen.mjs';
+import { NORM } from './normen.mjs';
 import { lengtes } from './model.mjs';
 import { ZAAGSNEDE, STAAFLENGTE } from '../taatsdeuren/bestel.mjs';
 
@@ -27,8 +28,8 @@ export function stuklijst(o) {
   for (const d of o.delen) {
     if (d.prof === 'koop') continue;
     const P = PROFIEL[d.prof], { hart, lang } = lengtes(d), L = r0(lang);
-    const key = `${d.rol}|${d.prof}|${L}|${d.zaag}|${(d.gaten ?? []).length}`;
-    voeg(key, () => ({ soort: 'staaf', rol: d.rol, naam: (ROL[d.rol] ?? d.rol) + (d.dak && d.rol === 'handregel' ? ', schuin onder het dak' : ''), prof: d.prof, mat: P.koop ? 'RVS 1.4301' : 'S235JR', maat: P.naam, L, hart: r0(hart), zaag: d.zaag, zaagT: zaagTekst(d), kg: P.kgm * lang / 1000, n: 0, cat: d.cat, gaten: d.gaten ?? [], voorbeeld: d, dak: d.dak, opm: [d.gaten?.length ? `${d.gaten.length} x blindklinkmoer M8 (gat Ø11)` : '', dakOpm(d)].filter(Boolean).join('; ') }));
+    const key = `${d.rol}|${d.prof}|${L}|${d.zaag}|${(d.gaten ?? []).length}|${(d.ontlucht ?? []).map((x) => x.z).join(',')}`;
+    voeg(key, () => ({ soort: 'staaf', rol: d.rol, naam: (ROL[d.rol] ?? d.rol) + (d.dak && d.rol === 'handregel' ? ', schuin onder het dak' : ''), prof: d.prof, mat: P.koop ? (k.plaats === 'buiten' ? 'RVS 1.4404' : 'RVS 1.4301') : 'S235JR', maat: P.naam, L, hart: r0(hart), zaag: d.zaag, zaagT: zaagTekst(d), kg: P.kgm * lang / 1000, n: 0, cat: d.cat, gaten: d.gaten ?? [], voorbeeld: d, dak: d.dak, opm: [d.gaten?.length ? `${d.gaten.length} x blindklinkmoer M8 (gat Ø11)` : '', d.ontlucht?.length ? `${d.ontlucht.length} x ontluchting Ø${d.ontlucht[0].d}` : '', d.werfnaad ? 'werfnaad: insteekmof' : '', dakOpm(d)].filter(Boolean).join('; '), ontlucht: d.ontlucht ?? [] }));
   }
   // ---- gekochte lineaire delen (U-profiel, handregel Q-railing): op maat gezaagd
   for (const d of o.delen.filter((x) => x.prof === 'koop' && x.koop !== 'handregeldrager')) {
@@ -41,12 +42,12 @@ export function stuklijst(o) {
   }
   for (const p of o.panelen.filter((x) => x.rol !== 'glas')) {
     const pat = PATROON[p.patroon] ?? PATROON.vlak;
-    voeg(`${p.rol}|${r0(p.w)}|${r0(p.h)}|${p.helling}|${p.patroon}|${vormSleutel(p)}`, () => ({ soort: 'laser', rol: p.rol, naam: (p.rol === 'plint' ? 'Plint (dichte plaat tot 450 mm)' : `Plaat ${pat.naam}`) + (p.uv ? ', schuin onder het dak' : ''), mat: 'S235JR', maat: `${r0(p.w)} x ${r0(p.h)} x 3${p.helling ? ` (parallellogram ${gw(p.helling)}°)` : ''}${p.uv ? ` (${vormTekst(p)})` : ''}`, b: r0(p.w), l: r0(p.h), t: 3, kg: opp(p) * 3 * RHO * (pat.gewicht ?? 1), n: 0, cat: p.cat, paneel: p, patroon: p.patroon, opm: pat.naam }));
+    voeg(`${p.rol}|${r0(p.w)}|${r0(p.h)}|${p.helling}|${p.patroon}|${vormSleutel(p)}`, () => ({ soort: 'laser', rol: p.rol, naam: (p.rol === 'plint' ? 'Plint (dichte plaat tot 450 mm)' : p.rol === 'trapplint' ? 'Trapplint (volgt de treden)' : `Plaat ${pat.naam}`) + (p.uv && !p.trapplint ? ', schuin onder het dak' : ''), mat: 'S235JR', maat: `${r0(p.w)} x ${r0(p.h)} x ${p.dikte ?? 3}${p.helling && !p.trapplint ? ` (parallellogram ${gw(p.helling)}°)` : ''}${p.uv ? ` (${vormTekst(p)})` : ''}`, b: r0(p.w), l: r0(p.h), t: p.dikte ?? 3, kg: opp(p) * (p.dikte ?? 3) * RHO * (pat.gewicht ?? 1), n: 0, cat: p.cat, paneel: p, patroon: p.patroon, opm: pat.naam }));
   }
   // ---- glas
   for (const p of o.panelen.filter((x) => x.rol === 'glas')) {
     const G = GLASOPBOUW[p.opbouw];
-    voeg(`glas|${r0(p.w)}|${r0(p.h)}|${p.helling}|${p.opbouw}|${vormSleutel(p)}`, () => ({ soort: 'glas', rol: 'glas', naam: p.uv ? `Glas ${p.opbouw} gehard-gelaagd, schuine kant` : `Glas ${G.naam}`, mat: `gelaagd ${GLASTINT[k.glasTint]?.naam.toLowerCase() ?? 'helder'}`, maat: `${r0(p.w)} x ${r0(p.h)}${p.helling ? ` (parallellogram ${gw(p.helling)}°)` : ''}${p.uv ? ` (${vormTekst(p)})` : ''}`, b: r0(p.w), l: r0(p.h), m2: opp(p) / 1e6, rechthoek: (p.w * p.h) / 1e6, vorm: !!p.uv, kg: opp(p) / 1e6 * G.kgm2, n: 0, cat: 'glas', paneel: p, opm: p.uv ? 'vormglas: maat volgens de stuktekening (mal of DXF), kanten geslepen' : 'kanten geslepen, hoeken gefaceteerd' }));
+    voeg(`glas|${r0(p.w)}|${r0(p.h)}|${p.helling}|${p.opbouw}|${vormSleutel(p)}`, () => ({ soort: 'glas', rol: 'glas', naam: p.uv ? `Glas ${p.opbouw} gehard-gelaagd, schuine kant` : `Glas ${G.naam}`, mat: `gelaagd ${GLASTINT[k.glasTint]?.naam.toLowerCase() ?? 'helder'}`, maat: `${r0(p.w)} x ${r0(p.h)}${p.helling ? ` (parallellogram ${gw(p.helling)}°)` : ''}${p.uv ? ` (${vormTekst(p)})` : ''}`, b: r0(p.w), l: r0(p.h), m2: opp(p) / 1e6, rechthoek: (p.w * p.h) / 1e6, vorm: !!p.uv, kg: opp(p) / 1e6 * G.kgm2, n: 0, cat: 'glas', paneel: p, opm: `${GLASBESTEL}${p.uv ? '; vormglas: maat volgens de stuktekening (mal of DXF)' : ''}${k.soort === 'glasstaal' ? '; per klem een gat voor de borgpen volgens Q-railing (AANNAME)' : ''}` }));
   }
   pos.forEach((p, i) => { p.pos = i + 1; });
   return { posities: pos, koop: koopLijst(o) };
@@ -57,13 +58,15 @@ export const opp = (p) => (p.uv ? Math.abs(p.uv.reduce((t, [u, v], i) => { const
 const vormSleutel = (p) => (p.uv ? p.uv.map(([u, v]) => `${r0(u)},${r0(v)}`).join(';') : '');
 /** de schuine kant van een paneel: hoogte links en rechts, lengte en hoek van de (langste) schuine zijde */
 export function schuineKant(p) {
-  if (!p.uv) return null;
+  if (!p.uv || p.trapplint) return null;
   const boven = p.uv.slice(2).reverse(); // bovenrand van links naar rechts
   let lang = null;
   for (let i = 0; i < boven.length - 1; i++) { const [u1, v1] = boven[i], [u2, v2] = boven[i + 1], l = Math.hypot(u2 - u1, v2 - v1), h = Math.abs((Math.atan2(v2 - v1, u2 - u1) * 180) / Math.PI); if (h > 0.5 && (!lang || l > lang.l)) lang = { l, hoek: h, du: u2 - u1, u1, u2 }; }
   return { links: boven[0][1], rechts: boven[boven.length - 1][1], hoeken: boven.length, boven, schuin: lang };
 }
-const vormTekst = (p) => { const s = schuineKant(p); return `${s.hoeken > 2 ? 'vijfhoek' : 'trapezium'}: links ${r0(s.links)}, rechts ${r0(s.rechts)}${s.schuin ? `, schuine zijde ${r0(s.schuin.l)} op ${gw(s.schuin.hoek)}°` : ''}`; };
+/** wat altijd op de glasbestelling en de offerte staat (P2-9) */
+export const GLASBESTEL = 'gehard-gelaagd veiligheidsglas klasse 1B1 (EN 12600), gelaagd EN ISO 12543 / EN 14449, gehard EN 12150, heat-soak getest (EN 14179), kanten geslepen, hoeken gefaceteerd';
+const vormTekst = (p) => { if (p.trapplint) return `zaagtand volgens de treden, ${NORM.trapPlintSpeling.v} mm boven elke trede`; const s = schuineKant(p); return `${s.hoeken > 2 ? 'vijfhoek' : 'trapezium'}: links ${r0(s.links)}, rechts ${r0(s.rechts)}${s.schuin ? `, schuine zijde ${r0(s.schuin.l)} op ${gw(s.schuin.hoek)}°` : ''}`; };
 /** opmerking voor een schuin stuk onder het dak */
 const dakOpm = (d) => (!d.dak ? '' : d.rol === 'handregel' ? `onder het dak: helling ${gw(d.dak.hoek)}°, horizontaal ${d.dak.horizontaal} mm` : d.rol === 'staaf' ? `eindigt tegen de schuine handregel (${gw(d.dak.hoek)}°)` : `bovenaan schuin ${gw(d.dak.hoek)}° (onder de schuine handregel)`);
 
@@ -77,10 +80,16 @@ export function koopLijst(o) {
   if (A) {
     zet(buiten ? A.koopA4 : A.koop, na, buiten ? 'buiten' : 'basis');
     if (A.mortel) zet('fisv', Math.ceil(na / KOOP.fisv.perKoker));
+    if (A.huls) zet(A.huls, na);
+    // de stang op lengte (opbouw + voetplaat + hef): artikel en naam volgen de lengte
+    const x = uit.get(buiten ? A.koopA4 : A.koop), std = A.d === 12 ? 160 : 130;
+    if (x && A.mortel && o.ankerLengte && o.ankerLengte !== std) { const m = (t) => t.replace(/M(1[02])x\d+/, `M$1x${o.ankerLengte}`); x.naam = m(x.naam); x.artikel = m(x.artikel); x.bron = `${x.bron}; lengte ${o.ankerLengte} mm voor de opbouw (AANNAME: handelslengte, prijs als de standaardstang)`; }
   }
   if (k.soort !== 'glasU' && k.bevestiging === 'boven') zet('vulplaat', o.staanders.length);
   // glas met staanders
   for (const kl of o.klemmen) zet(kl.koop, 1, 'glas');
+  if (o.klemmen.length) zet('borgpen', o.klemmen.length, 'glas');
+  if (o.werfnaden?.length && k.soort !== 'glasU') zet('werfnaad', o.werfnaden.length);
   if (o.klemmen.length && o.klemmen[0].koop === 'klemVlak') { zet('klinkmoer', o.klemmen.length, 'glas'); zet('bout8', o.klemmen.length, 'glas'); }
   if (k.soort === 'glasstaal' && k.hr === 'rond') { zet('handregeldrager', o.staanders.length); zet('inoxEindkap', 2); }
   if (o.st.staander === 'inox' && k.bevestiging === 'boven') zet('rozet', o.staanders.length);

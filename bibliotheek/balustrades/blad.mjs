@@ -32,18 +32,31 @@ export function eersteHoek(x, y, s = 1) {
 export const naamVan = (o) => `${SOORTEN[o.k.soort].kort} · ${STIJL(o.k.soort, o.k.stijl).naam}`;
 export const maatTekst = (o) => `${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm · H ${o.k.H}`;
 
-/** titelblok ISO 7200 rechtsonder: 180 x 32 (A3) of 120 x 28 (A4); opts { titel, nr, rev, datum, blad, schaal } */
+/** de datum van vandaag (JJJJ-MM-DD) voor het titelblok */
+export const vandaag = () => new Date().toISOString().slice(0, 10);
+/** tekeningnummer van blad n in het dossier: BA-S1-03 */
+export const bladNr = (basis, n) => `${basis ?? 'BA'}-${String(n).padStart(2, '0')}`;
+/** schalen volgens ISO 5455 (verkleining) */
+export const ISO5455 = [1, 2, 5, 10, 20, 50, 100, 200];
+/** de grootste ISO 5455-schaal 1:n die kleiner of gelijk is aan s */
+export const isoSchaal = (s) => ISO5455.find((n) => 1 / n <= s + 1e-9) ?? 200;
+
+/**
+ * titelblok ISO 7200 rechtsonder: 180 x 32 (A3) of 125 x 28 (A4), met de verplichte velden (eigenaar, titel,
+ * tekeningnummer, uitgiftedatum, opgesteld door, goedgekeurd door, documenttype) en blad n / totaal;
+ * opts { titel, nr, rev, datum, blad, schaal, type, goedgekeurd }
+ */
 export function titelblok(o, [w, h], opts = {}) {
   const groot = w >= 400, bw = groot ? 180 : 125, bh = groot ? 32 : 28, rh = bh / 4, tx = w - 10 - bw, ty = h - 10 - bh, el = [];
   el.push(`<rect x="${tx}" y="${ty}" width="${bw}" height="${bh}" fill="#fff" stroke="#111" stroke-width="0.5"/>`);
   for (let i = 1; i < 4; i++) el.push(lijn(tx, ty + i * rh, tx + bw, ty + i * rh, 0.25));
-  const veld = (xx, rij, kop, waarde, hh = 2.4, vet = false) => { if (xx > 0) el.push(lijn(tx + xx, ty + rij * rh, tx + xx, ty + rij * rh + rh, 0.25)); el.push(tk(tx + xx + 1, ty + rij * rh + 2.3, kop, 1.5, { kleur: '#555' }), tk(tx + xx + 1, ty + rij * rh + rh - 1.4, String(waarde).slice(0, groot ? 80 : 56), hh, { vet })); };
-  const k1 = bw * 0.38, k2 = bw * 0.62, k3 = bw * 0.78;
-  veld(0, 0, 'Eigenaar', 'Ian · laswerken', groot ? 2.5 : 2.2, true); veld(k1, 0, 'Bibliotheek', 'Balustrades', 2.3); veld(k3, 0, 'Projectie', '', 2);
-  el.push(eersteHoek(tx + k3 + 4, ty + 1.6, groot ? 0.48 : 0.4));
-  veld(0, 1, 'Titel', opts.titel ?? `Balustrade ${naamVan(o)}`, groot ? 2.8 : 2.4, true);
-  veld(0, 2, 'Balustrade', `${naamVan(o)} · ${maatTekst(o)}`, groot ? 2.2 : 1.8); veld(k2, 2, 'Tekeningnummer', opts.nr ?? 'BA-1', 2.3, true); veld(k3 + (groot ? 12 : 6), 2, 'Rev.', opts.rev ?? '1', 2.2);
-  veld(0, 3, 'Maten en toleranties', groot ? 'mm · ISO 2768-m · lassen ISO 5817-C' : 'mm · ISO 2768-m · ISO 5817-C', groot ? 2.1 : 1.7); veld(k1 + (groot ? 10 : 6), 3, 'Schaal', opts.schaal ?? '', 2.1); veld(k2, 3, 'Uitgifte', opts.datum ?? '', 2); veld(k3 + (groot ? 12 : 6), 3, 'Blad', opts.blad ?? '1 / 1', 2.1);
+  const veld = (xx, rij, kop, waarde, hh = 2.4, vet = false, max = groot ? 80 : 56) => { if (xx > 0) el.push(lijn(tx + xx, ty + rij * rh, tx + xx, ty + rij * rh + rh, 0.25)); el.push(tk(tx + xx + 1, ty + rij * rh + 2.3, kop, 1.5, { kleur: '#555' }), tk(tx + xx + 1, ty + rij * rh + rh - 1.4, String(waarde).slice(0, max), hh, { vet })); };
+  const k1 = bw * 0.3, k2 = bw * 0.5, k3 = bw * 0.62, k4 = bw * 0.8;
+  veld(0, 0, 'Eigenaar', 'Ian · laswerken', groot ? 2.5 : 2.0, true); veld(k1, 0, 'Opgesteld door', 'Ian', groot ? 2.2 : 1.8); veld(k2, 0, 'Goedgekeurd door', opts.goedgekeurd ?? '—', groot ? 2.2 : 1.8); veld(k4, 0, 'Projectie', '', 2);
+  el.push(eersteHoek(tx + k4 + (groot ? 12 : 8), ty + (groot ? 3.2 : 2.8), groot ? 0.4 : 0.3));
+  veld(0, 1, 'Titel', opts.titel ?? `Balustrade ${naamVan(o)}`, groot ? 2.8 : 2.3, true, groot ? 84 : 56); veld(k4, 1, 'Documenttype', opts.type ?? 'werktekening', groot ? 2.0 : 1.6);
+  veld(0, 2, 'Balustrade', `${naamVan(o)} · ${maatTekst(o)}`, groot ? 2.1 : 1.6, false, groot ? 70 : 52); veld(k3, 2, 'Tekeningnummer', opts.nr ?? 'BA-01', groot ? 2.3 : 2.0, true); veld(k4 + (groot ? 12 : 8), 2, 'Rev.', opts.rev ?? '1', 2.0);
+  veld(0, 3, 'Maten en toleranties', groot ? 'mm · stukken ISO 2768-m · gelast ISO 13920-BF · lassen ISO 5817-C' : 'mm · ISO 2768-m · gelast 13920-BF · 5817-C', groot ? 1.9 : 1.45); veld(k3 - (groot ? 6 : 4), 3, 'Schaal', opts.schaal ?? '', groot ? 2.1 : 1.8); veld(k3 + (groot ? 12 : 10), 3, 'Uitgifte', opts.datum || vandaag(), groot ? 2 : 1.7); veld(k4 + (groot ? 12 : 8), 3, 'Blad', opts.blad ?? '1 / 1', groot ? 2.1 : 1.8);
   return el.join('');
 }
 

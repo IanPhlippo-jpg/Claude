@@ -29,4 +29,17 @@
 - [x] Bladen en de presentatie renderen (Edge/playwright) en bekijken
 - [x] Bronnen nalezen: Buildwise Contact 2016/4 p. 16-17 en de ANB-fiche EN 1991-1-1
 - [x] Rapport schrijven: docs/Advies-Fable-5.2-v1.md (P1/P2/P3 met bestand:regel, norm en oplossing)
-- [ ] Adviezen verwerken (nog te doen, niet in deze ronde)
+- [x] Adviezen verwerken (ronde 2, 2026-11-17): zie de sectie hieronder
+
+## Advies Fable 5.2 v1 verwerken (2026-11-17)
+- [x] Voor-screenshots van de bladen en de presentatie; bronnen nazoeken (wind ANB, verticale last, klemtabel Q-railing)
+- [x] P1-8 en P1-5: eerlijke conformiteitstekst met lijst "niet gecontroleerd"; echte randafstand op ontwerp en plaatsingsblad
+- [x] P1-1 wind buiten (EN 1991-1-4 + ANB, terrein en hoogte, combinatie met de lijnlast volgens Contact 2016/4)
+- [x] P1-2 ondergrond (chape + isolatie, welfsels, hout, staal; hef vanaf de draagvloer; ankertype per ondergrond)
+- [x] P1-3 verticale last handregel, P1-4 glas tussen klemmen (deels: ruitmaat AANNAME), P1-6 vulling onder 0,5 kN, P1-7 driehoek langs de trap + traponderregel
+- [x] P2-1 tot P2-17, P2-2/P2-3/P2-8 deels (trapvoetplaten, valhoogte, M10/M12, ontluchtingsgaten, secties en voegen, EXC, titelblok, ISO 5455, prijsmodel, klantmodus, ...)
+- [x] P3-1 tot P3-12, behalve P3-6 (niet) en P3-7 (deels)
+- [x] Tests: handberekeningen, negatieve test per P1/P2, cirkelvormige prijstest weg; vitest 532/532 groen (typecheck: 2 fouten buiten de balustrades)
+- [x] Web en presentatie opnieuw bouwen, kopie naar Balustradeconfigurator, na-screenshots bekijken, graphify update
+- [x] Statustabel onderaan het adviesrapport (31 gedaan, 5 deels, 1 niet)
+- [ ] Open: AANNAMES laten bevestigen (MOD 2500 ruitmaat/borgpen, ω, 900 mm trap, rand 0,75, kI/ψ0, sectiemaat), γM0 ANB (P3-6), typecheck src/app + src/core (andere agent)

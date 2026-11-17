@@ -4,4 +4,6 @@ export interface Band { laag: number; hoog: number; laagPl: number; hoogPl: numb
 export declare const MARKTBAND: Record<string, Band>;
 export declare const MARKT: { soort: string; wat: string; prijs: number; montage: boolean; bron: string }[];
 export declare const STANDAARD: Record<string, any>;
-export declare function kostprijs(o: Ontwerp, inst?: Record<string, any>): { regels: { wat: string; bedrag: number; bron: string; cat: string }[]; kostprijs: number; verkoop: number; perMeter: number; perMeterZonder: number; meter: number; plaatsen: { uren: number; verkoop: number; perMeter: number; inbegrepen: boolean }; perCat: Record<string, { verkoop: number }>; uren: number; stuklijst: any; stappen: { titel: string; uren: number; cats: Record<string, number> }[] };
+export declare function kostprijs(o: Ontwerp, inst?: Record<string, any>): { regels: { wat: string; bedrag: number; bron: string; cat: string }[]; kostprijs: number; verkoop: number; perMeter: number; perMeterZonder: number; meter: number; plaatsen: { uren: number; verkoop: number; perMeter: number; inbegrepen: boolean }; perCat: Record<string, { verkoop: number; kost: number; materiaal: number; arbeid: number; uren: number }>; uren: number; materiaal: number; arbeid: number; marge: number; vast: { uren: number; kost: number }; instellingen: Record<string, any>; stuklijst: any; stappen: { titel: string; uren: number; cats: Record<string, number> }[] };
+export declare const UURLOON_UITLEG: string;
+export declare const CAT: Record<string, string>;

@@ -2,19 +2,31 @@
 // en de berekening, daarna alle bladen (overzicht, stuklijst, bestellijst, berekening, plaatsing, boringen, lassen,
 // montage per verbinding en een A4 per stuk). Ook de lijsten als CSV. Gedeeld door de pagina en de test. Node en browser.
 import { kostprijs, CAT, MARKT, MARKTBAND } from './prijzen.mjs';
-import { berekening } from './bereken.mjs';
-import { alleBladen, stukBladen } from './tekeningen.mjs';
-import { montageBladen } from './montage.mjs';
-import { naamVan, maatTekst, esc } from './blad.mjs';
+import { berekening, conformiteit } from './bereken.mjs';
+import { alleBladen, stukBladen, aantalBladen } from './tekeningen.mjs';
+import { montageBladen, montage } from './montage.mjs';
+import { stuklijst, GLASBESTEL } from './stuklijst.mjs';
+import { naamVan, maatTekst, esc, vandaag } from './blad.mjs';
 import { eur } from '../taatsdeuren/dossier.mjs';
 
 export { eur };
 const g = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
 const link = (b) => (/^https?:/.test(b) ? `<a href="${esc(b)}">${esc(b.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a>` : esc(b));
 
+/**
+ * alle bladen van het dossier met doorlopende tekeningnummers en blad n / totaal (P2-13): eerst de werkbladen, dan de
+ * montagebladen, dan een blad per stuk
+ */
+export function dossierBladen(o, meta = {}) {
+  const n1 = aantalBladen(o), n2 = montage(o).length, n3 = stuklijst(o).posities.length, totaal = n1 + n2 + n3, m = { ...meta, datum: meta.datum || vandaag(), totaal };
+  return { bladen: alleBladen(o, { ...m, start: 1 }), montage: montageBladen(o, { ...m, start: n1 + 1 }), stukken: stukBladen(o, { ...m, start: n1 + n2 + 1 }), totaal };
+}
+/** btw-tarief: 21 %, of 6 % voor geplaatst werk in een woning ouder dan 10 jaar (P3-10) */
+export const btwFactor = (inst = {}) => 1 + (Number(inst.btw) === 6 ? 6 : 21) / 100;
+
 /** A4: kostprijs, toeslagen, werkwijze, berekening */
 export function a4(o, inst = {}) {
-  const k = kostprijs(o, inst), B = berekening(o), mb = MARKTBAND[o.k.soort];
+  const k = kostprijs(o, inst), B = berekening(o), C = conformiteit(o, B), mb = MARKTBAND[o.k.soort], btw = btwFactor(inst);
   return `<section class="a4">
 <h1>Balustrade ${esc(naamVan(o))} <span>${esc(maatTekst(o))} · ${o.k.plaats} · ${o.k.bevestiging === 'zij' ? 'zijmontage' : 'bovenop de vloer'}</span></h1>
 <h2>Prijs per strekkende meter (excl. btw)</h2>
@@ -29,11 +41,14 @@ ${k.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td class="n">${eur(r.bedrag)}<
 <tr class="sub"><td>Materiaal</td><td class="n">${eur(k.materiaal)}</td><td></td></tr>
 <tr><td>Arbeid ${g(k.uren, 2)} u x ${eur(k.instellingen.uurloon)}</td><td class="n">${eur(k.arbeid)}</td><td class="bron">uren uit de werkwijze</td></tr>
 <tr class="tot"><td>Kostprijs</td><td class="n">${eur(k.kostprijs)}</td><td></td></tr>
-<tr class="tot"><td>Verkoop met ${k.marge} % marge</td><td class="n">${eur(k.verkoop)}</td><td class="bron">incl. btw ${eur(k.verkoop * 1.21)}</td></tr>
+<tr class="tot"><td>Verkoop met ${k.marge} % marge</td><td class="n">${eur(k.verkoop)}</td><td class="bron">incl. ${Math.round((btw - 1) * 100)} % btw ${eur(k.verkoop * btw)}${btw < 1.2 ? ' (6 %: geplaatst in een woning ouder dan 10 jaar, attest van de klant)' : ''}</td></tr>
 </tbody></table>
 <h2>Werkwijze</h2>
 <ol class="stappen">${k.stappen.map((s) => `<li><b>${esc(s.titel)}</b> <span class="uur">${g(s.uren, 2)} u${s.proces ? ` · ${esc(s.proces)}` : ''}${s.apart ? ' · apart' : ''}</span><br>${esc(s.tekst)}</li>`).join('')}</ol>
-<h2>Berekening: ${B.oordeel}</h2>
+<h2>Berekening: ${esc(C.label)}</h2>
+<p class="klein">${esc(C.kort)}</p>
+<h2>Na te kijken vóór de uitvoering</h2>
+<ul class="klein">${C.niet.map((x) => `<li>${C.open.includes(x) ? '☐' : '☑'} ${esc(x.wat)}</li>`).join('')}</ul>${o.glas ? `<p class="klein">Glas: ${esc(GLASBESTEL)}.</p>` : ''}
 <table><thead><tr><th></th><th>Controle</th><th>Berekening</th><th class="n">Benut</th></tr></thead><tbody>
 ${B.controles.map((c) => `<tr><td><i class="d ${c.oordeel}"></i></td><td>${esc(`${c.groep}: ${c.wat}`)}</td><td class="bron">${esc(c.formule)}<br><small>${esc(c.bron)}</small></td><td class="n">${c.oordeel === 'info' ? '' : `${Math.round(c.benut * 100)} %`}</td></tr>`).join('')}
 </tbody></table>
@@ -52,7 +67,7 @@ export const CSS = `
 
 /** het hele dossier als één HTML-bestand */
 export function dossierHtml(o, inst = {}, meta = {}) {
-  const bl = alleBladen(o, meta), mb = montageBladen(o, meta), st = stukBladen(o, meta), a3 = (s) => /viewBox="0 0 420 297"/.test(s);
+  const D = dossierBladen(o, meta), bl = D.bladen, mb = D.montage, st = D.stukken, a3 = (s) => /viewBox="0 0 420 297"/.test(s);
   const blad = (s) => `<div class="${a3(s) ? 'a3' : 'a4l'}">${s}</div>`;
   return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Balustrade ${esc(naamVan(o))}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}@page a4l{size:297mm 210mm;margin:0}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4l{page:a4l;width:297mm;height:210mm;overflow:hidden;page-break-after:always}.a4l svg{width:297mm;height:210mm;display:block}${CSS}</style></head><body>${a4(o, inst)}${bl.map((b) => blad(b.svg)).join('')}${mb.map((b) => blad(b.svg)).join('')}${st.map((b) => blad(b.svg)).join('')}</body></html>`;
 }

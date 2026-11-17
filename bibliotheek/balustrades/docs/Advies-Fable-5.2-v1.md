@@ -429,3 +429,87 @@ bron); de formule van de muurplaat (`:186`); "opening ≤ 110 mm" met een bron d
 3. P1-3, P1-4, P1-6, P1-7: vier nieuwe controles in `bereken.mjs`, elk met een handberekening als test.
 4. P2-10, P2-11, P2-13, P2-14: de tekeningen maakbaar maken voor buiten en voor lange lijnen.
 5. P2-15 en P2-16: de prijs en de instellingen vóór Ian er een klant mee bezoekt.
+
+---
+
+## Status van de verwerking (2026-11-17)
+
+Verwerkt door Claude (Opus 5.5) op 2026-11-17, niet gecommit. "gedaan" = volledig opgelost, met een test die faalt
+zonder de oplossing (nagegaan: de nieuwe tests op de oude code van commit 27021d6 geven 54 van 54 rood). "deels" = een
+deel staat er, of een bepalende waarde is nog een AANNAME. "niet" = niet gedaan.
+
+| Punt | Wat | Status | Toelichting |
+|---|---|---|---|
+| P1-1 | Wind buiten | gedaan | EN 1991-1-4 + ANB: qp uit vb,0 (23/24/25/26 m/s per postcode, standaard 26), terrein 0-IV en hoogte; cp,net uit tabel 7.9, of cf 2,0 op een open vulling. Combinatie lijnlast + 0,6 · wind of wind + 0,7 · lijnlast op de staander, de las, de ankers, de voetplaat en het glas. **26,2 m/s staat in geen enkele Belgische bron: de ANB heeft een kaart van 23 tot 26 m/s.** kI = 1 en de ψ0 uit EN 1990 blijven AANNAME. |
+| P1-2 | Ondergrond | gedaan | Invoer: draagvloer (beton, welfsel, hout, staal, metselwerk) en opbouw. De hef telt vanaf de draagvloer; boven 40 mm opbouw staat de voetplaat op de draagvloer. Ankertype per ondergrond. Een controle die oranje of rood geeft waar geen rekenwaarde bestaat (welfsel, hout, metselwerk). Hout wordt niet gerekend: rood, laten rekenen. |
+| P1-3 | Verticale last op de handregel | gedaan | Qk,v = 1 kN uit Contact 2018/4: bron gevonden, dus geen AANNAME. Platstaal 50x8 vrij tussen de staanders is rood. G1 en H2 krijgen een koker 50x30x3. Spijlen en een plaat dragen de platte handregel; de spijl wordt dan op knik nagekeken. |
+| P1-4 | Glas tussen klemmen | deels | Gedaan: rekenbreedte w/2, borgpen MOD 5015, klem MOD 2500 (de MOD 2100 is maar voor glas van 6-10 mm), oranje zonder attest, rood boven de maatgrens. **De maatgrens 1200 x 1000 mm / 1,2 m² is een AANNAME**: de tabel van Q-railing zit achter een account. Of de borgpen een gat in het glas vraagt, is ook een AANNAME. |
+| P1-5 | Randafstand | gedaan | c = 100 mm voor de voorste ankers; het staanderhart staat op 100 + e (145 bij een plaat van 140). Dezelfde maat op het plaatsingsblad, het boringenblad en de doorsnede. Dwarskracht naar de rand volgens EN 1992-4. De reductie 0,75 blijft AANNAME. |
+| P1-6 | Vulling onder 0,5 kN | gedaan | Spijl, staaf, regel, plaat en plint worden gerekend. S1 wordt Ø14; de plint wordt 4 mm. Vierkant 12 (S3) staat bij H 1100 op 93 % (oranje). |
+| P1-7 | Driehoek langs de trap | gedaan | De ingeschreven cirkel telt als opening. Standaard volgt een trapplint van 4 mm de treden; een dichte trapboom kan ook. Glas in een U-profiel bovenop de treden blijft rood, want daar past geen plint: kies zijmontage. De grens van 110 mm voor de driehoek is AANNAME. |
+| P1-8 | Conformiteitstekst | gedaan | De klant leest "Hoogte, openingen en beklimbaarheid volgens NBN B 03-004; sterkte voorberekend op ...", met de lijst van wat niet gecontroleerd is. Ian vinkt die lijst af in de werkplaats; pas dan staat er "nagekeken". |
+| P2-1 | Trap: voetplaten op de treden | gedaan | Elke voetplaat ligt volledig op een trede: in het midden, of 70 mm van het uiteinde. De knikstaander staat op de laatste trede. De trede staat op het plaatsingsblad en het stukblad. |
+| P2-2 | Valhoogte | deels | 1200 mm geldt nu ook langs de trap, en het vinkje staat in de presentatie. **De 900 mm langs de trap blijft een AANNAME** uit een secundaire bron. |
+| P2-3 | Bron van 110 mm, spleet aan de vloerrand | deels | De bron zegt nu eerlijk AANNAME, en de spleet bij zijmontage telt als opening. Een betere bron dan de normtekst zelf is niet gevonden. |
+| P2-4 | Handregel horizontaal | gedaan | max(q a²/8; Q a/4). De doorbuiging van de handregel telt op bij die van de staander. |
+| P2-5 | Vrije staanderafstand | gedaan | Altijd getoetst aan de berekening en aan de grens van de soort; daarboven rood. De onderregel wordt onder de puntlast gerekend. Grens voor glas met staanders: 1250 mm. |
+| P2-6 | Lasmodel zijmontage | gedaan | Afstandhouders op 40 en 210 mm, dus 170 mm uit elkaar. Koppel F = M / 170, las per afstandhouder en de wand van de staander, arm H + 40. |
+| P2-7 | M10 buiten | gedaan | fisa10a4 en faz10a4 toegevoegd en gekoppeld; de meerprijs A4 volgt het juiste artikel. |
+| P2-8 | Glas in een U-profiel | deels | Gedaan: ω = 0,1 (dus 1010.4 ook in een woning), de puntlast per plaat, de systeemhoogte ≤ 1100 mm. **ω = 0,1 en de 1100 mm zijn AANNAMES.** De ankersteek (250 mm) is niet uit de fiche van het profiel gehaald. |
+| P2-9 | Glasbestelling | gedaan | 1B1 (EN 12600), EN ISO 12543 / EN 14449, EN 12150 en heat-soak EN 14179 staan op de bestelling, het stukblad en de offerte. Heat-soak zit in de prijs. |
+| P2-10 | Ontluchtingsgaten | gedaan | In het model, op het stukblad en het boringenblad, en in de uren. Plaat buiten 4 mm, rondom doorgelast. |
+| P2-11 | Secties, werfnaden, uitzetting | gedaan | Secties ≤ 3 m (instelbaar), werfnaad met lip en insteekmof, de handregel per sectie, buiten om de ± 6 m een uitzetvoeg, een samenstellingsblad per sectie. De grootste sectie (vervoer, zinkbad) is een SCHATTING: navragen. |
+| P2-12 | EXC2 | gedaan | Geschrapt. Wel ISO 9606-1, ISO 5817-C en 100 % visuele controle; EN 1090 navragen. |
+| P2-13 | Titelblok en tekenregels | gedaan | Doorlopende nummers en blad n / totaal over het hele dossier. Datum altijd ingevuld; velden opgesteld door, goedgekeurd door en documenttype. Alleen ISO 5455-schalen, snijlijn A-A, gelast ISO 13920-BF. |
+| P2-14 | Samenstellingstekening | gedaan | Per sectie een gemaat vooraanzicht: staanderafstanden, regelhoogtes, spijlsteek, opening, klemgaten, diagonaal. Het latje op het montageblad volgt de echte opening. |
+| P2-15 | Prijsmodel | gedaan | Het uurloon blijft € 45 (instelling). Opgeloste fouten: vaste post per opdracht, glas plaatsen met 2 personen, coaten per m² aanzicht (glas: per lopende meter), risico glas, heat-soak, inox 1.4404 buiten. Marktvergelijking: zie hieronder. |
+| P2-16 | Klantmodus | gedaan | Presentatie: uurloon en marge achter een code. Web: klant.html, zonder werkplaats, instellingen en kostprijs. |
+| P2-17 | Tests | gedaan | Handberekeningen naast de code: qp, cp,net, de combinatie, de staander (161,8 N/mm²), de ankers, de spijl, de handregel, het glas, de driehoek, de betonrand, de las. Een negatieve test per P1/P2. De cirkeltest op de marktband is weg. |
+| P3-1 | lasW plat | gedaan | a h² / 3. |
+| P3-2 | Lasmaat in de werkwijze | gedaan | Werkwijze, lasblad en berekening gebruiken keel(P). |
+| P3-3 | a3 op dunne wanden | gedaan | a2 op wanden van 2-3 mm, a2,5 op plaat van 4 mm. |
+| P3-4 | Puntlast in de profielkeuze | gedaan | Een profiel dat de puntlast niet haalt, valt af. |
+| P3-5 | E van inox | gedaan | Eigen veld E in het profiel; de inox-las staat vermeld als voorzichtig gerekend. |
+| P3-6 | γM0 volgens de ANB | niet | De Belgische ANB bij EN 1993-1-1 is niet ingezien: blijft AANNAME. |
+| P3-7 | Doorbuiging | deels | De handregel telt mee. De draaiing van de voetplaat en de ankers niet; dat staat in de formule. |
+| P3-8 | Overzicht U-profiel | gedaan | "alu geanodiseerd" en "geen (U-profiel)". |
+| P3-9 | Inox buiten | gedaan | 1.4404 (316) buiten, + 25 % (SCHATTING). |
+| P3-10 | Btw 6 % | gedaan | Keuze 21 of 6 % in de presentatie, de web en het dossier. |
+| P3-11 | Presentatie | gedaan | Oordeel en prijs bovenaan (ook op 1440 x 900), stappen doorlopend genummerd. Knop Offerte met klant, werf, geldigheid en voorwaarden. |
+| P3-12 | Cirkeltest op de prijs | gedaan | Vervangen door "kostprijs = materiaal + uren x uurloon, met de vaste post". |
+
+**Telling (37 punten):** 31 gedaan, 5 deels (P1-4, P2-2, P2-3, P2-8, P3-7), 1 niet (P3-6).
+
+**Marktvergelijking met de nieuwe prijs** (4,5 m, binnen, woning, uurloon € 45):
+
+| Balustrade | Zonder plaatsen | Marktband | Geplaatst |
+|---|--:|--:|--:|
+| Spijlen Ø14 | € 387/m | € 200-400 | € 480/m |
+| Spijlen Ø14, 4 m | € 416/m | € 200-400 | € 510/m (Urban Steel LANCO: € 568/m) |
+| Glas 55.2 tussen kokers | € 550/m | € 300-450 | € 680/m |
+| Glas 1010.4 in U-profiel met U-handregel | € 722/m | € 340-600 | € 836/m |
+
+De glassoorten liggen nu boven de band. Redenen: dikker glas (ω = 0,1), heat-soak, risico glas, klemmen MOD 2500 met
+borgpen, 2 personen bij het plaatsen, en de vaste post. Of Ian dat aanvaardt of zijn marge op glas verlaagt, beslist
+hij zelf.
+
+**Open beslissingen voor Ian:**
+1. Uurloon € 45 als kostprijs-uurtarief. Met werkplaats, bestelwagen, verzekering en sociale bijdragen ligt het eerder op
+   € 55-70 (SCHATTING): navragen bij een boekhouder.
+2. Glas: de prijs boven de markt aanvaarden, of 88.4 in het U-profiel pas toelaten met een attest of tabel van Q-railing.
+3. Deze AANNAMES laten bevestigen vóór de eerste verkoop:
+   - ruitmaat en borgpen van de MOD 2500;
+   - ω;
+   - 900 mm langs de trap;
+   - de randreductie 0,75;
+   - kI en ψ0;
+   - de grootste sectie (vervoer, zinkbad);
+   - de handelslengtes van FIS A.
+4. Navragen bij Buildwise of het BIL of EN 1090 geldt voor borstweringen.
+5. De betalingsvoorwaarden in de offerte (nu "volgens afspraak").
+
+**Niet groen:** `npm run typecheck` geeft 2 fouten, allebei ongebruikte imports:
+- `src/app/slices/features.ts`;
+- `src/core/features/buildPatterns.ts`.
+
+Een andere agent bewerkt die bestanden; ze vallen buiten deze opdracht. De balustrades en hun test zijn foutloos.
