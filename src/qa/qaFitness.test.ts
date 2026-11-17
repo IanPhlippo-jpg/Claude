@@ -22,8 +22,13 @@ import { dxfBestanden } from '../../bibliotheek/fitness/dxf.mjs';
 import { add, mul, sub } from '../../bibliotheek/fitness/model.mjs';
 import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
 import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
-import { buigPad, afronden } from '../../bibliotheek/fitness/vorm.mjs';
-import { nokFouten, lagerhuisFouten, laadpenFouten, inbedFouten, ontluchtFouten, uitslagFouten } from '../../bibliotheek/fitness/controle.mjs';
+import { buigPad, afronden, terugVouwen, uitslagStrook } from '../../bibliotheek/fitness/vorm.mjs';
+import { nokFouten, lagerhuisFouten, laadpenFouten, inbedFouten, ontluchtFouten, uitslagFouten, kapFouten, aanslagFouten, materiaalFouten } from '../../bibliotheek/fitness/controle.mjs';
+import { NOKGRENS, NOKGRENS_BRON } from '../../bibliotheek/fitness/selectorized.mjs';
+import { KOOP } from '../../bibliotheek/fitness/onderdelen.mjs';
+import { massa } from '../../bibliotheek/fitness/model.mjs';
+import { totalen } from '../../bibliotheek/fitness/stuklijst.mjs';
+import { funderingBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
 import { bouwer } from '../../bibliotheek/fitness/model.mjs';
 import { PROFIEL, VERSIE } from '../../bibliotheek/fitness/onderdelen.mjs';
 import { plyobox } from '../../bibliotheek/fitness/opslag.mjs';
@@ -386,7 +391,8 @@ describe('Fable 5.2 - de deels-punten afgewerkt (v4)', () => {
     expect(gezetFouten({ delen: [{ naam: 'Kap', soort: 'plaat', opm: 'randen gezet', t: 2, l: 200, bmaat: 100, gaten: [{ x: 4, y: 50, d: 6 }] }] }).length).toBe(1);
   });
   it('P2-09: DXF per plaat en laserdeel: geldige R12 met de contour en een cirkel per gat', () => {
-    for (const id of ['FR-01', 'FP-04', 'FK-04']) for (const x of dxfBestanden(toestel(id, 'pro'))) {
+    // v7 (N-P2-11): naast de DXF staat per koker een gatentabel als CSV (geen DXF)
+    for (const id of ['FR-01', 'FP-04', 'FK-04']) for (const x of dxfBestanden(toestel(id, 'pro')).filter((y: any) => !y.csv)) {
       expect(x.dxf).toContain('AC1009'); expect(x.dxf.trim().endsWith('EOF')).toBe(true); expect(geenNaN(x.dxf)).toBe(true);
       expect((x.dxf.match(/\nCIRCLE\n8\nGATEN/g) ?? []).length, x.naam).toBe((x.dxf.match(/\nCIRCLE\n8\nGATEN/g) ?? []).length);
     }
@@ -681,7 +687,7 @@ describe('fitness v5 fase C: opslag in pro-vormtaal en buiten (EN 16630)', () =>
   it('kettlebellrek: gezette bak met randen; plyobox dicht met handgrepen; schijvenboom op een basisplaat met rubberen hulzen', () => {
     expect(toestel('FO-04', 'pro').delen.filter((d: any) => d.naam === 'Bak laag 1').length).toBe(3);
     const p = toestel('FO-16', 'pro');
-    expect(p.delen.filter((d: any) => d.naam === 'Mantel').length).toBe(4);
+    expect(p.delen.filter((d: any) => d.naam === 'Mantel').length).toBe(6); // v7 (N-P1-07): 2 helften, voor- en achtervlak gesplitst
     expect(p.delen.filter((d: any) => d.naam === 'Mantel' && d.contour.uitsparingen.length).length).toBe(2);
     expect(p.delen.some((d: any) => d.naam === 'Deksel') && p.delen.some((d: any) => d.naam === 'Bodem')).toBe(true);
     const s = toestel('FO-10', 'pro');
@@ -734,7 +740,7 @@ describe('fitness v6: Fable 5.2 P1, elk met een negatieve proef', () => {
     // v6b: compacte nok (R ≤ 220, zoals de merken) met een 2:1-takel; negatief: een nok van R 490 wordt gemeld
     for (const t of NOK) for (const v of VERSIES) expect(toestel(t.id, v).nok.Rn, t.id).toBeLessThanOrEqual(220);
     expect(nokFouten({ ...o, nok: { ...o.nok, Rn: 490 } }).some((x: string) => /R490 > 220/.test(x))).toBe(true);
-    expect(o.kabels.some((k: any) => k.naam === 'Nokriem' && k.last === 2 * o.nok.G)).toBe(true);
+    expect(o.kabels.some((k: any) => k.naam === 'Kabel nok' && k.last === 2 * o.nok.G)).toBe(true); // v7: staalkabel Ø8 (N-P2-03)
   });
   it('P1-02/03: kabelstations 1:1 of 2:1 naar de grens; greepweg FS-02 en FS-09 ≥ 380 mm', () => {
     for (const t of TOESTELLEN.filter((x: any) => x.soort === 'selectorized')) for (const v of VERSIES) {
@@ -803,7 +809,8 @@ describe('fitness v6: Fable 5.2 P1, elk met een negatieve proef', () => {
       }
     }
     const v = toestel('FO-01', 'pro').gezet[0], som = v.zetlijnen.reduce((s: number, z: any) => s + z.ba, 0);
-    expect(Math.abs(v.bmaat - (2 * (Math.hypot(230 / 2, 70) - 2) + som))).toBeLessThan(3);
+    // v7 (N-P1-07): de benen zijn buitenmaten; teruggevouwen geeft de uitslag de flanklengte van de 3D
+    expect(terugVouwen(v.strook, v.t).every((x: number) => Math.abs(x - Math.hypot(230 / 2, 70)) < 3)).toBe(true); void som;
     const o = toestel('FO-04', 'pro');
     expect(uitslagFouten({ ...o, gezet: [], delen: o.delen.map((d: any) => ({ ...d, deelVan: undefined, opm: /^Bak/.test(d.naam) ? 'gezette bak' : d.opm })) }).length).toBeGreaterThan(0);
   });
@@ -838,5 +845,157 @@ describe('fitness v6: steekproef per bouwer, opties per reeks en een negatieve p
       const los = { ...d, id: 'x-los', naam: 'Los', geo: d.geo.map((g: any) => ({ ...g, a: add(g.a, [0, 0, 5000]), b: add(g.b, [0, 0, 5000]) })) };
       expect(zwevend({ ...o, delen: [...o.delen, los] }).length, id).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('fitness v7: Fable 5.2 op v6b, elke P1/P2 met een negatieve proef', () => {
+  const NOK7 = (VOL ? TOESTELLEN.filter((t: any) => t.soort === 'selectorized' && toestel(t.id, 'pro').nok?.as) : ['FS-01', 'FS-09', 'FS-12', 'FS-23'].map((id) => ({ id }))) as any[];
+  it('N-P1-01/N-P2-04: geleid takelblok achter de toren (centrisch), machine ≤ 2,25 m diep; zonder geleiding zweeft het blok', () => {
+    for (const t of NOK7) for (const v of VERSIES) {
+      const o = toestel(t.id, v);
+      expect(o.delen.some((d: any) => d.naam === 'Takelblok juk'), t.id).toBe(true);
+      expect(o.koop.filter((k: any) => /Geleidestang takelblok/.test(k.naam)).length, t.id).toBe(2);
+      expect(o.gezet.some((g: any) => g.naam === 'Takelkoker'), t.id).toBe(true);
+      // v6b: 2,0-2,7 m; nu ≤ 2,25 m (een ligmachine ≤ 2,35 m)
+      expect(o.maten.D, `${t.id} ${v} diepte`).toBeLessThanOrEqual(o.delen.some((d: any) => d.naam === 'Ligbalk') ? 2350 : 2250);
+      expect(zwevend(o), t.id).toEqual([]);
+    }
+    const o = toestel('FS-01', 'pro');
+    // het blok steunt op zijn geleiding, niet alleen op de kabels: zonder kabels zweeft het niet, zonder stangen en lagers wel
+    const zonderKabel = { ...o, koop: o.koop.filter((k: any) => !k.key?.startsWith('kabel')) };
+    expect(zwevend(zonderKabel).some((g: string[]) => g.some((n) => /Takelblok/.test(n)))).toBe(false);
+    const zonder = { ...zonderKabel, koop: zonderKabel.koop.filter((k: any) => !/Geleidestang takelblok|in het juk van het takelblok/.test(k.naam)) };
+    expect(zwevend(zonder).some((g: string[]) => g.some((n) => /Takelblok/.test(n)))).toBe(true);
+  });
+  it('N-P1-03: een stapelplaat weegt haar label (± 3 %); kabel en katrollen rekenen met de echte stapel en blijven ≤ 90 %', () => {
+    for (const id of ['FS-01', 'FS-13', 'FK-01']) for (const v of VERSIES) {
+      const o = toestel(id, v), s = o.stapels[0];
+      expect(Math.abs(s.massaPlaat - s.kg) / s.kg, id).toBeLessThanOrEqual(0.03);
+      expect(s.massaEcht, id).toBeGreaterThan(s.last);
+      const B = berekening(o);
+      for (const c of B.controles.filter((x: any) => /Kabel|Katrol/.test(x.groep) && /veiligheidsfactor|belasting/.test(x.wat))) expect(c.benut, `${id} ${v} ${c.wat}`).toBeLessThanOrEqual(0.9);
+    }
+    // negatief: de plaat van v6b (340 x 112 x 20 met 3 gaten) weegt 5,67 kg
+    const oud = (340 * 112 * 20 - (2 * Math.PI * 16 ** 2 + Math.PI * 10.5 ** 2) * 20) * 7.85e-6;
+    expect(Math.abs(oud - 5) / 5).toBeGreaterThan(0.03);
+  });
+  it('N-P1-02: elke inlopende kneep van de nokmachine ligt in een gesloten kap; zonder nokkap of met een opening van 20 mm faalt het', () => {
+    for (const t of NOK7) for (const v of VERSIES) expect(kapFouten(toestel(t.id, v)), `${t.id} ${v}`).toEqual([]);
+    const o = toestel('FS-01', 'pro');
+    expect(kapFouten({ ...o, kappen: o.kappen.filter((k: any) => k.naam !== 'Nokkap') }).some((x: string) => /nokkabel/.test(x))).toBe(true);
+    const nok = o.kappen.find((k: any) => k.naam === 'Nokkap');
+    expect(kapFouten({ ...o, kappen: [...o.kappen.filter((k: any) => k !== nok), { ...nok, openingen: [{ wat: 'open rand', mm: 20, p: o.knepen[0].p }] }] }).some((x: string) => /open rand/.test(x))).toBe(true);
+  });
+  it('N-P1-04: de arm draait vrij op de as (niet gelast), veerpen in de instelschijf, de aanslagen raken in stand 0 en 1', () => {
+    for (const t of NOK7) {
+      const o = toestel(t.id, 'pro'), o1 = toestel(t.id, 'pro', { stand: 1 });
+      expect(aanslagFouten(o, o1), t.id).toEqual([]);
+      const tussen = (a: string, b: string) => o.lassen.some((l: any) => [l.A.naam, l.B.naam].includes(a) && [l.A.naam, l.B.naam].includes(b));
+      expect(tussen('Armbus', 'As hefboom'), t.id).toBe(false);
+      expect(tussen('Hefboomarm', 'As hefboom'), t.id).toBe(false);
+    }
+    const o = toestel('FS-01', 'pro'), o1 = toestel('FS-01', 'pro', { stand: 1 });
+    expect(aanslagFouten(o, { ...o1, aanslag: { ...o1.aanslag, einde: { z: o1.aanslag.einde.z + 30 } } }).some((x: string) => /stand 1/.test(x))).toBe(true);
+    expect(aanslagFouten({ ...o, aanslag: { ...o.aanslag, begin: { ...o.aanslag.begin, p: add(o.aanslag.begin.p, [0, 0, 12]) } } }, o1).some((x: string) => /stand 0/.test(x))).toBe(true);
+    expect(aanslagFouten({ ...o, pennen: o.pennen.filter((p: any) => !/Veerpen startstand/.test(p.naam)) }, o1).some((x: string) => /veerpen/.test(x))).toBe(true);
+  });
+  it('N-P1-05: FK-08 vloerkatrol aan de kabelkant; aan de buitenkant van de kabelhoek wordt ze gemeld', () => {
+    for (const v of VERSIES) { const o = toestel('FK-08', v); expect(nokFouten(o, toestel('FK-08', v, { stand: 1 })), v).toEqual([]); }
+    const o = toestel('FK-08', 'pro'), k = o.kabels.find((x: any) => x.einde === 'nok'), n = k.route.length, pf = k.route[n - 2];
+    const fout = { ...o, kabels: [{ ...k, route: [...k.route.slice(0, n - 2), { ...pf, p: [pf.p[0], k.raak[1] - pf.r, pf.p[2]] }, k.route[n - 1]] }] };
+    expect(nokFouten(fout).some((x: string) => /buitenkant van de kabelhoek/.test(x))).toBe(true);
+  });
+  it('N-P1-06: RVS niet gelast in een verzinkt toestel (bus + isolatiehuls, borgbout); verzinken zonder RVS; een gelaste RVS-stang wordt gemeld', () => {
+    for (const id of ['FX-12', 'FX-13', 'FX-25']) {
+      const o = toestel(id, 'pro');
+      expect(materiaalFouten(o), id).toEqual([]);
+      expect(o.delen.some((d: any) => /rvs$/.test(d.P?.id ?? '')), id).toBe(true);
+      expect(kostprijs(o).regels.find((r: any) => /verzinken/i.test(r.wat))?.wat, id).toMatch(/zonder .* kg RVS/);
+    }
+    const o = toestel('FX-13', 'pro'), st = o.delen.find((d: any) => /rvs$/.test(d.P?.id ?? '')), paal = o.delen.find((d: any) => d.naam === 'Paal');
+    expect(materiaalFouten({ ...o, lassen: [...o.lassen, { a: st.id, b: paal.id, A: st, B: paal }] }).some((x: string) => /RVS/.test(x))).toBe(true);
+    expect(materiaalFouten({ ...o, delen: o.delen.map((d: any) => (d === st ? { ...d, rvsLos: false } : d)) }).length).toBeGreaterThan(0);
+  });
+  it('N-P1-07: uitslag uit buitenmaten (terugvouwen = 3D ± 1 mm), mantel in 2 helften met 4 zettingen, ≤ 1500 breed; de oude fout wordt gemeld', () => {
+    // het voorbeeld van Fable: bak 3 mm, Ri 6, randen 43, breedte W: uitslag W + 72,6
+    const u = uitslagStrook(500, [43, 600, 43], [{ hoek: 90, R: 6 }, { hoek: 90, R: 6 }], 3);
+    expect(u.B).toBeCloseTo(600 + 72.6, 0);
+    for (const id of ['FO-04', 'FO-16', 'FO-17', 'FS-01', 'FK-01']) expect(uitslagFouten(toestel(id, 'pro')), id).toEqual([]);
+    const o = toestel('FO-04', 'pro'), g = o.gezet.find((x: any) => /^Bak/.test(x.naam));
+    // negatief: de benen als vlakke lengtes (v6b) geven een te brede uitslag
+    const fout = { ...g, strook: { ...g.strook, B: g.strook.B + 24, zetlijnen: g.strook.zetlijnen.map((z: any, i: number) => ({ ...z, a: [z.a[0], z.a[1] + 12 * (i + 1)] })) } };
+    expect(uitslagFouten({ ...o, gezet: [fout] }).some((x: string) => /teruggevouwen/.test(x))).toBe(true);
+    const p = toestel('FO-16', 'pro'), m = p.gezet.filter((x: any) => /Mantel helft/.test(x.naam));
+    expect(m.length).toBe(2); expect(m.reduce((s: number, x: any) => s + x.zetlijnen.length, 0)).toBe(4);
+    for (const x of m) expect(Math.min(x.l, x.bmaat)).toBeLessThanOrEqual(1500);
+    expect(uitslagFouten({ ...p, gezet: [{ ...m[0], hoeken: 3 }] }).some((x: string) => /naad sluit niet/.test(x))).toBe(true);
+    expect(uitslagFouten({ ...p, gezet: [{ ...m[0], l: 2205, bmaat: 1537 }] }).some((x: string) => /splitsen/.test(x))).toBe(true);
+  });
+  it('N-P2-01: de massa van het model = de stuklijst (± 5 %); een massieve goot (v6b) valt erdoor', () => {
+    for (const id of ['FS-01', 'FS-12', 'FO-16', 'FX-13', 'FK-08']) {
+      const o = toestel(id, 'pro'), st = o.delen.reduce((s: number, d: any) => s + massa(d), 0), kg = totalen(o).kg;
+      expect(Math.abs(st / kg - 1), id).toBeLessThanOrEqual(0.05);
+    }
+    // negatief: de goot van v6b telde als massief blok 195 x 1119 x 170 (296 kg) bovenop de stuklijst
+    const o = toestel('FS-01', 'pro'), st = o.delen.reduce((s: number, d: any) => s + massa(d), 0) + 195 * 1119 * 170 * 7.85e-6;
+    expect(Math.abs(st / totalen(o).kg - 1)).toBeGreaterThan(0.05);
+  });
+  it('N-P2-02: de grens is een vast getal met een bron (druk en been 110 kg) en de pro-machines halen hem', () => {
+    expect(NOKGRENS.druk).toBe(110); expect(NOKGRENS.been).toBe(110);
+    expect(NOKGRENS_BRON.druk).toMatch(/Life Fitness Insignia Chest Press/);
+    expect(toestel('FS-01', 'pro').nok.kracht).toBeGreaterThanOrEqual(110);
+    // negatief: de stapel van v6b (28 x 5 kg) met R220 aan arm 650 geeft 95 kg
+    expect((2 * 28 * 5 * 220) / Math.hypot(560, 330)).toBeLessThan(110);
+  });
+  it('N-P2-03/N-P2-06: bestelbare kabel en kabelschijven met datablad, geen nokriem; as S355J2+C (geen C45)', () => {
+    const o = toestel('FS-01', 'pro');
+    for (const k of o.kabels) expect(KOOP[k.key].nagekeken, k.key).toBe(true);
+    for (const kt of o.katrollen) expect(KOOP[kt.key].nagekeken, kt.key).toBe(true);
+    expect((KOOP as any).nokriem).toBeUndefined();
+    const as = o.delen.find((d: any) => d.naam === 'As hefboom');
+    expect(as.P.naam).toMatch(/S355J2\+C/); expect(`${as.P.naam} ${as.P.mat} ${as.opm}`).not.toMatch(/C45/);
+  });
+  it('N-P2-07: FX-04 stift Ø32 in de laadpen (speling ≤ 0,5 mm) met een borgpen Ø10 die getoetst is', () => {
+    const o = toestel('FX-04', 'pro'), st = o.delen.find((d: any) => d.naam === 'Greepstift'), lp = o.delen.find((d: any) => d.naam === 'Laadpen');
+    const binnen = lp.P.b - 2 * lp.P.t;
+    expect(binnen - st.P.b).toBeLessThanOrEqual(0.5); expect(binnen - st.P.b).toBeGreaterThan(0);
+    expect(o.pennen.some((p: any) => p.naam === 'Borgpen T-greep' && p.d === 10)).toBe(true);
+    expect(berekening(o).controles.some((c: any) => /Borgpen Ø10/.test(c.wat) && c.oordeel === 'groen')).toBe(true);
+    expect(binnen - 25).toBeGreaterThan(0.5); // negatief: de stift Ø25 van v6 rammelt 7 mm
+  });
+  it('N-P2-08: funderingsplan met kettingmaten, diagonalen, paalhoogte per poer en strook bij FX-23', () => {
+    const f13 = funderingBlad(toestel('FX-13', 'pro')), f23 = funderingBlad(toestel('FX-23', 'pro'));
+    for (const f of [f13, f23]) { expect(geldigeSvg(f)).toBeNull(); expect(f).toMatch(/diagonaal/); expect(f).toMatch(/Paal boven peil/); expect(f).toMatch(/valruimte/); }
+    expect(f23).toMatch(/strook/);
+  });
+  it('N-P2-09: klantmap zonder werkplaatsmodules en zonder inkoopprijzen, met vooraf berekende prijzen en een offerteknop', async () => {
+    const { execFileSync } = await import('node:child_process'), { mkdtempSync, existsSync, readFileSync } = await import('node:fs'), { tmpdir } = await import('node:os'), { join } = await import('node:path');
+    const d = mkdtempSync(join(tmpdir(), 'fitklant-'));
+    execFileSync(process.execPath, ['bibliotheek/fitness/maak-web.mjs', d, '--klant', '--ids', 'FS-01'], { stdio: 'pipe' });
+    for (const w of ['prijzen.mjs', 'werkwijze.mjs', 'dossier.mjs', 'tekeningen.mjs', 'montage.mjs', 'dxf.mjs', 'stuklijst.mjs']) expect(existsSync(join(d, 'klant', 'js', w)), w).toBe(false);
+    const pg = readFileSync(join(d, 'klant', 'index.html'), 'utf8'), ond = readFileSync(join(d, 'klant', 'js', 'onderdelen.mjs'), 'utf8'), shim = readFileSync(join(d, 'klant', 'js', 'prijzen-klant.mjs'), 'utf8');
+    expect(pg).toMatch(/data-klant="1"/); expect(pg).toMatch(/prijzen-klant\.mjs/); expect(pg).toMatch(/Offerte-aanvraag/); expect(pg).not.toMatch(/js\/prijzen\.mjs/);
+    expect(ond).not.toMatch(/k\('[^']*', '[^']*', '[^']*', [1-9]/);
+    expect(shim).not.toMatch(/uurloon|marge:\s*\d/);
+    const P = JSON.parse(readFileSync(join(d, 'klant', 'prijzen.json'), 'utf8'));
+    expect(P['FS-01'].pro).toBe(Math.round(kostprijs(toestel('FS-01', 'pro')).incl));
+    // het script van de klantpagina is geldig JavaScript (node --check)
+    const scr = pg.slice(pg.indexOf('<script type="module">') + 22, pg.lastIndexOf('</script>')), f = join(d, 'pagina.mjs');
+    (await import('node:fs')).writeFileSync(f, scr);
+    expect(() => execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' })).not.toThrow();
+    // negatief: de werkplaatspagina zelf importeert de kostprijs wel
+    expect(readFileSync('bibliotheek/fitness/web/index.html', 'utf8')).toMatch(/from '\.\/js\/prijzen\.mjs'/);
+  });
+  it('N-P2-11/N-P2-13/N-P3-07: boormal + gatentabel CSV; verstelbare rolarm; uitneembaar duwframe; geen keuring op thuis buiten', () => {
+    const dx = dxfBestanden(toestel('FK-04', 'pro'));
+    expect(dx.some((x: any) => /boormal-1op1\.dxf$/.test(x.naam))).toBe(true);
+    expect(dx.find((x: any) => x.csv)?.dxf).toMatch(/^pos;onderdeel;profiel;wand;langs_mm/);
+    expect(dx.some((x: any) => /buislaser/.test(x.naam))).toBe(false);
+    for (const id of ['FS-12', 'FK-08']) { const o = toestel(id, 'pro'); expect(o.delen.some((d: any) => d.naam === 'Rolslede'), id).toBe(true); expect(o.delen.find((d: any) => d.naam === 'Hefboomarm').gaten.length, id).toBeGreaterThanOrEqual(4); }
+    const s = toestel('FX-07', 'pro');
+    expect(s.delen.filter((d: any) => d.naam === 'Duwpaal').every((d: any) => d.los)).toBe(true);
+    expect(s.delen.filter((d: any) => d.naam === 'Duwpaalhuls').length).toBe(2);
+    expect(kostprijs(toestel('FX-13', 'thuis')).regels.some((r: any) => /Keuring/.test(r.wat))).toBe(false);
+    expect(kostprijs(toestel('FX-13', 'pro')).regels.some((r: any) => /Keuring/.test(r.wat))).toBe(true);
   });
 });

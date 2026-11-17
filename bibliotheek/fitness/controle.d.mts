@@ -30,3 +30,6 @@ export declare function lagerhuisFouten(o: any): string[];
 export declare function laadpenFouten(o: any): string[];
 export declare function inbedFouten(o: any): string[];
 export declare function uitslagFouten(o: any): string[];
+export declare function kapFouten(o: any): string[];
+export declare function aanslagFouten(o0: any, o1?: any): string[];
+export declare function materiaalFouten(o: any): string[];

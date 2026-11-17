@@ -396,6 +396,34 @@ De 50 punten uit [docs/Advies-Fable-5.2-v5.md](docs/Advies-Fable-5.2-v5.md) (P1 
   - De tabel met het uurloon op € 45, € 60 en € 65 staat in [docs/Marktprijzen.md](docs/Marktprijzen.md).
 - **Bedrijfskeuzes:** die liggen bij Ian. Er is niets geschrapt: FS-13..22 blijven, semi-pro blijft en de thuislijn blijft.
 
+## Versie 7: adviezen Fable 5.2 op v6b (2026-11-17)
+
+- **2:1-takel achter de toren** (N-P1-01): de nokkabel (staalkabel Ø8 8x19W, Mennens, MBF 40,3 kN) loopt over de vloer
+  onder de toren door naar een **geleid takelblok** (juk met 2 lineaire lagers op 2 stangen Ø25) in een gesloten
+  takelkoker achter de toren; de stapelkabel (Ø6 6x19, MBF 19,6 kN) loopt over A en B, rond de losse katrol op het blok
+  naar een anker onder de takelarm. Trek centrisch, geen kantelmoment. Kabelschijven Rema RZ-0.5 en RZ-1.0 (datablad).
+  De voorkeur van Fable (losse katrol op de stapel) halveert de kracht aan de nok in plaats van ze te verdubbelen; daarom
+  het geleide blok. De nokmachines zijn nu 1,5-2,25 m diep (v6b 2,0-2,7 m).
+- **Echte stapelmassa** (N-P1-03): stapelplaat 340 x 100 x 20 = 5,03 kg; kabel en katrollen rekenen met de massa van de
+  platen, bovenplaat, stang en lagers (`s.massaEcht`). Nokstapel pro 34, semi 26, thuis 20 platen; kabelstation 22/20/18.
+- **Grens met bron** (N-P2-02): druk en been 110 kg (Life Fitness Insignia Chest Press: stapel 130 kg), vast in de test.
+- **Gesloten kappen** (N-P1-02): één nokkap (zijplaten + gezette rand in stroken ≤ 3 m) rond nok, nokkabel en vloerkatrol,
+  een betreedbare vloergoot (traanplaat 3 mm) naar de toren, de takelkoker; `kapFouten` controleert elke inlopende kneep.
+- **Startstand** (N-P1-04): de arm zit op een armbus die vrij op de as draait, tussen twee naafplaten; de instelschijf is
+  op de as gelast; een veerpen koppelt arm en schijf. Aanslag begin: de radiale stopkant van de nok tegen een bout met
+  rubberhuls in de nokkap; aanslag einde: de lagerbus van de stapel tegen rubberbuffers op de geleidestangen (`aanslagFouten`).
+- **Uitslagen** (N-P1-07): `uitslagStrook` krijgt buitenmaten (vlak = buitenmaat − OSSB); `terugVouwen` en `uitslagFouten`
+  vergelijken met de 3D; plyobox-mantel in twee helften (4 zettingen, echte zethoek, Ri 4), uitslag ≤ 1500 breed.
+- **RVS buiten** (N-P1-06): de RVS-stangen schuiven na het verzinken in gelaste bussen (PA-isolatiehuls, borgbout M10 A4);
+  `materiaalFouten`; verzinken zonder RVS in de prijs.
+- **Klantmap** (N-P2-09): `node bibliotheek/fitness/maak-web.mjs <map> --klant [--instellingen fitness-instellingen.json]`
+  schrijft `<map>/klant/` zonder prijzen/werkwijze/dossier/tekeningen/montage/dxf/stuklijst, met inkoopprijzen op 0 en
+  vooraf berekende verkoopprijzen; knop **Offerte-aanvraag** (tekst kopiëren of als .txt bewaren, er wordt niets verstuurd).
+  De instellingen van Ian bewaar je met **Instellingen als bestand** op de instellingenpagina.
+- Verder: FK-08 vloerkatrol aan de kabelkant (N-P1-05), as S355J2+C Ø50, FX-04 stift Ø32 + borgpen Ø10, funderingsplan met
+  kettingmaten, diagonalen en paalhoogte, boormal 1:1 + gatentabel CSV, verstelbare rolarm 340-440, uitneembaar duwframe,
+  zadelplaten bij vlakovaal (FS), lagerschild, kantelen onder trek met ankerkoppel, keuring alleen semi en pro.
+
 ## Testen: snel of volledig
 
 `npx vitest run src/qa/qaFitness.test.ts` is de snelle standaardrun (± 30 s). De tests per toestel lopen op een

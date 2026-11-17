@@ -40,8 +40,8 @@ function schetsplaten(b, s, zv, L = 150) {
  *  gaten om de 50 mm, nekkussen, dwarsligger achteraan, laadpennen van 450 mm opzij (P2-08) */
 export function juk(b, def, c) {
   const rolS = pro(b) ? 'staander' : 'k80x80x3', P = b.P(rolS), a = P.b, H = mt(b, c.H ?? 1500, [-150, 150]), W = c.W ?? 1150, G = def.maxLast?.[b.V.id] ?? 300, xs = [-W / 2, W / 2], zv = a + 8, pen = 25, Lp = c.pen ?? 450;
-  // gaten Ø26 om de 50 mm in het bovenste stuk van de staander (jukbalk van H − 400 tot H − 100)
-  const sG = (z) => z - zv, gat = gatenRij(sG(H - 400), sG(H - 100), 50, pen + 1, 'w');
+  // gaten Ø26 om de 50 mm in de staander: jukbalk van H − 1000 tot H − 100 (N-P3-02 v7: 0,9 m verstelbereik)
+  const sG = (z) => z - zv, gat = gatenRij(sG(H - 1000), sG(H - 100), 50, pen + 1, 'w');
   const zj = H - 100 - 50 * Math.round(Math.max(0, (c.stand ?? 0)));
   const st = xs.map((x) => {
     b.groep(`Zijframe ${x < 0 ? 'L' : 'R'}`);
@@ -67,7 +67,7 @@ export function juk(b, def, c) {
   b.reken('Jukbalk (volle last op de schouders)', jb, 'ligger', W - a, 0, { g: G, proef: 'intrinsiek' });
   b.reken('Laadpen (helft van de last, uitkragend)', b.o.delen.find((d) => d.naam === 'Laadpen'), 'uitkrager', Lp, 0, { g: Math.round(G * 0.4), proef: 'intrinsiek', las: true, kraag: 100 });
   b.last('Last op het juk', G, [0, 0, H], { geval: 'vol' });
-  b.o.juk = { pen: Lp, schijven25: Math.floor((Lp - 20) / 30) };
+  b.o.juk = { pen: Lp, schijven25: Math.floor((Lp - 20) / 45) }; // N-P3-02 v7: een gietijzeren schijf van 25 kg is ± 45 mm dik
 }
 /** farmers walk (paar): hoofdbuis met laadpennen, verhoogde greep (vrij 180 mm) tussen twee zijplaten, standpoten met
  *  een stalen voetplaat (P2-10) */
@@ -110,7 +110,7 @@ export function frameCarry(b, def, c) {
   b.last('Last', G, [0, 0, 300], { geval: 'vol' });
 }
 /** slee: twee glijders (gebogen buis) met een UHMW-slijtstrip, bodemplaat 6 mm op 2 ribben, laadpen, duwpalen 60 x 60 x 4
- *  met een hoge en een lage greep (prowler) of alleen een trekoog. Duwkracht uit de wrijving (P2-09). */
+ *  met een hoge en een lage greep (prowler, v7: uitneembaar duwframe) of alleen een trekoog. Duwkracht uit de wrijving (P2-09). */
 export function slee(b, def, c) {
   const G = def.maxLast?.[b.V.id] ?? 150, zs = 40, zb = zs + 30, tb = 6, mu = 0.5;
   for (const sx of [-1, 1]) {
@@ -124,10 +124,17 @@ export function slee(b, def, c) {
   const msl = 64;
   if (c.duw) {
     const H = mt(b, 1100, [-100, 100]);
-    for (const sx of [-1, 1]) staander(b, 'Duwpaal', 'k60x60x4', sx * 250, -330, zb + tb, H);
+    // N-P2-13 v7 (P2-09): het duwframe is uitneembaar: twee hulzen 70 x 70 x 4 (200 mm) op de bodemplaat, het frame (2 palen
+    // + 2 grepen) schuift erin met een veerpen Ø16 per kant: de slee past plat in een bestelwagen
+    for (const sx of [-1, 1]) b.staaf('Duwpaalhuls', 'k70x70x4', [sx * 250, -330, zb + tb], [sx * 250, -330, zb + tb + 200], { kap: false, gaten: [{ s: 150, d: 17, as: 'v' }], opm: 'koker 70 x 70 x 4 op de bodemplaat gelast (met 2 schetsplaten), gat Ø17 voor de veerpen' });
+    const oud = b.huidig; b.groep('Duwframe (los)');
+    const palen = [-1, 1].map((sx) => b.staaf('Duwpaal', 'k60x60x4', [sx * 250, -330, zb + tb + 5], [sx * 250, -330, H], { in: 'paalhuls', gaten: [{ s: 145, d: 17, as: 'v' }], opm: 'koker 60 x 60 x 4, 195 mm in de huls; gat Ø17 voor de veerpen' }));
     for (const z of [H - 60, 600]) b.staaf('Greep', 'greep', [-250 + 30, -330, z], [250 - 30, -330, z], { opm: 'buis Ø32, tussen de duwpalen gelast (hoog en laag duwen)' });
+    for (const p of palen) p.los = true;
+    b.groep(oud);
+    b.koop('pullpin16', 2, [], { naam: 'Veerpen Ø16: duwframe in de hulzen' });
     // duwkracht = wrijving μ·(last + slee), μ = 0,5 op kunstgras (AANNAME), per paal de helft
-    b.reken(`Duwpaal (duwkracht μ·(last + slee) = 0,5 · (${G} + ${msl}) kg, per paal de helft)`, b.o.delen.find((d) => d.naam === 'Duwpaal'), 'uitkrager', H - zb - tb, 0, { g: Math.round((mu * (G + msl)) / 2), proef: 'intrinsiek', las: true });
+    b.reken(`Duwpaal (duwkracht μ·(last + slee) = 0,5 · (${G} + ${msl}) kg, per paal de helft)`, b.o.delen.find((d) => d.naam === 'Duwpaal'), 'uitkrager', H - zb - tb - 200, 0, { g: Math.round((mu * (G + msl)) / 2), proef: 'intrinsiek', las: true });
   }
   b.reken('Glijder onder de bodemplaat', b.o.delen.find((d) => d.naam === 'Glijder'), 'ligger', 800, 0, { g: Math.round(G / 2), proef: 'intrinsiek' });
   b.last('Last op de slee', G, [0, 0, 200], { geval: 'vol' });
@@ -157,7 +164,7 @@ export function axle(b, def, c) {
   b.reken('Axle (schijven op de uiteinden, gedragen in het midden)', st, 'ligger', 1310, 0, { g: G, proef: 'intrinsiek' });
   b.last('Schijven', G, [0, 0, 225], { geval: 'vol' });
 }
-/** laadpaal: basisplaat met een rechte laadpen en een afneembare T-greep (stift Ø25 in de laadpen, borgveer): de
+/** laadpaal: basisplaat met een rechte laadpen en een afneembare T-greep (stift Ø32 in de laadpen, borgpen Ø10): de
  *  schijven gaan er van boven op zodra de greep eraf is (P1-06) */
 export function laadpaal(b, def, c) {
   const G = def.maxLast?.[b.V.id] ?? 120, tb = pro(b) ? 12 : 10, Lp = 380;
@@ -166,10 +173,17 @@ export function laadpaal(b, def, c) {
   const pn = laadpen(b, [0, 0, 8 + tb], Z, Lp);
   const zt = 8 + tb + 10 + Lp;
   b.groep('T-greep (los)');
-  const stift = b.staaf('Greepstift', 'r25', [0, 0, zt - 80], [0, 0, zt + 110], { in: pn.id, kap: false, opm: 'rond Ø25 S355, 80 mm in de laadpen gestoken, dwarsgat Ø8 voor de borgveer: de greep gaat eraf om te laden' });
+  // N-P2-07 v7: de stift vult de laadpen (binnen Ø32,3: stift Ø32 f7, speling ≤ 0,4 mm) en een borgpen Ø10 gaat dwars door
+  // laadpen en stift; de hele last hangt aan die pen (2 snedes): afschuiving en stuik getoetst bij 2,5 x de last
+  const zp = zt - 40, sp = zp - (8 + tb + 10);
+  pn.gaten.push({ s: sp, d: 10.5, as: 'v' });
+  const stift = b.staaf('Greepstift', 'r32', [0, 0, zt - 80], [0, 0, zt + 110], { in: pn.id, kap: false, gaten: [{ s: 40, d: 10.5, as: 'v' }], opm: 'rond Ø35 S235, afgedraaid tot Ø32 f7 (de laadpen is binnen Ø32,3), 80 mm in de laadpen; dwarsgat Ø10,5 voor de borgpen: de greep gaat eraf om te laden' });
   const tg = b.staaf('Greep', 'greep', [-150, 0, zt + 126], [150, 0, zt + 126], { opm: 'T-greep: buis Ø32 gekarteld, op de stift gelast' });
   stift.los = true; tg.los = true;
-  b.koop('borgveer', 1, [], { naam: 'Borgveer (lynch-pin Ø8) voor de T-greep' });
+  b.pen('Borgpen T-greep', [0, 0, zp], X, { d: 10, key: 'borgpen10', snedes: 2, t: 8, a: 'frame', b: 'T-greep (los)', uit: [80, 0, 0], F: G, factor: 'extrinsiekPen', lengte: 70 });
+  { const F = 2.5 * G * 9.81, A = Math.PI * 25, tau = F / (2 * A), fv = (0.6 * 500) / 1.25, sig = F / (2 * 10 * 8), fb = (2.5 * 360) / 1.25;
+    b.toets('Pennen en bouten', 'Borgpen Ø10 van de T-greep: afschuiving (2 snedes)', `F = 2,5 · ${G} kg · g = ${(F / 1000).toFixed(2)} kN; τ = F / (2·A) = ${tau.toFixed(0)} N/mm² ≤ 0,6 · fub / γM2 = ${fv.toFixed(0)} (pen C45, fu ≥ 500, AANNAME)`, tau / fv, 'EN 1993-1-8 tabel 3.4 (vereenvoudigd)');
+    b.toets('Pennen en bouten', 'Borgpen Ø10 van de T-greep: stuik in de laadpen (wand 8 mm)', `σ = F / (2 · d · t) = ${sig.toFixed(0)} N/mm² ≤ 2,5 · fu / γM2 = ${fb.toFixed(0)} (S355J2H)`, sig / fb, 'EN 1993-1-8 tabel 3.4'); }
   b.groep('frame');
   b.reken('Laadpen (trekkracht aan de greep)', pn, 'uitkrager', Lp, 0, { g: Math.round(G / 2), proef: 'intrinsiek', las: true });
   b.last('Schijven', G, [0, 0, 200], { geval: 'vol' });
@@ -224,7 +238,19 @@ const rP = (b) => (pro(b) ? 114.3 : 88.9) / 2;
 const rvs = (b, rol) => (pro(b) ? ({ optrek: 'r35rvs', r40: 'r40rvs' }[rol] ?? rol) : rol);
 function tussen(b, naam, rol0, A, B, z, opt = {}) {
   const rol = rvs(b, rol0), u = norm(sub([B[0], B[1], 0], [A[0], A[1], 0])), r = rP(b);
-  return b.staaf(naam, rol, [A[0] + u[0] * r, A[1] + u[1] * r, z], [B[0] - u[0] * r, B[1] - u[1] * r, z], { kap: false, opm: 'door de paal gestoken en rondom gelast (duplex: verzinkt + poedercoat)', ...opt });
+  return rvsStang(b, naam, rol, [A[0] + u[0] * r, A[1] + u[1] * r, z], [B[0] - u[0] * r, B[1] - u[1] * r, z], opt);
+}
+/** N-P1-06 v7: een RVS-stang gaat NIET mee in het zinkbad: de paal (of ligger) krijgt twee gelaste stalen bussen die mee
+ *  verzinkt en gecoat worden; de RVS-stang schuift er na het coaten in, met een PA-isolatiehuls (geen contact RVS-zink) en
+ *  een borgbout M10 A4 per kant: vervangbaar. Een stalen stang (thuis) blijft gewoon gelast. */
+function rvsStang(b, naam, rol, p0, p1, opt = {}) {
+  if (!/rvs$/.test(rol)) return b.staaf(naam, rol, p0, p1, { kap: false, opm: 'tegen de paal gelast (duplex: verzinkt + poedercoat)', ...opt });
+  const u = norm(sub(p1, p0)), bus = rol === 'r40rvs' ? 'b60x5' : 'b48x4', oud = b.huidig;
+  for (const [q, s] of [[p0, 1], [p1, -1]]) b.staaf('Stangbus', bus, q, add(q, mul(u, s * 55)), { kap: false, gaten: [{ s: 35, d: 10.5, as: 'v' }, { s: 12, d: 8, as: 'w' }], opm: `buis ${bus.slice(1).replace('x', ' x ')} tegen de paal gelast (ontluchtingsgat Ø8 bij de paal), mee verzinkt en gecoat; de RVS-stang erin met een PA-isolatiehuls; gat Ø10,5 voor de borgbout M10 A4` });
+  const st = b.staaf(naam, rol, add(p0, mul(u, 3)), add(p1, mul(u, -3)), { kap: false, in: 'stangbus', opm: 'RVS 1.4404, na het verzinken en coaten in de stangbussen geschoven (PA-isolatiehuls), borgbout M10 A4 per kant; niet gelast, niet verzinkt', ...opt });
+  st.geenLas = true; st.rvsLos = true;
+  b.koop('borgM10A4', 2, [], { naam: `Borgbout M10 A4 + PA-isolatiehuls: ${naam}` });
+  void oud; return st;
 }
 
 /**
@@ -269,7 +295,7 @@ export function park(b, def, c) {
     const Ls = len(sub([xb, 0, zB], [xa, 0, zA])), n = Math.floor((Ls - 2 * 150) / l.stap) + 1, s0 = (Ls - (n - 1) * l.stap) / 2;
     for (let k = 0; k < n; k++) {
       const t = (s0 + k * l.stap) / Ls, x = xa + (xb - xa) * t, z = zA + (zB - zA) * t;
-      b.staaf('Sport ladder', rvs(b, 'optrek'), [x, yL + Pl.b / 2, z], [x, yR - Pl.b / 2, z], { kap: false, opm: 'door de liggers gestoken en gelast' });
+      rvsStang(b, 'Sport ladder', rvs(b, 'optrek'), [x, yL + Pl.b / 2, z], [x, yR - Pl.b / 2, z]);
     }
     hang = Math.max(hang, Math.max(zA, zB));
     b.groep('frame');
@@ -359,7 +385,7 @@ export const BUITEN = [
   F('FX-01', 'Juk (yoke)', 'Strongman-juk 1,5 m met nekkussen en laadpennen.', 'Twee staanders op voetbalken met Hardox-sleepstrips en schetsplaten, een verstelbare jukbalk (2 pennen Ø25, per 50 mm) met nekkussen, een dwarsligger achteraan en een laadpen Ø48 x 450 aan elke kant.', 'benen, rug, core', ['yoke carry', 'yoke squat'], { thuis: 250, pro: 450 }, MO([300, 650], [900, 1800], 'Gorilla / ATX yoke ± € 300-650', 'Rogue / Eleiko yoke ± € 900-1800'), { H: 1500, W: 1150 }, juk),
   F('FX-02', 'Juk hoog', 'Hoog juk 1,8 m voor lange lifters en zware lasten.', 'Zoals het juk, maar 1,8 m hoog en 1,25 m breed; jukbalk verstelbaar per 50 mm.', 'benen, rug, core', ['yoke carry', 'yoke squat'], { thuis: 300, pro: 500 }, MO([400, 800], [1200, 2200], 'ATX yoke hoog ± € 400-800', 'Rogue Monster yoke ± € 1200-2200'), { H: 1800, W: 1250 }, juk),
   F('FX-03', 'Farmers walk (paar)', 'Twee farmers-handvatten met laadpennen.', 'Per handvat een hoofdbuis met laadpennen aan beide kanten, een verhoogde gekartelde greep tussen twee gelaserde platen en standpoten met rubber.', 'grip, trapezius, core', ['farmers walk'], { thuis: 200, pro: 300 }, MO([150, 350], [400, 900], 'Gorilla / ATX farmers handles ± € 150-350', 'Rogue farmers handles ± € 400-900'), {}, farmers),
-  F('FX-04', 'Laadpaal met greep', 'Laadpaal op een basisplaat met trekgreep.', 'Gelaserde basisplaat met rubberpads, laadpen Ø48 met een afneembare T-greep (stift Ø25 met borgveer): greep eraf, schijven erop, greep erin.', 'rug, grip', ['loading pin deadlift', 'rows'], { thuis: 120, pro: 200 }, MO([60, 150], [150, 350], 'loading pin ± € 60-150', 'Rogue loading pin ± € 150-350'), {}, laadpaal, []),
+  F('FX-04', 'Laadpaal met greep', 'Laadpaal op een basisplaat met trekgreep.', 'Gelaserde basisplaat met rubberpads, laadpen Ø48 met een afneembare T-greep (stift Ø32 met borgpen Ø10): greep eraf, schijven erop, greep erin.', 'rug, grip', ['loading pin deadlift', 'rows'], { thuis: 120, pro: 200 }, MO([60, 150], [150, 350], 'loading pin ± € 60-150', 'Rogue loading pin ± € 150-350'), {}, laadpaal, []),
   F('FX-05', 'Frame carry', 'Draagframe 1,7 m met verhoogde grepen en 4 laadpennen.', 'Twee langsbalken met eindplaten, dwarsliggers, grepen op 650 mm tussen paaltjes en vier rechte laadpennen.', 'benen, rug, grip', ['frame carry'], { thuis: 300, pro: 500 }, MO([250, 500], [600, 1200], 'ATX frame carry ± € 250-500', 'Rogue frame carry ± € 600-1200'), { L: 1700, zg: 650 }, frameCarry),
   F('FX-06', 'Deadlift-frame', 'Laag deadlift-frame (car deadlift) met dikke grepen.', 'Zoals de frame carry maar met grepen op 450 mm en dikke grepen Ø48 voor grip-training.', 'rug, benen, grip', ['frame deadlift'], { thuis: 300, pro: 500 }, MO([300, 600], [700, 1500], 'deadlift frame ± € 300-600', 'Rogue / Eleiko deadlift frame ± € 700-1500'), { L: 1800, zg: 450, dik: true }, frameCarry),
   F('FX-07', 'Slee duwen en trekken', 'Prowler: slee met duwpalen, laadpen en trekoog.', 'Twee gebogen glijders, bodemplaat, laadpen, twee duwpalen met een hoge en een lage greep en een trekoog achteraan.', 'benen, conditie', ['sled push', 'sled pull'], { thuis: 150, pro: 250 }, MO([250, 500], [600, 1500], 'Gorilla / ATX prowler ± € 250-500', 'Rogue / Torque sled ± € 600-1500'), { duw: true }, slee, ['standaard']),

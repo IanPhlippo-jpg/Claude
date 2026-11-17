@@ -48,7 +48,8 @@ function lasDoorsnede(P, a, sterk = true) {
 export function berekening(o) {
   const C = [], k = S(o), V = o.V;
   const ctl = (groep, wat, formule, benut, bron, extra = {}) => C.push({ groep, wat, formule, benut: r(benut), oordeel: extra.oordeel ?? oordeelVan(benut), bron, ...extra });
-  ctl('Toestel', `Klasse ${V.klasse}: ${V.uitleg}`, `maximale gebruikersmassa ${V.gebruiker} kg (≥ ${NORM.gebruikerMin.v})${o.maxLast ? `, maximale trainingslast ${o.maxLast} kg` : ''}${o.stapels.length ? `, gewichtstapel ${o.stapels.map((s) => `${s.n} x ${s.kg} kg`).join(' + ')}` : ''}`, 0, NORM.gebruikerMin.bron, { oordeel: 'info' });
+  // N-P3-05 v7: de norm per soort in de eerste regel (buiten: EN 16630, binnen: EN ISO 20957)
+  ctl('Toestel', o.grond ? `${V.id === 'thuis' ? 'Thuis (tuin)' : 'Publieke speelruimte'}: EN 16630 (vaste buitenfitness), belastingen per EN 16630 §4` : `Klasse ${V.klasse}: ${V.uitleg}`, `maximale gebruikersmassa ${V.gebruiker} kg (≥ ${NORM.gebruikerMin.v})${o.maxLast ? `, maximale trainingslast ${o.maxLast} kg` : ''}${o.stapels.length ? `, gewichtstapel ${o.stapels.map((s) => `${s.n} x ${s.kg} kg`).join(' + ')}` : ''}`, 0, NORM.gebruikerMin.bron, { oordeel: 'info' });
 
   // ---- sterkte en doorbuiging van de belangrijkste stukken
   for (const x of o.reken) {
@@ -128,8 +129,9 @@ export function berekening(o) {
   for (const x of o.toetsen ?? []) ctl(x.groep, x.wat, x.formule, x.benut, x.bron, x.oordeel ? { oordeel: x.oordeel } : {});
   // ---- kabels en katrollen
   for (const kb of o.kabels) {
-    const st = o.stapels[0], extra = kb.begin === 'stapel' && st ? (st.extraKg ?? 0) : 0, K = KOOP[kb.key], F = ((kb.last + extra) * g) / kb.overbrenging, ben = (NORM.kabel.v * F) / (K.MBL * 1000);
-    ctl('Kabel', `${kb.naam}: veiligheidsfactor 6`, `F = stapel · g / overbrenging = ${gw(kb.last, 0)} · 9,81 / ${kb.overbrenging} = ${gw(F / 1000, 2)} kN; 6 · F = ${gw((6 * F) / 1000, 2)} kN ≤ breukkracht ${gw(K.MBL, 2)} kN (${K.artikel}; AANNAME: de versnelling zit in de factor 6)`, ben, `${NORM.kabel.bron}; ${K.bron}`);
+    // N-P1-03 v7: echte stapelmassa (platen zoals gemodelleerd + bovenplaat, stang, lagers) in plaats van n · nominaal
+    const st = o.stapels[0], echt = st && (kb.begin === 'stapel' || kb.begin === 'anker') && st.massaEcht ? st.massaEcht / st.last : 1, K = KOOP[kb.key], F = (kb.last * echt * g) / kb.overbrenging, ben = (NORM.kabel.v * F) / (K.MBL * 1000);
+    ctl('Kabel', `${kb.naam}: veiligheidsfactor 6`, `F = ${echt !== 1 ? `echte massa (${gw(kb.last, 0)} kg nominaal x ${gw(echt, 3)}: platen zoals getekend + bovenplaat, stang, lagers)` : 'last'} · g / overbrenging = ${gw(kb.last * echt, 1)} · 9,81 / ${kb.overbrenging} = ${gw(F / 1000, 2)} kN; 6 · F = ${gw((6 * F) / 1000, 2)} kN ≤ breukkracht ${gw(K.MBL, 2)} kN (${K.artikel}; AANNAME: de versnelling zit in de factor 6)`, ben, `${NORM.kabel.bron}; ${K.bron}`);
     const katr = kb.route.filter((p) => p.katrol);
     const lus = (kb.begin === 'stapel' || kb.begin === 'anker' || kb.begin === 'laadpen' || kb.begin === 'slede') && (kb.einde === 'greep' || kb.einde === 'nok' || kb.einde === 'anker') && kb.route.slice(1, -1).every((p) => p.katrol || p.los || p.geleider);
     ctl('Kabel', `${kb.naam}: kabelloop en overbrenging`, `${kb.begin} → ${katr.map((p) => p.label).join(' → ')}${kb.route.some((p) => p.los) ? ' (+ losse katrol op de stapel)' : ''} → ${kb.einde}; lengte ${gw(kb.L / 1000, 2)} m (+ 0,3 m voor de lussen); overbrenging ${kb.overbrenging}:1${kb.overbrenging === 2 ? ' (de greep voelt de helft van de stapel en gaat 2 x zo ver)' : ''}`, 0, 'model: gesloten kabelloop', { oordeel: lus ? 'info' : 'rood' });
@@ -203,7 +205,7 @@ export function berekening(o) {
     const st = stabiliteit(o);
     for (const s of st) ctl('Stabiliteit', `Kantelen op 10° (${s.geval}, naar ${s.richting})`, `zwaartepunt op ${Math.round(s.h)} mm hoog, ${Math.round(s.d)} mm van de kantelrand: h · tan 10° = ${Math.round(s.h * Math.tan((10 * Math.PI) / 180))} mm ≤ ${Math.round(s.d)} mm (massa ${Math.round(s.m)} kg${s.geval ? ' met gebruiker en last' : ''})`, s.benut, NORM.stabiliteit.bron, { oordeel: o.verankerd === 'vloer' && s.benut > 0.9 ? 'oranje' : oordeelVan(s.benut), uitleg: s.benut > 1 ? (o.verankerd === 'vloer' ? 'Kantelt zonder ankers: in de proversie verankerd.' : 'Kantelt: verankeren of de voeten verlengen.') : '' });
   }
-  for (const s of kantelTrek(o)) ctl('Stabiliteit', `Kantelen onder horizontale trek: ${s.wat}`, `trek ${gw(s.F / 1000, 2)} kN op ${Math.round(s.h)} mm hoog naar ${s.richting}: M = ${gw(s.M / 1000, 2)} kNm ≤ tegenmoment eigen gewicht ${gw(s.m, 0)} kg · g · ${Math.round(s.d)} mm = ${gw(s.Mr / 1000, 2)} kNm${s.anker ? ' + verankering' : ''}`, s.benut, 'EN ISO 20957-1 §5.6 (stabiliteit, AANNAME horizontale trek 600 N per greep)');
+  for (const s of kantelTrek(o)) ctl('Stabiliteit', `Kantelen onder horizontale trek: ${s.wat}`, `trek ${gw(s.F / 1000, 2)} kN op ${Math.round(s.h)} mm hoog naar ${s.richting}: M = ${gw(s.M / 1e6, 3)} kNm ≤ tegenmoment eigen gewicht ${gw(s.m, 0)} kg · g · ${Math.round(s.d)} mm = ${gw(s.Mr / 1e6, 3)} kNm${s.anker ? ` + ankerkoppel 2 x 3 kN x ${Math.round(s.d)} mm = ${gw(s.Ma / 1e6, 3)} kNm (AANNAME betonanker M10)` : ''}`, s.benut, 'EN ISO 20957-1 §5.6 (stabiliteit, AANNAME horizontale trek 600 N per greep)');
   const ord = ['groen', 'oranje', 'rood'];
   const oordeel = C.filter((c) => c.oordeel !== 'info').reduce((m, c) => (ord.indexOf(c.oordeel) > ord.indexOf(m) ? c.oordeel : m), 'groen');
   return { controles: C, oordeel };
@@ -246,7 +248,9 @@ export function kantelTrek(o) {
     const rand = { voor: [1, y0], achter: [1, y1], links: [0, x0], rechts: [0, x1] }[richt];
     const M = lijst.reduce((s, t) => s + t.F * Math.hypot(t.dir[0], t.dir[1]) * t.p[2], 0), d = Math.abs(c[rand[0]] - rand[1]), Mr = m * g * d;
     const anker = o.verankerd === 'vloer' || o.verankerd === 'muur';
-    uit.push({ wat, F, h: M / F, richting: richt, M, Mr, d, m, anker, benut: anker ? Math.min(0.5, M / Mr) : r(M / Mr) });
+    // N-P3-03 v7: het ankerkoppel echt rekenen (AANNAME 2 betonankers M10 op trek, elk 3 kN rekenwaarde, op arm d)
+    const Ma = anker ? 2 * 3000 * d : 0;
+    uit.push({ wat, F, h: M / F, richting: richt, M, Mr, Ma, d, m, anker, benut: r(M / (Mr + Ma)) });
   }
   return uit;
 }

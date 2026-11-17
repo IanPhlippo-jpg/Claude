@@ -128,3 +128,18 @@
 - [x] Compacte nokkap rond de echte nok; berekening (riem, katrollen, as) en tekeningen bij
 - [x] nokFouten/kabelFouten groen, test R ≤ 220 met een negatieve proef
 - [x] Snelle en volledige run (4348/4348, 288 s), npm run typecheck (fitness schoon), graphify, web, nafoto's
+
+## Versie 7: adviezen Fable 5.2 op v6b (7 x P1, 14 x P2, 8 x P3 nieuw + 24 half/niet) (2026-11-17)
+- [x] Voorfoto's in fitness-fotos-v7/voor (FS-01/02/09/23, FK-08, FO-04, FO-16, FX-04, FX-12, FX-23)
+- [x] N-P1-03 stapelplaat echte massa (5,0 kg), kabel en katrol A op de echte stapel, test
+- [x] N-P1-01 / N-P2-04 / N-P2-01 / N-P2-05 / N-P2-03 2:1-takel in de toren (geleid blok), toestel korter, dunne kabelkap, bestelbare kabel en schijven, tests
+- [x] N-P1-02 nokkap en riemkap dicht (geen open rand, riem niet naast de zit), toets + negatieve proef
+- [x] N-P1-04 startstand echt verstelbaar (arm los op de as, instelschijf, aanslagen raken de arm), toets + negatieve proef
+- [x] N-P1-05 FK-08 vloerkatrolzijde + nokFouten op de kabelkant, negatieve proef
+- [x] N-P1-06 RVS niet ingelast in verzinkte paal (geschroefd), toets + negatieve proef
+- [x] N-P1-07 uitslagen uit buiten/binnenmaten, plyobox-mantel met sluitnaad, uitslag ≤ 1500 of gesplitst, test
+- [x] N-P2-02 grens met bron (vaste waarde in de test)
+- [x] N-P2-06..14 (materiaal, FX-04 stift/borgpen, funderingsplan maatvoering, klantmodus apart + offerteknop, prijsmodelfouten, buislaser, R-hoeken, open restpunten, tests)
+- [x] FS vormtaal: voorstel 1 en 5 gedaan, 2 deels (lagerschild), 3 en 4 niet
+- [x] P3-punten (N-P3-01..07) en halve punten uit v6 (N-P3-08 niet)
+- [x] Snelle run, FITNESS_VOLLEDIG=1, npm run typecheck, graphify, web naar scratchpad/fitness-web, nafoto's, eerlijke statustabel

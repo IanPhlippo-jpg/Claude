@@ -3,7 +3,7 @@
 // hefboom of greep. Maten in mm: x = breedte, y = diepte (0 = voorkant, de gebruiker), z = hoogte.
 import { staander, ligger, dwarsOp, voetjes, kussenOp, katrolBeugel, doos, gat, X, Y, Z, balk, add, mul, sub, norm } from './bouwstenen.mjs';
 import { KOOP } from './onderdelen.mjs';
-import { uitslagStrook, buigToeslag } from './vorm.mjs';
+import { uitslagStrook, buigToeslag, terugzet } from './vorm.mjs';
 
 const pro = (b) => b.V.id !== 'thuis'; // pro en semi-pro: dezelfde maten
 const rad = (g) => (g * Math.PI) / 180;
@@ -14,19 +14,19 @@ const gewicht = (b) => b.V.stapelN * b.V.stapelKg;
  * gewichtstoren: voeten, twee staanders, onder- en bovenligger, voorligger op de vloer, stapel met geleidestangen,
  * afscherming voor en achter. x0 = midden, yt = hart van de stapel.
  */
-export function toren(b, { x0 = 0, yt, H = 2100, naam = '', n, ogen = [0], voorVoet = 350, dpl = 112, slag } = {}) {
+export function toren(b, { x0 = 0, yt, H = 2100, naam = '', n, ogen = [0], voorVoet = 350, dpl = 112, slag, onderHoog = 0, doorvoer = null, openAchter = null } = {}) {
   const a = b.P('toren').b, xs = 150 + 60 + a / 2, r = R(b), oud = b.huidig;
   const L = b.staaf(`Torenvoet ${naam}`.trim(), 'toren', [x0 - xs, yt - voorVoet, a / 2], [x0 - xs, yt + 300, a / 2]);
   const Rv = b.staaf(`Torenvoet ${naam}`.trim(), 'toren', [x0 + xs, yt - voorVoet, a / 2], [x0 + xs, yt + 300, a / 2]);
   voetjes(b, L, 2); voetjes(b, Rv, 2);
   const sL = staander(b, 'Torenstaander', 'toren', x0 - xs, yt, a, H), sR = staander(b, 'Torenstaander', 'toren', x0 + xs, yt, a, H);
-  const onder = ligger(b, 'Onderligger toren', 'toren', sL, sR, { z: a + 20 + a / 2 }), boven = ligger(b, 'Bovenligger toren', 'toren', sL, sR, { z: H - a / 2 });
+  const onder = ligger(b, 'Onderligger toren', 'toren', sL, sR, { z: a + 20 + onderHoog + a / 2 }), boven = ligger(b, 'Bovenligger toren', 'toren', sL, sR, { z: H - a / 2 });
   const voor = ligger(b, 'Voorligger toren', 'toren', L, Rv, { y: yt - 100, z: a / 2 }), achter = ligger(b, 'Achterligger toren', 'toren', L, Rv, { y: yt + 100, z: a / 2 });
-  const s = b.stapel(naam || 'stapel', [x0, yt, 0], 2 * a + 20, { hoogte: H - a, terug: oud, n, ogen, dpl, slag });
+  const s = b.stapel(naam || 'stapel', [x0, yt, 0], 2 * a + 20 + onderHoog, { hoogte: H - a, terug: oud, n, ogen, dpl, slag });
   // afscherming voor en achter (plaat 1,5 mm, met M8 aan de staanders): tot 60 mm boven de stapel in de hoogste stand
   const zk = Math.min(H - a, s.top + s.slag + 60);
   b.groep(`Afscherming ${naam}`.trim());
-  omkap(b, { x0, yt, xs, a, H, dpl, zk, L, Rv });
+  omkap(b, { x0, yt, xs, a, H, dpl, zk, L, Rv, doorvoer, openAchter });
   b.koop('boutM8', 16, [], { naam: 'Bout M8 x 30 met kunststof ring (kappen aan de staanders, verzonken)' });
   b.groep(oud);
   return { sL, sR, L: L, Rv, onder, boven, voor, achter, s, xs, a, r, zP: H - a - 15 - r, yt, x0, H, dpl, zk };
@@ -37,17 +37,18 @@ export function toren(b, { x0 = 0, yt, H = 2100, naam = '', n, ogen = [0], voorV
  * torenvoeten. In de voorkap een kijkvenster (polycarbonaat) met een sleuf voor de selectiepen en de instructieplaat.
  * Het frame zit erachter; de kappen raken de staanders (M8 met kunststof ring).
  */
-function omkap(b, { x0, yt, xs, a, H, dpl, zk, L, Rv }) {
+function omkap(b, { x0, yt, xs, a, H, dpl, zk, L, Rv, doorvoer = null, openAchter = null }) {
   const o = b.o, t = 1.5, kr = 25, Wx = xs + a / 2 + 1, yf = yt - dpl / 2 - 22, yb = yt + dpl / 2 + 22, zb = a + 2, zT = H + 25, sl = 25, vw = 55, vz0 = zb + 80, vz1 = Math.min(zk, zT - 320);
   o.pronk = o.pronk ?? [];
   const venster = [[x0 - sl - vw, vz0, 12], [x0 + sl + vw, vz0, 12], [x0 + sl + vw, vz1, 12], [x0 - sl - vw, vz1, 12]];
-  b.contour('Afscherming voor', [0, yf + t / 2, 0], [1, 0, 0], [0, 0, 1], t, [[x0 - Wx + kr, zb], [x0 + Wx - kr, zb], [x0 + Wx - kr, zT], [x0 - Wx + kr, zT]], { kleur: 'kap', uitsparingen: [venster], opm: `voorkap 1,5 mm DC01, gelaserd met een venster ${2 * (sl + vw)} x ${Math.round(vz1 - vz0)} (polycarbonaat erachter, sleuf ${2 * sl} mm voor de selectiepen); poedercoat RAL 9006` });
-  b.contour('Afscherming achter', [0, yb - t / 2, 0], [1, 0, 0], [0, 0, 1], t, [[x0 - Wx + kr, zb], [x0 + Wx - kr, zb], [x0 + Wx - kr, zT], [x0 - Wx + kr, zT]], { kleur: 'kap', opm: 'achterkap 1,5 mm DC01; poedercoat RAL 9006' });
+  b.contour('Afscherming voor', [0, yf + t / 2, 0], [1, 0, 0], [0, 0, 1], t, [[x0 - Wx + kr, zb], [x0 + Wx - kr, zb], [x0 + Wx - kr, zT], [x0 - Wx + kr, zT]], { kleur: 'kap', uitsparingen: [venster, ...(doorvoer ? [doorvoer] : [])], opm: `voorkap 1,5 mm DC01, gelaserd met een venster ${2 * (sl + vw)} x ${Math.round(vz1 - vz0)} (polycarbonaat erachter, sleuf ${2 * sl} mm voor de selectiepen); poedercoat RAL 9006` });
+  b.contour('Afscherming achter', [0, yb - t / 2, 0], [1, 0, 0], [0, 0, 1], t, [[x0 - Wx + kr, zb], [x0 + Wx - kr, zb], [x0 + Wx - kr, zT], [x0 - Wx + kr, zT]], { kleur: 'kap', uitsparingen: [...(doorvoer ? [doorvoer] : []), ...(openAchter ? [openAchter] : [])], opm: `achterkap 1,5 mm DC01; poedercoat RAL 9006${openAchter ? '; opening voor de takel (de takelkoker sluit erop aan)' : ''}${doorvoer ? '; doorvoer voor de vloerkabel (onder de kabelgoot)' : ''}` });
   for (const sx of [-1, 1]) { const zk = b.contour('Afscherming zijkant', [x0 + sx * (Wx - t / 2), 0, 0], [0, 1, 0], [0, 0, 1], t, [[yf + kr, zb], [yb - kr, zb], [yb - kr, zT], [yf + kr, zT]], { kleur: 'kap', opm: 'zijkap 1,5 mm DC01, gezet: aan voor- en achterkant een plooi R25 naar binnen (sluit de hoeken); de stapel is rondom gesloten (klasse S)' }); b.gezet('Afscherming zijkant', [zk], { t, uitslag: uitslagStrook(zT - zb, [15, yb - yf - 2 * kr, 15], [{ hoek: 90, R: kr, richting: 'op' }, { hoek: 90, R: kr, richting: 'op' }], t), opm: 'zijkap 1,5 mm DC01, gezet: aan voor- en achterkant een plooi 90° Ri 25 naar binnen met een flens van 15 mm (sluit de hoeken)' }); }
   const top = b.contour('Afscherming boven', [0, 0, zT + 1], [1, 0, 0], [0, 1, 0], 2, [[x0 - Wx, yf, 40], [x0 + Wx, yf, 40], [x0 + Wx, yb, 40], [x0 - Wx, yb, 40]], { kleur: 'kap', opm: 'bovenkap 2 mm: deksel met 4 randen van 30 mm (Ri 4), hoeken uitgesneden en dichtgelast; kabeldoorvoer met borstel' });
   {
     // uitslag van de bovenkap: rechthoek met 4 flenzen (hoeken uitgesneden), 4 zettingen 90°
-    const W = 2 * Wx, Dd = yb - yf, fl = 30 - 2, ba = buigToeslag(90, 4, 2), F = fl + ba;
+    // N-P1-07 v7: de buitenmaten W x Dd en de randen 30 mm zijn buitenmaten: vlak = buitenmaat − (Ri + t) per zetting
+    const os = terugzet(90, 4, 2), W = 2 * Wx - 2 * os, Dd = yb - yf - 2 * os, fl = 30 - os, ba = buigToeslag(90, 4, 2), F = fl + ba;
     const pts = [[0, -F], [W, -F], [W, 0], [W + F, 0], [W + F, Dd], [W, Dd], [W, Dd + F], [0, Dd + F], [0, Dd], [-F, Dd], [-F, 0], [0, 0]];
     const zl = [[[0, -ba / 2], [W, -ba / 2]], [[W + ba / 2, 0], [W + ba / 2, Dd]], [[W, Dd + ba / 2], [0, Dd + ba / 2]], [[-ba / 2, Dd], [-ba / 2, 0]]].map(([a2, b2]) => ({ a: a2, b: b2, hoek: 90, R: 4, richting: 'neer', ba }));
     b.gezet('Afscherming boven', [top], { t: 2, uitslag: { punten: pts, zetlijnen: zl }, opm: 'bovenkap 2 mm DC01: 4 randen 30 mm gezet (Ri 4), hoeken uitgesneden en dichtgelast' });
@@ -64,6 +65,11 @@ function omkap(b, { x0, yt, xs, a, H, dpl, zk, L, Rv }) {
   // ABS-voetkappen over de torenvoeten
   for (const V of [L, Rv]) { const g = balk(V.a, V.b, V.v, V.P.b + 14, V.P.h + 10, false, 'eindkap'); g.r = 18; g.a = [g.a[0], g.a[1], g.a[2] + 3]; g.b = [g.b[0], g.b[1], g.b[2] + 3]; o.pronk.push(g); }
   b.koop('voetkap', 2, [], { naam: 'ABS-voetkap over de torenvoet (afgerond, met rubber onderrand)', groep: 'afwerking' });
+  // v7 (N-P1-02): de omkapte toren als gesloten volume voor kapFouten; de spleet onder de kappen is een opening van zb mm
+  o.kappen = o.kappen ?? [];
+  o.kappen.push({ naam: 'Toren', box: [[x0 - Wx, yf, 0], [x0 + Wx, yb, zT]], gesloten: true, openingen: [
+    { wat: 'spleet onder de voorkap', mm: zb, box: [[x0 - Wx, yf - 1, 0], [x0 + Wx, yf + 1, zb]] }, { wat: 'spleet onder de achterkap', mm: zb, box: [[x0 - Wx, yb - 1, 0], [x0 + Wx, yb + 1, zb]] },
+    { wat: 'spleet onder de zijkap L', mm: zb, box: [[x0 - Wx - 1, yf, 0], [x0 - Wx + 1, yb, zb]] }, { wat: 'spleet onder de zijkap R', mm: zb, box: [[x0 + Wx - 1, yf, 0], [x0 + Wx + 1, yb, zb]] }] });
 }
 /** katrol boven de stapel; de kabel komt recht omhoog uit de stapel en vertrekt naar richting 'naar' ('voor', 'achter', 'links', 'rechts') */
 function bovenKatrol(b, T, x, naar = 'voor', naam = 'boven') {
@@ -330,7 +336,7 @@ export const KABEL = [
         b.groep('frame');
         b.staaf('Lagerhuis', 'b76x8', [xa, yp, zt], [xa, yp, zt - 80], { boring: 62, kap: false, opm: 'buis 76,1x8 onder de dwarsligger gelast; uitgedraaid Ø62 H7 voor 2 kogellagers 6206' });
         b.groep(`Arm ${k}`);
-        b.staaf('Draaias', 'r30', [xa, yp, zt - 2], [xa, yp, 1350], { kap: false, in: 'lagerhuis', opm: 'rond Ø30 h6 C45; 2 kogellagers 6206 in het lagerhuis, borgring DIN 471' });
+        b.staaf('Draaias', 'r30', [xa, yp, zt - 2], [xa, yp, 1350], { kap: false, in: 'lagerhuis', opm: 'rond Ø30 h6 S355J2+C (lasbaar); 2 kogellagers 6206 in het lagerhuis, borgring DIN 471' });
         b.plaat(`Nok (R${Rn})`, [xa - Rn, yp - Rn, zn - 6], [xa + Rn, yp + Rn, zn + 6], { rond: true, in: 'draaias', opm: `laserschijf Ø${2 * Rn} x 12 met kabelgroef (2 platen + tussenring), op de as gelast` });
         const xk = xa + s * La, ar = b.staaf('Arm', 'arm', [xa, yp, 1350 - b.P('arm').h / 2], [xk, yp, 1350 - b.P('arm').h / 2], { v: Y });
         const pd = b.staaf('Kussenpaal', 'arm', [xk, yp, 1350 - b.P('arm').h], [xk, yp, 900]);
@@ -481,12 +487,19 @@ function beenMachine(b, soort) {
   }
   b.groep('Hefboom');
   const th = sg * thMax * b.stand, rot = (p) => { const dy = p[1] - yk, dz = p[2] - zk; return [p[0], yk + dy * Math.cos(th) - dz * Math.sin(th), zk + dy * Math.sin(th) + dz * Math.cos(th)]; };
-  const as = b.staaf('As hefboom', 'r40', [-(xh - 1), yk, zk], [xh - 1, yk, zk], { kap: false, in: 'lagerhuis', opm: `rond Ø${Pas.b} h9 C45, in 2 lagerhuizen; stelringen DIN 705 buiten de huizen` });
+  const as = b.staaf('As hefboom', 'r40', [-(xh - 1), yk, zk], [xh - 1, yk, zk], { kap: false, in: 'lagerhuis', opm: `rond Ø${Pas.b} h9 S355J2+C (lasbaar: de nok wordt erop gelast), in 2 lagerhuizen; stelringen DIN 705 buiten de huizen` });
   b.plaat(`Nok (R${Rn})`, [xl - 6, yk - Rn, zk - Rn], [xl + 6, yk + Rn, zk + Rn], { rond: true, in: 'as', opm: `laserschijf Ø${2 * Rn} x 12 met kabelgroef (2 platen Ø${2 * Rn} + tussenring), op de as gelast; kap erover` });
   const xa = 90;
   let lev, rol;
-  if (soort === 'extensie') { lev = b.staaf('Hefboomarm', 'arm', [xa, yk, zk], rot([xa, yk - 60, zk - 300]), { v: X }); rol = rot([0, yk - 70, zk - 310]); }
-  else if (soort === 'curl') { lev = b.staaf('Hefboomarm', 'arm', [xa, yk, zk], rot([xa, yk - 420, zk + 40]), { v: X }); rol = rot([0, yk - 430, zk + 40]); }
+  if (soort === 'extensie' || soort === 'curl') {
+    // N-P2-13 v7 (P2-03): de rol op een slede met een veerpen in 4 gaten: 340 / 373 / 407 / 440 mm van de as
+    const dir = soort === 'extensie' ? [0, -60, -300] : [0, -420, 40], Ld = Math.hypot(...dir), u = [0, dir[1] / Ld, dir[2] / Ld], gL = [340, 373, 407, 440], Ls = soort === 'extensie' ? 340 : 440, gat = 17; // veerpen Ø16 (koker 60: randafstand ≥ 1,5 x Ø)
+    lev = b.staaf('Hefboomarm', 'arm', [xa, yk, zk], rot(add([xa, yk, zk], mul(u, 480))), { v: X, gaten: gL.map((s2) => ({ s: s2, d: gat, as: 'v' })), opm: `koker met 4 gaten Ø${gat} op ${gL.join('/')} mm: de rolslede met een veerpen (lengte van het been)` });
+    const sl = V.id === 'thuis' ? 'k60x60x3' : 'k70x70x4', ps = (d) => rot(add([xa, yk, zk], mul(u, Ls + d)));
+    b.staaf('Rolslede', sl, ps(-40), ps(40), { v: X, in: lev.id, kap: false, gaten: [{ s: 40, d: gat, as: 'v' }], opm: `koker ${sl.slice(1)} 80 mm over de arm (PE-glijstrips): de rol op ${gL.join(' / ')} mm, nu ${Ls} mm` });
+    b.koop('pullpin16', 1, [], { naam: 'Veerpen Ø16 rolslede (lengte van de rolarm)' });
+    rol = rot(add([0, yk, zk], mul(u, Ls + 10)));
+  }
   else { lev = b.staaf('Hefboomarm', 'arm', [xa, yk, zk], rot([xa, yk + 120, 250]), { v: X }); rol = rot([0, yk + 130, 240]); }
   if (soort !== 'kickback') {
     b.staaf('As rol', 'as', [-200, rol[1], rol[2]], [200, rol[1], rol[2]], { kap: false, in: lev.id });
@@ -504,7 +517,8 @@ function beenMachine(b, soort) {
     b.toets('Krachtsverhouding', 'Nok: kracht aan de rol tegenover de stapel', `nok R${Rn} / arm 420 mm = ${(Rn / 420 * 100).toFixed(0)} % van de stapel aan de rol (${Math.round(G * Rn / 420)} kg bij de volle stapel); stapelweg R·θ = ${Math.round(Rn * 1.4)} mm bij 80°`, 0, 'P2-02 (Fable): commercieel ± 50-100 % aan de enkel', { oordeel: 'info' });
   }
   // vloerkatrol onder het raakpunt aan de opwikkelkant (P1-01 v6: bij de leg extension vóór de as)
-  const yr = yk + sg * Rn, yf = yr + sg * r, zf = T.a + 25 + r, pf = katrolBeugel(b, 'C (vloer, onder de nok)', [xl, yf, zf], X, { kapKant: [0, 0, 1] });
+  // N-P1-05 v7: de vloerkatrol altijd aan de torenkant van de verticale kabel (de kabel komt van de toren): yf = yr + r
+  const yr = yk + sg * Rn, yf = yr + r, zf = T.a + 25 + r, pf = katrolBeugel(b, 'C (vloer, onder de nok)', [xl, yf, zf], X, { kapKant: [0, 0, 1] });
   b.plaat('Console vloerkatrol', [xl + 24, yf - 40, T.a - 10], [-P.b / 2, yf + 40, T.a], { opm: 'verbindt de katrolbeugel met de vloerligger' });
   b.groep('Afscherming nok');
   b.plaat('Nokkap', [xl - 30, yk - Rn - 20, zk - Rn - 20], [xl - 28, yk + Rn + 20, zk + Rn + 20], { kleur: 'kap', opm: 'plaat 2 mm aan de buitenkant van de nok (vingers)' });

@@ -205,3 +205,90 @@ Telling: **26 opgelost, 19 deels, 5 niet.**
 5. **N-P1-06 + N-P1-05:** RVS-stangen worden mee verzinkt; bij FK-08 staat de vloerkatrol aan de verkeerde kant van de kabel.
 
 Daarna: N-P2-09 (klantmodus is alleen CSS, prijzen uit de standaardinstellingen) en N-P2-10 (273 van 300 boven de markt).
+
+---
+
+## 7. Status na verwerking (v7, 2026-11-17)
+
+Alleen "gedaan" als het punt volledig af is; anders "deels" of "niet", met wat er nog open staat. Getest: snelle run 1530/1530, `FITNESS_VOLLEDIG=1` 4362/4362 (273 s), `npm run typecheck` zonder fouten in de fitnessbestanden. De 3 fouten die tsc nu meldt zitten in `src/app/slices/features.ts`, `src/core/features/rebuildCache.test.ts` en `src/qa/qaBalustrades.test.ts`: vandaag door een ander gewijzigd, niet aangeraakt.
+
+### Nieuwe punten
+
+| Punt | Status | Wat er gebeurd is |
+|---|---|---|
+| N-P1-01 takelblok zonder geleiding | gedaan | Takel achter de toren: blok met juk, 2 lineaire lagers op 2 stangen Ø25, losse katrol op de hartlijn, nokkabel centrisch aan het juk (excentriciteit 0), gesloten takelkoker. Test: zonder kabels hangt het blok aan zijn geleiding, zonder stangen zweeft het. Afwijking van de voorkeur: een losse katrol op de stapel halveert de kracht aan de nok in plaats van ze te verdubbelen, daarom een geleid blok aan de nokkant |
+| N-P1-02 open kappen | gedaan (FS) | Eén gesloten nokkap (2 zijplaten + gezette rand in stroken van max. 3 m) rond nok, nokkabel en vloerkatrol; betreedbare vloergoot naar de toren; takelkoker. `kapFouten`: elke inlopende kneep onder 1,8 m in een gesloten kap, geen opening > 8 mm binnen 120 mm; negatieve proeven. Open: FK-08/FK-10 (kabelmachines, geen FS) hebben nog de oude vlakke nokplaat |
+| N-P1-03 plaat 5,67 kg | gedaan | Plaat 340 x 100 x 20 = 5,03 kg; kabel en katrollen op de echte stapelmassa (FS-01 pro 179,5 kg); alles max. 90 %. Kabelstation-stapel 22/20/18 platen |
+| N-P1-04 instelschijf en aanslagen | gedaan | Arm op een vrije armbus tussen naafplaten, instelschijf op de as gelast, veerpen; aanslag begin = radiale stopkant van de nok tegen een bout met rubberhuls in de nokkap, aanslag einde = lagerbus van de stapel tegen rubberbuffers op de geleidestangen (de arm hangt via de pen aan de as). `aanslagFouten` meet max. 2 mm in stand 0 en 1; negatieve proeven |
+| N-P1-05 FK-08 vloerkatrol | gedaan | `yf = yr + r`; `nokFouten` controleert de kabelkant en de verticale kabel; negatieve proef |
+| N-P1-06 RVS mee verzinkt | gedaan | RVS-stangen en -sporten in gelaste bussen met PA-isolatiehuls en borgbout M10 A4, na het verzinken gemonteerd; `materiaalFouten`; verzinken zonder RVS in de prijs |
+| N-P1-07 uitslagmaten | gedaan | `uitslagStrook` met buitenmaten (vlak = buitenmaat − OSSB), `terugVouwen` + controle tegen de 3D (bak, takelkoker, vloergoot), bovenkap en V-goot volgens dezelfde regel, plyobox-mantel in 2 helften met 4 zettingen (87,7°, Ri 4), uitslag max. 1500 x 3000 gecontroleerd |
+| N-P2-01 goot massief | gedaan | Geen massieve delen meer; test model = stuklijst ± 5 % (nu binnen 0,5 %) |
+| N-P2-02 grens 90 kg | deels | Druk en been 110 kg met bron (LF Insignia Chest Press 130 kg), vast getal in de test, pro-stapel 34 platen. Trek, rug, kuit, arm en romp blijven AANNAME |
+| N-P2-03 nokriem niet bestelbaar | gedaan | Staalkabel Ø8 8x19W (Mennens, 40,3 kN) en Ø6 6x19 (19,6 kN), Rema RZ-1.0 / RZ-0.5 met datablad en prijs |
+| N-P2-04 2,0-2,7 m diep | gedaan | Nokmachines 1,47-2,30 m (FS-01 pro 2,00 m, was 2,37; FS-09 2,14 m, was 2,74) |
+| N-P2-05 goot 1,5 mm | gedaan | Vloergoot traanplaat 3 mm, 47 mm hoog over de kabel; geen blok meer op de vloer |
+| N-P2-06 C45 / S355J2 | gedaan | As Ø50 S355J2+C (ook FK en pec deck), geen keuze meer |
+| N-P2-07 FX-04 stift | gedaan | Stift Ø32 f7 (speling 0,3 mm), borgpen Ø10 door stift en laadpen, toetsen afschuiving en stuik bij 2,5 x de last |
+| N-P2-08 funderingsplan | gedaan | Kettingmaten x/y, totaalmaat, 2 diagonalen, paalhoogte per poer, maat valruimte, strook bij poeren minder dan 300 mm uit elkaar (FX-23), titel doorsnede vrij van de tabel |
+| N-P2-09 klantmodus | gedaan | `maak-web --klant`: aparte map zonder prijzen/werkwijze/dossier/tekeningen/montage/dxf/stuklijst, inkoopprijzen 0, vooraf berekende verkoopprijzen, neutrale teksten, knop Offerte-aanvraag (kopiëren of .txt, niets verstuurd). Instellingen van Ian: via de nieuwe knop "Instellingen als bestand" en `--instellingen`; deze build is nog met de standaard gemaakt (zijn bestand zit in zijn browser) |
+| N-P2-10 prijs | deels | Modelfout weg: kappen telden als lassen (FS-01: 54 van 122 verbindingen). Boven de markt: thuis + pro 270 van 300 (v6b 273), semi 146 van 150, pro 121 van 150 (FS pro 23 van 25, FX pro 19 van 25). FS-01 pro € 11.080 (v6b € 8.614): takel, zwaardere stapel en kappen kosten echt meer. Uurloon, marges en gamma bij Ian |
+| N-P2-11 buislaser-DXF | gedaan | Heet nu "boormal 1:1" met nulpunt kant A, plus een gatentabel per koker als CSV |
+| N-P2-12 R30 kantbank | gedaan | Plyobox Ri 4 (R 6 buiten) op een gewone V-matrijs |
+| N-P2-13 restpunten | deels | P2-03 rolarm 340-440 verstelbaar (FS en FK) gedaan; P2-09 duwframe uitneembaar gedaan; P2-18 alleen bij FS opgelost (voetplaat lagerpaal, naafplaten, zadelplaat lat-arm, kopplaat ligpaal), FB/FK/FP staan nog oranje; P2-15 (R per buigerij) niet |
+| N-P2-14 tests | gedaan | Alle 8 genoemde gaten hebben een test met een negatieve proef (blok zonder geleiding, aanslag, plaatmassa en echte stapel, vloerkatrol, uitslag terugvouwen, massa tegenover stuklijst, RVS + verzinken, opening bij een kneep), plus klantmap, funderingsplan, FX-04 |
+| N-P3-01 verouderde tekst | gedaan | Kop selectorized, kabelstation, katrolkap-teksten, kabelblad (geen riem meer) |
+| N-P3-02 juk | gedaan | Schijven = (L − 20) / 45; jukbalk verstelbaar van H − 1000 tot H − 100 |
+| N-P3-03 kantelen onder trek | gedaan | Ankerkoppel gerekend (2 x 3 kN, AANNAME M10), eenheid kNm juist |
+| N-P3-04 V-goot | gedaan | Benen als buitenmaat Lf, echte zethoek |
+| N-P3-05 norm / groen vak | gedaan | Eerste regel EN 16630 bij buiten; klantpagina met een neutraal vak (prototype, geen normclaim) |
+| N-P3-06 FM-15 bandpinnen | gedaan | Een optie die niet past, wordt niet getoond |
+| N-P3-07 keuring thuis buiten | gedaan | Alleen semi en pro |
+| N-P3-08 open P3 uit v5 | niet | P3-03, P3-04, P3-05, P3-06, P3-07 niet aangepakt |
+
+### Vormtaal FS (§4)
+
+| Voorstel | Status |
+|---|---|
+| 1 gesloten kap rond nok en kabel tot de toren | gedaan (nokkap + vloergoot, kapkleur) |
+| 2 lagerschild in plaats van 2 lagerpalen | deels: een gelaserd lagerschild 3 mm met ronde kop over de buitenkant van elke paal; de vlakovaal paal draagt nog |
+| 3 zitting en rug op één gebogen ruggengraat | niet |
+| 4 toren en station op één gesloten voetlus | niet |
+| 5 takel weg van de vloer, toestel korter | gedaan, achter de toren (niet erin: in de toren is geen plaats naast de stapel) |
+
+### De 50 vorige punten (na v7)
+
+| Punt | v6b (Fable) | v7 | Opmerking |
+|---|---|---|---|
+| P1-01 | deels | gedaan | FK-08 (N-P1-05) |
+| P1-02 | deels | deels | echte massa en grens druk/been met bron; andere grenzen AANNAME |
+| P1-03 / 04 / 05 | opgelost | opgelost | lagerhuis nu Ø55 voor de as Ø50 |
+| P1-06 | deels | gedaan | N-P2-07 |
+| P1-07 / 08 | opgelost | opgelost | prijs FX-11 blijft hoog (Ian) |
+| P1-09 | deels | gedaan | N-P2-08 |
+| P1-10 | deels | gedaan | N-P1-06 |
+| P1-11 | deels | gedaan | N-P1-07 |
+| P1-12 | opgelost | opgelost | mantel nu in 2 helften |
+| P2-01 | opgelost | opgelost | |
+| P2-02 | deels | gedaan | N-P1-04 |
+| P2-03 | deels | gedaan | rolslede 340-440 |
+| P2-04 | niet (Ian) | niet | keuze Ian |
+| P2-05 t/m P2-08 | opgelost | opgelost | |
+| P2-09 | deels | gedaan | duwframe uitneembaar |
+| P2-10 t/m P2-14 | opgelost | opgelost | |
+| P2-15 | deels | deels | R per buigerij niet gevraagd |
+| P2-16 / 17 | opgelost | opgelost | |
+| P2-18 | deels | deels | FS opgelost, FB/FK/FP nog oranje |
+| P2-19 | deels | gedaan | N-P2-11 |
+| P2-20 / 21 / 22 | opgelost | opgelost | S355J2+C, norm per soort |
+| P2-23 | niet (Ian) | niet | keuze Ian |
+| P2-24 | opgelost | opgelost | FM-15 verborgen |
+| P2-25 | deels | deels | N-P2-10 |
+| P2-26 | deels | gedaan | N-P2-09 (instellingen van Ian via een bestand) |
+| P2-27 | deels | deels | verzekering bij Ian |
+| P3-01 | deels | deels | §4 |
+| P3-02 / 03 / 06 | deels | deels | |
+| P3-04 / 05 / 07 | niet | niet | |
+| P3-08 t/m P3-11 | opgelost | opgelost | |
+
+Telling van de 50: 36 opgelost of gedaan, 9 deels, 5 niet (waarvan 2 keuze van Ian).

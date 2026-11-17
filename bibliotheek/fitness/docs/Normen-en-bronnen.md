@@ -148,6 +148,18 @@ Bronnen: [tolymp.de](https://www.tolymp.de/en/your-topics/),
 [sunshinegym.co.uk](https://www.sunshinegym.co.uk/bs-en-16630),
 [AS 16630:2021 (inhoud)](https://store.standards.org.au/product/as-16630-2021).
 
+## Selectorized v7: kabels, kabelschijven en de grens
+
+- Life Fitness Insignia Chest Press: stapel 260 lb / 130 kg (standaard), 305 lb / 152 kg (zwaar), live area 171 x 140 x 210 cm
+  (lifefitness.com, catalogus Insignia Series Chest Press). Basis voor de grens druk 110 kg (± 85 %, AANNAME overbrenging).
+- Staalkabel 8x19W met staalkern Ø8, 1770 N/mm²: MBF 40,3 kN (Mennens, productpagina 8x19W staalkern).
+- Staalkabel 6x19 vezelkern Ø6, 1770 N/mm²: MBF 19,6 kN (Mennens / LKI-tabel).
+- Rema RZ-0.5 (art. 3063001): kabel 5-6 mm, Ø150, werklast 500 kg met de hand, 250 kg mechanisch, € 73,25 excl. (klium.be).
+  Rema RZ-1.0 (art. 3063003): kabel 8-10 mm, Ø235, 1000 kg met de hand, 500 kg mechanisch, € 99,51 excl. (klium.be).
+  AANNAME: een fitnesstoestel is handbediend (spierkracht); de toets gebruikt de werklast met de hand, de kabel heeft factor 6.
+- Overbrenging nok: de losse katrol op de stapel halveert de kracht aan de nok (stapel stijgt de helft van de kabelweg);
+  voor 2 x de stapel aan de nok moet de losse katrol aan de kant van de nok zitten (geleid takelblok).
+
 ## Wat nog open is
 
 - **Stabiliteit:** de hellingshoek (10°) in EN ISO 20957-1:2013/2024.

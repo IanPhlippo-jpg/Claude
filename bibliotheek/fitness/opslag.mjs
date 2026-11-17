@@ -82,7 +82,7 @@ export function rekLagen(b, def, c) {
         rubber.push({ g: balk([x0 + 6, m[1], m[2]], [x1 - 6, m[1], m[2]], f, Lf - 14, 3, false, 'rubber'), opp: ((x1 - x0 - 12) * (Lf - 14)) / 1e6 });
       }
       // één gezette plaat: uitslag met één zetting (afwijking 2·α van vlak) in het midden (P1-11)
-      b.gezet(`V-goot laag ${k + 1}`, flanken, { t: tg, uitslag: uitslagStrook(x1 - x0, [Lf - 2, Lf - 2], [{ hoek: Math.round((2 * al) / RAD), R: 2 * tg, richting: 'op' }], tg), opm: `V-goot uit één plaat ${tg} mm: 1 zetting ${Math.round((2 * al) / RAD)}° Ri ${2 * tg} (K = 0,4, AANNAME zetterij); rubberen inleg 3 mm` });
+      b.gezet(`V-goot laag ${k + 1}`, flanken, { t: tg, uitslag: uitslagStrook(x1 - x0, [Lf, Lf], [{ hoek: (2 * al) / RAD, R: 2 * tg, richting: 'op' }], tg), opm: `V-goot uit één plaat ${tg} mm: 1 zetting ${Math.round((2 * al) / RAD)}° Ri ${2 * tg} (K = 0,4, AANNAME zetterij); rubberen inleg 3 mm` });
     } else {
       for (let q = 0; q < xs.length - 1; q++) {
         const xa = xs[q] + a / 2, xb = xs[q + 1] - a / 2;
@@ -93,7 +93,7 @@ export function rekLagen(b, def, c) {
         b.koop('boutM8', 4, [], { naam: `Bout M8 x 20 met ring: bak laag ${k + 1} op de liggers` });
         if (rand) {
           const randen = [[ya, ya + tb], [yb - tb, yb]].map(([y0, y9]) => { const r2 = b.plaat(`Bak laag ${k + 1}`, [xa, y0, zt + tb], [xb, y9, zt + tb + rand], { opm: 'opstaande rand van de gezette bak' }); r2.geenLas = true; return r2; });
-          b.gezet(`Bak laag ${k + 1}`, [bod, ...randen], { t: tb, uitslag: uitslagStrook(xb - xa, [rand, yb - ya - 2 * tb, rand], [{ hoek: 90, R: 2 * tb, richting: 'op' }, { hoek: 90, R: 2 * tb, richting: 'op' }], tb), opm: `gezette bak uit één plaat ${tb} mm: bodem met 2 opstaande randen van ${rand} mm, 2 zettingen 90° Ri ${2 * tb} (K = 0,4); rubbermat 3 mm` });
+          b.gezet(`Bak laag ${k + 1}`, [bod, ...randen], { t: tb, uitslag: uitslagStrook(xb - xa, [rand + tb, yb - ya, rand + tb], [{ hoek: 90, R: 2 * tb, richting: 'op' }, { hoek: 90, R: 2 * tb, richting: 'op' }], tb), maat3d: [randen[0].mx[2] - bod.mn[2], randen[1].mx[1] - randen[0].mn[1], randen[1].mx[2] - bod.mn[2]], opm: `gezette bak uit één plaat ${tb} mm: bodem met 2 opstaande randen van ${rand} mm, 2 zettingen 90° Ri ${2 * tb} (K = 0,4); uitslag uit de buitenmaten (N-P1-07); rubbermat 3 mm` });
         }
         if (rand) rubber.push({ g: balk([xa + 4, (ya + yb) / 2, zt + tb + 1.5], [xb - 4, (ya + yb) / 2, zt + tb + 1.5], Y, yb - ya - 2 * tb - 4, 3, false, 'rubber'), opp: ((xb - xa) * (yb - ya)) / 1e6 });
         if (l.zit) b.kussen('Zitkussen', [xa + 30, (ya + yb) / 2, zt + tb], [xb - 30, (ya + yb) / 2, zt + tb], Z, yb - ya - 20, 60);
@@ -146,11 +146,11 @@ export function parallettes(b, def, c) {
   b.last('Gebruiker', 100, [0, 0, h + 400], { geval: 'steun' });
 }
 /** plyobox in staal (v6, P1-12): taps (onderaan e mm breder per zijde, zoals de stalen boxen van de merken), een mantel
- *  uit één gezette plaat (4 zettingen R30, gelast op één hoek), bodem, deksel 4 mm op 3 ribben met antislip en een
+ *  in twee gezette helften (4 zettingen Ri 4, naden midden in voor- en achtervlak), bodem, deksel 4 mm op 3 ribben met antislip en een
  *  rubberen rand, handgrepen als uitsparing in de zijkanten. Belastinggeval: landing op de rand (2 x gebruiker, 30 %
  *  horizontaal). */
 export function plyobox(b, def, c) {
-  const [B, D, H] = c.maat ?? [600, 500, 500], P = b.P('licht'), a = P.h, tm = 2, td = c.td ?? 4, R = 30, zr = 5, z0 = zr + tm, z1 = H - td, e = c.taps ?? 100;
+  const [B, D, H] = c.maat ?? [600, 500, 500], P = b.P('licht'), a = P.h, tm = 2, td = c.td ?? 4, R = 6, /* N-P2-12 v7: Ri 4 = 2t op een gewone V-matrijs, geen radiusstempel */ zr = 5, z0 = zr + tm, z1 = H - td, e = c.taps ?? 100;
   const Bb = B + 2 * e, Db = D + 2 * e, hz = z1 - z0, Ls = Math.hypot(e, hz), sn = e / Ls, cs = hz / Ls;
   b.koop('rubbermat', 1, [[-1, 0], [1, 0]].map(([sx]) => balk([sx * (Bb / 2 - 40), -Db / 2 + 20, zr / 2], [sx * (Bb / 2 - 40), Db / 2 - 20, zr / 2], X, 50, zr, false, 'rubber')), { naam: 'Rubberstroken 50 x 5 onder de box (antislip, geluid)', oppervlak: (2 * 0.05 * (Db - 40)) / 1e3 });
   const rh = (w, hh, r = R) => [[-w / 2, -hh / 2, r], [w / 2, -hh / 2, r], [w / 2, hh / 2, r], [-w / 2, hh / 2, r]];
@@ -158,25 +158,38 @@ export function plyobox(b, def, c) {
   b.contour('Deksel', [0, 0, H - td / 2], X, Y, td, rh(B, D), { banden: 8, opm: `deksel ${td} mm met ronde hoeken R${R} en antislip (kwartszand), op de mantel en 3 ribben gelast` });
   // mantel: 4 schuine vlakken (trapezium), de hoeken zijn zettingen R30; de zijkanten met een handgreep
   const grip = [[-65, Ls - 140, 17], [65, Ls - 140, 17], [65, Ls - 105, 17], [-65, Ls - 105, 17]];
-  const vlakken = [];
-  for (const sy of [-1, 1]) {
-    const ey = norm([0, -sy * e, hz]), o3 = add([0, sy * Db / 2, z0], mul(norm([0, -sy * cs, -sn]), tm / 2));
-    vlakken.push(b.contour('Mantel', o3, X, ey, tm, sy < 0 ? [[-(Bb / 2 - R), 0], [Bb / 2 - R, 0], [B / 2 - R, Ls], [-(B / 2 - R), Ls]] : [[-(Bb / 2 - R), 0], [-(B / 2 - R), Ls], [B / 2 - R, Ls], [Bb / 2 - R, 0]], { banden: 6, opm: 'mantel (voor/achter)' }));
-  }
-  for (const sx of [-1, 1]) {
-    const ey = norm([-sx * e, 0, hz]), o3 = add([sx * Bb / 2, 0, z0], mul(norm([-sx * cs, 0, -sn]), tm / 2));
-    vlakken.push(b.contour('Mantel', o3, Y, ey, tm, sx < 0 ? [[-(Db / 2 - R), 0], [-(D / 2 - R), Ls], [D / 2 - R, Ls], [Db / 2 - R, 0]] : [[-(Db / 2 - R), 0], [Db / 2 - R, 0], [D / 2 - R, Ls], [-(D / 2 - R), Ls]], { banden: 6, uitsparingen: [grip], opm: 'mantel (zijkant) met een handgreep 130 x 35' }));
-  }
-  // uitslag van de mantel: voor → rechts → achter → links, de 4e hoek is de lasnaad
-  const q = (p0, p1, p2, p3) => [p0, p1, p2, p3];
-  const pan = [
-    { q: q([-(Bb / 2 - R), -Db / 2, z0], [Bb / 2 - R, -Db / 2, z0], [B / 2 - R, -D / 2, z1], [-(B / 2 - R), -D / 2, z1]) },
-    { q: q([Bb / 2, -(Db / 2 - R), z0], [Bb / 2, Db / 2 - R, z0], [B / 2, D / 2 - R, z1], [B / 2, -(D / 2 - R), z1]), gaten: [grip.map(([u, v, r]) => [u + (Db / 2 - R), v, r])] },
-    { q: q([Bb / 2 - R, Db / 2, z0], [-(Bb / 2 - R), Db / 2, z0], [-(B / 2 - R), D / 2, z1], [B / 2 - R, D / 2, z1]) },
-    { q: q([-Bb / 2, Db / 2 - R, z0], [-Bb / 2, -(Db / 2 - R), z0], [-B / 2, -(D / 2 - R), z1], [-B / 2, D / 2 - R, z1]), gaten: [grip.map(([u, v, r]) => [u + (Db / 2 - R), v, r])] },
+  // N-P1-07 v7: de mantel in twee helften (naden midden in voor- en achtervlak, 4 zettingen in totaal), de echte zethoek
+  // tussen de tapse vlakken, Ri = R − t (R is de buitenradius van bodem en deksel); elke helft past op een plaat 1500 breed
+  const Ri = R - tm, cB = Bb / 2 - R, cT = B / 2 - R, dB = Db / 2 - R, dT = D / 2 - R;
+  const vlak = (nm, o3, ex, ey, pts, opt = {}) => b.contour(nm, o3, ex, ey, tm, pts, { banden: 6, ...opt });
+  const voorO = (sy) => add([0, sy * Db / 2, z0], mul(norm([0, -sy * cs, -sn]), tm / 2)), zijO = (sx) => add([sx * Bb / 2, 0, z0], mul(norm([-sx * cs, 0, -sn]), tm / 2));
+  const eyV = (sy) => norm([0, -sy * e, hz]), eyZ = (sx) => norm([-sx * e, 0, hz]);
+  const halfA = [
+    vlak('Mantel', voorO(-1), X, eyV(-1), [[0.6, 0], [cB, 0], [cT, Ls], [0.6, Ls]], { opm: 'mantel voorvlak (rechterhelft)' }),
+    vlak('Mantel', zijO(1), Y, eyZ(1), [[-dB, 0], [dB, 0], [dT, Ls], [-dT, Ls]], { uitsparingen: [grip], opm: 'mantel zijkant rechts met een handgreep 130 x 35' }),
+    vlak('Mantel', voorO(1), X, eyV(1), [[0.6, 0], [0.6, Ls], [cT, Ls], [cB, 0]], { opm: 'mantel achtervlak (rechterhelft)' }),
   ];
-  const ui = ontvouw(pan, [0, 1, 2].map(() => ({ hoek: 90, R, richting: 'op' })), tm);
-  b.gezet('Mantel', vlakken, { t: tm, uitslag: ui, opm: `mantel uit één plaat ${tm} mm, taps (${e} mm per zijde), 3 zettingen 90° Ri ${R} (K = 0,4) en een lasnaad op de 4e hoek; 2 handgrepen 130 x 35` });
+  const halfB = [
+    vlak('Mantel', voorO(1), X, eyV(1), [[-cB, 0], [-cT, Ls], [-0.6, Ls], [-0.6, 0]], { opm: 'mantel achtervlak (linkerhelft)' }),
+    vlak('Mantel', zijO(-1), Y, eyZ(-1), [[-dB, 0], [-dT, Ls], [dT, Ls], [dB, 0]], { uitsparingen: [grip], opm: 'mantel zijkant links met een handgreep 130 x 35' }),
+    vlak('Mantel', voorO(-1), X, eyV(-1), [[-cB, 0], [-0.6, 0], [-0.6, Ls], [-cT, Ls]], { opm: 'mantel voorvlak (linkerhelft)' }),
+  ];
+  const q = (p0, p1, p2, p3) => [p0, p1, p2, p3], gZ = [grip.map(([u, v, r]) => [u + dB, v, r])];
+  const panA = [
+    { q: q([0, -Db / 2, z0], [cB, -Db / 2, z0], [cT, -D / 2, z1], [0, -D / 2, z1]) },
+    { q: q([Bb / 2, -dB, z0], [Bb / 2, dB, z0], [B / 2, dT, z1], [B / 2, -dT, z1]), gaten: gZ },
+    { q: q([cB, Db / 2, z0], [0, Db / 2, z0], [0, D / 2, z1], [cT, D / 2, z1]) },
+  ];
+  const panB = [
+    { q: q([0, Db / 2, z0], [-cB, Db / 2, z0], [-cT, D / 2, z1], [0, D / 2, z1]) },
+    { q: q([-Bb / 2, dB, z0], [-Bb / 2, -dB, z0], [-B / 2, -dT, z1], [-B / 2, dT, z1]), gaten: gZ },
+    { q: q([-cB, -Db / 2, z0], [0, -Db / 2, z0], [0, -D / 2, z1], [-cT, -D / 2, z1]) },
+  ];
+  // zethoek = de hoek tussen de normalen van twee tapse vlakken (bij 0 taps 90°)
+  const zh = (Math.acos(sn * sn) * 180) / Math.PI, zet = [0, 1].map(() => ({ hoek: Math.round(zh * 10) / 10, R: Ri, richting: 'op' }));
+  for (const [nm, kind, pan] of [['Mantel helft A', halfA, panA], ['Mantel helft B', halfB, panB]]) {
+    b.gezet(nm, kind, { t: tm, uitslag: ontvouw(pan, zet, tm), hoeken: 2, opm: `mantelhelft uit één plaat ${tm} mm, taps (${e} mm per zijde), 2 zettingen ${zet[0].hoek}° Ri ${Ri} (K = 0,4); de naden midden in het voor- en achtervlak (stomp gelast, vlak geslepen); 1 handgreep 130 x 35` });
+  }
   // de ronde zettingen in de hoeken (alleen voor het beeld): schuine cilinders
   b.o.pronk = b.o.pronk ?? [];
   for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) b.o.pronk.push(balk([sx * (Bb / 2 - R), sy * (Db / 2 - R), z0], [sx * (B / 2 - R), sy * (D / 2 - R), z1], X, 2 * R, 2 * R, true, 'frame'));

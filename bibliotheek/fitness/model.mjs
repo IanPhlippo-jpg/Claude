@@ -119,7 +119,7 @@ export function bouwer(V, stand = 0) {
       for (const [x, y] of cont.punten) for (const z of [-t / 2, t / 2]) { const q = P3(x, y, z); for (let i = 0; i < 3; i++) { mn[i] = Math.min(mn[i], q[i]); mx[i] = Math.max(mx[i], q[i]); } }
       const ax = (v) => [0, 1, 2].sort((i, j) => Math.abs(v[j]) - Math.abs(v[i]))[0];
       const opp = (pts) => Math.abs(pts.reduce((tt, p, i) => tt + p[0] * pts[(i + 1) % pts.length][1] - pts[(i + 1) % pts.length][0] * p[1], 0)) / 2;
-      const gaten = (opt.gaten ?? []).map((g) => ({ d: g.d, p: P3(g.x, g.y), x: g.x - minx, y: g.y - miny, lx: g.x, ly: g.y, sleuf: 0 }));
+      const gaten = (opt.gaten ?? []).map((g) => ({ d: g.d, p: P3(g.x, g.y), x: g.x - minx, y: g.y - miny, lx: g.x, ly: g.y, sleuf: 0, zitting: !!g.zitting }));
       const d = { id: `d${++nr}`, soort: 'plaat', naam, groep: opt.groep ?? groep, t: r1(t), l: r1(maxx - minx), bmaat: r1(maxy - miny), mn, mx, as: { t: ax(nn), b: ax(ey), l: ax(ex) }, gaten, rond: false, vorm: 'contour', geo, opm: opt.opm ?? '', in: opt.in ?? null, kleur, laser: true, stapel: false,
         contour: { o: o3, ex, ey, n: nn, t, punten: cont.punten, segmenten: cont.segmenten, omtrek: cont.omtrek + uits.reduce((tt, u) => tt + u.omtrek, 0), uitsparingen: uits, minx, miny, opp: opp(cont.punten) - uits.reduce((tt, u) => tt + opp(u.punten), 0) } };
       o.delen.push(d); return d;
@@ -136,7 +136,9 @@ export function bouwer(V, stand = 0) {
       const mn = [0, 1, 2].map((i) => Math.min(...kinderen.map((k) => k.mn?.[i] ?? Math.min(...k.geo.map((g) => Math.min(g.a[i], g.b[i])))))), mx = [0, 1, 2].map((i) => Math.max(...kinderen.map((k) => k.mx?.[i] ?? Math.max(...k.geo.map((g) => Math.max(g.a[i], g.b[i]))))));
       const d = { id: `g${++nr}`, soort: 'plaat', naam, groep: kinderen[0].groep, t: r1(t), l: r1(maxx - minx), bmaat: r1(maxy - miny), mn, mx, as: { t: 2, b: 1, l: 0 }, gaten: [], rond: false, vorm: 'gezet', geo: kinderen[0].geo, opm: opt.opm ?? '', in: null, kleur: opt.kleur ?? kinderen[0].kleur ?? 'frame', laser: true, stapel: false, K: opt.K ?? 0.4,
         contour: { o: [0, 0, 0], ex: X, ey: Y, n: Z, t, punten: cont.punten, segmenten: cont.segmenten, omtrek: cont.omtrek + uits.reduce((tt, u) => tt + u.omtrek, 0), uitsparingen: uits, minx, miny, opp: opp(cont.punten) - uits.reduce((tt, u) => tt + opp(u.punten), 0) },
-        zetlijnen: ui.zetlijnen.map((z) => ({ ...z, a: [z.a[0] - minx, z.a[1] - miny], b: [z.b[0] - minx, z.b[1] - miny] })), kinderen: kinderen.map((k) => k.id) };
+        zetlijnen: ui.zetlijnen.map((z) => ({ ...z, a: [z.a[0] - minx, z.a[1] - miny], b: [z.b[0] - minx, z.b[1] - miny] })), kinderen: kinderen.map((k) => k.id),
+        // N-P1-07 v7: de strook (buitenmaten) en de gemeten 3D-maten om de uitslag terug te vouwen; hoeken = zettingen die de 3D nodig heeft
+        strook: ui.buiten ? ui : null, maat3d: opt.maat3d ?? null, hoeken: opt.hoeken ?? null };
       for (const k of kinderen) { k.deelVan = d.id; k.gezet = d; }
       o.gezet.push(d); return d;
     },
@@ -150,7 +152,7 @@ export function bouwer(V, stand = 0) {
       // w van de balk moet langs de dikte liggen: anders draaien we v om
       if (Math.abs(g.w[ti]) < 0.5) { g.v = [0, 0, 0]; g.v[ti] = 1; g.w = cross(g.u, g.v); g.bw = dim[ti]; g.bh = dim[bi]; }
       if (opt.rond) { const ta = [...c], tb = [...c]; ta[ti] = mn[ti]; tb[ti] = mx[ti]; const vv2 = [0, 0, 0]; vv2[bi] = 1; Object.assign(g, balk(ta, tb, vv2, dim[li], dim[bi], true, opt.kleur ?? 'frame')); }
-      const gaten = (opt.gaten ?? []).map((x) => ({ d: x.d, p: x.p, x: x.p[li] - mn[li], y: x.p[bi] - mn[bi], sleuf: x.sleuf ?? 0 }));
+      const gaten = (opt.gaten ?? []).map((x) => ({ d: x.d, p: x.p, x: x.p[li] - mn[li], y: x.p[bi] - mn[bi], sleuf: x.sleuf ?? 0, zitting: !!x.zitting }));
       const d = { id: `d${++nr}`, soort: 'plaat', naam, groep: opt.groep ?? groep, t: r1(dim[ti]), l: r1(dim[li]), bmaat: r1(dim[bi]), mn, mx, as: { t: ti, b: bi, l: li }, gaten, rond: !!opt.rond, vorm: opt.vorm ?? null, geo: [g], opm: opt.opm ?? '', in: opt.in ?? null, kleur: opt.kleur ?? 'frame', laser: opt.laser ?? true, stapel: !!opt.stapel };
       o.delen.push(d); return d;
     },
@@ -185,8 +187,9 @@ export function bouwer(V, stand = 0) {
       // de kabel raakt elke katrol aan de buitenkant van de bocht: in- en uitloop-raakpunt
       const lijn = [pts[0].p];
       let L = 0;
+      const boog = [];
       for (let i = 1; i < pts.length - 1; i++) {
-        const q = pts[i]; if (!q.katrol) { lijn.push(q.p); continue; }
+        const q = pts[i]; if (!q.katrol) continue;
         const d1 = norm(sub(q.p, pts[i - 1].p)), d2 = norm(sub(pts[i + 1].p, q.p));
         const n1 = sub(d2, mul(d1, dot(d1, d2))), n2 = sub(d1, mul(d2, dot(d1, d2)));
         let tin = len(n1) < 1e-6 ? q.p : sub(q.p, mul(norm(n1), q.r)), tuit = len(n2) < 1e-6 ? q.p : add(q.p, mul(norm(n2), q.r));
@@ -194,11 +197,28 @@ export function bouwer(V, stand = 0) {
         const exact = (P0, zijde, teken) => { const v = sub(q.p, P0), d = len(v); if (d <= q.r * 1.05 || len(zijde) < 1e-6) return null; const u = norm(v), w = norm(sub(zijde, mul(u, dot(zijde, u)))), be = Math.acos(q.r / d); return add(q.p, mul(add(mul(u, -Math.cos(be)), mul(w, teken * Math.sin(be))), q.r)); };
         if (!pts[i - 1].katrol && len(n1) > 1e-6) tin = exact(pts[i - 1].p, n1, -1) ?? tin;
         if (!pts[i + 1].katrol && len(n2) > 1e-6) tuit = exact(pts[i + 1].p, n2, 1) ?? tuit;
-        q.in = tin; q.uit = tuit; lijn.push(tin, tuit);
+        q.in = tin; q.uit = tuit;
         // een kunststof katrol die te zwaar belast wordt (R = F·|d2 − d1|): de aluminium versie
         const Rk = ((opt.last ?? 0) * 9.81 / (opt.overbrenging ?? 1)) * len(sub(d2, d1));
         if (q.k && !q.k.key.endsWith('pro') && Rk > 0.9 * KOOP[q.k.key].kN * 1000) { const nk = q.k.key === 'katrol90' ? 'katrol90pro' : 'katrol115pro'; q.k.key = nk; q.k.naam = `${KOOP[nk].naam}: ${q.k.label} (zwaar belast)`; }
-        { const ua = sub(tin, q.p), ub = sub(tuit, q.p); L += len(ua) > 1e-6 && len(ub) > 1e-6 ? q.r * Math.acos(Math.max(-1, Math.min(1, dot(norm(ua), norm(ub))))) : q.r * Math.acos(Math.max(-1, Math.min(1, dot(d1, d2)))); } // boog tussen de echte raakpunten
+        boog[i] = [d1, d2];
+      }
+      // v7: tussen twee katrollen in hetzelfde vlak de exacte gemeenschappelijke raaklijn (ook gekruist: de ene katrol met de
+      // klok mee, de andere tegen de klok in, zoals bij een losse katrol); de draaizin volgt uit de bocht van de kabel
+      const zin = pts.map((q, i) => (q.katrol && i > 0 && i < pts.length - 1 ? Math.sign(dot(cross(sub(q.p, pts[i - 1].p), sub(pts[i + 1].p, q.p)), q.k.as)) || 1 : 0));
+      for (let i = 1; i < pts.length - 2; i++) {
+        const A = pts[i], B = pts[i + 1]; if (!A.katrol || !B.katrol) continue;
+        const ax = A.k.as, D = sub(B.p, A.p), dd = len(D); if (Math.abs(dot(ax, B.k.as)) < 0.999 || Math.abs(dot(D, ax)) > 1 || dd < 1) continue;
+        const e1 = norm(D), e2 = cross(ax, e1), kk = zin[i + 1] * B.r - zin[i] * A.r; if (Math.abs(kk) >= dd) continue;
+        const cb = kk / dd, sbb = Math.sqrt(1 - cb * cb);
+        for (const sb of [sbb, -sbb]) { const w = add(mul(e1, cb), mul(e2, sb)), u = mul(cross(ax, w), -1); if (dot(u, D) <= 0) continue; A.uit = add(A.p, mul(w, -zin[i] * A.r)); B.in = add(B.p, mul(w, -zin[i + 1] * B.r)); break; }
+      }
+      for (let i = 1; i < pts.length - 1; i++) {
+        const q = pts[i]; if (!q.katrol) { lijn.push(q.p); continue; }
+        lijn.push(q.in, q.uit); L -= len(sub(q.uit, q.in)); // de koorde in → uit telt niet: de boog wel
+        const [d1, d2] = boog[i], ua = sub(q.in, q.p), ub = sub(q.uit, q.p);
+        if (len(ua) > 1e-6 && len(ub) > 1e-6) { let hk = Math.acos(Math.max(-1, Math.min(1, dot(norm(ua), norm(ub))))); if (zin[i] && dot(cross(ua, ub), q.k.as) * zin[i] < -1e-9) hk = 2 * Math.PI - hk; L += q.r * hk; } // boog tussen de echte raakpunten
+        else L += q.r * Math.acos(Math.max(-1, Math.min(1, dot(norm(d1), norm(d2)))));
       }
       lijn.push(pts[pts.length - 1].p);
       for (let i = 1; i < lijn.length; i++) L += len(sub(lijn[i], lijn[i - 1]));
@@ -215,7 +235,7 @@ export function bouwer(V, stand = 0) {
     /** gewichtstapel tussen twee geleidestangen (x-afstand 'hoh'), onderkant op z0; geeft { top, stang } */
     stapel(naam, c, z0, opt = {}) {
       // maat compact / XL: 4 platen minder of meer (± 20 kg) in de standaardstapel
-      const mz = o.opties?.maat, n = opt.n ?? V.stapelN + (mz === 'compact' ? -4 : mz === 'XL' ? 4 : 0), kg = V.stapelKg, w = 340, dpl = opt.dpl ?? 112, t = 20, hoh = opt.hoh ?? 220, slag = opt.slag ?? 600, H = opt.hoogte ?? 0;
+      const mz = o.opties?.maat, n = opt.n ?? V.stapelN + (mz === 'compact' ? -4 : mz === 'XL' ? 4 : 0), kg = V.stapelKg, t = 20, w = 340, gatV = (2 * Math.PI * 16 ** 2 + Math.PI * 10.5 ** 2) * t, dpl = Math.min(opt.dpl ?? 112, Math.round((kg / 7.85e-6 + gatV) / (w * t))), hoh = opt.hoh ?? 220, slag = opt.slag ?? 600, H = opt.hoogte ?? 0;
       const dz = (b.stand ?? 0) * slag, mn = [c[0] - w / 2, c[1] - dpl / 2, z0 + 60 + dz];
       const plts = [];
       groep = `stapel ${naam}`;
@@ -245,7 +265,9 @@ export function bouwer(V, stand = 0) {
       b.koop('boutM8', 2, [], { naam: 'Klembout M8 (klemblokken geleidestangen onder)' });
       b.koop('moerM12', 2, [], { naam: 'Boven: draadeind M12 x 30 in de kop van de geleidestang, door de onderwand van de bovenligger (gat Ø14), moer M12 + ring via een montagegat Ø32 in de zijwand' });
       const extraKg = Math.round(((w * dpl * 25 - 2 * Math.PI * 400 - Math.PI * 110) * 7.85e-6 + (n * t + 35) * 2.47e-3 + 2 * 0.35 * 2.0 + 0.5) * 10) / 10;
-      const s = { naam, n, kg, extraKg, last: n * kg, c, z0, top: top + 25, oog: (x = 0) => [c[0] + x, c[1], top + 55], slag, dz, hoh, w, dpl, platen: plts, stem, stang, zt, zone: [[mn[0], mn[1], z0], [mn[0] + w, mn[1] + dpl, top + 25 + slag]] };
+      // N-P1-03 v7: de diepte volgt uit de massa (340 x 100 x 20 = 5,03 kg met de gaten); massaPlaat = de echte massa uit het model
+      const massaPlaat = Math.round((w * dpl * t - gatV) * 7.85e-6 * 1000) / 1000;
+      const s = { naam, n, kg, massaPlaat, massaEcht: Math.round((n * massaPlaat + extraKg) * 10) / 10, extraKg, last: n * kg, c, z0, top: top + 25, oog: (x = 0) => [c[0] + x, c[1], top + 55], slag, dz, hoh, w, dpl, platen: plts, stem, stang, zt, zone: [[mn[0], mn[1], z0], [mn[0] + w, mn[1] + dpl, top + 25 + slag]] };
       o.stapels.push(s); return s;
     },
     /** schijven op een houder, alleen voor de 3D (niet in de stuklijst): n schijven Ø450 x 50 vanaf p langs as */
@@ -321,6 +343,8 @@ export function afwerken(o) {
     if (A.groep !== B.groep || (A.stapel && B.stapel)) continue;
     if ((A.stapel || B.stapel) && !/Bovenplaat/.test((A.stapel ? A : B).naam)) continue;
     if (A.geenLas || B.geenLas) continue;
+    if (A.kleur === 'kap' || B.kleur === 'kap') continue; // v7 (N-P2-10): kappen worden geschroefd of geklonken (M6/M8, klinkmoeren), niet gelast
+    if (A.geenLasMet?.includes(B.naam) || B.geenLasMet?.includes(A.naam)) continue; // v7: raakt, maar is er niet aan gelast (arm op een vrije bus)
     if (A.deelVan && A.deelVan === B.deelVan) continue; // twee vlakken van één gezette plaat: een zetting, geen las
     const c = contactDeel(A, B);
     if (!c || c.lengte < 5) continue;

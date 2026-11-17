@@ -4,3 +4,4 @@ export declare function stukBladen(o: unknown, meta?: Record<string, unknown>): 
 export declare function boorRijen(o: unknown, d: unknown): { vlak: string; d: number; wanden: number; doel: string; pos: (number | string)[] }[];
 export declare function typeplaatBlad(o: unknown, meta?: Record<string, unknown>): string;
 export declare function samenstellingBladen(o: unknown, meta?: Record<string, unknown>): { id: string; titel: string; svg: string }[];
+export declare function funderingBlad(o: unknown, meta?: Record<string, unknown>): string;

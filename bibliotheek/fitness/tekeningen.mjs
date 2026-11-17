@@ -444,24 +444,55 @@ export { esc };
  *  peil en de PE-manchet, en de uitvoering (beton, uitharding, ondergrond) */
 export function funderingBlad(o, meta = {}) {
   if (!o.grond) return null;
-  const poeren = o.context.filter((g) => g.kleur === 'beton').map((g) => ({ x: (g.a[0] + g.b[0]) / 2, y: (g.a[1] + g.b[1]) / 2, b: g.bw, d: g.bh, top: Math.max(g.a[2], g.b[2]), bot: Math.min(g.a[2], g.b[2]) }));
+  const poeren0 = o.context.filter((g) => g.kleur === 'beton').map((g) => ({ x: (g.a[0] + g.b[0]) / 2, y: (g.a[1] + g.b[1]) / 2, b: g.bw, d: g.bh, top: Math.max(g.a[2], g.b[2]), bot: Math.min(g.a[2], g.b[2]) }));
+  // N-P2-08 v7: poeren die minder dan 300 mm uit elkaar liggen worden één strook (één bekisting, één stort)
+  const poeren = [];
+  for (const p of poeren0) {
+    const g = poeren.find((q) => Math.max(Math.abs(p.x - q.x) - (p.b + q.b) / 2, Math.abs(p.y - q.y) - (p.d + q.d) / 2) < 300 && (Math.abs(p.x - q.x) < 1 || Math.abs(p.y - q.y) < 1));
+    if (!g) { poeren.push({ ...p, leden: [p] }); continue; }
+    g.leden.push(p); const x0 = Math.min(...g.leden.map((q) => q.x - q.b / 2)), x1 = Math.max(...g.leden.map((q) => q.x + q.b / 2)), y0 = Math.min(...g.leden.map((q) => q.y - q.d / 2)), y1 = Math.max(...g.leden.map((q) => q.y + q.d / 2));
+    Object.assign(g, { x: (x0 + x1) / 2, y: (y0 + y1) / 2, b: x1 - x0, d: y1 - y0 });
+  }
   const X0 = o.valruimte?.X ?? 1500, xs = poeren.map((p) => p.x), ys = poeren.map((p) => p.y);
   const bx0 = Math.min(...xs) - X0, bx1 = Math.max(...xs) + X0, by0 = Math.min(...ys) - X0, by1 = Math.max(...ys) + X0;
-  const s = schaal(Math.min(230 / (bx1 - bx0), 200 / (by1 - by0))), k = s.k, ox = 30 - bx0 * k, oy = 40 + by1 * k, P = (x, y) => [ox + x * k, oy - y * k], el = [];
-  el.push(tk(25, 18, `Funderingsplan: ${naamVan(o)}`, 3.4, { vet: true }), tk(25, 23.5, `Bovenaanzicht schaal ${s.tekst}. Hartmaten van de poeren vanaf het nulpunt (midden toestel), peil 0 = afgewerkt maaiveld / bovenkant valondergrond.`, 2.2));
+  const s = schaal(Math.min(215 / (bx1 - bx0), 185 / (by1 - by0))), k = s.k, ox = 42 - bx0 * k, oy = 40 + by1 * k, P = (x, y) => [ox + x * k, oy - y * k], el = [];
+  el.push(tk(25, 18, `Funderingsplan: ${naamVan(o)}`, 3.4, { vet: true }), tk(25, 23.5, `Bovenaanzicht schaal ${s.tekst}. Uitzetten met een meetlint: kettingmaten tussen de harten van de poeren en de diagonalen (rechte hoek controleren). Peil 0 = afgewerkt maaiveld / bovenkant valondergrond.`, 2.2));
   const [vx, vy] = P(bx0, by1);
-  el.push(`<rect x="${f(vx)}" y="${f(vy)}" width="${f((bx1 - bx0) * k)}" height="${f((by1 - by0) * k)}" fill="#f6ead9" stroke="#b45309" stroke-width="0.35" stroke-dasharray="3 1.5"/>`, tk(vx + 2, vy + 4, `valruimte ${gw(X0 / 1000, 2)} m rondom (EN 16630: X = 2/3·Y + 0,5 m, min. 1,5 m; Y = ${gw((o.valruimte?.Y ?? 0) / 1000, 2)} m)`, 2, { kleur: '#b45309' }));
+  el.push(`<rect x="${f(vx)}" y="${f(vy)}" width="${f((bx1 - bx0) * k)}" height="${f((by1 - by0) * k)}" fill="#f6ead9" stroke="#b45309" stroke-width="0.35" stroke-dasharray="3 1.5"/>`, tk(vx + 2, vy + 4, `valruimte ${gw(X0 / 1000, 2)} m rondom (EN 16630: X = 2/3·Y + 0,5 m, min. 1,5 m; Y = ${gw((o.valruimte?.Y ?? 0) / 1000, 2)} m)`, 2));
+  // maat van de valruimte (van de buitenste poer tot de rand)
+  { const [a1, b1] = P(Math.max(...xs), Math.min(...ys) - X0 / 2), [a2] = P(bx1, 0); el.push(maat([a1, b1], [a2, b1], 0, `${r0(X0)} valruimte`)); }
   for (const d of o.delen.filter((q) => q.soort === 'staaf' && q.geo.length)) { const g = d.geo[0], [a1, b1] = P(g.a[0], g.a[1]), [a2, b2] = P(g.b[0], g.b[1]); if (Math.hypot(a2 - a1, b2 - b1) > 1) el.push(lijn(a1, b1, a2, b2, 0.3, '#888')); }
+  // paal per poer: de staanders die in de poer staan, met hun hoogte boven peil 0
+  const palen = o.delen.filter((d) => d.soort === 'staaf' && Math.abs(d.u?.[2] ?? 0) > 0.95 && Math.min(d.a[2], d.b[2]) < 0);
   const rows = [];
   poeren.forEach((p, i) => {
-    const [cx, cy] = P(p.x, p.y);
-    el.push(`<rect x="${f(cx - (p.b * k) / 2)}" y="${f(cy - (p.d * k) / 2)}" width="${f(p.b * k)}" height="${f(p.d * k)}" fill="#d6d3cd" stroke="#111" stroke-width="0.3"/>`, `<circle cx="${f(cx)}" cy="${f(cy)}" r="0.9" fill="#111"/>`, tk(cx + (p.b * k) / 2 + 1, cy - 1, `P${i + 1}`, 2.2, { vet: true }));
-    rows.push([`P${i + 1}`, String(r0(p.x)), String(r0(p.y)), `${r0(p.b)} x ${r0(p.d)} x ${r0(p.top - p.bot)}`, String(r0(p.top)), String(r0(p.bot))]);
+    const [cx, cy] = P(p.x, p.y), nm = p.leden.length > 1 ? `S${i + 1}` : `P${i + 1}`;
+    el.push(`<rect x="${f(cx - (p.b * k) / 2)}" y="${f(cy - (p.d * k) / 2)}" width="${f(p.b * k)}" height="${f(p.d * k)}" fill="#d6d3cd" stroke="#111" stroke-width="0.3"/>`, tk(cx + (p.b * k) / 2 + 1, cy - 1, nm, 2.2, { vet: true }));
+    for (const q of p.leden) { const [qx, qy] = P(q.x, q.y); el.push(`<circle cx="${f(qx)}" cy="${f(qy)}" r="0.9" fill="#111"/>`); }
+    const hier = palen.filter((d) => p.leden.some((q) => Math.hypot(d.a[0] - q.x, d.a[1] - q.y) < q.b / 2));
+    const hoog = hier.length ? [...new Set(hier.map((d) => r0(Math.max(d.a[2], d.b[2]))))].join(' / ') : '-';
+    rows.push([nm + (p.leden.length > 1 ? ` (${p.leden.length} palen, strook)` : ''), String(r0(p.x)), String(r0(p.y)), `${r0(p.b)} x ${r0(p.d)} x ${r0(p.top - p.bot)}`, String(r0(p.top)), String(r0(p.bot)), hoog]);
   });
-  const [t1, h1] = tabel(270, 34, [['Poer', 12], ['x', 16, true], ['y', 16, true], ['Maat (mm)', 40], ['Boven', 16, true], ['Onder', 16, true]], rows);
-  el.push(tk(270, 31, 'Poeren (mm, t.o.v. peil 0)', 2.5, { vet: true }), t1);
+  // kettingmaten tussen de harten (x onderaan, y links) en de totale maat
+  const ux = [...new Set(poeren0.map((p) => r0(p.x)))].sort((a, b) => a - b), uy = [...new Set(poeren0.map((p) => r0(p.y)))].sort((a, b) => a - b);
+  const yM = P(0, by0)[1] - 4, xM = P(bx0, 0)[0] + 4;
+  for (let i = 1; i < ux.length; i++) el.push(maat([P(ux[i - 1], 0)[0], yM], [P(ux[i], 0)[0], yM], 0, `${ux[i] - ux[i - 1]}`));
+  if (ux.length > 2) el.push(maat([P(ux[0], 0)[0], yM + 6], [P(ux[ux.length - 1], 0)[0], yM + 6], 0, `${ux[ux.length - 1] - ux[0]}`));
+  for (let i = 1; i < uy.length; i++) el.push(maat([xM, P(0, uy[i - 1])[1]], [xM, P(0, uy[i])[1]], 0, `${uy[i] - uy[i - 1]}`));
+  if (uy.length > 2) el.push(maat([xM - 6, P(0, uy[0])[1]], [xM - 6, P(0, uy[uy.length - 1])[1]], 0, `${uy[uy.length - 1] - uy[0]}`));
+  // de diagonalen tussen de uiterste poeren (controle van de rechte hoek bij het uitzetten)
+  if (poeren0.length >= 3) {
+    const ext = (fn) => poeren0.reduce((m, p) => (fn(p) > fn(m) ? p : m), poeren0[0]);
+    for (const [j, [A, B]] of [[ext((p) => -p.x - p.y), ext((p) => p.x + p.y)], [ext((p) => -p.x + p.y), ext((p) => p.x - p.y)]].entries()) {
+      if (A === B) continue;
+      const [a1, b1] = P(A.x, A.y), [a2, b2] = P(B.x, B.y), L = Math.hypot(B.x - A.x, B.y - A.y);
+      el.push(`<line x1="${f(a1)}" y1="${f(b1)}" x2="${f(a2)}" y2="${f(b2)}" stroke="#2563a8" stroke-width="0.25" stroke-dasharray="2 1"/>`, tk((a1 + a2) / 2 + 1, (b1 + b2) / 2 + (j ? 3.5 : -1.5), `diagonaal ${j + 1}: ${r0(L)}`, 2, { kleur: '#2563a8' }));
+    }
+  }
+  const [t1, h1] = tabel(262, 34, [['Poer', 26], ['x', 14, true], ['y', 14, true], ['Maat (mm)', 36], ['Boven', 13, true], ['Onder', 13, true], ['Paal boven peil', 22, true]], rows);
+  el.push(tk(262, 31, 'Poeren (mm, t.o.v. peil 0; paal = bovenkant boven peil 0)', 2.5, { vet: true }), t1);
   // doorsnede van een poer (schaal 1:20)
-  const ds = 0.05, dx = 300, dy = 34 + h1 + 30, p0 = poeren[0] ?? { b: 500, top: -200, bot: -1000 }, D = (z) => dy - z * ds, bb = p0.b * ds;
+  const ds = 0.05, dx = 300, dy = 34 + h1 + 48, p0 = poeren0[0] ?? { b: 500, top: -200, bot: -1000 }, D = (z) => dy - z * ds, bb = p0.b * ds;
   el.push(tk(270, dy - 28, 'Doorsnede poer (schaal 1:20)', 2.5, { vet: true }));
   el.push(lijn(dx - 40, D(0), dx + 40, D(0), 0.5), tk(dx + 41, D(0) + 1, 'peil 0 (maaiveld)', 2));
   el.push(`<rect x="${f(dx - bb / 2)}" y="${f(D(p0.top))}" width="${f(bb)}" height="${f((p0.top - p0.bot) * ds)}" fill="#d6d3cd" stroke="#111" stroke-width="0.35"/>`);

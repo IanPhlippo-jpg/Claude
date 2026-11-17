@@ -1,6 +1,7 @@
 // Geometriecontroles op het model, gedeeld door de test en de werkplaats: botsingen tussen gedraaide balken (OBB,
 // scheidende-as-stelling), zwevende onderdelen, de kabelloop (in het vlak van elke katrol, niet door profielen) en
 // bereikbaarheid (zithoogtes, grepen, schijfhouders vrij). Node en browser.
+import { terugVouwen } from './vorm.mjs';
 import { sub, dot, cross, len, norm, aabb, contact, add, mul, doosVan, balk } from './model.mjs';
 import { puntOp, randAfstand, binnen } from './vorm.mjs';
 
@@ -27,7 +28,8 @@ function vrijgesteld(o) {
   const G = gaten(o);
   const doorGat = (a, b) => a.soort === 'staaf' && a.P?.vorm === 'rond' && G.some((g) => g.deel === b && g.d >= a.P.b - 0.5 && Math.abs(dot(g.as, a.u)) > 0.98 && len(sub(sub(g.p, a.a), mul(a.u, dot(sub(g.p, a.a), a.u)))) < 1);
   const naamIn = (a, b) => typeof a.in === 'string' && !a.in.startsWith('d') && b.naam.toLowerCase().includes(a.in.toLowerCase());
-  return (a, b) => vrij.has(k(a.id, b.id)) || a.in === b.id || b.in === a.id || naamIn(a, b) || naamIn(b, a) || doorGat(a, b) || doorGat(b, a);
+  // v7: twee vlakken van dezelfde gezette plaat zijn één stuk (de zetting verbindt ze)
+  return (a, b) => (a.deelVan && a.deelVan === b.deelVan) || vrij.has(k(a.id, b.id)) || a.in === b.id || b.in === a.id || naamIn(a, b) || naamIn(b, a) || doorGat(a, b) || doorGat(b, a);
 }
 /** alle botsingen tussen stalen delen en kussens (krimp 1 mm): [{ a, b }] */
 export function botsingen(o, krimp = 1) {
@@ -152,7 +154,7 @@ export function gatFouten(o) {
     for (const d of staal) {
       if (d.stapel || d.naam === f.gelast) continue;
       if (!d.geo.some((g) => lijnDoorObb(a, b, obb(g, 0.5)))) continue;
-      if (d.soort === 'staaf' && (d.P.vorm === 'buis') && Math.abs(dot(d.u, f.as)) > 0.98 && afstandTotLijn(d.a, f.p, f.as) <= d.P.b / 2 - d.P.t - f.d / 2 + 0.5) continue; // door de boring van een buis
+      if (d.soort === 'staaf' && (d.P.vorm === 'buis') && Math.abs(dot(d.u, f.as)) > 0.98 && afstandTotLijn(d.a, f.p, f.as) <= (d.boring ?? d.P.b - 2 * d.P.t) / 2 - f.d / 2 + 0.5) continue; // door de boring van een buis (uitgedraaid: boring)
       if (d.soort === 'staaf' && d.in && Math.abs(dot(d.u, f.as)) > 0.98) continue; // de as zelf
       const gat = G.find((g) => g.deel === d && Math.abs(dot(g.as, f.as)) > 0.98 && afstandTotLijn(g.p, f.p, f.as) <= 0.5);
       if (!gat) { uit.push(`${f.soort} ${f.naam} (Ø${f.d}) gaat door ${d.naam} zonder gat`); continue; }
@@ -173,6 +175,7 @@ export function gatFouten(o) {
         else if (w / 2 < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} te dicht bij de zijkant (${w / 2} < ${Math.round(e)})`);
       }
     } else {
+      if (g.g.zitting) continue; // v7: boring voor een lager of een geklemde stang (geen boutverbinding): alleen het ligament telt
       const e = 1.5 * g.d, x = g.g.x, y = g.g.y;
       if (d.rond) { if (Math.hypot(x - d.l / 2, y - d.bmaat / 2) > d.l / 2 - e + 0.5 && Math.hypot(x - d.l / 2, y - d.bmaat / 2) > 1) uit.push(`${d.naam}: gat Ø${g.d} te dicht bij de rand`); }
       else if (d.contour) { const q = [g.g.lx, g.g.ly], m = Math.min(binnen(q, d.contour.punten) ? randAfstand(q, d.contour.punten) : -1, ...d.contour.uitsparingen.map((u) => (binnen(q, u.punten) ? -1 : randAfstand(q, u.punten)))); if (m < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} randafstand ${Math.round(m)} < 1,5 x Ø (${Math.round(e)}) tot de contour`); }
@@ -387,7 +390,11 @@ export function nokFouten(o, o1 = null) {
     if (!n) continue; // nok op een staande as (pec deck): geen kantelende hefboom
     const yk = n.as[0], pf = k.route[k.route.length - 2], raak = k.raak ?? k.route[k.route.length - 1].p;
     if (Math.sign(raak[1] - yk) !== n.zin) uit.push(`${k.naam}: de nok draait van het raakpunt weg (de kabel wikkelt af en valt slap)`);
-    if (pf?.p && Math.sign(pf.p[1] - yk) !== n.zin) uit.push(`${k.naam}: de vloerkatrol ligt aan de verkeerde kant van de nok`);
+    // N-P1-05 v7: de vloerkatrol ligt aan de KABELKANT: tussen het raakpunt en de vorige katrol (de binnenhoek van de kabel),
+    // en de kabel loopt verticaal van haar raakpunt naar de nok
+    const vorige = k.route[k.route.length - 3];
+    if (pf?.p && vorige?.p && Math.sign(pf.p[1] - raak[1]) !== Math.sign(vorige.p[1] - raak[1])) uit.push(`${k.naam}: de vloerkatrol ligt aan de buitenkant van de kabelhoek (de kabel raakt haar niet)`);
+    if (pf?.katrol && Math.abs(Math.abs(pf.p[1] - raak[1]) - pf.r) > 2) uit.push(`${k.naam}: de kabel van de vloerkatrol naar de nok is niet verticaal (${Math.round(Math.abs(pf.p[1] - raak[1]) - pf.r)} mm)`);
     if (Math.abs(n.slag - (n.factor ?? 1) * n.Rn * n.thMax) > 2) uit.push(`${k.naam}: stapelweg ${n.slag} mm ≠ ${(n.factor ?? 1) > 1 ? `${n.factor}·` : ''}R·θ = ${Math.round((n.factor ?? 1) * n.Rn * n.thMax)} mm`);
     // alle kabels en riemen van het toestel: even lang in stand 0 en 1 (ook de stapelkabel over de 2:1-takel)
     if (o1) for (const k0 of o.kabels) { const k1 = o1.kabels.find((x) => x.naam === k0.naam); if (k1 && Math.abs(k1.L - k0.L) > 2) uit.push(`${k0.naam}: kabellengte ${Math.round(k0.L)} → ${Math.round(k1.L)} mm tussen stand 0 en 1 (geen gesloten loop)`); }
@@ -451,5 +458,65 @@ export function uitslagFouten(o) {
   const uit = [];
   for (const d of o.delen) if (d.soort === 'plaat' && !d.deelVan && /gezet|zetting|omgezet|plooi/i.test(d.opm ?? '') && !/geen omgezette|niet gezet/i.test(d.opm ?? '')) uit.push(`${d.naam}: gezet volgens de opmerking, maar de DXF is geen uitslag (geen zetlijnen)`);
   for (const g of o.gezet ?? []) if (!g.zetlijnen?.length) uit.push(`${g.naam}: gezette plaat zonder zetlijnen`);
+  // N-P1-07 v7: de uitslag terugvouwen = de buitenmaten van de 3D (± 1 mm); een uitslag past op een plaat 3000 x 1500;
+  // elke hoek van de 3D is een zetting (of een naad): een mantel met een hoek zonder zetting sluit niet
+  for (const g of o.gezet ?? []) {
+    if (g.strook && g.maat3d) { const tv = terugVouwen(g.strook, g.t); g.maat3d.forEach((m, i) => { if (m != null && Math.abs(tv[i] - m) > 1) uit.push(`${g.naam}: uitslag teruggevouwen geeft been ${i + 1} = ${tv[i].toFixed(1)} mm, de 3D ${m.toFixed(1)} mm`); }); }
+    const kort = Math.min(g.l, g.bmaat), lang = Math.max(g.l, g.bmaat);
+    if (kort > 1500 || lang > 3000) uit.push(`${g.naam}: uitslag ${Math.round(g.l)} x ${Math.round(g.bmaat)} past niet op een plaat 3000 x 1500 (splitsen)`);
+    if (g.hoeken != null && g.zetlijnen.length < g.hoeken) uit.push(`${g.naam}: ${g.hoeken} hoeken in de 3D maar ${g.zetlijnen.length} zettingen (de naad sluit niet)`);
+  }
+  return [...new Set(uit)];
+}
+
+/** N-P1-02 v7: elke inlopende kneep (kabel op een nok of katrol) onder 1,8 m ligt in een gesloten kap, en geen opening
+ *  > 8 mm ligt binnen 120 mm van zo'n kneep (EN ISO 20957-1 §5.3, EN ISO 13857 tabel 4: vingers tot 8 mm) */
+export function kapFouten(o) {
+  const uit = [], kappen = o.kappen ?? [];
+  const inPoly = (q, P) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [yi, zi] = P[i], [yj, zj] = P[j]; if (zi > q[1] !== zj > q[1] && q[0] < ((yj - yi) * (q[1] - zi)) / (zj - zi) + yi) c = !c; } return c; };
+  const binnenKap = (p, k) => (k.box ? [0, 1, 2].every((i) => p[i] >= k.box[0][i] - 0.5 && p[i] <= k.box[1][i] + 0.5) : p[0] >= k.x[0] - 0.5 && p[0] <= k.x[1] + 0.5 && inPoly([p[1], p[2]], k.poly));
+  const afstBox = (p, bx) => Math.hypot(...[0, 1, 2].map((i) => Math.max(bx[0][i] - p[i], 0, p[i] - bx[1][i])));
+  for (const kn of o.knepen ?? []) {
+    if (kn.p[2] >= 1800) continue;
+    const in_ = kappen.filter((k) => k.gesloten && binnenKap(kn.p, k));
+    if (!in_.length) { uit.push(`inlopende kneep "${kn.naam}" op ${Math.round(kn.p[2])} mm ligt niet in een gesloten kap`); continue; }
+    for (const k of kappen) for (const op of k.openingen ?? []) {
+      if (op.mm <= 8) continue;
+      const d = op.box ? afstBox(kn.p, op.box) : len(sub(kn.p, op.p));
+      if (d < 120) uit.push(`opening "${op.wat}" (${Math.round(op.mm)} mm) op ${Math.round(d)} mm van de kneep "${kn.naam}" (< 120 mm)`);
+    }
+  }
+  return [...new Set(uit)];
+}
+/** N-P1-04 v7: de aanslagen werken: in stand 0 rust de stopkant van de nok tegen de aanslagbout (≤ 2 mm, niet erdoor), in
+ *  stand 1 raakt de lagerbus van de stapel de bovenbuffer (≤ 2 mm); de arm hangt via de veerpen aan de as (o.pennen) */
+export function aanslagFouten(o0, o1) {
+  const uit = [], a = o0.aanslag; if (!a) return uit;
+  const nok = o0.delen.find((d) => d.id === a.nok);
+  if (!nok) return ['geen nok gevonden voor de aanslag'];
+  // afstand van het centrum van de bout tot de rand van de nok (in het vlak van de nok), min de straal van de huls
+  const c = nok.contour, P = c.punten.map(([x, y]) => add(add(c.o, mul(c.ex, x)), mul(c.ey, y)));
+  let dmin = Infinity;
+  for (let i = 0; i < P.length; i++) { const p = P[i], q = P[(i + 1) % P.length], v = sub(q, p), tt = Math.max(0, Math.min(1, dot(sub(a.begin.p, p), v) / dot(v, v))), h = add(p, mul(v, tt)), dd = Math.hypot(h[1] - a.begin.p[1], h[2] - a.begin.p[2]); dmin = Math.min(dmin, dd); }
+  const spel = dmin - a.begin.r;
+  if (spel > 2) uit.push(`stand 0: de stopkant van de nok ligt ${spel.toFixed(1)} mm van de aanslagbout (> 2 mm)`);
+  if (spel < -0.5) uit.push(`stand 0: de nok gaat ${(-spel).toFixed(1)} mm door de aanslagbout`);
+  if (o1) {
+    const lb = o1.delen.filter((d) => d.naam === 'Lagerbus stapel'), top = lb.length ? Math.max(...lb.map((d) => Math.max(...d.geo.flatMap((g) => [g.a[2], g.b[2]])))) : null, z = o1.aanslag?.einde?.z;
+    if (top == null || z == null) uit.push('stand 1: geen lagerbus of bovenbuffer gevonden');
+    else if (Math.abs(z - top) > 2) uit.push(`stand 1: de lagerbus van de stapel staat ${Math.round(z - top)} mm van de bovenbuffer (> 2 mm)`);
+  }
+  if (!(o0.pennen ?? []).some((p) => /Veerpen startstand/.test(p.naam))) uit.push('geen veerpen tussen de arm en de instelschijf: de startstand is niet in te stellen');
+  return uit;
+}
+
+/** N-P1-06 v7: materiaalcombinatie: in een verzinkt toestel wordt geen RVS aan staal gelast (RVS gaat niet mee in het
+ *  zinkbad: zink op de greep, risico op scheuren door vloeibaar metaal) en raakt RVS het zink niet zonder isolatie */
+export function materiaalFouten(o) {
+  if (!o.verzinkt) return [];
+  const uit = [], rvs = (d) => /RVS|1\.4404|1\.4301/.test(d?.P?.naam ?? d?.P?.norm ?? '') || /rvs$/.test(d?.P?.id ?? '');
+  const per = new Map(o.delen.map((d) => [d.id, d]));
+  for (const l of o.lassen) { const A = per.get(l.a), B = per.get(l.b); if (A && B && rvs(A) !== rvs(B)) uit.push(`${rvs(A) ? A.naam : B.naam} (RVS) is gelast aan ${rvs(A) ? B.naam : A.naam} (verzinkt staal): RVS gaat niet mee in het zinkbad`); }
+  for (const d of o.delen) if (rvs(d) && !d.rvsLos) uit.push(`${d.naam}: RVS-deel in een verzinkt toestel zonder losse montage (bus + isolatiehuls)`);
   return [...new Set(uit)];
 }

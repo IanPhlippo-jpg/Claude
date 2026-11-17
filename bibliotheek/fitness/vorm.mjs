@@ -114,14 +114,31 @@ export function banden(poly, n = 10) {
 // ---------------------------------------------------------------- uitslag van gezette platen (v6, P1-11)
 /** buigtoeslag (lengte van de neutrale lijn in de zetting): BA = θ·(R + K·t), θ = afwijking van vlak in graden */
 export const buigToeslag = (hoek, R, t, K = 0.4) => (Math.PI / 180) * hoek * (R + K * t);
+/** OSSB (outside setback): afstand van de buitenhoek (snijpunt van de buitenvlakken) tot het begin van de zetting */
+export const terugzet = (hoek, R, t) => (R + t) * Math.tan(((Math.PI / 180) * hoek) / 2);
 /**
- * uitslag van een prismatisch gezet profiel (goot, bak, U): lengte L, benen [w0 .. wn] (rechte stukken, gemeten tussen
- * de zettingen), zettingen [{ hoek, R, richting }] tussen de benen. Geeft { punten, zetlijnen: [{ a, b, hoek, R, richting }], B }.
+ * uitslag van een prismatisch gezet profiel (goot, bak, U): lengte L, benen [w0 .. wn] = BUITENMATEN (N-P1-07 v7: zoals
+ * de 3D en de tekening ze tonen, gemeten tot het snijpunt van de buitenvlakken), zettingen [{ hoek, R (binnenradius),
+ * richting }] tussen de benen. Vlak been = buitenmaat − OSSB van elke aangrenzende zetting; daartussen de buigtoeslag.
+ * Geeft { punten, zetlijnen: [{ a, b, hoek, R, richting, ba }], B, buiten, zet }.
  */
 export function uitslagStrook(L, benen, zet, t, K = 0.4) {
   let y = 0; const zl = [];
-  benen.forEach((w, i) => { y += w; if (i < zet.length) { const ba = buigToeslag(zet[i].hoek, zet[i].R, t, K); zl.push({ a: [0, y + ba / 2], b: [L, y + ba / 2], hoek: zet[i].hoek, R: zet[i].R, richting: zet[i].richting ?? 'op', ba }); y += ba; } });
-  return { punten: [[0, 0], [L, 0], [L, y], [0, y]], zetlijnen: zl, B: y };
+  benen.forEach((w, i) => {
+    const vlak = w - (i > 0 ? terugzet(zet[i - 1].hoek, zet[i - 1].R, t) : 0) - (i < zet.length ? terugzet(zet[i].hoek, zet[i].R, t) : 0);
+    y += vlak;
+    if (i < zet.length) { const ba = buigToeslag(zet[i].hoek, zet[i].R, t, K); zl.push({ a: [0, y + ba / 2], b: [L, y + ba / 2], hoek: zet[i].hoek, R: zet[i].R, richting: zet[i].richting ?? 'op', ba }); y += ba; }
+  });
+  return { punten: [[0, 0], [L, 0], [L, y], [0, y]], zetlijnen: zl, B: y, buiten: [...benen], zet: zet.map((z) => ({ ...z })), K };
+}
+/** de uitslag van een strook terugvouwen: buitenmaten van de benen uit de vlakke uitslag (zetlijnen en buigtoeslag) */
+export function terugVouwen(ui, t) {
+  const zl = [...ui.zetlijnen].sort((p, q) => p.a[1] - q.a[1]), uit = [];
+  let y0 = 0;
+  zl.forEach((z, i) => { const vlak = z.a[1] - z.ba / 2 - y0; uit.push(vlak + (i > 0 ? terugzet(zl[i - 1].hoek, zl[i - 1].R, t) : 0) + terugzet(z.hoek, z.R, t)); y0 = z.a[1] + z.ba / 2; });
+  const laatste = zl[zl.length - 1];
+  uit.push(ui.B - y0 + (laatste ? terugzet(laatste.hoek, laatste.R, t) : 0));
+  return uit;
 }
 /**
  * uitslag van een mantel uit vlakke panelen in 3D (taps mag): panelen [{ q: [onderL, onderR, bovenR, bovenL], gaten: [[[u, v, r] ...]] }]

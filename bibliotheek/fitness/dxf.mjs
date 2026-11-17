@@ -66,9 +66,9 @@ export function stripDxf(d, L, pos = '') {
   return omhul(e);
 }
 /**
- * buislaser (P2-19 v6): de 4 wanden van een koker naast elkaar uitgeslagen (lengte L langs x, elke wand zo breed als het
- * vlak), met de gaten op hun wand. Een buislaser leest liefst STEP; deze wand-DXF laat de CAM van de buislaser (of een
- * gewone plaatlaser met een mal) de gaten plaatsen. Volgorde: wand +w, +v, -w, -v (zie de tekst per wand).
+ * N-P2-11 v7: boormal op schaal 1:1 (geen buislaser-invoer: een buislaser leest STEP of een parameterlijst). De 4 wanden
+ * van een koker naast elkaar uitgeslagen (lengte L langs x), met de gaten op hun wand; nulpunt = het begin van de koker
+ * (kant A op de tekening), wand +w ligt aan de kant van de lokale w-as (zie het stukblad). Daarbij een gatentabel als CSV.
  */
 export function kokerDxf(d, L, pos = '') {
   const P = d.P, wanden = [['+w', P.b], ['+v', P.h], ['-w', P.b], ['-v', P.h]];
@@ -79,8 +79,14 @@ export function kokerDxf(d, L, pos = '') {
     for (const g of d.gaten) if (g.as === nm.slice(1) && (g.door ?? 2) >= (nm.startsWith('+') ? 1 : 2)) e += cirkel(g.s, y0 + bw / 2 + (g.off ?? 0), g.d / 2);
     y0 += bw + 15;
   }
-  e += tekst(4, -8, 5, `${pos ? `pos ${pos} ` : ''}${d.naam} ${P.naam} L=${Math.round(L)} mm: 4 wanden uitgeslagen (buislaser)`);
+  e += tekst(4, -8, 5, `${pos ? `pos ${pos} ` : ''}${d.naam} ${P.naam} L=${Math.round(L)} mm: 4 wanden uitgeslagen, BOORMAL 1:1 (afdrukken op ware grootte); nulpunt = kant A; gatentabel in de CSV`);
   return omhul(e);
+}
+/** gatentabel van een koker (N-P2-11 v7): positie langs de koker vanaf kant A, wand, verschuiving uit het midden, diameter, door */
+export function gatenCsv(d, pos = '') {
+  const r = ['pos;onderdeel;profiel;wand;langs_mm;uit_midden_mm;diameter_mm;door_beide_wanden'];
+  for (const g of [...d.gaten].sort((a, b) => a.s - b.s)) r.push([pos, d.naam, d.P.naam, `+${g.as}`, Math.round(g.s * 10) / 10, g.off ?? 0, g.d, (g.door ?? 2) >= 2 ? 'ja' : 'nee'].join(';'));
+  return r.join('\r\n') + '\r\n';
 }
 /** alle DXF-bestanden van een toestel: [{ naam, pos, dxf }] (platen en strips; geen kokers of buizen) */
 export function dxfBestanden(o) {
@@ -89,7 +95,10 @@ export function dxfBestanden(o) {
     const d = p.voorbeeld;
     if (d.soort === 'plaat' && d.laser !== false) uit.push({ naam: `${o.id}-${o.versie}-pos${p.pos}-${vn(p.naam)}.dxf`, pos: p.pos, n: p.n, dxf: plaatDxf(d, p.pos) });
     else if (d.soort === 'staaf' && d.P?.vorm === 'strip') uit.push({ naam: `${o.id}-${o.versie}-pos${p.pos}-${vn(p.naam)}.dxf`, pos: p.pos, n: p.n, dxf: stripDxf(d, p.L ?? d.L, p.pos) });
-    else if (d.soort === 'staaf' && d.P?.vorm === 'koker' && !d.pad && d.gaten.length >= 4) uit.push({ naam: `${o.id}-${o.versie}-pos${p.pos}-${vn(p.naam)}-buislaser-wanden.dxf`, pos: p.pos, n: p.n, dxf: kokerDxf(d, p.L ?? d.L, p.pos), buislaser: true });
+    else if (d.soort === 'staaf' && d.P?.vorm === 'koker' && !d.pad && d.gaten.length >= 4) {
+      uit.push({ naam: `${o.id}-${o.versie}-pos${p.pos}-${vn(p.naam)}-boormal-1op1.dxf`, pos: p.pos, n: p.n, dxf: kokerDxf(d, p.L ?? d.L, p.pos), boormal: true });
+      uit.push({ naam: `${o.id}-${o.versie}-pos${p.pos}-${vn(p.naam)}-gatentabel.csv`, pos: p.pos, n: p.n, dxf: gatenCsv(d, p.pos), csv: true });
+    }
   }
   return uit;
 }
