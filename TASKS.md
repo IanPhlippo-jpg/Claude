@@ -1481,3 +1481,11 @@ elease; README en docs/04 bijgewerkt
 - [x] Rapporten in docs/ zetten, committen en aan Ian samenvatten
 - [~] Alle adviezen verwerken, met tests op de oude fouten (trein en fitness bezig)
 - [ ] Web/app/artifacts bijwerken, foto's, commit en push
+
+## Adviesrondje van Fable 5.2 op balustrades, Phlippo CAD (0.5.14) en afzuiging + bureau, daarna verwerken (2026-11-17)
+- [~] Fable 5.2 leest de balustrade-configurator na (bibliotheek/balustrades, normen NBN B 03-004/ANB)
+- [x] Fable 5.2 leest het CAD-programma Phlippo CAD 0.5.14 na (docs/32: 3 x P1, 15 x P2, 13 x P3, 12 pariteitspunten)
+- [~] Fable 5.2 leest de inbouwafzuiging en het bureau na (voorbeelden/afzuiging, voorbeelden/bureau)
+- [ ] Rapporten in docs/ zetten, committen en aan Ian samenvatten
+- [~] Alle adviezen verwerken, met tests op de oude fouten (CAD bezig)
+- [ ] Artifacts bijwerken, foto's, commit en push
