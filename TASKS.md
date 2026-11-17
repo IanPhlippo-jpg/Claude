@@ -1485,9 +1485,9 @@ elease; README en docs/04 bijgewerkt
 ## Adviesrondje van Fable 5.2 op balustrades, Phlippo CAD (0.5.14) en afzuiging + bureau, daarna verwerken (2026-11-17)
 - [x] Fable 5.2 leest de balustrade-configurator na (Advies-Fable-5.2-v1.md: 8 x P1, 17 x P2, 12 x P3)
 - [x] Fable 5.2 leest het CAD-programma Phlippo CAD 0.5.14 na (docs/32: 3 x P1, 15 x P2, 13 x P3, 12 pariteitspunten)
-- [~] Fable 5.2 leest de inbouwafzuiging en het bureau na (voorbeelden/afzuiging, voorbeelden/bureau)
+- [x] Fable 5.2 leest de inbouwafzuiging en het bureau na (Advies-Fable-5.2-v1.md: 4 x P1, 20 x P2, 22 x P3; bureau 3 x P2, 5 x P3)
 - [ ] Rapporten in docs/ zetten, committen en aan Ian samenvatten
-- [~] Alle adviezen verwerken, met tests op de oude fouten (CAD en balustrades bezig)
+- [~] Alle adviezen verwerken, met tests op de oude fouten (CAD, balustrades en afzuiging bezig; projectiesymbool werktekening.ts rechtgezet)
 - [ ] Artifacts bijwerken, foto's, commit en push
 
 ## Phlippo CAD 0.5.15: advies Fable 5.2 verwerken (2026-11-17)
