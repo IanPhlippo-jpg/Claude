@@ -215,7 +215,7 @@ jobs:
         continue-on-error: true
         run: git diff --exit-code
       # the regression log is the evidence of a run: a missing log fails the upload (F128)
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: e2e-regression-log-${{ matrix.name }}
@@ -223,7 +223,7 @@ jobs:
             e2e-out/regression-*.txt
             e2e-out/*-output.txt
           if-no-files-found: error
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: e2e-screenshots-${{ matrix.name }}
@@ -279,7 +279,7 @@ jobs:
       - id: installed
         continue-on-error: true
         run: PHLIPPO_SELFTEST_ARGS=--software-gl node e2e/desktop-installed.mjs
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: windows-installer-logs
@@ -332,7 +332,7 @@ jobs:
       - id: clean
         continue-on-error: true
         run: git diff --exit-code
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: e2e-regression-log-${{ matrix.name }}
