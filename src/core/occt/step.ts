@@ -2,10 +2,15 @@
  * STEP in and out through OpenCascade (QA F51): the exchange format of desktop CAD. Pure functions on an initialised
  * OpenCascade instance and the replicad module, so the worker (src/workers/occt.worker.ts) and the unit tests share them.
  *
- * Import: every solid (or, without solids, every shell) of the file becomes a triangle mesh in millimetres.
+ * Import: every solid (or, without solids, every shell) of the file becomes a triangle mesh in millimetres; a solid
+ * also comes back as a STEP text of its own (millimetres), which the Imported feature keeps for the exact kernel
+ * (stepRead.ts, docs/32 item 5).
  * Export: a body of the mesh kernel becomes a closed B-rep solid: the triangles are sewn into a shell and coplanar
  * triangles are merged into one planar face (ShapeUpgrade_UnifySameDomain), so a box exports as six faces.
  */
+
+import { compactStep } from './stepRead';
+import { MAX_STEP_CHARS } from '../document/validateFeatures';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type OCInstance = any;
@@ -17,6 +22,8 @@ export interface StepBody {
   positions: Float32Array;
   /** volume of the B-rep solid (mm³), 0 for an open shell */
   volume: number;
+  /** the solid alone as a STEP text in millimetres (absent for a shell, or above MAX_STEP_CHARS) */
+  step?: string;
 }
 
 /**
@@ -55,7 +62,8 @@ export async function stepToMeshes(replicad: Replicad, bytes: Uint8Array, tolera
     if (parts.length) break;
   }
   if (!parts.length) parts.push({ shape, kind: 'shell' });
-  return parts.map((p, i) => {
+  const bodies: StepBody[] = [];
+  for (const [i, p] of parts.entries()) {
     const m = p.shape.mesh({ tolerance, angularTolerance: 0.2 });
     const positions = new Float32Array(m.triangles.length * 3);
     for (let t = 0; t < m.triangles.length; t++) {
@@ -66,8 +74,16 @@ export async function stepToMeshes(replicad: Replicad, bytes: Uint8Array, tolera
     }
     let volume = 0;
     if (p.kind === 'solid') { try { volume = shapeVolume(OC, p.shape.wrapped); } catch { volume = 0; } }
-    return { name: `Body${i + 1}`, positions, volume };
-  });
+    let step: string | undefined;
+    if (p.kind === 'solid') {
+      try {
+        const text = compactStep(await replicad.exportSTEP([{ shape: p.shape, name: `Body${i + 1}` }], { unit: 'mm', modelUnit: 'mm' }).text());
+        if (text.length <= MAX_STEP_CHARS) step = text;
+      } catch { step = undefined; }
+    }
+    bodies.push({ name: `Body${i + 1}`, positions, volume, ...(step ? { step } : {}) });
+  }
+  return bodies;
 }
 
 /** a closed triangle mesh -> one B-rep solid (planar faces merged); null when the mesh does not close */

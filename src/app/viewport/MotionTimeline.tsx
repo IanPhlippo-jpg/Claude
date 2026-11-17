@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { NumberField, Section } from '../../ui/components';
 import { timeStep } from '../prefsEffects';
+import { timeUnit } from '../prefsUi';
 import { motionTransforms, motorValue, playbackTime, type MotionStudy } from '../../core/assembly/motion';
 import type { Component } from '../../core/document/types';
 
@@ -139,7 +140,7 @@ export function MotionTimeline() {
         <button className="k-motion-btn k-tip" data-tip="Motion Study Properties" data-testid="motion-props" onClick={() => st.startMotionEdit('properties')}><Icon.Options size={15} /></button>
         <span className="grow" />
         <label className="k-muted" style={{ fontSize: 11 }}>Length</label>
-        <div style={{ width: 80 }}><NumberField value={dur} onChange={(v) => st.setMotionDuration(v)} unit=" sec" step={1} min={0.5} /></div>
+        <div style={{ width: 80 }}><TimeField value={dur} onChange={(v) => st.setMotionDuration(v)} step={1} min={0.5} /></div>
       </div>
       <div className="k-motion-body">
         <div className="k-motion-tree">
@@ -151,7 +152,7 @@ export function MotionTimeline() {
         </div>
         <div className="k-motion-time" onClick={(e) => { if (!st.motionPlaying) st.setMotionTime(timeAt(e)); }}>
           <div className="k-motion-ruler">
-            {ticks.map((t) => <span key={t} className="k-motion-tick" style={{ left: pct(t) }}>{t} sec</span>)}
+            {ticks.map((t) => <span key={t} className="k-motion-tick" style={{ left: pct(t) }}>{timeText(t)}</span>)}
           </div>
           {rows.map((r) => (
             <div key={r.id} className="k-motion-track">
@@ -215,7 +216,7 @@ function MotionPlot() {
             <line x1={pad} y1={8} x2={pad} y2={H - 22} stroke="#999" strokeWidth={0.6} />
             <text x={pad - 4} y={Y(y1) + 4} fontSize={9} textAnchor="end">{y1.toFixed(1)}</text>
             <text x={pad - 4} y={Y(y0) + 4} fontSize={9} textAnchor="end">{y0.toFixed(1)}</text>
-            <text x={W - 8} y={H - 6} fontSize={9} textAnchor="end">Time (sec) {study.duration}</text>
+            <text x={W - 8} y={H - 6} fontSize={9} textAnchor="end">Time ({timeUnit().label}) {+(study.duration * timeUnit().perSecond).toFixed(3)}</text>
             <text x={pad + 2} y={14} fontSize={9}>{unit}</text>
             <polyline fill="none" stroke="#1e6fd9" strokeWidth={1.4} points={data.map(([t, v]) => `${X(t)},${Y(v)}`).join(' ')} />
             <line x1={X(Math.min(study.duration, st.motionTime))} y1={8} x2={X(Math.min(study.duration, st.motionTime))} y2={H - 22} stroke="#d0342c" strokeWidth={0.8} />
@@ -283,7 +284,7 @@ export function MotionEditPM() {
       {me.kind === 'properties' && me.props && (
         <Section title="Animation">
           <div className="k-field"><label>Frames per second</label><NumberField value={me.props.fps} onChange={(v) => st.updateMotionEdit({ props: { ...me.props!, fps: Math.max(1, Math.min(120, Math.round(v))) } })} step={1} /></div>
-          <div className="k-field"><label>Study length</label><NumberField value={me.props.duration} onChange={(v) => st.updateMotionEdit({ props: { ...me.props!, duration: Math.max(0.5, v) } })} unit=" sec" step={1} /></div>
+          <div className="k-field"><label>Study length</label><TimeField value={me.props.duration} onChange={(v) => st.updateMotionEdit({ props: { ...me.props!, duration: Math.max(0.5, v) } })} step={1} /></div>
         </Section>
       )}
       {me.kind === 'wizard' && me.wizard && (() => {
@@ -307,8 +308,8 @@ export function MotionEditPM() {
               </Section>
             )}
             <Section title="Animation Control Options">
-              <div className="k-field"><label>Duration</label><NumberField value={w.duration} onChange={(v) => up({ duration: Math.max(0.1, v) })} unit=" sec" step={1} /></div>
-              <div className="k-field"><label>Start time</label><NumberField value={w.start} onChange={(v) => up({ start: Math.max(0, v) })} unit=" sec" step={1} /></div>
+              <div className="k-field"><label>Duration</label><TimeField value={w.duration} onChange={(v) => up({ duration: Math.max(0.1, v) })} step={1} /></div>
+              <div className="k-field"><label>Start time</label><TimeField value={w.start} onChange={(v) => up({ start: Math.max(0, v) })} step={1} /></div>
             </Section>
           </>
         );
@@ -379,8 +380,8 @@ export function MotorPM() {
         {m.motion === 'distance' && (
           <>
             <div className="k-pm-valuerow" data-testid="motor-distance"><span className="k-muted" style={{ minWidth: 30 }}>{linear ? 'Dist.' : 'Angle'}</span><NumberField value={m.distance ?? 90} onChange={(v) => st.updateMotorDraft({ distance: v })} unit={u} step={5} /></div>
-            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Start</span><NumberField value={m.start ?? 0} onChange={(v) => st.updateMotorDraft({ start: Math.max(0, v) })} unit=" sec" step={timeStep()} /></div>
-            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Dur.</span><NumberField value={m.duration ?? 1} onChange={(v) => st.updateMotorDraft({ duration: Math.max(0.01, v) })} unit=" sec" step={timeStep()} /></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Start</span><TimeField value={m.start ?? 0} onChange={(v) => st.updateMotorDraft({ start: Math.max(0, v) })} step={timeStep()} /></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Dur.</span><TimeField value={m.duration ?? 1} onChange={(v) => st.updateMotorDraft({ duration: Math.max(0.01, v) })} step={timeStep()} /></div>
           </>
         )}
         {m.motion === 'segments' && (
@@ -411,4 +412,13 @@ export function MotorPM() {
       </Section>
     </div>
   );
+}
+
+/** Document Properties ▸ Units ▸ Time: a time of the study in that unit (seconds inside) */
+const timeText = (t: number): string => `${+(t * timeUnit().perSecond).toFixed(3)} ${timeUnit().label}`;
+
+/** a time field of the Motion Study in the document time unit (seconds inside) */
+function TimeField({ value, onChange, step, min }: { value: number; onChange: (v: number) => void; step?: number; min?: number }) {
+  const tu = timeUnit();
+  return <NumberField value={value * tu.perSecond} onChange={(v) => onChange(v / tu.perSecond)} unit={' ' + tu.label} step={step} min={min === undefined ? undefined : min * tu.perSecond} />;
 }

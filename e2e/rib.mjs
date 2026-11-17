@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -17,17 +17,17 @@ const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 const volume = async () => { await waitSettled(page); return page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; if (!b) return 0; const p = b.geometry.attributes.position.array; let v = 0; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return Math.abs(v); }); };
 const bbox = () => page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; b.geometry.computeBoundingBox(); const bb = b.geometry.boundingBox; return { min: [bb.min.x, bb.min.y, bb.min.z], max: [bb.max.x, bb.max.y, bb.max.z] }; });
 
-const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
+const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await frames(page); } };
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
@@ -40,13 +40,13 @@ await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
 await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(300);
+await settle(page);
 // Draft On/Off: the walls taper inward by 5 degrees
 await page.click('.k-pm-stylebtn[data-tip="Draft On/Off"]');
 await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').nth(1).fill('5');
 await page.locator('.k-pm-valuerow input.k-num').nth(1).press('Tab');
-await page.waitForTimeout(400);
+await settle(page);
 await shot('r0-extrude-draft');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -58,15 +58,15 @@ check('draft stored on the feature', (await page.evaluate(() => window.__phlippo
 
 // Rib without a sketch: the warning
 await page.click('.k-cm-small:has-text("Rib")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Rib opens its Property Panel (Parameters, Thickness, Extrusion direction)', (await page.locator('.k-pm-title').innerText()).includes('Rib1') && (await page.locator('.k-section:has-text("Parameters")').count()) === 1);
 await shot('r1-rib-pm-empty');
 await page.click('.k-pm-cancel');
-await page.waitForTimeout(200);
+await settle(page);
 
 // a line on the Front plane above the plate
 await page.click('.k-tree-row:has-text("Front Plane")', { clickCount: 2 });
-await page.waitForTimeout(700);
+await settle(page);
 await page.evaluate(() => window.__phlippoZoomFit());
 await settle(page);
 const top = bb.max[1];
@@ -80,15 +80,15 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-small:has-text("Rib")');
-await page.waitForTimeout(500);
+await settle(page);
 const draft = await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft);
 check('Rib draft from the open sketch: Both Sides, Parallel to Sketch, 10 mm', draft && draft.type === 'rib' && draft.side === 'both' && draft.direction === 'parallel' && draft.thickness === 10, JSON.stringify(draft));
 check('yellow preview of the rib', (await page.evaluate(() => !!window.__phlippoBodyScene?.preview || !!document.querySelector('.k-viewport'))));
 await page.locator('.k-pm-valuerow input.k-num').first().fill('4');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(400);
+await settle(page);
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await settle(page);
 await shot('r2-rib-preview');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -106,11 +106,11 @@ await shot('r3-rib-done');
 // edit: Flip material side grows upward (nothing above: error), back again builds
 await page.locator('.k-tree-row:has-text("Rib1")').last().click({ button: 'right' });
 await page.click('[data-testid="ctx-edit-feature"]');
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('.k-check:has-text("Flip material side") input').check();
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-check:has-text("Flip material side") input').uncheck();
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page);
 check('edit keeps the rib', Math.abs((await volume()) - v1) < 1);

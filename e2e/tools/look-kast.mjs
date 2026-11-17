@@ -2,6 +2,7 @@
 // montageplaat recht van voren. Nodig: de dev-server met VITE_TEST_HOOKS op poort 5184.
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -15,19 +16,19 @@ await page.click('.k-doctype:has-text("Part")');
 const lees = (f, filter) => { const d = JSON.parse(readFileSync(`voorbeelden/robotarm/kast/${f}`, 'utf8')); delete d.format; if (filter) d.components = d.components.filter((c) => filter(c.id)); return d; };
 const open = async (d) => {
   await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d);
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.waitForFunction(() => !window.__phlippoStore.getState().rebuild.pending, null, { timeout: 600_000 });
   const fout = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
   if (Object.keys(fout).length) errors.push(`rebuild: ${JSON.stringify(fout).slice(0, 600)}`);
 };
 const kijk = async (naam, toets, { zoom = 0, punt = [960, 540], draai = [] } = {}) => {
   // eerst passend maken, dan inzoomen op het punt van het passende beeld
-  await page.keyboard.press(toets); await page.waitForTimeout(700);
+  await page.keyboard.press(toets); await settle(page);
   for (const k of draai) { await page.keyboard.press(k); await page.waitForTimeout(150); }
-  await page.keyboard.press('f'); await page.waitForTimeout(1200);
+  await page.keyboard.press('f'); await settle(page);
   await page.mouse.move(...punt);
   for (let i = 0; i < zoom; i++) { await page.mouse.wheel(0, 240); await page.waitForTimeout(200); }
-  await page.mouse.move(1700, 980); await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null })); await page.waitForTimeout(2500);
+  await page.mouse.move(1700, 980); await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null })); await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.screenshot({ path: `e2e-out/kast-${naam}.png` });
 };
 await open(lees('Schakelkast.kcad'));

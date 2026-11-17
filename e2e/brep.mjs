@@ -22,7 +22,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 await S(() => {
   const K = window.__phlippoKit;
@@ -58,7 +58,7 @@ const topBefore = await S(() => { const s = window.__phlippoStore.getState(); co
 // the next rebuild (an edit elsewhere) first shows the mesh, then swaps to the exact body: the face stays selected
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Same', { ...s.doc }); });
 await waitExact();
-await page.waitForTimeout(200);
+await settle(page);
 const sel = await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = s.selectedFace && b.faces.find((x) => x.id === s.selectedFace.faceId); return f ? f.centroid : null; });
 check('a selected face stays the same face when the exact body replaces the mesh', !!sel && Math.abs(sel[1] - topBefore[1]) < 1e-3, JSON.stringify({ sel, topBefore }));
 
@@ -90,7 +90,7 @@ check('Mass Properties shows the exact volume', !!volShown && Math.abs(parseFloa
 
 // a shell with the top face open (B-rep when OpenCascade's offset agrees with the mesh kernel's wall)
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Shell', { ...s.doc, features: [...s.doc.features, { id: 'sh1', type: 'shell', name: 'Shell1', suppressed: false, thickness: 2, faces: [{ normal: [0, 1, 0], point: [0, 10, 20] }] }] }); });
-await page.waitForTimeout(2500);
+await settle(page);
 const s3 = await state();
 // next to a fillet the B-rep offset and the mesh wall can differ: then the mesh kernel builds it (safety net)
 check('Shell1 (top face open) builds without an error', s3.bodies.length === 1 && !s3.errors.sh1, JSON.stringify(s3));

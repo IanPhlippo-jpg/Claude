@@ -2,6 +2,7 @@
 // Nodig: de dev-server met VITE_TEST_HOOKS op poort 5184. Gebruik: node e2e/tools/look-deuren.mjs [deel van de naam]
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -16,7 +17,7 @@ const lees = (f) => { const d = JSON.parse(readFileSync(`bibliotheek/taatsdeuren
 const open = async (d) => {
   const t0 = Date.now();
   await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d);
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.waitForFunction(() => !window.__phlippoStore.getState().rebuild.pending, null, { timeout: 900_000 });
   const fout = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
   if (Object.keys(fout).length) errors.push(`rebuild: ${JSON.stringify(fout).slice(0, 600)}`);
@@ -24,12 +25,12 @@ const open = async (d) => {
 };
 /** aanzicht, passend maken, inzoomen op een schermpunt (wiel vooruit = inzoomen) en draaien met pijltjes */
 const kijk = async (naam, toets, { zoom = 0, punt = [960, 540], draai = [] } = {}) => {
-  await page.keyboard.press(toets); await page.waitForTimeout(700);
+  await page.keyboard.press(toets); await settle(page);
   for (const k of draai) { await page.keyboard.press(k); await page.waitForTimeout(150); }
-  await page.keyboard.press('f'); await page.waitForTimeout(1200);
+  await page.keyboard.press('f'); await settle(page);
   await page.mouse.move(...punt);
   for (let i = 0; i < zoom; i++) { await page.mouse.wheel(0, 240); await page.waitForTimeout(200); }
-  await page.mouse.move(1700, 980); await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null })); await page.waitForTimeout(2500);
+  await page.mouse.move(1700, 980); await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null })); await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.screenshot({ path: `e2e-out/deur-${naam}.png` });
 };
 const wil = process.argv[2] ?? '';

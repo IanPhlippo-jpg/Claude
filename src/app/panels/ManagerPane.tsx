@@ -1,6 +1,8 @@
 import { CurveColorPM } from './CurveColorPM';
 import { isCommandActive, useStore } from '../store';
 import { treeFilterShown } from '../prefsEffects';
+import { autoShowPropertyPanel } from '../prefsUi';
+import { PMComments } from './PMComments';
 import { useShallow } from 'zustand/react/shallow';
 import { ToleranceTreeBody, DisplayPanelBody } from './ManagerExtra';
 import { Icon } from '../../ui/icons';
@@ -63,7 +65,7 @@ const PropertyPanelBody = lazyNamed(() => import('./PropertyPanel'), 'PropertyPa
 export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
   const st = useStore(useShallow((s) => ({ curveColorEdit: s.curveColorEdit, autoToleranceEdit: s.autoToleranceEdit, managerTab: s.managerTab, commandActive: isCommandActive(s), analysis: s.analysis, hasDocument: s.hasDocument, managerCollapsed: s.managerCollapsed, setManagerCollapsed: s.setManagerCollapsed, setManagerTab: s.setManagerTab, configEdit: s.configEdit, decalEdit: s.decalEdit, offsetSurfEdit: s.offsetSurfEdit, refEdit: s.refEdit, sceneEdit: s.sceneEdit, fastenerEdit: s.fastenerEdit, motorEdit: s.motorEdit, motionEdit: s.motionEdit, sensorEdit: s.sensorEdit, sketch3dEdit: s.sketch3dEdit, patternEdit: s.patternEdit, explodeEdit: s.explodeEdit, sectionEdit: s.sectionEdit, planeEdit: s.planeEdit, drawingEdit: s.drawingEdit, doc: s.doc, selectedDrawingDimensionId: s.selectedDrawingDimensionId, selectedDrawingViewId: s.selectedDrawingViewId, mateEdit: s.mateEdit, insertingComponent: s.insertingComponent, prefs: s.prefs, treeFilter: s.treeFilter, setTreeFilter: s.setTreeFilter })));
   // Show Tolerance Status is a display of the Tolerance Tree, not a command with its own Property Panel
-  const showProps = !!st.autoToleranceEdit || st.managerTab === 'properties' || ((st.managerTab === 'tree' || st.managerTab === 'autoTolerance' || st.managerTab === 'display') && st.commandActive && st.analysis?.kind !== 'tolerance');
+  const showProps = !!st.autoToleranceEdit || autoShowPropertyPanel(st.managerTab, st.commandActive && st.analysis?.kind !== 'tolerance'); // General ▸ Auto-show Property Panel
 
   if (!st.hasDocument) return <div className="k-manager k-manager-empty" data-testid="manager-empty" />;
   if (st.managerCollapsed) {
@@ -114,6 +116,7 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
       ) : showProps ? (
         <div className="k-pm-host">
           {st.curveColorEdit ? <CurveColorPM /> : st.autoToleranceEdit ? <AutoTolerancePM /> : st.decalEdit ? <DecalPM /> : st.offsetSurfEdit ? <OffsetOnSurfacePM /> : st.refEdit ? <RefGeomPM /> : st.sceneEdit ? <ScenePM /> : st.fastenerEdit ? <FastenerPM /> : st.motorEdit ? <MotorPM /> : st.motionEdit && st.motionEdit.kind !== 'plot' ? <MotionEditPM /> : st.sensorEdit ? <SensorPM /> : st.analysis?.kind === 'draft' ? <DraftAnalysisPM /> : st.analysis?.kind === 'geometry' ? <GeometryAnalysisPM /> : st.analysis?.kind === 'thickness' ? <ThicknessAnalysisPM /> : st.analysis?.kind === 'undercut' ? <UndercutAnalysisPM /> : st.analysis?.kind === 'parting' ? <PartingLinePM /> : st.analysis?.kind === 'deviation' ? <DeviationPM /> : st.sketch3dEdit ? <Sketch3DPM /> : st.patternEdit ? <ComponentPatternPM /> : st.explodeEdit ? <ExplodePM /> : st.sectionEdit ? <SectionViewPM /> : st.planeEdit ? <PlanePM /> : st.drawingEdit ? (st.drawingEdit.mode === 'modelView' ? <ModelViewPM /> : st.drawingEdit.mode === 'projected' ? <ProjectedViewPM /> : st.drawingEdit.mode === 'dimension' ? <DrawingDimensionPM /> : st.drawingEdit.mode === 'note' ? <NotePM /> : st.drawingEdit.mode === 'section' ? <SectionViewDrawingPM /> : st.drawingEdit.mode === 'detail' ? <DetailViewPM /> : st.drawingEdit.mode === 'symbol' ? <SymbolPM /> : st.drawingEdit.mode === 'crop' || st.drawingEdit.mode === 'break' ? <ViewToolPM /> : st.drawingEdit.mode === 'aux' ? <AuxViewPM /> : st.drawingEdit.mode === 'modelItems' ? <ModelItemsPM /> : st.drawingEdit.mode === 'brokenOut' ? <BrokenOutPM /> : st.drawingEdit.mode === 'titleBlock' ? <TitleBlockPM /> : st.drawingEdit.mode === 'altPosition' ? <AltPositionPM /> : <DrawingDimensionPM />) : st.doc.kind === 'drawing' && st.selectedDrawingDimensionId ? <DrawingDimensionPM /> : st.doc.kind === 'drawing' && st.selectedDrawingViewId ? <DrawingViewPM /> : st.mateEdit ? <MatePM /> : st.insertingComponent ? <InsertComponentPM /> : <PropertyPanelBody editDimensionId={editDimensionId} onEditDone={onEditDone} />}
+          <PMComments />
         </div>
       ) : (
         <>

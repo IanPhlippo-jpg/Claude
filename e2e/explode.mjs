@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, dontSave } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,21 +21,21 @@ const A = () => page.evaluate(() => {
   return { kind: s.doc.kind, components: (s.doc.components || []).map((c) => ({ id: c.id, name: c.name, fixed: c.fixed, position: c.position })), mates: (s.doc.mates || []).map((m) => ({ type: m.type, name: m.name })), bodies: boxes, errors: s.rebuild.errors, tab: s.tab, inserting: s.insertingComponent, mateEdit: s.mateEdit ? { type: s.mateEdit.draft.type, refs: s.mateEdit.draft.refs.map((r) => r.label) } : null };
 });
 
-const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
+const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await frames(page); } };
 // Insert Component: the part follows the pointer; place it as a click beside the model would (first one at the origin)
 const placeGhost = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); if (!s.insertGhost) return; const bs = s.rebuild.bodies; if (!bs.length) { s.placeInsertGhost(null); return; } let mx = -Infinity; for (const b of bs) { b.geometry.computeBoundingBox(); mx = Math.max(mx, b.geometry.boundingBox.max.x); } s.placeInsertGhost([mx + 20, 0, 0]); });
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 
 // ---- the plate: 80 x 80 x 10 with a Ø35 hole (as in the features check)
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
@@ -45,13 +45,13 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx + 150, cy);
 await page.mouse.click(cx + 150, cy + 80);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('80');
 await page.locator('.k-modify input.k-num').press('Enter');
 await settle(page);
 await page.mouse.click(cx, cy - 150);
 await page.mouse.click(cx - 80, cy - 150);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('80');
 await page.locator('.k-modify input.k-num').press('Enter');
 await page.keyboard.press('Escape');
@@ -64,7 +64,7 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(centre.x + 60, centre.y);
 await page.mouse.click(centre.x + 120, centre.y - 120);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('35');
 await page.locator('.k-modify input.k-num').press('Enter');
 await page.keyboard.press('Escape');
@@ -92,18 +92,18 @@ check('assembly document with the Assembly tab and Insert Component open', a.kin
 await shot('e30-assembly-new');
 // insert the plate twice through Browse… (file input)
 await page.setInputFiles('#phlippo-open-file', { name: 'Plate.kcad', mimeType: 'application/json', buffer: Buffer.from(plateFile) });
-await page.waitForTimeout(300);
+await settle(page);
 await placeGhost();
-await page.waitForTimeout(500);
+await settle(page);
 a = await A();
 check('first component inserted and fixed', a.components.length === 1 && a.components[0].fixed && a.components[0].name === 'Plate<1>', JSON.stringify(a.components));
 check('assembly tree root', (await page.locator('.k-tree-row').first().innerText()).includes('Assem1'));
 await page.click('.k-cm-big:has-text("Insert Components") .k-cm-main');
-await page.waitForTimeout(200);
+await settle(page);
 await page.setInputFiles('#phlippo-open-file', { name: 'Plate.kcad', mimeType: 'application/json', buffer: Buffer.from(plateFile) });
-await page.waitForTimeout(300);
+await settle(page);
 await placeGhost();
-await page.waitForTimeout(500);
+await settle(page);
 a = await A();
 check('second instance Plate<2> placed next to the first', a.components.length === 2 && a.components[1].name === 'Plate<2>' && !a.components[1].fixed && a.components[1].position[0] >= 90, JSON.stringify(a.components));
 check('two world bodies, no errors', a.bodies.length === 2 && Object.keys(a.errors).length === 0, JSON.stringify(a.errors));
@@ -114,19 +114,19 @@ const ids = await page.evaluate(() => window.__phlippoStore.getState().doc.compo
 const y0 = await box(ids[1]);
 await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-cm-big:has-text("Exploded View") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 check('Explode PM: Explode Steps, Add a Step', (await page.locator('[data-testid="explode-pm"]').count()) === 1 && (await page.locator('.k-section:has-text("Add a Step")').count()) === 1);
 // click on the top face of Plate<2> in the graphics area
 const pt = await page.evaluate((id) => { const b = window.__phlippoStore.getState().rebuild.bodies.find((x) => x.id === id); b.geometry.computeBoundingBox(); const bb = b.geometry.boundingBox; return window.__phlippoProjectWorld((bb.min.x + bb.max.x) / 2 + 5, bb.max.y, (bb.min.z + bb.max.z) / 2 + 5); }, ids[1]);
 await page.mouse.click(pt.x, pt.y);
-await page.waitForTimeout(200);
+await settle(page);
 check('clicked component goes into the step', (await page.locator('[data-testid="explode-pm"] .k-selbox-row:has-text("Plate<2>")').count()) === 1);
 await page.locator('[data-testid="explode-pm"] .k-pm-valuerow input.k-num').first().fill('60');
 await page.locator('[data-testid="explode-pm"] .k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(300);
+await settle(page);
 check('preview: Plate<2> moves 60 up', Math.abs((await box(ids[1])) - y0 - 60) < 0.01);
 await page.click('[data-testid="explode-pm"] button:has-text("Add Step")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Explode Step1 listed', (await page.locator('[data-step="Explode Step1"]').count()) === 1);
 await page.keyboard.press('f');
 await settle(page, { quiet: 300 });
@@ -138,22 +138,22 @@ check('doc stores one step, exploded, the real position unchanged', d.steps === 
 check('exploded body 60 up after OK', Math.abs((await box(ids[1])) - y0 - 60) < 0.01);
 check('an explode line runs from the assembled to the exploded position', await page.evaluate(() => { const c = (window.__phlippoStore.getState().rebuild.curves ?? []).filter((x) => x.dashed); return c.length === 1 && Math.abs(c[0].points[1].y - c[0].points[0].y - 60) < 0.01; }));
 await page.click('.k-manager-tab[data-tip="Configurations"]');
-await page.waitForTimeout(200);
+await settle(page);
 await expandTree();
 check('Configurations shows ExplView1 with Explode Step1', (await page.locator('.k-tree-row:has-text("ExplView1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Explode Step1")').count()) === 1);
 await page.locator('.k-tree-row:has-text("ExplView1")').click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Collapse")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Collapse puts Plate<2> back', Math.abs((await box(ids[1])) - y0) < 0.01);
 await page.locator('.k-tree-row:has-text("ExplView1")').click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Explode")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Explode again', Math.abs((await box(ids[1])) - y0 - 60) < 0.01);
 await shot('x2-exploded');
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
-await page.waitForTimeout(800);
+await settle(page);
 check('reload keeps the exploded view', (await page.evaluate(() => window.__phlippoStore.getState().doc.exploded)) === true && Math.abs((await box(ids[1])) - y0 - 60) < 0.01);
 
 console.log(`

@@ -19,7 +19,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
@@ -34,18 +34,18 @@ const collar = await page.evaluate((id) => { const st = window.__phlippoStore.ge
 await page.click('.k-cm-small:has-text("Hole Callout")');
 let q = await toPx([collar[0] + 13, collar[1]]); await page.mouse.click(q.x, q.y);
 q = await toPx([collar[0] + 30, collar[1] + 25]); await page.mouse.click(q.x, q.y);
-await page.waitForTimeout(200);
+await settle(page);
 let s = await S();
 check('Hole Callout reads the diameter (Ø26.00 THRU ALL)', s.some((x) => x.kind === 'holeCallout' && /Ø26\.00/.test(x.text)), JSON.stringify(s));
 await page.keyboard.press('Escape');
 // Surface Finish, Geometric Tolerance (flatness 0.05 A), Datum Feature: leader to the top edge of the lever, then place
 for (const [label, kind] of [['Surface Finish', 'surfaceFinish'], ['Geometric Tolerance', 'gtol'], ['Datum Feature', 'datum']]) {
   await page.click(`.k-cm-small:has-text("${label}")`);
-  await page.waitForTimeout(150);
+  await settle(page);
   if (kind === 'gtol') { await page.locator('[data-testid="gtol-datum"]').fill('A'); }
   q = await toPx([collar[0] + 60, collar[1] + 8]); await page.mouse.click(q.x, q.y);
   q = await toPx([collar[0] + 60 + (kind === 'gtol' ? 20 : kind === 'datum' ? -10 : 0), collar[1] + 30 + (kind === 'datum' ? 10 : 0)]); await page.mouse.click(q.x, q.y);
-  await page.waitForTimeout(150);
+  await settle(page);
   await page.keyboard.press('Escape');
 }
 s = await S();
@@ -64,7 +64,7 @@ await settle(page);
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-small:has-text("Auto Balloon")');
 q = await toPx([200, 160]); await page.mouse.click(q.x, q.y);
-await page.waitForTimeout(500);
+await settle(page);
 s = await S();
 const items = [...new Set(s.filter((x) => x.kind === 'balloon').map((x) => x.text))];
 check('Auto Balloon: one balloon per part (6 parts incl. the screws, items 1-6)', items.length === 6, JSON.stringify(items));

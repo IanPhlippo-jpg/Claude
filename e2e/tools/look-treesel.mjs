@@ -1,5 +1,6 @@
 // look-dev: the BasePlate with a fillet; hover a feature in the tree (orange outline) and select one (blue faces + its dimensions)
 import { chromium } from 'playwright';
+import { settle, frames } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -25,18 +26,18 @@ await page.evaluate(() => {
   ] };
   S.getState().openDocument(d);
 });
-await page.waitForTimeout(1500);
+await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
 await page.hover('.k-tree-row:has-text("Boss-Extrude1")');
-await page.waitForTimeout(600);
+await page.waitForTimeout(600); // fixed: shot tool, hover state or tooltip for the photo
 await page.screenshot({ path: 'e2e-out/look-treehover.png' });
 await page.click('.k-tree-row:has-text("Boss-Extrude1")');
-await page.waitForTimeout(800);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/look-treesel-hot.png' });
 const crumbs = await page.locator('[data-testid="breadcrumbs"]').count();
 const crumbText = crumbs ? await page.locator('[data-testid="breadcrumbs"]').innerText() : '';
 await page.mouse.move(900, 600, { steps: 8 });
 await page.mouse.move(1500, 900, { steps: 8 });
-await page.waitForTimeout(800);
+await frames(page, 3);
 await page.screenshot({ path: 'e2e-out/look-treesel.png' });
 const crumbsAfter = await page.locator('[data-testid="breadcrumbs"]').count();
 console.log('crumbs', crumbs, JSON.stringify(crumbText), 'after move (stays)', crumbsAfter);

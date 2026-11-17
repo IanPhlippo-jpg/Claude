@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -29,7 +30,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 
 // L bracket: base flange 60 deep from (0,0)-(40,0)-(40,30) on the Front plane (t = 3, R = 3, K = 0.5)
@@ -62,7 +63,7 @@ const build = (withFold) => page.evaluate((withFold) => {
 }, withFold);
 
 await build(false);
-await page.waitForTimeout(800);
+await settle(page);
 let s = await state();
 const L = 34 + 24 + (Math.PI / 2) * 4.5; // straight 40-6, 30-6, bend allowance 90° at R 3 + 0.5·3
 check('Unfold1: the sheet lies flat (developed length, 3 mm thick)', Object.keys(s.errors).length === 0 && Math.abs(s.size[0] - L) < 0.3 && Math.abs(s.size[1] - 3) < 0.01, JSON.stringify(s));
@@ -70,36 +71,36 @@ const vFlatCut = s.v;
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);
-await page.waitForTimeout(400);
+await frames(page, 3);
 await shot('uf1-unfolded-cut');
 
 await build(true);
-await page.waitForTimeout(800);
+await settle(page);
 s = await state();
 const vFull = (34 + 24) * 3 * 60 + (Math.PI / 4) * (36 - 9) * 60;
 check('Fold1: bent back with the slot across the bend (600 mm³ removed)', Object.keys(s.errors).length === 0 && Math.abs(s.size[1] - 30) < 0.5 && Math.abs(vFull - s.v - 600) < 25 && Math.abs(vFlatCut - s.v) < 25, `${(vFull - s.v).toFixed(1)} ${JSON.stringify(s)}`);
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);
-await page.waitForTimeout(400);
+await frames(page, 3);
 await shot('uf2-folded');
 
 // Flatten shows the slot in the flat pattern
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Flatten")');
-await page.waitForTimeout(800);
+await settle(page);
 s = await state();
 const bendLines = await page.evaluate(() => (window.__phlippoStore.getState().rebuild.curves ?? []).filter((c) => c.name === 'Bend-Lines').length);
 check('Flatten shows the bend line', bendLines === 1, String(bendLines));
 check('Flatten: the flat pattern carries the slot', Object.keys(s.errors).length === 0 && Math.abs(s.size[1] - 3) < 0.01 && Math.abs(vFull - s.v - 600) < 25, JSON.stringify(s));
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);
-await page.waitForTimeout(400);
+await frames(page, 3);
 await shot('uf3-flat-pattern');
 await page.click('.k-cm-small:has-text("Flatten")');
 
 // the Unfold command from the ribbon: Property Panel with the fixed face and the bends
 await page.click('.k-cm-small:has-text("Unfold")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Unfold PM lists the bend of the base flange', (await page.locator('[data-testid="unfold-bends"] .k-selbox-row').count()) === 1);
 await page.click('.k-pm-cancel');
 

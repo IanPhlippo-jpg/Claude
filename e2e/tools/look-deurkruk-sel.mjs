@@ -1,6 +1,7 @@
 // look-dev: the door handle assembly with a component selected in the tree (blue + breadcrumbs)
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { settle, frames } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -12,15 +13,15 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8')); delete asm.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm);
-await page.waitForTimeout(2500);
+await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(800);
+await settle(page);
 const rows = page.locator('.k-tree-row:has-text("<1>")');
 const n = await rows.count();
 await rows.nth(Math.min(1, n - 1)).click();
 await page.mouse.move(700, 1000);
-await page.waitForTimeout(1200);
+await frames(page, 3);
 await page.screenshot({ path: 'e2e-out/look-deurkruk-sel.png' });
 console.log('rows', n, 'crumbs', await page.locator('[data-testid="breadcrumbs"]').count(), errors);
 await browser.close();

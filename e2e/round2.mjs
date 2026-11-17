@@ -17,14 +17,14 @@ const open = async (w, h, theme = 'light') => {
   await page.reload();
   await page.waitForSelector('.k-viewport');
   await page.click('.k-doctype:has-text("Part")');
-  await page.waitForTimeout(400);
+  await settle(page);
   return page;
 };
 const sketchRect = async (page) => {
   await page.click('.k-cm-tab:has-text("Sketch")');
   await page.click('.k-tree-row:has-text("Top Plane")');
   await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-  await page.waitForTimeout(600);
+  await settle(page);
   await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'));
 };
 const drawRect = async (page) => {
@@ -41,12 +41,12 @@ const zeros = await page.locator('.k-pm-ptrow input').evaluateAll((els) => els.m
 check('rectangle Parameters before drawing: 8 rows showing 0.00', zeros.length === 8 && zeros.every((v) => v === '0.00'), JSON.stringify(zeros));
 await drawRect(page);
 await page.click('.k-cm-big:has-text("Exit Sketch") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 const sel = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.doc.features.find((f) => f.id === s.selectedFeatureId)?.name ?? null; });
 check('Exit Sketch leaves the sketch selected', sel === 'Sketch1', String(sel));
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss") .k-cm-main');
-await page.waitForTimeout(800);
+await settle(page);
 const draft = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const d = s.featureEdit?.draft; return d ? { type: d.type, sketch: s.doc.sketches[d.sketchId]?.name ?? null } : null; });
 check('Extruded Boss/Base right after Exit Sketch takes that sketch', draft?.type === 'extrude' && draft.sketch === 'Sketch1', JSON.stringify(draft));
 const darkStrip = await page.evaluate(() => {
@@ -60,7 +60,7 @@ await page.click('.k-pm-ok');
 await settle(page);
 // feature right-click: toolbar with Edit Feature, menu with the header and Configure Feature once
 await page.click('.k-tree-row:has-text("Boss-Extrude1")', { button: 'right' });
-await page.waitForTimeout(200);
+await settle(page);
 const menu = await page.locator('.k-menu .k-menu-item, .k-menu .k-menu-header').allTextContents();
 check('feature right-click: header "Feature (Boss-Extrude1)", Configure Feature once, Edit Feature on the toolbar', menu.some((t) => t.includes('Feature (Boss-Extrude1)')) && menu.filter((t) => t.includes('Configure Feature')).length === 1 && (await page.locator('[data-testid="ctx-edit-feature"]').count()) === 1, JSON.stringify(menu));
 await page.keyboard.press('Escape');

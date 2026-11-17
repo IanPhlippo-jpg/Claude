@@ -2,6 +2,7 @@
 // exposes no file paths to name. Run `npm run build` first.
 import { _electron as electron } from 'playwright';
 import { skip } from './lib/check.mjs';
+import { frames } from './lib/wait.mjs';
 // a fresh profile of its own: the checks never touch the user's documents or settings
 const profile = (await import('node:fs')).mkdtempSync((await import('node:path')).join((await import('node:os')).tmpdir(), 'phlippo-desktop-'));
 let passed = 0, failed = 0;
@@ -31,7 +32,7 @@ if (process.env.PHLIPPO_SOFTWARE_GL === '1') {
 check('permissions are refused (F87)', await page.evaluate(() => navigator.permissions.query({ name: 'notifications' }).then((r) => r.state !== 'granted', () => true)));
 // the release build works as a user gets it, without the hooks (F53): Final Render, Zoom to Fit, About
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(600);
+await frames(page, 2);
 await page.click('.k-cm-tab:has-text("Render Tools")');
 await page.click('.k-cm-big:has-text("Final Render") .k-cm-main');
 await page.waitForSelector('[data-testid="final-image"]', { timeout: 15000 }).catch(skip('desktop-nohooks.mjs:36'));
@@ -41,7 +42,7 @@ const errs = [];
 page.on('pageerror', (e) => errs.push(e.message));
 await page.mouse.click(900, 600);
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await page.waitForTimeout(300); // fixed: time for a page error of the zoom to surface
 check('Zoom to Fit (F) runs without a page error', errs.length === 0, errs.join(' | '));
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Help")');

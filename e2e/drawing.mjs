@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip, dontSave } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -25,14 +26,14 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 
 // ---- the plate 80 x 80 x 10 with a Ø35 hole
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
@@ -42,13 +43,13 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx + 150, cy);
 await page.mouse.click(cx + 150, cy + 80);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('80');
 await page.locator('.k-modify input.k-num').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.click(cx, cy - 150);
 await page.mouse.click(cx - 80, cy - 150);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('80');
 await page.locator('.k-modify input.k-num').press('Enter');
 await page.keyboard.press('Escape');
@@ -61,16 +62,16 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(centre.x + 60, centre.y);
 await page.mouse.click(centre.x + 120, centre.y - 120);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('35');
 await page.locator('.k-modify input.k-num').press('Enter');
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().renameDocument('Plate'));
 const plateFile = await page.evaluate(() => JSON.stringify({ format: 'phlippo-cad', ...window.__phlippoStore.getState().doc }));
 
@@ -78,7 +79,7 @@ const plateFile = await page.evaluate(() => JSON.stringify({ format: 'phlippo-ca
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
 await page.click('.k-menu-item:has-text("New")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-doctype:has-text("Drawing")');
 await page.click('.k-dialog-actions button:has-text("OK")');
 // Save changes? → Don't Save, when it asks. On a slow runner the question came after the 300 ms dontSave waits, and
@@ -91,7 +92,7 @@ check('Sheet Format/Size dialog', (await sheetTitle.count()) === 1 && (await pag
 await page.click('.k-sheetfmt-list .k-selbox-row:has-text("A3 (ISO)")');
 await shot('e40-sheet-format');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.waitForTimeout(500);
+await settle(page);
 let d = await D();
 check('drawing document with View Layout tab and Model View open', d.kind === 'drawing' && d.tab === 'viewLayout' && d.edit && d.edit.mode === 'modelView' && !d.edit.hasModel, JSON.stringify({ kind: d.kind, tab: d.tab, edit: d.edit }));
 check('sheet A3 landscape, scale 1:1', d.sheet && d.sheet.size === 'A3' && d.sheet.scale[0] === 1 && d.sheet.scale[1] === 1, JSON.stringify(d.sheet));
@@ -99,7 +100,7 @@ check('Model View Property Panel', (await page.locator('.k-pm-title').innerText(
 check('status bar Editing Sheet1', (await page.locator('.k-statusbar').innerText()).includes('Editing Sheet1'));
 // Browse… -> the plate file
 await page.setInputFiles('#phlippo-open-file', { name: 'Plate.kcad', mimeType: 'application/json', buffer: Buffer.from(plateFile) });
-await page.waitForTimeout(500);
+await settle(page);
 d = await D();
 check('model chosen, orientation step', d.edit && d.edit.hasModel, JSON.stringify(d.edit));
 // Automatic scaling of new drawing views: the 80 mm plate gets a larger standard scale; the rest of this test measures at 1 : 1
@@ -110,24 +111,24 @@ check('Orientation section with standard views', (await page.locator('.k-orient-
 // place the front view at (120, 150) mm, then the right view to the right, the top view above
 const p1 = await px([120, 150]);
 await page.mouse.move(p1.x, p1.y);
-await page.waitForTimeout(200);
+await frames(page, 3);
 await shot('e41-model-view-preview');
 await page.mouse.click(p1.x, p1.y);
-await page.waitForTimeout(500);
+await settle(page);
 d = await D();
 check('Drawing View1 (front) placed, Projected View continues', d.sheet.views.length === 1 && d.sheet.views[0].type === 'front' && d.edit && d.edit.mode === 'projected', JSON.stringify({ views: d.sheet.views, edit: d.edit }));
 const p2 = await px([260, 150]);
 await page.mouse.move(p2.x, p2.y);
-await page.waitForTimeout(150);
+await frames(page, 3);
 await page.mouse.click(p2.x, p2.y);
-await page.waitForTimeout(400);
+await settle(page);
 const p3 = await px([120, 240]);
 await page.mouse.move(p3.x, p3.y);
-await page.waitForTimeout(150);
+await frames(page, 3);
 await page.mouse.click(p3.x, p3.y);
-await page.waitForTimeout(400);
+await settle(page);
 await page.keyboard.press('Escape');
-await page.waitForTimeout(200);
+await settle(page);
 d = await D();
 const types = d.sheet.views.map((v) => v.type);
 check('projected right and top views placed and aligned (first angle: top view below? no — ISO first angle puts the top view below; here third angle by default)', d.sheet.views.length === 3 && types.includes('front') && (types.includes('right') || types.includes('left')) && (types.includes('top') || types.includes('bottom')), JSON.stringify(d.sheet.views));
@@ -165,22 +166,22 @@ for (const v of perView) {
 }
 check('three standard views checked one by one', perView.length === 3 && perView.filter((v) => v.circles).length === 1, JSON.stringify(perView.map((v) => v.type)));
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- Smart Dimension on the front view's top edge (80 mm): the edge lies at y = 150 + 5 (half of 10 mm) on the sheet
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
-await page.waitForTimeout(200);
+await settle(page);
 const topEdge = await px([120, 155]);
 await page.mouse.click(topEdge.x, topEdge.y);
-await page.waitForTimeout(200);
+await settle(page);
 d = await D();
 check('edge picked for the dimension', d.edit && d.edit.dimStart, JSON.stringify(d.edit));
 const labelAt = await px([120, 170]);
 await page.mouse.move(labelAt.x, labelAt.y);
-await page.waitForTimeout(150);
+await frames(page, 3);
 await page.mouse.click(labelAt.x, labelAt.y);
-await page.waitForTimeout(300);
+await settle(page);
 d = await D();
 check('dimension 80 mm placed (horizontal)', d.sheet.dims.length === 1 && Math.abs(d.sheet.dims[0].value - 80) < 0.05 && d.sheet.dims[0].orientation === 'h', JSON.stringify(d.sheet.dims));
 await page.keyboard.press('Escape');
@@ -211,12 +212,12 @@ const circlePt = await px(hole ? [hole.c[0] + hole.r * D45, hole.c[1] + hole.r *
 const under = await page.evaluate((q) => { const e = document.elementFromPoint(q.x, q.y); return e ? `${e.tagName.toLowerCase()}.${String(e.getAttribute('class') ?? '').slice(0, 40)}` : null; }, circlePt);
 if (!(await page.evaluate(() => window.__phlippoStore.getState().drawingEdit?.mode === 'dimension'))) await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.move(circlePt.x, circlePt.y);
-await page.waitForTimeout(100);
+await frames(page, 3);
 await page.mouse.click(circlePt.x, circlePt.y);
 const picked = await waitState(() => !!window.__phlippoStore.getState().drawingEdit?.dimStart || (window.__phlippoStore.getState().doc.sheets?.[0]?.dimensions.length ?? 0) >= 2, undefined, 5000);
 const dl = await px([topView.position[0] + 45, topView.position[1] + 30]);
 await page.mouse.move(dl.x, dl.y);
-await page.waitForTimeout(100);
+await frames(page, 3);
 await page.mouse.click(dl.x, dl.y);
 await waitState(() => (window.__phlippoStore.getState().doc.sheets?.[0]?.dimensions.length ?? 0) >= 2, undefined, 5000);
 d = await D();
@@ -226,23 +227,23 @@ check('diameter Ø35 placed', dimOk, JSON.stringify({ picked, under, message: aw
 await page.keyboard.press('Escape');
 // center mark
 await page.click('.k-cm-small:has-text("Center Mark")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.click(circlePt.x, circlePt.y);
-await page.waitForTimeout(300);
+await settle(page);
 d = await D();
 check('center mark added', d.sheet.marks === 1);
 await page.keyboard.press('Escape');
 // note
 await page.click('.k-cm-big:has-text("Note") .k-cm-main');
-await page.waitForTimeout(200);
+await settle(page);
 await page.fill('.k-pm textarea', 'ALL DIMENSIONS IN MM');
 const np = await px([40, 40]);
 await page.mouse.click(np.x, np.y);
-await page.waitForTimeout(300);
+await settle(page);
 d = await D();
 check('note placed', d.sheet.notes.length === 1 && d.sheet.notes[0] === 'ALL DIMENSIONS IN MM');
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page);
 await shot('e43-drawing');
 
 // ---- reload: the drawing with its embedded model, views, dimensions and notes is restored
@@ -260,39 +261,39 @@ check('dimensions restored after reload', d.sheet && d.sheet.dims.length === (di
 // ---- Section View: vertical cutting line through the hole of the top view, section placed right of it
 await page.click('.k-cm-tab:has-text("Drawing")');
 await page.click('.k-cm-big:has-text("Section View")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Section View Property Panel', (await page.locator('[data-testid="section-view-pm"]').count()) === 1);
 const tv = d.sheet.views.find((v) => v.type === 'top' || v.type === 'bottom');
 const cutPt = await px([tv.position[0], tv.position[1]]);
 await page.mouse.move(cutPt.x, cutPt.y);
-await page.waitForTimeout(150);
+await frames(page, 3);
 await page.mouse.click(cutPt.x, cutPt.y);
-await page.waitForTimeout(200);
+await settle(page);
 const secPt = await px([240, tv.position[1] + 20]);
 await page.mouse.move(secPt.x, secPt.y);
-await page.waitForTimeout(400);
+await frames(page, 3);
 await shot('e45-section-preview');
 await page.mouse.click(secPt.x, secPt.y);
-await page.waitForTimeout(600);
+await settle(page);
 let sv = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.filter((v) => v.section).map((v) => ({ name: v.name, pos: v.position, sec: v.section })));
 check('Section View A-A placed, aligned with its parent', sv.length === 1 && sv[0].name === 'Section View A-A' && Math.abs(sv[0].pos[1] - tv.position[1]) < 1e-6 && Math.abs(sv[0].sec.at - 40) < 2, JSON.stringify(sv));
 check('section hatched, cutting line on the parent, label SECTION A-A', (await page.locator('path[fill="url(#k-hatch)"]').count()) === 1 && (await page.locator('.k-section-line').count()) === 1 && (await page.locator('text:has-text("SECTION A-A")').count()) === 1);
 // ---- Detail View of the hole: centre, radius, place
 await page.click('.k-cm-big:has-text("Detail View")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Detail View Property Panel', (await page.locator('[data-testid="detail-view-pm"]').count()) === 1);
 const dc = await px([tv.position[0] + 17.5, tv.position[1]]);
 await page.mouse.click(dc.x, dc.y);
-await page.waitForTimeout(150);
+await settle(page);
 const dr2 = await px([tv.position[0] + 17.5 + 10, tv.position[1]]);
 await page.mouse.move(dr2.x, dr2.y);
 await page.mouse.click(dr2.x, dr2.y);
-await page.waitForTimeout(150);
+await settle(page);
 const dp = await px([340, 100]);
 await page.mouse.move(dp.x, dp.y);
-await page.waitForTimeout(300);
+await frames(page, 3);
 await page.mouse.click(dp.x, dp.y);
-await page.waitForTimeout(600);
+await settle(page);
 sv = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.filter((v) => v.detail).map((v) => ({ name: v.name, scale: v.scale, det: v.detail })));
 check('Detail View B (2 : 1) placed, radius 10', sv.length === 1 && sv[0].name === 'Detail View B (2 : 1)' && Math.abs(sv[0].det.radius - 10) < 0.5, JSON.stringify(sv));
 check('detail circle with letter on the parent, label DETAIL B', (await page.locator('.k-detail-circle').count()) === 1 && (await page.locator('text:has-text("DETAIL B")').count()) === 1);

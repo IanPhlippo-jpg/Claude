@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -22,9 +22,9 @@ await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
-const clicks = async (pts) => { for (const [x, y] of pts) { const p = await P(x, y); await page.mouse.click(p.x, p.y); await page.waitForTimeout(120); } };
+const clicks = async (pts) => { for (const [x, y] of pts) { const p = await P(x, y); await page.mouse.click(p.x, p.y); await frames(page); } };
 const state = () => page.evaluate(() => {
   const s = window.__phlippoStore.getState();
   const sk = s.doc.sketches[s.activeSketchId];

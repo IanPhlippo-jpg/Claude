@@ -1,5 +1,6 @@
 // look-dev: the Extrude Property Panel on a plate sketch -> e2e-out/look-extrudepm.png (compare with calibration frame 0111)
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
@@ -20,13 +21,13 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await page.evaluate(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k1' }); window.__phlippoStore.getState().startFeature('extrude', 'boss'); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().updateFeatureDraft({ depth: 35 }));
-await page.waitForTimeout(600);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/look-extrudepm.png' });
 await page.evaluate(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(800);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/look-baseplate.png' });
 await browser.close();

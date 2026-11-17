@@ -10,6 +10,8 @@ import { findContours } from '../../core/sketch/contours';
 import type { SolveResult } from '../../core/solver/solver';
 import { getPlane, planeLabel, sketchToWorld, type PlaneId } from './camera';
 import { addReferencePlane } from './planeLook';
+import { planeIntersections, sketchPlaneShaded } from '../prefsView';
+import { dragGhost, splineControlPolygon } from '../prefsSketch';
 
 export interface SceneColors {
   under: string;
@@ -96,6 +98,8 @@ export interface SceneInput {
   shadedContours: boolean;
   /** the profile sketch under the yellow preview of a feature: its contours shaded dark, by design */
   underPreview?: boolean;
+  /** the display style of the graphics area (Sketch ▸ Display plane when shaded) */
+  displayStyle?: string;
 }
 
 /** the contour fill under a feature preview: dark blue, so that it reads olive-grey through the yellow (measured against the intended design) */
@@ -263,6 +267,9 @@ export class SketchScene {
     };
 
     for (const o of input.otherSketches) drawSketch(o.sketch, o.plane, true);
+    // Sketch ▸ Ghost image on drag: the sketch as it was when the drag started, faded under the dragged geometry
+    const ghost = input.sketch && !input.underPreview ? dragGhost(input.sketch.id) : null;
+    if (ghost) drawSketch(ghost, input.plane, true);
     // shaded sketch contours (drawn first so lines stay on top)
     if (input.sketch && input.shadedContours) {
       const { c: cc, a: ca } = input.underPreview ? { c: new THREE.Color(CONTOUR_UNDER_PREVIEW.color), a: CONTOUR_UNDER_PREVIEW.opacity } : rgba(input.colors.contour);
@@ -294,11 +301,29 @@ export class SketchScene {
       this.group.add(m);
     }
     if (input.sketch) drawSketch(input.sketch, input.plane, false);
+    // Sketch ▸ Show spline control polygon by default: the poles of every spline, dashed
+    if (input.sketch && !input.underPreview) {
+      for (const id of input.sketch.entityOrder) {
+        const e = input.sketch.entities[id];
+        const poly = e.kind === 'spline' && !e.equation ? splineControlPolygon(e.points.map((p) => input.sketch!.points[p]), !!e.style) : null;
+        if (poly) addPolyline(input.plane, poly, rgba(input.colors.construction).c, true);
+      }
+    }
 
     // reference planes: squares of one size, so each plane's edges run through the edge middles of the others (where
     // the handles of a selected plane sit); outline, faint fill, the name on the plane (planeLook.ts)
     const dark = document.documentElement.dataset.theme === 'dark';
     for (const pl of input.planes) addReferencePlane(this.group, getPlane(pl.id), input.planeSize, input.planeSize, pl.selected ? 'selected' : pl.highlight ? 'hover' : 'normal', planeLabel(pl.id), input.scale, dark, rgba(input.colors.hover).c);
+    // Sketch ▸ Display plane when shaded: off, the planes show only their outline while a sketch is edited
+    if (input.sketch && !input.underPreview && !sketchPlaneShaded(input.displayStyle ?? 'shaded')) for (const o of this.group.children) if (o.name === 'plane-fill') o.visible = false;
+    // Plane Display ▸ Show intersections: the lines where the shown planes cross, in the plane edge colour
+    const crossings = planeIntersections(input.planes.map((pl) => ({ ...getPlane(pl.id), s: input.planeSize })));
+    if (crossings.length) {
+      const g = new THREE.BufferGeometry().setFromPoints(crossings.flat());
+      const ls = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: dark ? 0x8f8dd6 : 0x7c7ab8 }));
+      ls.name = 'plane-intersections';
+      this.group.add(ls);
+    }
 
     // origin glyph: two short arrows (blue in part mode, red in sketch mode)
     if (input.showOrigin) {

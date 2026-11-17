@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -26,7 +26,7 @@ await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
 for (const [x, y] of [[0, 0], [40, 0], [40, 30]]) { const p = await P(x, y); await page.mouse.click(p.x, p.y); }
@@ -40,13 +40,13 @@ await settle(page);
 
 // No Bends: the flat state without bend lines; again: folded
 await page.click('.k-cm-small:has-text("No Bends")');
-await page.waitForTimeout(800);
+await settle(page);
 let st = await S();
 const flatOn = await page.evaluate(() => window.__phlippoStore.getState().doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed && f.noBendLines));
 check('No Bends shows the flat sheet without bend lines', flatOn && !st.curves.includes('Bend-Lines'), JSON.stringify(st.curves));
 await page.screenshot({ path: `${OUT}/sm2-nobends.png` });
 await page.click('.k-cm-small:has-text("No Bends")');
-await page.waitForTimeout(800);
+await settle(page);
 const flatOff = await page.evaluate(() => window.__phlippoStore.getState().doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed));
 check('No Bends again folds the sheet back', !flatOff);
 
@@ -78,7 +78,7 @@ const vBlock = await volume();
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => !x.curved && x.normal[1] < -0.99); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Convert to Sheet Metal")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Convert to Sheet Metal takes the selected face as fixed face', /fixed/.test((await page.locator('[data-testid="conv-fixed"]').textContent()) ?? ''));
 await page.click('.k-pm-ok');
 await settle(page);
@@ -88,7 +88,7 @@ check('Convert-Solid1 hollows the block into an open sheet tray', st.names.inclu
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);
-await page.waitForTimeout(500);
+await frames(page, 3);
 await page.screenshot({ path: `${OUT}/sm2-convert.png` });
 
 // Lofted-Bend between two parallel open lines
@@ -110,7 +110,7 @@ check('Lofted-Bend1 builds a sheet between the two profiles', st.names.includes(
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);
-await page.waitForTimeout(500);
+await frames(page, 3);
 await page.screenshot({ path: `${OUT}/sm2-loftedbend.png` });
 
 console.log(`

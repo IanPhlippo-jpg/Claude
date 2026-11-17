@@ -13,6 +13,7 @@ import type { BodyEdge, EdgeRef } from '../features/edgesets';
 import { pinnedShapes, type BrepKernel, type BrepShape } from '../features/brepKernel';
 import type { Contour } from '../sketch/contours';
 import { meshToSolid, shapeVolume } from './step';
+import { cachedStepSolid } from './stepRead';
 import { bezierLoopEdges, exactCurveEdges } from './curves';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -494,6 +495,10 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       let v = 0;
       try { v = replicad.measureVolume(replicad.cast(solid) as never); } catch { return null; }
       return S(v < 0 ? t(solid.Reversed()) : solid);
+    },
+    fromStep(text) {
+      const solid = cachedStepSolid(oc, text);
+      return solid ? S(t(solid)) : null;
     },
     extrudeLoop(plane, loop, zStart, total) {
       if (!loop.length || !(total > 1e-9)) return null;

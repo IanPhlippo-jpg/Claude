@@ -2,6 +2,7 @@
 // square tube with end miters, both with the B-rep kernel; screenshots e2e-out/brep-sheet.png and e2e-out/brep-frame.png.
 // Usage: dev server on 5173 (or E2E_URL), then node e2e/tools/brep-showcase2.mjs
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
@@ -38,7 +39,7 @@ await open(() => {
 const ok1 = await waitExact();
 console.log('sheet', ok1, JSON.stringify(await report()));
 await page.evaluate(() => window.__phlippoZoomFit?.());
-await page.waitForTimeout(500);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/brep-sheet.png' });
 
 // weldment: a 600 x 400 frame of 40 x 40 x 4 tube, end miters
@@ -56,6 +57,6 @@ await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(() =
 const ok2 = await waitExact();
 console.log('frame', ok2, JSON.stringify(await report()));
 await page.evaluate(() => window.__phlippoZoomFit?.());
-await page.waitForTimeout(500);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/brep-frame.png' });
 await browser.close();

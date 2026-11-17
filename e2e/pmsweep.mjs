@@ -4,7 +4,7 @@
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track } from './lib/check.mjs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -19,7 +19,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 const open = () => S(() => {
   const K = window.__phlippoKit;
@@ -35,7 +35,7 @@ const open = () => S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await open();
-await page.waitForTimeout(400);
+await settle(page);
 
 // [label, action, args, select the spare sketch first]
 const COMMANDS = [
@@ -73,20 +73,20 @@ for (const [label, action, args, selectSketch] of COMMANDS) {
   let opened = false, committed = false;
   try {
     await start();
-    await page.waitForTimeout(150);
+    await settle(page);
     const st = await editState();
     opened = st.fe || st.pe || st.re || st.se || st.sm || st.ae || st.de || st.n !== n0;
     await cancelAll();
-    await page.waitForTimeout(80);
+    await frames(page);
     await start();
-    await page.waitForTimeout(150);
+    await settle(page);
     await S(() => { const s = window.__phlippoStore.getState(); if (s.featureEdit) s.commitFeature(); else if (s.planeEdit) s.commitPlane(); else if (s.refEdit) s.commitRefGeom(); });
     await settle(page);
     const n1 = (await editState()).n;
     committed = n1 > n0;
     await cancelAll();
     // Undo until the part is as it was (the command may have added a feature, a weldment folder or nothing)
-    for (let k = 0; k < 4 && (await editState()).n > n0; k++) { await S(() => window.__phlippoStore.getState().undo()); await page.waitForTimeout(120); }
+    for (let k = 0; k < 4 && (await editState()).n > n0; k++) { await S(() => window.__phlippoStore.getState().undo()); await page.waitForTimeout(120); } // fixed: poll interval
   } catch (err) {
     errors.push(`pageerror: ${label}: ${String(err?.message ?? err).split('\n')[0]}`);
   }

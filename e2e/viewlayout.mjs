@@ -19,7 +19,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 // keep the three standard views and the isometric; section / detail views come from the other tests
@@ -31,7 +31,7 @@ const toPx = (p) => page.evaluate((q) => window.__phlippoSheet.toPx(q), p);
 const V = () => page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.map((v) => ({ id: v.id, type: v.type, pos: v.position, crop: v.crop, brk: v.break, aux: v.aux })));
 const bounds = (id) => page.evaluate((vid) => { const st = window.__phlippoStore.getState(); const v = st.doc.sheets[0].views.find((x) => x.id === vid); const g = window.__phlippoKit.projectedView(v.model, v.type); return { min: g.min, max: g.max }; }, id);
 const v2s = (id, p) => page.evaluate(([vid, q]) => window.__phlippoSheet.viewToSheet(vid, q), [id, p]);
-const click = async (sheetPt) => { const q = await toPx(sheetPt); await page.mouse.click(q.x, q.y); await page.waitForTimeout(150); };
+const click = async (sheetPt) => { const q = await toPx(sheetPt); await page.mouse.click(q.x, q.y); await settle(page); };
 await page.click('.k-cm-tab:has-text("Drawing")');
 
 // clicking a view on the sheet opens its Property Panel; Display Style changes the view
@@ -144,7 +144,7 @@ await page.evaluate((model) => {
 await settle(page);
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-big:has-text("Tables") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 const rows = await page.evaluate(() => [...document.querySelectorAll('[data-testid="bom-table"] text')].map((t) => t.textContent));
 check('Bill of Materials table: header ITEM NO. / PART NUMBER / DESCRIPTION / QTY.', rows.slice(0, 4).join('|') === 'ITEM NO.|PART NUMBER|DESCRIPTION|QTY.', rows.slice(0, 4).join('|'));
 check('Bill of Materials lists every part once with its quantity (6 rows incl. the screws)', rows.length === 4 * 7, rows.join('|'));

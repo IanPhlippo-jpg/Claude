@@ -25,18 +25,22 @@ import { pointDeform } from './deform';
 import { fitPlane } from './surfaces';
 import { pickByVolume } from './brepTool';
 
-/** an imported mesh: a body of its own */
+/** an imported body: its mesh, or with the B-rep kernel the exact solid of the STEP file it came from (docs/32 item 5) */
 export function buildImported(f: Extract<Feature, { type: 'imported' }>, _body: Body | undefined, ctx: RebuildCtx): void {
-  const { errors, addBoss, newBody } = ctx;
+  const { errors, warnings, addBoss, newBody, K } = ctx;
   if (f.positions.length < 9) {
     errors[f.id] = 'The imported file has no triangles.';
     return;
   }
-  const g = geometryFromPositions(f.positions);
+  let shape: BrepShape | null = null;
+  if (f.step && K?.fromStep) {
+    try { shape = K.fromStep(f.step); } catch { shape = null; }
+    if (!shape) warnings[f.id] = 'The exact solid of the STEP file could not be read again: the body is the stored mesh.';
+  }
   try {
-    // an imported mesh is its own body (merge it with Combine)
-    newBody(g, f.id);
-    addBoss(g);
+    // an imported body is its own body (merge it with Combine); with its exact solid the geometry is that solid's
+    const b = newBody(geometryFromPositions(f.positions), f.id, shape);
+    addBoss(b.geometry);
   } catch (err) {
     errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
   }

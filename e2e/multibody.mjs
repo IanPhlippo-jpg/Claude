@@ -4,7 +4,7 @@ import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -18,12 +18,12 @@ page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + 
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 const B = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { bodies: s.rebuild.bodies.map((b) => b.id), hidden: s.doc.hiddenBodies ?? [], mats: s.doc.bodyMaterials ?? {}, errors: s.rebuild.errors, features: s.doc.features.map((f) => f.name) }; });
 
-const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
+const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await frames(page); } };
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
@@ -35,10 +35,10 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
     await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
     if (await page.waitForFunction(() => !!window.__phlippoStore.getState().activeSketchId, undefined, { timeout: 8000 }).then(() => true, () => false)) break;
   }
-  await page.waitForTimeout(600);
+  await settle(page);
   // the same zoom for every sketch: 4 px per mm around the viewport centre
   await page.evaluate(() => { const c = window.__phlippoCamera; const vp = document.querySelector('.k-viewport').getBoundingClientRect(); c.zoomAt(vp.width / 2, vp.height / 2, 0.25 / c.scale); });
-  await page.waitForTimeout(200);
+  await settle(page);
   // a slow runner drops a click now and then, and draws the view animation late: every attempt waits for the
   // camera, projects the corners again (sketch millimetres to the screen), waits for the tool, and draws until the
   // four lines of the rectangle are in the sketch (an empty sketch gives no Extruded Boss PM)
@@ -51,13 +51,13 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
     await page.waitForFunction(() => !window.__phlippoCamera.anim, undefined, { timeout: 15000 }).catch(() => undefined);
     // the normal-to animation may end after the zoom above and set its own scale: 4 px per mm again, once it has ended
     await page.evaluate(() => { const c = window.__phlippoCamera; const vp = document.querySelector('.k-viewport').getBoundingClientRect(); c.zoomAt(vp.width / 2, vp.height / 2, 0.25 / c.scale); });
-    await page.waitForTimeout(200);
+    await settle(page);
     const pa = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x0, y0]);
     const pb = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x1, y1]);
     await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
     await page.waitForFunction(() => window.__phlippoStore.getState().tool === 'rectangle', undefined, { timeout: 5000 }).catch(() => undefined);
     await page.mouse.click(pa.x, pa.y);
-    await page.waitForTimeout(100);
+    await frames(page);
     await page.mouse.click(pb.x, pb.y);
     const drawn = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && Object.values(sk.entities).filter((e) => e.kind === 'line').length >= 4; }, undefined, { timeout: 5000 }).then(() => true, () => false);
     if (drawn) break;
@@ -82,11 +82,11 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
     if (!pmOpen) await page.keyboard.press('Escape');
   }
   await page.locator('.k-pm-valuerow input.k-num').first().waitFor({ timeout: 60000 });
-  await page.waitForTimeout(400);
+  await settle(page);
   await page.locator('.k-pm-valuerow input.k-num').first().fill(String(depth));
   await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
   if (!merge) await page.locator('.k-check:has-text("Merge result") input').uncheck();
-  await page.waitForTimeout(300);
+  await settle(page);
   await page.click('.k-pm-ok');
   await settle(page);
 };
@@ -105,7 +105,7 @@ await expandTree();
 // Hide Body on the second body
 await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2")').first().click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Hide Body")');
-await page.waitForTimeout(400);
+await settle(page);
 b = await B();
 check('Hide Body stores the hidden body', b.hidden.length === 1);
 const drawn = await page.evaluate(() => { const bs = window.__phlippoBodyScene; return bs && bs.group ? bs.group.children.filter((o) => o.type === 'Mesh' && o.name).length : -1; });
@@ -113,7 +113,7 @@ check('hidden body is not drawn', drawn === 1 || drawn === -1, String(drawn));
 await shot('m2-hidden-body');
 await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2")').first().click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Show Body")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Show Body', (await B()).hidden.length === 0);
 
 // Material per body: 1060 Alloy on body 2
@@ -124,12 +124,12 @@ await page.click('.k-material-cat:has-text("Aluminium Alloys")');
 await page.click('.k-material-item:has-text("1060 Alloy")');
 await page.click('.k-material .k-dialog-actions button:has-text("Apply")');
 await page.click('.k-material .k-dialog-actions button:has-text("Close")');
-await page.waitForTimeout(400);
+await settle(page);
 b = await B();
 check('material stored for body2 only', Object.keys(b.mats).length === 1 && Object.values(b.mats)[0].name === '1060 Alloy' && !(await page.evaluate(() => window.__phlippoStore.getState().doc.material)), JSON.stringify(b.mats));
 // the body's material is a row of its own under the body, by design
 await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2") .caret').first().click();
-await page.waitForTimeout(150);
+await settle(page);
 check('tree shows the material as a row under the body', (await page.locator('.k-tree-row[data-id^="bodymat-"]:has-text("1060 Alloy")').count()) === 1);
 await shot('m3-body-material');
 
@@ -143,7 +143,7 @@ check('tree shows Solid Bodies(3)', (await page.locator('.k-tree-row:has-text("S
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Insert")');
 await menuPath(page, 'Features ▸ Combine…').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Combine PM with Operation Type and Bodies to Combine', (await page.locator('.k-pm-title').innerText()).includes('Combine1') && (await page.locator('.k-section:has-text("Bodies to Combine")').count()) === 1);
 // keep only body1 and body3 ticked
 const boxes = page.locator('.k-section:has-text("Bodies to Combine") input[type=checkbox]');
@@ -164,7 +164,7 @@ await shot('m5-combined');
 // Feature Scope: a cut through everything only touches the body it reaches
 await page.keyboard.press('Escape');
 await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
-await page.waitForTimeout(600);
+await settle(page);
 await page.evaluate(() => window.__phlippoZoomFit());
 await settle(page);
 const cc = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 0 }));
@@ -176,7 +176,7 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Cut") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-section:has-text("Direction 1") select.k-input').first().selectOption('throughAll');
 check('Feature Scope section appears with several bodies', (await page.locator('.k-section:has-text("Feature Scope")').count()) === 1);
 await page.click('.k-pm-ok');
@@ -188,7 +188,7 @@ check('cut applied without errors; bodies unchanged', b.bodies.length === 2 && O
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
-await page.waitForTimeout(800);
+await settle(page);
 b = await B();
 check('reload keeps the bodies, the material and Combine1', b.bodies.length === 2 && Object.keys(b.mats).length === 1 && b.features.includes('Combine1'), JSON.stringify(b));
 

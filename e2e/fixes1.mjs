@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,9 +21,9 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(400);
+await settle(page);
 // since 0.3.2 (QA F15) the graphics area has no watermark, by design
 check('an empty part shows no watermark logo in the graphics area', (await page.locator('[data-testid="bg-logo"], .k-bg-logo').count()) === 0);
 await shot('fx0-empty-logo');
@@ -32,12 +32,12 @@ await shot('fx0-empty-logo');
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 
 // the rectangle flyout opens above the tab strip (not clipped by the Command Ribbon)
 await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Corner Rectangle"]) .k-cm-small-arrow');
-await page.waitForTimeout(200);
+await settle(page);
 const menu = await page.evaluate(() => { const m = [...document.querySelectorAll('.k-menu')].find((x) => /Center Rectangle/.test(x.textContent)); if (!m) return null; const r = m.getBoundingClientRect(); const tabs = document.querySelector('.k-cm-tabs').getBoundingClientRect(); const top = document.elementFromPoint(r.left + 20, Math.min(r.bottom - 8, tabs.bottom + 4)); return { inBody: m.parentElement === document.body, bottom: r.bottom, tabsBottom: tabs.bottom, onTop: !!top && m.contains(top) }; });
 check('the Corner/Center Rectangle flyout is drawn above the tab strip', menu && menu.inBody && menu.bottom > menu.tabsBottom && menu.onTop, JSON.stringify(menu));
 await page.mouse.move(5, 900);
@@ -48,7 +48,7 @@ await page.keyboard.press('Escape');
 await page.evaluate(() => window.__phlippoStore.getState().setTool('centerRectangle'));
 let p = await P(0, 0); await page.mouse.click(p.x, p.y);
 p = await P(40, 20); await page.mouse.click(p.x, p.y);
-await page.waitForTimeout(300);
+await settle(page);
 let L = await S();
 const solid = L.filter((l) => !l.c);
 const xs = solid.flatMap((l) => [l.a.x, l.b.x]), ys = solid.flatMap((l) => [l.a.y, l.b.y]);
@@ -59,10 +59,10 @@ await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'))
 await settle(page);
 await page.click('[data-testid="rect-construction"]');
 await page.click('[data-testid="rect-midpoints"]');
-await page.waitForTimeout(100);
+await frames(page);
 p = await P(60, 30); await page.mouse.click(p.x, p.y);
 p = await P(120, 70); await page.mouse.click(p.x, p.y);
-await page.waitForTimeout(300);
+await settle(page);
 L = await S();
 check('Corner Rectangle ▸ Add construction lines (From Midpoints) adds two construction lines', L.filter((l) => l.c).length === 4 && L.filter((l) => !l.c).length === 8, JSON.stringify(L.filter((l) => l.c).length));
 

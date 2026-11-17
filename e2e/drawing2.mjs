@@ -22,16 +22,16 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk-tekening.kcad', 'utf8')); delete tek.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
-await page.waitForTimeout(2500);
+await settle(page);
 const sheet = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const sh = s.doc.sheets[0]; return { id: sh.id, name: sh.name, views: sh.views.map((v) => ({ id: v.id, rel: !!v.relative, empty: !!v.empty, pre: !!v.predefined, model: v.model.name })), notes: sh.notes.map((n) => ({ id: n.id, text: n.text, fs: n.fontSize, bold: n.bold })), tables: (sh.tables ?? []).map((t) => t.kind), ml: (sh.magneticLines ?? []).length, other: (s.doc.otherSheets ?? []).length, zones: sh.format?.zones }; });
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoSheet.toPx([x, y]), [x, y]);
-const clickSheet = async (x, y) => { const p = await P(x, y); await page.mouse.click(p.x, p.y); await page.waitForTimeout(300); };
+const clickSheet = async (x, y) => { const p = await P(x, y); await page.mouse.click(p.x, p.y); await settle(page); };
 const v0 = (await sheet()).views.length;
 
 // Relative View
 await page.click('.k-cm-tab:text-is("Drawing")');
 await page.click('.k-cm-big:has-text("Relative View")');
-await page.waitForTimeout(500);
+await settle(page);
 const opts = await page.locator('[data-testid="relview-front"] option').count();
 check('Relative View lists the planar faces of the model', opts >= 4, String(opts));
 // pick two perpendicular faces automatically
@@ -47,7 +47,7 @@ await page.evaluate(() => {
     }
   }
 });
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="relview-ok"]');
 await clickSheet(330, 60);
 let st = await sheet();
@@ -60,9 +60,9 @@ await page.click('.k-cm-small:has-text("Predefined View")');
 await clickSheet(90, 40);
 st = await sheet();
 check('Empty View and Predefined View are placed', st.views.some((v) => v.empty) && st.views.some((v) => v.pre), JSON.stringify(st.views.map((v) => [v.empty, v.pre])));
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="insert-model"]').first().click();
-await page.waitForTimeout(800);
+await settle(page);
 st = await sheet();
 check('Predefined View ▸ Insert Model fills the view', !st.views.some((v) => v.pre), JSON.stringify(st.views.map((v) => [v.pre, v.model])));
 
@@ -88,7 +88,7 @@ await settle(page);
 const nNotes = (await sheet()).notes.length;
 check('Linear Note Pattern makes the copies (3 in X)', nNotes === st.notes.length + 2, `${st.notes.length} -> ${nNotes}`);
 await page.click('.k-cm-big:has-text("Spell Checker")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Spell Checker lists the notes with the spell checker on', (await page.locator('[data-testid="spell-check"] textarea[spellcheck="true"]').count()) >= 2);
 await page.click('[data-testid="spell-check"] button:has-text("Close")');
 
@@ -111,7 +111,7 @@ await page.evaluate(() => window.__phlippoStore.getState().setDialog('generalTab
 await page.click('[data-testid="gt-insert"]');
 await page.locator('[data-testid="gt-cells"] input').nth(3).fill('Ra 1.6');
 await page.click('[data-testid="general-table"] button:has-text("Close")');
-await page.waitForTimeout(400);
+await settle(page);
 st = await sheet();
 check('Hole Table and General Table are on the sheet', st.tables.includes('hole') && st.tables.includes('general') && (await page.locator('[data-testid="hole-table"]').count()) === 1 && (await page.locator('[data-testid="general-table"]').count()) === 1, JSON.stringify(st.tables));
 await page.screenshot({ path: `${OUT}/drw2-sheet.png` });
@@ -121,18 +121,18 @@ await page.click('.k-cm-tab:has-text("Sheet Format")');
 await page.click('.k-cm-big:has-text("Edit Sheet Format")');
 await settle(page);
 await page.locator('[data-testid="fmt-zones"]').uncheck();
-await page.waitForTimeout(200);
+await settle(page);
 check('Edit Sheet Format switches the zone labels off', (await sheet()).zones === false);
 await page.evaluate(() => window.__phlippoStore.getState().cancelDrawingEdit());
 
 // Add Sheet and switch back
 const first = (await sheet()).id;
 await page.click('[data-testid="add-sheet"]');
-await page.waitForTimeout(400);
+await settle(page);
 st = await sheet();
 check('Add Sheet makes Sheet2 active (empty)', st.id !== first && st.views.length === 0 && st.other === 1 && (await page.locator('[data-testid="sheet-tab"]').count()) === 2, JSON.stringify({ name: st.name, other: st.other }));
 await page.locator('[data-testid="sheet-tab"]').first().click();
-await page.waitForTimeout(800);
+await settle(page);
 st = await sheet();
 check('clicking the first sheet tab shows its views again', st.id === first && st.views.length > 3);
 await page.screenshot({ path: `${OUT}/drw2-sheets.png` });

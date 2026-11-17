@@ -4,6 +4,7 @@
 // node e2e/tools/compare-baseplate.mjs
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { settle } from '../lib/wait.mjs';
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
@@ -34,14 +35,14 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k1' }); window.__phlippoStore.getState().startFeature('extrude', 'boss'); window.__phlippoStore.getState().updateFeatureDraft({ depth: 35 }); });
-await page.waitForTimeout(800);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/app-111.png' });
 // the reference sets 10 mm before OK
 await page.evaluate(() => { window.__phlippoStore.getState().updateFeatureDraft({ depth: 10 }); window.__phlippoStore.getState().commitFeature(); });
 await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies.every((b) => b.exact), null, { timeout: 30000 }).catch(() => undefined);
-await page.waitForTimeout(600);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/app-118.png' });
 await browser.close();
 const py = `

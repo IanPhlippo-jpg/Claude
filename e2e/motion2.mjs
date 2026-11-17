@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -33,7 +33,7 @@ await S(({ pin, rozet }) => {
 }, { pin, rozet });
 await settle(page);
 await page.click('[data-testid="motion-tab"]');
-await page.waitForTimeout(300);
+await settle(page);
 await page.selectOption('[data-testid="motion-type"]', 'basic');
 await page.click('[data-testid="motion-gravity"]');
 await settle(page);
@@ -44,10 +44,10 @@ await page.click('[data-testid="motion-edit-ok"]');
 await settle(page);
 check('Gravity and Contact1 in the Motion Timeline tree', (await page.locator('.k-motion-row:has-text("Gravity")').count()) === 1 && (await page.locator('.k-motion-row:has-text("Contact1")').count()) === 1);
 await page.click('[data-testid="motion-calc"]');
-await page.waitForTimeout(400);
+await page.waitForFunction(() => !!window.__phlippoStore.getState().motionSim, undefined, { timeout: 30000 }).catch(() => undefined); await frames(page, 2);
 const sim = await S(() => { const s = window.__phlippoStore.getState().motionSim; return s ? s.frames.p?.slice(-1)[0] : null; });
 check('Basic Motion: the pin falls and stops on the rosette', sim && sim[1] < -5 && sim[1] > -70, JSON.stringify(sim));
-await page.waitForTimeout(5500);
+await page.waitForTimeout(5500); // fixed: the calculated motion plays back before the photo
 await page.screenshot({ path: `${OUT}/motion2-basic.png` });
 
 // Animation Wizard: rotate the model once about Y
@@ -87,7 +87,7 @@ check('Linear motor with Distance profile', motor.kind === 'linear' && motor.mot
 
 // Results and Plots
 await page.click('[data-testid="motion-plot"]');
-await page.waitForTimeout(300);
+await page.locator('[data-testid="plot-svg"]').first().waitFor({ timeout: 10000 }).catch(() => undefined);
 check('Results and Plots: a graph of the displacement', (await page.locator('[data-testid="plot-svg"] polyline').count()) === 1);
 await page.screenshot({ path: `${OUT}/motion2-plot.png` });
 await S(() => window.__phlippoStore.setState({ motionEdit: null }));

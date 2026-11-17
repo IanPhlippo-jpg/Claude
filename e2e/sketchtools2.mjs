@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -20,16 +21,16 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
-const click = async (x, y) => { const q = await P(x, y); await page.mouse.move(q.x, q.y); await page.waitForTimeout(50); await page.mouse.click(q.x, q.y); };
+const click = async (x, y) => { const q = await P(x, y); await page.mouse.move(q.x, q.y); await frames(page, 3); await page.mouse.click(q.x, q.y); };
 const sk = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const k = s.doc.sketches[s.activeSketchId]; return { ents: k.entityOrder.map((id) => { const e = k.entities[id]; return e.kind === 'arc' || e.kind === 'circle' ? { kind: e.kind, c: [k.points[e.center].x, k.points[e.center].y], r: k.scalars[e.r], con: e.construction } : { kind: e.kind }; }), cons: k.constraintOrder.map((id) => ({ kind: k.constraints[id].kind, value: k.constraints[id].value })) }; });
-const fly = async (tip, label) => { await page.locator(`.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="${tip}"]) .k-cm-iconarrow, .k-cm-iconfly:has(.k-cm-iconbtn[data-tip="${tip}"]) button:not(.k-cm-iconbtn)`).first().click(); await page.click(`.k-menu-item:has-text("${label}")`); await page.waitForTimeout(150); };
+const fly = async (tip, label) => { await page.locator(`.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="${tip}"]) .k-cm-iconarrow, .k-cm-iconfly:has(.k-cm-iconbtn[data-tip="${tip}"]) button:not(.k-cm-iconbtn)`).first().click(); await page.click(`.k-menu-item:has-text("${label}")`); await settle(page); };
 // a line, then a Tangent Arc from its end
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
 await click(0, 0); await click(40, 0);
@@ -58,9 +59,9 @@ await shot('st2-new-tools');
 // Horizontal Dimension of the line: 40
 await page.evaluate(() => window.__phlippoStore.getState().setTool('hdim'));
 await click(20, 0); await click(20, -15);
-await page.waitForTimeout(300);
+await settle(page);
 await page.keyboard.press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 s = await sk();
 const hd = s.cons.find((c) => c.kind === 'hDistance');
 check('Horizontal Dimension of the line = 40', hd && Math.abs(hd.value - 40) < 0.01, JSON.stringify(s.cons));

@@ -5,14 +5,14 @@ import { createDocument } from '../document/types';
 import { addLine, addPolygon, createSketch, newId } from '../sketch/model';
 import { resolvePlaneDef } from '../features/planes';
 import { componentMatrix } from './assembly';
-import { isLibrarySize, requiredScrewLength, screwLengthFor, sizeForClearanceHole, type ClearanceSeries } from '../library/iso';
-import { socketHeadCapScrew } from '../library/parts';
+import { lengthFor, requiredScrewLength, sizeForClearanceHole, type ClearanceSeries } from '../library/iso';
+import { standardLengths, standardPart, type StandardId } from '../library/parts';
 
 type Id = string;
 
-/** Fastener types of the toolbox (ISO): socket head cap screw, countersunk socket screw, hex bolt. */
+/** Fastener types of Auto Fasteners (ISO): socket head cap screw, countersunk socket screw, hex head screw. */
 export type FastenerType = 'shcs' | 'csk' | 'hex';
-export const FASTENER_NAMES: Record<FastenerType, string> = { shcs: 'Socket Head Cap Screw ISO 4762', csk: 'Countersunk Socket Screw ISO 10642', hex: 'Hex Bolt ISO 4017' };
+export const FASTENER_NAMES: Record<FastenerType, string> = { shcs: 'Socket Head Cap Screw ISO 4762', csk: 'Countersunk Socket Screw ISO 10642', hex: 'Hex Head Screw ISO 4017' };
 const STD: Record<FastenerType, string> = { shcs: 'ISO 4762', csk: 'ISO 10642', hex: 'ISO 4017' };
 
 /** M size: nominal d, clearance hole (ISO 273 normal), tap drill; SHCS head dk/k/socket s; CSK head; hex across flats/head height. */
@@ -26,28 +26,37 @@ export const METRIC: { size: string; d: number; clear: number; tap: number; dk: 
   { size: 'M12', d: 12, clear: 13.5, tap: 10.2, dk: 18, k: 12, s: 10, csk: 24, hs: 18, hk: 7.5 },
   { size: 'M16', d: 16, clear: 17.5, tap: 14, dk: 24, k: 16, s: 14, csk: 30, hs: 24, hk: 10 },
   { size: 'M20', d: 20, clear: 22, tap: 17.5, dk: 30, k: 20, s: 17, csk: 36, hs: 30, hk: 12.5 },
+  { size: 'M24', d: 24, clear: 26, tap: 21, dk: 36, k: 24, s: 19, csk: 48, hs: 36, hk: 15 },
 ];
 export const LENGTHS = [6, 8, 10, 12, 16, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80, 90, 100, 110, 120, 140, 160];
 
-/** Smallest standard length of at least the given length. */
+/** Smallest length of the general series of at least the given length. */
 export const standardLength = (min: number) => LENGTHS.find((l) => l >= min - 1e-6) ?? LENGTHS[LENGTHS.length - 1];
 
-/**
- * The length of a fastener through the grip: a tapped hole takes the grip, a clearance hole a washer, a nut and two
- * pitches beyond it; a socket head cap screw of M3 to M12 takes a length of its standard's range (Standard Parts).
- */
-export function fastenerLength(type: FastenerType, size: string, grip: number, tapped = false): number {
-  const need = requiredScrewLength(size, grip, tapped);
-  return type === 'shcs' && isLibrarySize(size) ? screwLengthFor(size, need) : standardLength(need);
+/** the Standard Parts standard of each fastener type (its sizes and lengths come from that standard's table) */
+const LIBRARY_STD: Record<FastenerType, StandardId> = { shcs: 'iso4762', csk: 'iso10642', hex: 'iso4017' };
+
+/** the nominal lengths of a fastener: the range of its standard for the size, else the general series */
+export function fastenerLengths(type: FastenerType, size: string): number[] {
+  const ls = standardLengths(LIBRARY_STD[type], size);
+  return ls.length ? ls : LENGTHS;
 }
 
 /**
- * A fastener part as the toolbox makes it: axis along +Z, the bearing face of the head at Z = 0 (for a countersunk
+ * The length of a fastener through the grip: a tapped hole takes the grip, a clearance hole a washer, a nut and two
+ * pitches beyond it; the length is the shortest of the standard's range for the size (Standard Parts) that reaches it.
+ */
+export function fastenerLength(type: FastenerType, size: string, grip: number, tapped = false): number {
+  return lengthFor(fastenerLengths(type, size), requiredScrewLength(size, grip, tapped));
+}
+
+/**
+ * A fastener part as Auto Fasteners places it: axis along +Z, the bearing face of the head at Z = 0 (for a countersunk
  * screw the top of the head), the shank down to Z = -length; a hexagon socket (or a hexagon head for the bolt).
  */
 export function fastenerPart(type: FastenerType, size: string, length: number): Document {
-  // M3 to M12 socket head cap screws come from the Standard Parts (the dimensions of ISO 4762)
-  if (type === 'shcs' && isLibrarySize(size)) return socketHeadCapScrew(size, length);
+  // the sizes the standard defines come from the Standard Parts (ISO 4762, ISO 10642, ISO 4017 to their tables)
+  if (standardLengths(LIBRARY_STD[type], size).length) return standardPart({ standard: LIBRARY_STD[type], size, length });
   const m = METRIC.find((x) => x.size === size) ?? METRIC[3];
   const doc = createDocument(`${STD[type]} ${m.size} x ${length}`);
   const r = m.d / 2;

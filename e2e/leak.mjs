@@ -33,20 +33,20 @@ const openBlock = () => S(() => {
 const mem = () => S(() => { const i = window.__phlippoRenderer.info; return { geometries: i.memory.geometries, textures: i.memory.textures, programs: (i.programs ?? []).length }; });
 
 await openBlock();
-await page.waitForTimeout(800);
+await settle(page);
 // warm-up: the first edits create the shared materials and programs
-for (let k = 0; k < 5; k++) { await S((d) => { const st = window.__phlippoStore.getState(); st.applyDocument('Depth', { ...st.doc, features: st.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: d } : f)) }); }, 10 + k); await page.waitForTimeout(60); }
+for (let k = 0; k < 5; k++) { await S((d) => { const st = window.__phlippoStore.getState(); st.applyDocument('Depth', { ...st.doc, features: st.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: d } : f)) }); }, 10 + k); await page.waitForTimeout(60); } // fixed: edits in quick succession are the stress under test
 // on the release path the exact bodies arrive later and bring their own materials and programs: the baseline is
 // taken once they are in and one round trip is done (a slow runner showed 2 -> 10 textures as a one-time step)
 await waitSettled(page);
-await page.waitForTimeout(400);
+await settle(page);
 const m0 = await mem();
 for (let k = 0; k < 75; k++) {
   await S((d) => { const st = window.__phlippoStore.getState(); st.applyDocument('Depth', { ...st.doc, features: st.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: d } : f)) }); }, 12 + (k % 9));
-  await page.waitForTimeout(40);
+  await page.waitForTimeout(40); // fixed: edits in quick succession, the cadence is the test
 }
 await waitSettled(page);
-await page.waitForTimeout(500);
+await settle(page);
 const m1 = await mem();
 check('75 feature edits keep the GPU geometries flat', m1.geometries <= m0.geometries + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m1)}`);
 check('75 feature edits keep the textures and programs flat', m1.textures <= m0.textures + 1 && m1.programs <= m0.programs + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m1)}`);
@@ -54,10 +54,10 @@ for (let k = 0; k < 10; k++) {
   await S(() => window.__phlippoStore.getState().openDocument(window.__phlippoKit.createDocument('Leeg')));
   await settle(page);
   await openBlock();
-  await page.waitForTimeout(250);
+  await settle(page);
 }
 await waitSettled(page);
-await page.waitForTimeout(500);
+await settle(page);
 const m2 = await mem();
 check('10 New/Open cycles keep the GPU memory flat', m2.geometries <= m0.geometries + 2 && m2.textures <= m0.textures + 1 && m2.programs <= m0.programs + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m2)}`);
 console.log('memory', JSON.stringify({ start: m0, edits: m1, newOpen: m2 }));

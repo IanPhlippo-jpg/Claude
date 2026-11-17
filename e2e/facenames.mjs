@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle as settleApp } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -23,11 +24,11 @@ for (const kernel of ['mesh', 'brep']) {
   await page.reload();
   await page.waitForSelector('.k-viewport');
   await page.click('.k-doctype:has-text("Part")');
-  await page.waitForTimeout(300);
+  await settleApp(page);
   const exactNow = () => page.waitForFunction(() => { const r = window.__phlippoStore.getState().rebuild; return !r.pending && r.bodies.length > 0 && r.bodies.every((b) => b.exact); }, null, { timeout: 60_000 });
   const settle = async () => {
     if (kernel === 'brep') await exactNow();
-    else await page.waitForTimeout(400);
+    else await settleApp(page);
   };
   await page.evaluate(() => {
     const K = window.__phlippoKit;
@@ -70,7 +71,7 @@ for (const kernel of ['mesh', 'brep']) {
   check(`${kernel}: the fillet stayed on the step edge (now at height 60)`, !(await sharpAt(30, 60)));
   check(`${kernel}: the nearer equal edge (60, 10) stayed sharp`, await sharpAt(60, 10));
   await page.keyboard.press('f');
-  await page.waitForTimeout(400);
+  await settleApp(page);
   await page.screenshot({ path: `${OUT}/facenames-${kernel}.png` });
 }
 

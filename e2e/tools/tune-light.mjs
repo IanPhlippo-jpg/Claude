@@ -2,6 +2,7 @@
 // the three visible faces sit on screen, so the colours can be sampled against calibration frame 0118.
 import { chromium } from 'playwright';
 import { writeFileSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:5173/');
@@ -22,9 +23,9 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 await page.evaluate(() => window.__phlippoZoomFit());
-await page.waitForTimeout(400);
+await settle(page);
 // sample points: top face (away from the hole), +z face, +x face
 const pts = await page.evaluate(() => ({ top: window.__phlippoProjectWorld(-28, 10, 28), front: window.__phlippoProjectWorld(-20, 5, 40), right: window.__phlippoProjectWorld(40, 5, -20), topB: window.__phlippoProjectWorld(28, 10, -28) }));
 const candidates = JSON.parse(process.env.CANDIDATES ?? '[{"name":"current"}]');
@@ -42,7 +43,7 @@ for (const c of candidates) {
     if (c.shin !== undefined) window.__phlippoBodyScene.faceMat.shininess = c.shin;
     window.__phlippoCamera.update();
   }, c);
-  await page.waitForTimeout(250);
+  await settle(page);
   const file = `e2e-out/tune-${c.name}.png`;
   await page.screenshot({ path: file });
   out.shots.push({ name: c.name, file });

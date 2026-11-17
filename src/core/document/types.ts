@@ -1043,7 +1043,7 @@ export interface LoftFeature {
   scope?: Id[];
 }
 
-/** Imported mesh body (STL): the triangles are stored in the document, in model units. */
+/** Imported body (STL, STEP): the triangles are stored in the document, in model units (the mesh kernel builds from them). */
 export interface ImportedFeature {
   id: Id;
   type: 'imported';
@@ -1051,8 +1051,8 @@ export interface ImportedFeature {
   suppressed: boolean;
   /** flat xyz triangle positions */
   positions: number[];
-  /** source file name */
-  source: string;
+  /** source file name */ source: string;
+  /** STEP text (mm) of the one exact solid of a STEP import: the B-rep kernel builds the body from it (docs/32 item 5) */ step?: string;
 }
 
 export type SolidFeature = CurvePointsFeature | CompositeCurveFeature | ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature | PlasticsFeature;
@@ -1331,7 +1331,7 @@ export interface DrawingView {
   bendLines?: boolean;
   bendNotes?: boolean;
   /** Projected View ▸ Arrow: a viewing arrow at the parent view and VIEW X under this view */
-  arrowLabel?: string;
+  arrowLabel?: string; /** Tangent Edge: how the tangent edges show (absent: removed, as views made before 0.5.16) */ tangentEdges?: 'visible' | 'font' | 'hideEnds' | 'removed';
 }
 
 /** A dimension on a drawing view (view coordinates in model mm). */
@@ -1358,7 +1358,7 @@ export interface DrawingDimension {
   arrows?: 'outside' | 'inside' | 'smart';
   fontSize?: number;
   /** Use document second arrow off: the style of the second arrowhead */
-  secondArrow?: 'closed' | 'open' | 'dot' | 'slash';
+  secondArrow?: 'closed' | 'open' | 'dot' | 'slash'; /** inserted from the model (Model Items); its geometry is gone (Replace Model) */ model?: boolean; dangling?: boolean;
 }
 
 export interface DrawingNote {
@@ -1400,7 +1400,7 @@ export interface DrawingSymbol {
   b?: [number, number];
   /** Weld Symbol ▸ contour; balloon leader end (dot on a face, arrow on an edge) */
   contour?: 'fillet' | 'square' | 'vgroove';
-  head?: 'dot' | 'arrow';
+  head?: 'dot' | 'arrow'; /** Replace Model: the geometry the leader points at is gone */ dangling?: boolean;
 }
 
 export interface DrawingSheet {
@@ -1414,8 +1414,8 @@ export interface DrawingSheet {
   showFormat: boolean;
   views: DrawingView[];
   dimensions: DrawingDimension[];
-  notes: DrawingNote[];
-  centerMarks: { id: Id; viewId: Id; c: [number, number]; r: number }[];
+  notes: DrawingNote[]; // a centre mark: a hole, a slot or linear set (c to c2) or a bolt circle (radius r)
+  centerMarks: { id: Id; viewId: Id; c: [number, number]; r: number; kind?: 'slot' | 'linear' | 'circular'; c2?: [number, number]; dangling?: boolean }[];
   symbols?: DrawingSymbol[];
   /** Tables: Bill of Materials (anchored top right), Hole Table of a view, General Table (cells) at a position */
   tables?: { id: Id; kind: 'bom' | 'hole' | 'general'; viewId: Id; position?: [number, number]; cells?: string[][] }[];

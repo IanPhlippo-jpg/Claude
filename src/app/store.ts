@@ -47,7 +47,8 @@ import { solveSketch, solveSketchCached, type SolveResult } from '../core/solver
 import type { SelectionItem } from '../core/sketch/relations';
 import { applyEquations, evaluateFieldExpression, FILE_PROPERTIES, type Equation } from '../core/document/equations';
 import { equationEnv } from '../ui/equationMenu';
-import { onPrefsChanged, type PrefValue } from './prefs';
+import { getPref, onPrefsChanged, type PrefValue } from './prefs';
+import { setDragGhost } from './prefsSketch';
 import { rebuildAssembly } from '../core/assembly/assembly';
 import { type SheetMetalParams } from '../core/features/sheetmetal';
 import { isAssembly, isDrawing, type DrawingSymbol, type DrawingView as DrawingViewT, type ComponentPattern, type ExplodeStep, type Component, type DrawingDimension, type DrawingSheet, type DrawingView, type DrawingViewType, type Mate, type MateRef } from '../core/document/types';
@@ -894,7 +895,7 @@ export interface State extends PlasticsActions {
   startStandardThreeViews(): void;
   selectDrawingView(id: Id | null): void;
   /** Drawing View Property Panel: display style / scale of a placed view */
-  updateDrawingView(id: Id, patch: Partial<Pick<DrawingViewT, 'displayStyle' | 'scale' | 'configuration' | 'model' | 'draftQuality' | 'trueDims' | 'threadDraft'>>): void;
+  updateDrawingView(id: Id, patch: Partial<Pick<DrawingViewT, 'displayStyle' | 'scale' | 'configuration' | 'model' | 'draftQuality' | 'trueDims' | 'threadDraft' | 'tangentEdges'>>): void;
   moveDrawingView(id: Id, position: [number, number]): void;
   commitViewMove(id: Id): void;
   deleteDrawingView(id: Id): void;
@@ -1017,7 +1018,7 @@ export interface State extends PlasticsActions {
   setDimensionEquation(constraintId: Id, expression: string | null): void;
   /** add an imported mesh (STL) as a feature; a fresh document is named after the file */
   /** an imported file (STL: one mesh; STEP: one mesh per solid) as Imported features, one per body */
-  importMesh(source: string, positions: number[] | number[][]): void;
+  importMesh(source: string, positions: number[] | number[][], steps?: (string | undefined)[]): void;
   setUnits(u: Units): void;
   /** drag in the design tree: the feature (with its absorbed sketches) right below another one (null: to the top);
    *  false when the move is not allowed (parent/child) or would make a feature fail */
@@ -1134,7 +1135,9 @@ export function historyFlags() {
   return { canUndo: history.canUndo, canRedo: history.canRedo, undoLabel: history.undoLabel, redoLabel: history.redoLabel };
 }
 
-export const initialDoc = (typeof localStorage !== 'undefined' && loadAutosave()) || createDocument();
+/** the desktop app keeps its autosave on disk (P2-6) and starts with a new document; Document Recovery offers the copies */
+const diskAutosave = typeof window !== 'undefined' && !!(window as { phlippoDesktop?: { writeRecover?: unknown } }).phlippoDesktop?.writeRecover && getPref('backup.autoRecover') !== false;
+export const initialDoc = (typeof localStorage !== 'undefined' && !diskAutosave && loadAutosave()) || createDocument();
 export const initialSolve = solveAll(initialDoc, {});
 
 /** rebuild the solids and register the sketch planes of a document */
@@ -1352,6 +1355,7 @@ export const useStore = create<State>((set, get) => ({
     if (!activeSketchId) return;
     if (phase === 'start') {
       dragBase = doc;
+      setDragGhost(doc.sketches[activeSketchId] ?? null); // Sketch ▸ Ghost image on drag
       return;
     }
     const sketch = doc.sketches[activeSketchId];
@@ -1360,6 +1364,7 @@ export const useStore = create<State>((set, get) => ({
     if (phase === 'end') {
       if (dragBase) history.push('Drag', dragBase);
       dragBase = null;
+      setDragGhost(null);
       const full = solveSketch(r.sketch);
       const d2 = { ...d, sketches: { ...d.sketches, [activeSketchId]: full.sketch } };
       set({ doc: d2, solve: { ...solve, [activeSketchId]: full }, rebuild: rebuildFor(d2, get().rollbackIndex), dirty: true, ...historyFlags() });

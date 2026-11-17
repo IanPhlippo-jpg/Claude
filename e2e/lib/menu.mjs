@@ -11,8 +11,8 @@ export function menuPath(page, label) {
       const host = (scope ?? page).locator('.k-menu-flyhost', { has: page.locator(`.k-menu-item:has-text("${p}")`) }).first();
       if (!(await host.count())) return null;
       await host.hover();
-      await page.waitForTimeout(80);
       scope = host.locator('.k-menu-sub').first();
+      await scope.waitFor({ timeout: 5000 }).catch(() => undefined);
     }
     return row(parts[parts.length - 1], scope);
   };

@@ -11,6 +11,7 @@ import { deel, yv, blokken } from '../../voorbeelden/treinverlichting/hulp.mjs';
 import { M } from '../../voorbeelden/treinverlichting/maten.mjs';
 import { DRADEN, GROEPEN, INGANGEN, klem } from '../../voorbeelden/treinverlichting/opbouw.mjs';
 import { indeling } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
+import { settle, frames } from '../lib/wait.mjs';
 
 const UIT = process.argv[2] ?? 'e2e-out/trein-v5';
 mkdirSync(UIT, { recursive: true });
@@ -28,7 +29,7 @@ const lees = () => { const d = JSON.parse(readFileSync(F, 'utf8')); delete d.for
 const filter = (f) => { const d = lees(); d.components = d.components.filter((c) => f(c.id)); return d; };
 const open = async (d) => {
   await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d);
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(3000); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.waitForFunction(() => !window.__phlippoStore.getState().rebuild.pending, null, { timeout: 900_000 });
   const e = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
   if (Object.keys(e).length) fouten.push(JSON.stringify(e).slice(0, 300));
@@ -38,16 +39,16 @@ const sectie = (s) => page.evaluate((x) => window.__phlippoStore.setState({ sect
 const rust = async () => {
   // eerst over het lint bovenaan, dan over de statusbalk onderaan (buiten het venster en de boom: bij sterk inzoomen is er
   // in het venster geen lege plek meer)
-  await page.mouse.move(1500, 60); await page.waitForTimeout(400);
-  await page.mouse.move(1000, 1066); await page.waitForTimeout(300);
-  await page.mouse.move(1200, 1068); await page.waitForTimeout(300);
+  await page.mouse.move(1500, 60); await frames(page, 3);
+  await page.mouse.move(1000, 1066); await frames(page, 3);
+  await page.mouse.move(1200, 1068); await frames(page, 3);
   await page.evaluate(() => { for (const c of document.querySelectorAll('.k-viewport canvas')) for (const t of ['pointerleave', 'mouseleave', 'pointerout', 'mouseout']) c.dispatchEvent(new PointerEvent(t, { bubbles: true, clientX: -10, clientY: -10 })); });
   // en de voorselectie (oranje rand) wissen: bij sterk inzoomen blijft de muis anders boven een vlak hangen
   await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null, hover: null, hoverFeatureId: null, hoverPlane: null }));
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(1800); // fixed: shot tool, time for the light and the exact bodies before the photo
 };
 const shot = async (toets, naam, zoom = '') => {
-  await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1200);
+  await page.keyboard.press(toets); await settle(page); await page.keyboard.press('f'); await settle(page);
   const v = await page.locator('.k-viewport').boundingBox();
   for (const stap of (process.env[`ZOOM_${naam.toUpperCase().replace(/-/g, '_')}`] ?? zoom).split(';').filter(Boolean)) {
     const [fx, fy, n] = stap.split(',').map(Number);
@@ -115,17 +116,17 @@ if (wat.includes('naad')) {
   await shot('Control+7', 'naad-detail', '0.5,0.5,1;0.612,0.34,7;0.612,0.45,3');
   // doorsnede evenwijdig aan de bodem op 20 hoog: haak, nok in het kuiltje, bodemlip
   await sectie({ plane: 'top', offset: 20, flip: false, cap: true });
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await shot('Control+5', 'naad-doorsnede-boven', '0.51,0.035,11');
   // doorsnede door de haak achteraan (vlak evenwijdig aan het vooraanzicht): de 45°-onderkant
   await sectie({ plane: 'front', offset: -111.5, flip: false, cap: true });
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await shot('Control+1', 'naad-doorsnede-haak', '0.502,0.55,11');
   await sectie(null);
   // het deksel: de lip van de rechterhelft onder de linkerhelft (doorsnede door een nok)
   await open(filter((id) => /^(d1|d2|d3|d4)$/.test(id)));
   await sectie({ plane: 'front', offset: -83, flip: false, cap: true });
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await shot('Control+1', 'naad-doorsnede-deksel', '0.505,0.39,14;0.46,0.57,5');
   await sectie(null);
 }

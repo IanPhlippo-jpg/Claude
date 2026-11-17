@@ -12,6 +12,7 @@ import { createDocument } from '../../core/document/types';
 import { cutListsOn, frameCutList as cutList } from '../prefsTables';
 import { materialFavorites as loadFavorites } from '../prefs';
 import { commentStamp, nameOnCreation, scrollTreeSelection, showTreeWarning, treeHoverHighlight } from '../prefsEffects';
+import { setTreeFocus, slowDoubleClick, treeArrowKeys, treeArrowTarget, treeItemShown as treeItemOption } from '../prefsUi';
 import { MATERIAL_LIBRARY } from '../../core/document/materials';
 import { serializeDocument } from '../../core/document/persistence';
 import { withUnsavedCheck } from '../MenuBar';
@@ -97,15 +98,25 @@ export function FeatureTreeBody() {
   // F2 renames the selected plane or feature in the tree, by design
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.key !== 'F2' || (e.target as Element)?.closest?.('input, textarea, select')) return;
+      if ((e.target as Element)?.closest?.('input, textarea, select')) return;
       const s = useStore.getState();
+      // Feature Tree ▸ Arrow key navigation: after a click in the tree, Up / Down walk its features (not the view)
+      if (e.key.startsWith('Arrow') && treeArrowKeys()) {
+        e.preventDefault();
+        const next = treeArrowTarget(s.doc.features.map((x) => x.id), s.selectedFeatureId, e.key);
+        if (next) s.setSelectedFeature(next);
+        return;
+      }
+      if (e.key !== 'F2') return;
       if (s.selectedPlane === 'front' || s.selectedPlane === 'top' || s.selectedPlane === 'right') setRenaming({ id: '__plane:' + s.selectedPlane, value: s.doc.planeNames?.[s.selectedPlane] ?? PLANE_LABELS[s.selectedPlane] });
       else if (s.selectedFeatureId) { const f = s.doc.features.find((x) => x.id === s.selectedFeatureId); if (f) setRenaming({ id: f.id, value: f.name }); }
       else return;
       e.preventDefault();
     };
+    const down = (e: PointerEvent) => setTreeFocus(!!(e.target as Element | null)?.closest?.('.k-tree'));
     window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
+    window.addEventListener('pointerdown', down, true);
+    return () => { window.removeEventListener('keydown', key); window.removeEventListener('pointerdown', down, true); };
   }, []);
   // Name feature on creation: the tree comes back when the Property Panel closes and opens the new name for typing
   useEffect(() => {
@@ -172,6 +183,7 @@ export function FeatureTreeBody() {
       onClick: (e) => {
         if (st.activeSketchId !== f.sketchId) st.setSelection([]);
         // by design: a click selects (again), Ctrl+click takes it out of the selection
+        if (slowDoubleClick(f.id, st.selectedFeatureId === f.id, e.timeStamp)) setRenaming({ id: f.id, value: f.name }); // Edit name with slow double click
         st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id);
         if (!e.ctrlKey && !st.activeSketchId) setBar({ x: e.clientX, y: e.clientY, featureId: f.id });
       },
@@ -221,7 +233,7 @@ export function FeatureTreeBody() {
       tail: err ? <span className="status conflict" data-testid="tree-error" title={err} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : warning && showTreeWarning() ? <span className="status warning" data-testid="tree-warning" title={warning} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null,
       children: [...(f.type === 'flatPattern' ? [{ id: f.id + ':fp', icon: <Icon.Sheet />, label: nameLabel(f), suppressed: f.suppressed } as TreeNode] : []), ...(sketchFeature && sketchFeature.type === 'sketch' ? [sketchNode(sketchFeature, sketchIndex)] : []), ...(bendRows.get(f.id) ?? []), ...(secondSketch && secondSketch.type === 'sketch' ? [sketchNode(secondSketch, st.doc.features.indexOf(secondSketch))] : []), ...(f.type === 'loft' ? (f.guides ?? []).map((gid) => st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === gid)).filter((x): x is Extract<Feature, { type: 'sketch' }> => !!x && x.type === 'sketch').map((x) => sketchNode(x, st.doc.features.indexOf(x))) : [])],
       onDoubleClick: () => (f.type === 'sketch3d' ? st.edit3DSketch(f.id) : st.editFeature(f.id)),
-      onClick: (e) => { st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id); if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: f.id }); },
+      onClick: (e) => { if (slowDoubleClick(f.id, st.selectedFeatureId === f.id, e.timeStamp)) setRenaming({ id: f.id, value: f.name }); st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id); if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: f.id }); },
       onHover: (on) => useStore.setState({ hoverFeatureId: on && treeHoverHighlight() ? f.id : null }),
       onContextMenu: (e) => featureMenu(e, f.id),
     };
@@ -332,8 +344,7 @@ export function FeatureTreeBody() {
   const treeItemShown = (n: TreeNode) => {
     const item = TREE_ITEM[n.id];
     if (!item) return true;
-    const how = String(st.prefs[`fm.tree.${item}`] ?? 'Automatic');
-    return how === 'Show' || (how !== 'Hide' && (item !== 'Equations' || st.doc.equations.length > 0));
+    return treeItemOption(st.prefs, item, item !== 'Equations' || st.doc.equations.length > 0);
   };
   const nodes: TreeNode[] = [
     {

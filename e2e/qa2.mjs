@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -22,7 +22,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(400);
+await settle(page);
 
 // a 60 x 40 plate from the kit, plus an empty sketch
 const plate = () => S(() => {
@@ -50,7 +50,7 @@ const plate = () => S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await plate();
-await page.waitForTimeout(600);
+await settle(page);
 
 console.log('step 1: units in a value field: the Extrude depth typed as 2in becomes 50.8 mm');
 // ---- units in a value field: the Extrude depth typed as 2in becomes 50.8 mm
@@ -59,16 +59,16 @@ await settle(page);
 const depthField = page.locator('.k-pm-valuerow[data-tip="Depth"] input.k-num');
 check('Extrude PM shows the depth field with its icon', (await depthField.count()) === 1);
 await depthField.fill('2in');
-await page.waitForTimeout(150);
+await settle(page);
 check('2in in the depth field becomes 50.8 mm', Math.abs((await S(() => window.__phlippoStore.getState().featureEdit.draft.depth)) - 50.8) < 1e-6);
 await depthField.fill('3cm');
-await page.waitForTimeout(150);
+await settle(page);
 check('3cm becomes 30 mm', Math.abs((await S(() => window.__phlippoStore.getState().featureEdit.draft.depth)) - 30) < 1e-6);
 await depthField.fill('abc');
-await page.waitForTimeout(150);
+await settle(page);
 check('letters leave the value as it was', Math.abs((await S(() => window.__phlippoStore.getState().featureEdit.draft.depth)) - 30) < 1e-6);
 await depthField.fill('0');
-await page.waitForTimeout(150);
+await settle(page);
 check('0 is held at the minimum (0.01)', (await S(() => window.__phlippoStore.getState().featureEdit.draft.depth)) >= 0.01);
 // a zero depth through the store does not commit
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ depth: 0 }));
@@ -151,18 +151,18 @@ const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 await page.mouse.move(cx, cy);
 await page.mouse.down({ button: 'right' });
 await page.mouse.move(cx + 30, cy, { steps: 3 });
-await page.waitForTimeout(100);
+await frames(page, 3);
 check('the gesture guide shows while dragging with the right button', (await page.locator('[data-testid="gesture-guide"]').count()) === 1);
 check('the aimed command is lit', (await page.locator('.k-gesture-item.active').innerText()) === 'Right');
 await page.screenshot({ path: `${OUT}/qa2-gesture.png` });
 await page.mouse.move(cx + 90, cy, { steps: 3 });
 await page.mouse.up({ button: 'right' });
-await page.waitForTimeout(400);
+await settle(page);
 check('releasing to the right sets the Right view, no context menu', (await S(() => window.__phlippoStore.getState().viewName)) === '*Right' && (await page.locator('.k-menu').count()) === 0, await S(() => window.__phlippoStore.getState().viewName));
 await page.mouse.move(cx, cy);
 await page.mouse.down({ button: 'right' });
 await page.mouse.up({ button: 'right' });
-await page.waitForTimeout(300);
+await settle(page);
 check('a plain right-click still opens the context menu', (await page.locator('.k-menu').count()) >= 1);
 await page.keyboard.press('Escape');
 await S(() => window.__phlippoStore.getState().editSketch('s2'));
@@ -171,7 +171,7 @@ await page.mouse.move(cx, cy);
 await page.mouse.down({ button: 'right' });
 await page.mouse.move(cx - 90, cy, { steps: 4 });
 await page.mouse.up({ button: 'right' });
-await page.waitForTimeout(300);
+await settle(page);
 check('in a sketch the left gesture starts the Line tool', (await S(() => window.__phlippoStore.getState().tool)) === 'line', await S(() => window.__phlippoStore.getState().tool));
 await page.keyboard.press('Escape');
 await S(() => window.__phlippoStore.getState().exitSketch());

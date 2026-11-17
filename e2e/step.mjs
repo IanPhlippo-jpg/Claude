@@ -3,7 +3,8 @@
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-import { checks, exitCode, track, skip, waitSettled } from './lib/check.mjs';
+import { checks, dontSave, exitCode, track, skip, waitSettled } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -20,7 +21,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 // a 60 x 40 x 10 block with a D20 hole
 await S(() => {
@@ -34,17 +35,17 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 const [v0] = await vol();
 check('block with hole built', Math.abs(v0 - (24000 - Math.PI * 100 * 10)) < 30, String(v0));
 
 // ---- Save As ▸ STEP AP214
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
-await page.waitForTimeout(150);
+await settle(page);
 check('File menu offers Save As ▸ STEP AP214', (await menuItem('Save As ▸ STEP AP214 (*.step)…').count()) === 1);
 await menuItem('Save As ▸ STEP AP214 (*.step)…').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Export Options for STEP: Output as AP214 and the unit', (await page.locator('[data-testid="export-step-schema"]').count()) === 1 && (await page.locator('[data-testid="export-unit"]').count()) === 1);
 const dl = page.waitForEvent('download', { timeout: 60000 });
 await page.locator('[data-testid="export-ok"]').click();
@@ -62,10 +63,10 @@ check('the part goes out as its B-rep: 7 faces, the hole a true cylinder (docs/1
 // ---- Save As ▸ IGES (QA F114/F199): IGES 5.3 trimmed surfaces of the same B-rep
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
-await page.waitForTimeout(150);
+await settle(page);
 check('File menu offers Save As ▸ IGES', (await menuItem('Save As ▸ IGES (*.igs)…').count()) === 1);
 await menuItem('Save As ▸ IGES (*.igs)…').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Export Options for IGES: Output as IGES 5.3 trimmed surfaces and the unit', /IGES 5\.3, trimmed surfaces/.test(await page.locator('[data-testid="export-iges-type"]').innerText().catch(skip('step.mjs:igestype', ''))) && (await page.locator('[data-testid="export-unit"]').count()) === 1);
 const dlIges = page.waitForEvent('download', { timeout: 60000 });
 await page.locator('[data-testid="export-ok"]').click();
@@ -90,14 +91,22 @@ check('the block with the hole is 7 trimmed surfaces (144) on 7 B-spline surface
 
 // ---- File ▸ Open of the STEP: a new part with one Imported body of the same volume
 await page.setInputFiles('#phlippo-open-file', { name: 'Blok.step', mimeType: 'model/step', buffer: buf });
-// the open part has changes: Save changes? -> Don't Save, as with any File ▸ Open
-await page.locator('[data-testid="ask-no"]').click({ timeout: 60000 });
+// Save changes? -> Don't Save when the open part has changes, as with any File ▸ Open
+await dontSave(page, 10000);
 await page.waitForFunction(() => window.__phlippoStore.getState().doc.features.some((f) => f.type === 'imported'), null, { timeout: 60000 });
-await page.waitForTimeout(300);
+await settle(page);
 const st = await S(() => { const s = window.__phlippoStore.getState(); return { name: s.doc.name, features: s.doc.features.map((f) => f.type), errors: s.rebuild.errors, bodies: s.rebuild.bodies.length }; });
 const [v1] = await vol();
 check('Blok.step opens as a new part "Blok" with one Imported body', st.name === 'Blok' && st.features.join() === 'imported' && st.bodies === 1 && !Object.keys(st.errors).length, JSON.stringify(st));
 check('the imported body has the volume that was exported (within 0.5 %)', Math.abs(v1 - v0) / v0 < 0.005, `${v1} vs ${v0}`);
+// docs/32 item 5: the Imported body keeps the STEP text of its solid; with the B-rep kernel it is that exact solid
+const kept = await S(() => { const f = window.__phlippoStore.getState().doc.features[0]; return typeof f.step === 'string' && f.step.startsWith('ISO-10303-21;') && /CYLINDRICAL_SURFACE/.test(f.step); });
+check('the Imported body keeps the STEP text of its solid (with the cylinder of the hole)', kept);
+if (new URL(page.url()).searchParams.get('kernel') === 'brep') {
+  await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies[0]?.exact === true, null, { timeout: 60000 });
+  const ex = await S(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; return { exact: b.exact, faces: b.faces.length, vol: b.exactVolume }; });
+  check('with the B-rep kernel the imported body is the exact solid: 7 faces, the exported volume', ex.exact === true && ex.faces === 7 && Math.abs(ex.vol - v0) / v0 < 1e-3, JSON.stringify(ex));
+}
 await page.screenshot({ path: `${OUT}/step-imported.png` });
 
 // ---- a damaged STEP file: a message, the open part stays
@@ -117,7 +126,7 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(400);
+await settle(page);
 await S(() => {
   const s = window.__phlippoStore.getState();
   const b = s.rebuild.bodies[0];
@@ -125,14 +134,14 @@ await S(() => {
   window.__phlippoStore.getState().startRound('fillet');
   window.__phlippoStore.getState().toggleSelectedEdge(top.id);
 });
-await page.waitForTimeout(300);
+await settle(page);
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(400);
+await settle(page);
 const r1 = await S(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, f: s.doc.features.map((f) => f.type) }; });
 check('Fillet1 on the top edge', r1.f.includes('fillet') && !Object.keys(r1.errors).length, JSON.stringify(r1));
 const [vf10] = await vol();
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Depth', { ...s.doc, features: s.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 25 } : f)) }); });
-await page.waitForTimeout(400);
+await settle(page);
 const r2 = await S(() => window.__phlippoStore.getState().rebuild.errors);
 const [vf25] = await vol();
 check('after Boss-Extrude1 goes from 10 to 25 mm the fillet still finds its edge (F47)', !Object.keys(r2).length && Math.abs(vf25 - vf10 - 2400 * 15) < 40, `${JSON.stringify(r2)} ${vf10} -> ${vf25}`);

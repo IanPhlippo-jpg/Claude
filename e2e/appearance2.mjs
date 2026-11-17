@@ -40,7 +40,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => {
   const K = window.__phlippoKit;
   const d = K.createDocument('Blok', 'part');
@@ -70,14 +70,14 @@ const chooser = page.waitForEvent('filechooser');
 await page.click('[data-testid="appearance-browse"]');
 await (await chooser).setFiles(pngPath);
 await page.waitForFunction(() => !!window.__phlippoStore.getState().doc.appearanceProps?.['']?.image);
-await page.waitForTimeout(500);
+await settle(page);
 check('the image is the appearance (name in the title, thumbnail)', (await page.locator('[data-testid="appearance-name"]').innerText()) === 'checker.png' && (await page.locator('[data-testid="appearance-image"] img').count()) === 1);
 let m = await faceMat();
 check('the block shows the image (texture on the face material)', m?.map === true, JSON.stringify(m));
 // Mapping ▸ Box, width 20 mm: the 60 mm block spans 1.5 images from its centre
 await page.click('[data-testid="appearance-tab-mapping"]');
 await page.locator('[data-testid="appearance-map-size"]').fill('20');
-await page.waitForTimeout(400);
+await settle(page);
 m = await faceMat();
 check('Mapping width 20 mm: texture coordinates in images (30 mm / 20 mm = 1.5)', m && Math.abs(m.uMax - 1.5) < 0.05, JSON.stringify(m));
 await page.screenshot({ path: `${OUT}/appearance2-image.png` });
@@ -86,18 +86,18 @@ await page.click('[data-testid="appearance-advanced"]');
 check('Advanced adds Illumination and Surface Finish', (await tabs()) === 'Color/Image|Mapping|Illumination|Surface Finish', await tabs());
 await page.click('[data-testid="appearance-tab-illumination"]');
 await page.locator('[data-testid="appearance-transparency"]').fill('0.5');
-await page.waitForTimeout(300);
+await settle(page);
 m = await faceMat();
 check('Transparent amount 50 %: the faces are see-through', m?.transparent && Math.abs(m.opacity - 0.5) < 0.02, JSON.stringify(m));
 await page.click('[data-testid="appearance-tab-finish"]');
 await page.click('[data-testid="appearance-finish-knurled"]');
-await page.waitForTimeout(300);
+await settle(page);
 m = await faceMat();
 check('Surface Finish ▸ Knurled: a bump pattern on the faces', m?.bump === true, JSON.stringify(m));
 await page.screenshot({ path: `${OUT}/appearance2-advanced.png` });
 // Cancel: back to no appearance
 await page.click('[data-testid="appearance-cancel"]');
-await page.waitForTimeout(400);
+await settle(page);
 const after = await page.evaluate(() => window.__phlippoStore.getState().doc.appearanceProps);
 m = await faceMat();
 check('Cancel puts everything back', !after && m && !m.map && !m.bump && m.opacity === 1, JSON.stringify({ after, m }));

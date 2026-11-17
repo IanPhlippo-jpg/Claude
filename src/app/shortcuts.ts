@@ -1,10 +1,12 @@
 import { fitActive } from './viewport/bridge';
 import { getPref } from './prefs';
 import { arrowKeyStep } from './prefsEffects';
+import { treeArrowKeys } from './prefsUi';
 import { useEffect } from 'react';
 import { useStore } from './store';
 import { withUnsavedCheck } from './MenuBar';
 import { getCamera } from './viewport/Viewport';
+import { hiddenComponentAt, pointer } from './tabShow';
 import { commandById, DEFAULT_KEYS, keyBindings, keyCombo } from './commands';
 
 export interface Shortcut {
@@ -37,7 +39,7 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: 'Alt+arrow keys', label: 'Rotate parallel to the screen (roll)', group: 'View' },
   { keys: 'Ctrl+arrow keys', label: 'Pan', group: 'View' },
   { keys: 'F', label: 'Zoom to Fit', group: 'View' },
-  { keys: 'Tab / Shift+Tab', label: 'Hide the component under the pointer / show it again (assemblies)', group: 'View' },
+  { keys: 'Tab / Shift+Tab', label: 'Hide the component under the pointer / show the hidden one under the pointer (assemblies)', group: 'View' },
   { keys: 'G', label: 'Magnified Selection (G or Esc closes it)', group: 'View' },
   { keys: 'Z / Shift+Z', label: 'Zoom Out / Zoom In', group: 'View' },
   { keys: 'Ctrl+1 … 6', label: 'Front / Back / Left / Right / Top / Bottom', group: 'View' },
@@ -89,6 +91,8 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
 
       // ---- view rotation / pan with the arrow keys (15°, Shift 90°, Alt roll, Ctrl pan)
       if (e.key.startsWith('Arrow')) {
+        // Feature Tree ▸ Arrow key navigation: the tree takes the arrow keys after a click in it
+        if (treeArrowKeys()) return;
         e.preventDefault();
         const step = arrowKeyStep(e.shiftKey);
         const panPx = Math.max(20, cam.width / 20);
@@ -138,8 +142,11 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
           st.setComponentHidden(c.id, true);
           return;
         }
-        let id: string | undefined;
-        while ((id = tabHidden.pop()) && !comps.some((x) => x.id === id && x.hidden));
+        // the hidden component under the pointer first; else the last one hidden with Tab
+        const rect = document.querySelector('.k-viewport canvas')?.getBoundingClientRect();
+        const inside = !!rect && pointer.x >= rect.left && pointer.x <= rect.right && pointer.y >= rect.top && pointer.y <= rect.bottom;
+        let id: string | undefined = (inside && hiddenComponentAt(comps, cam.pixelToRay(pointer.x - rect!.left, pointer.y - rect!.top))) || undefined;
+        if (!id) while ((id = tabHidden.pop()) && !comps.some((x) => x.id === id && x.hidden));
         if (!id) return;
         e.preventDefault();
         st.setComponentHidden(id, false);

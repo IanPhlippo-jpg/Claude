@@ -1,5 +1,6 @@
 // measures the graphics area's lighting on an isometric box (dev server: the LIGHTING object is changed live)
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:5173/');
@@ -16,9 +17,9 @@ await page.evaluate(() => {
   window.__phlippoStore.getState().openDocument(d);
   window.__phlippoStore.getState().toggleShow?.('origin');
 });
-await page.waitForTimeout(600);
+await settle(page);
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await settle(page);
 const faces = await page.evaluate(() => { const P = window.__phlippoProjectWorld; return { top: P(10, 50, 10), left: P(10, 10, 50), right: P(50, 10, 10) }; });
 const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
 const measure = async (cfg) => {
@@ -27,7 +28,7 @@ const measure = async (cfg) => {
     Object.assign(L.key, cfg.key); Object.assign(L.fill, cfg.fill ?? { intensity: 0 }); L.ambient = cfg.ambient;
     const S = window.__phlippoStore; S.getState().toggleShow('grid');
   }, cfg);
-  await page.waitForTimeout(250);
+  await settle(page);
   const buf = await page.screenshot();
   const out = await page.evaluate(async ([b64, faces]) => {
     const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();

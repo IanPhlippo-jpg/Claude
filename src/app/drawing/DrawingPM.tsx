@@ -10,6 +10,7 @@ import { getPref, patchPrefs } from '../prefs';
 import { configurations } from '../../core/document/configurations';
 import { documentForConfiguration } from '../../core/document/configurations';
 import type { Document } from '../../core/document/types';
+import { startReplaceModel } from './replaceModelCommand';
 
 /** a pref check box kept between sessions (default on unless given) */
 function PrefCheck({ k, label, def = true, testid }: { k: string; label: string; def?: boolean; testid?: string }) {
@@ -55,6 +56,8 @@ const ORIENTATIONS: { type: DrawingViewType; label: string }[] = [
   { type: 'dimetric', label: 'Dimetric' },
 ];
 
+/** Tangent Edge of a view, as by design in the view menu (Visible, With Font, Hide Ends, Removed) */
+const TANGENT = [['visible', 'Tangent edges visible'], ['font', 'Tangent edges with font'], ['hideEnds', 'Hide ends'], ['removed', 'Tangent edges removed']] as const;
 const STYLES: { id: 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shadedEdges' | 'shaded'; label: string; icon: React.ReactNode }[] = [
   { id: 'wireframe', label: 'Wireframe', icon: <Icon.StyleWireframe size={20} /> },
   { id: 'hiddenVisible', label: 'Hidden Lines Visible', icon: <Icon.StyleHiddenVisible size={20} /> },
@@ -644,6 +647,14 @@ export function DrawingViewPM() {
           <label className="k-check"><input type="radio" name="dvq" checked={!v.draftQuality} onChange={() => st.updateDrawingView(v.id, { draftQuality: undefined })} /> High quality</label>
           <label className="k-check"><input type="radio" name="dvq" data-testid="dv-draft" checked={!!v.draftQuality} onChange={() => st.updateDrawingView(v.id, { draftQuality: true })} /> Draft quality</label>
         </div>
+        <div className="k-field">
+          <label>Tangent edges</label>
+          <select className="k-input" data-testid="dv-tangent" value={v.tangentEdges ?? 'removed'}
+            onChange={(e) => st.updateDrawingView(v.id, { tangentEdges: e.target.value as NonNullable<typeof v.tangentEdges> })}>
+            {TANGENT.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+          </select>
+        </div>
+        <button className="k-btn" data-testid="dv-replace-model" onClick={() => { st.selectDrawingView(v.id); startReplaceModel(); }}>Replace Model…</button>
       </Section>
       <Section title="Scale">
         <div className="k-pm-radios">

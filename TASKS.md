@@ -1511,3 +1511,13 @@ elease; README en docs/04 bijgewerkt
 - [x] Alles opnieuw genereren: .kcad, STL, tekeningen, schema, bouwschema, alles-PDF; graphify update
 - [x] Foto's voor/na (M8, uitsparing, inlaat, projectiesymbool, beenruimte) in de scratchpad en zelf bekijken
 - [x] Statustabel onderaan Advies-Fable-5.2-v1.md (gedaan / deels / niet)
+
+## Phlippo CAD 0.5.16: rest van het advies Fable 5.2 (2026-11-17)
+- [x] Rebuildbudgetten meten op een rustige machine (treindoos bak links/rechts, afzuiging, lastafel); > 45 s: oorzaak zoeken en oplossen
+- [x] P2-3: geautomatiseerde test voor een gecrashte en een hangende renderer (desktop-e2e)
+- [x] P2-6: autosave in de desktop naar een Auto-Recover-map op schijf; localStorage blijft terugval in de browser
+- [x] P2-12: resterende vaste waitForTimeout in e2e/ vervangen door wachten op een toestand (e2e/lib/wait.mjs), steekproef draaien
+- [x] P3-10: dekkingsmeting zonder nieuw pakket, of besluit voor Ian; P3-11: bibliotheektests naar een eigen map, test-groups.json en testGroups-test bijwerken
+- [x] Pariteit 4, 5, 6, 8, 9, 10, 12 en deels 2, 3, 11 (punt 1 blijft voorstel voor Ian)
+- [x] Lastafeltekeningen opnieuw maken met het rechtgezette projectiesymbool, tekeningenLastafel.test.ts draaien
+- [x] Versie 0.5.16, typecheck, vitest, e2e (desktop-editsave, desktop, desktop-recover, pariteit), screenshots, graphify update, statustabel docs/32

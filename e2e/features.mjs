@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -22,18 +22,18 @@ const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { features: s.doc.features.map((f) => ({ type: f.type, name: f.name, op: f.op })), bodies: s.rebuild.bodies.length, errors: s.rebuild.errors, fe: s.featureEdit ? s.featureEdit.draft : null, active: s.activeSketchId, selFace: s.selectedFace, tab: s.tab }; });
 const status = async () => ((await page.locator('.k-statusbar').textContent().catch(skip('features.mjs:19', ''))) || '').trim().replace(/\s+/g, ' ');
 
-const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
+const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await frames(page); } };
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 // sketch on Top Plane: 80 x 80 rectangle + Ø35 circle, dimensioned like the video
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
@@ -43,13 +43,13 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx + 150, cy);
 await page.mouse.click(cx + 150, cy + 80);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('80');
 await page.locator('.k-modify input.k-num').press('Enter');
 await settle(page);
 await page.mouse.click(cx, cy - 150);
 await page.mouse.click(cx - 80, cy - 150);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('80');
 await page.locator('.k-modify input.k-num').press('Enter');
 await page.keyboard.press('Escape');
@@ -63,24 +63,24 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(centre.x + 60, centre.y);
 await page.mouse.click(centre.x + 120, centre.y - 120);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('35');
 await page.locator('.k-modify input.k-num').press('Enter');
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
-await page.waitForTimeout(200);
+await settle(page);
 console.log('sketch status:', (await status()).slice(-60));
 await shot('e1-sketch');
 
 // Extruded Boss/Base from inside the sketch
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 console.log('after Extrude click:', JSON.stringify(await S()));
 await shot('e2-extrude-preview');
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page);
 const s1 = await S();
@@ -91,18 +91,18 @@ await shot('e3-part');
 console.log('tree:', (await page.locator('.k-tree').textContent()).replace(/\s+/g, ' ').slice(0, 200));
 
 // hover + select the top face, then Sketch on it and draw a circle, then Extruded Cut through all
-await page.keyboard.press('Control+5'); await page.waitForTimeout(400);
+await page.keyboard.press('Control+5'); await settle(page);
 // a slow runner (CI, software GL, the exact body still coming in) picks the face a little later: move again until it is lit
 let hovered = false;
-for (let k = 0; k < 25 && !hovered; k++) { await page.mouse.move(cx - 250 + (k % 2), cy - 250); await page.waitForTimeout(200); hovered = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverFace)); }
+for (let k = 0; k < 25 && !hovered; k++) { await page.mouse.move(cx - 250 + (k % 2), cy - 250); await page.waitForTimeout(200); hovered = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverFace)); } // fixed: poll interval
 check('hover highlights a face', hovered);
 await shot('e4-hover-face');
 await page.mouse.click(cx - 250, cy - 250);
-await page.waitForTimeout(200);
+await settle(page);
 check('click selects the face', !!(await page.evaluate(() => window.__phlippoStore.getState().selectedFace)));
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(600);
+await settle(page);
 check('Sketch opens on the selected face', (await S()).active !== null && (await S()).features.length === 3);
 await shot('e5-sketch-on-face');
 const vp2 = await page.locator('.k-viewport').boundingBox();
@@ -116,7 +116,7 @@ await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Cut") .k-cm-main');
 await settle(page, { quiet: 300 });
 await page.locator('.k-pm-valuerow select').first().selectOption('throughAll');
-await page.waitForTimeout(300);
+await settle(page);
 await shot('e6-cut-preview');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -132,29 +132,29 @@ await settle(page, { quiet: 300 });
 await shot('e7-part-cut');
 // undo the cut, redo it
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(300);
+await settle(page);
 check('undo removes the cut', (await S()).features.length === 3);
 await page.keyboard.press('Control+y');
-await page.waitForTimeout(300);
+await settle(page);
 check('redo restores the cut', (await S()).features.length === 4);
 // reload: autosave rebuilds the solids
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
-await page.waitForTimeout(800);
+await settle(page);
 const s3 = await S();
 check('autosave rebuilds the solids after reload', s3.bodies === 1 && s3.features.length === 4 && Object.keys(s3.errors).length === 0);
 await shot('e8-after-reload');
 // fillet on the top outer edge of the plate (edge midpoint at world (40, 10, 0)): hover, select, Fillet, radius 5, OK
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await settle(page);
 await page.keyboard.press('f');
 await settle(page);
 // the exact body may still be coming in (release path) and a slow runner picks later: settle, then move until it is lit
 await waitSettled(page);
 const em = await page.evaluate(() => window.__phlippoProjectWorld(40, 10, 0));
 let edgeLit = false;
-for (let k = 0; k < 25 && !edgeLit; k++) { await page.mouse.move(em.x + (k % 2), em.y); await page.waitForTimeout(150); edgeLit = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverEdge)); }
+for (let k = 0; k < 25 && !edgeLit; k++) { await page.mouse.move(em.x + (k % 2), em.y); await page.waitForTimeout(150); edgeLit = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverEdge)); } // fixed: poll interval
 check('hover highlights an edge', edgeLit);
 // a slow runner (software GL) can miss a click while it draws: click until the edge is selected
 // before every click the edge must be lit again (a redraw between hover and click drops the pick: QA 0.5.12, F31/F54)
@@ -190,11 +190,11 @@ const pickEdge = async (w, label) => {
 await pickEdge([40, 10, 0], 'fillet');
 check('click selects the edge', await edgeSelected([40, 10, 0]));
 await page.click('.k-cm-big:has-text("Fillet") .k-cm-main');
-await page.waitForTimeout(600);
+await settle(page);
 await shot('e9-fillet-preview');
 await page.locator('.k-pm-valuerow input.k-num').first().fill('5');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page, { quiet: 300 });
 const s4 = await S();
@@ -208,7 +208,7 @@ await page.click('.k-menu-item:has-text("Chamfer")');
 await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('4');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page, { quiet: 300 });
 const s5 = await S();
@@ -237,17 +237,17 @@ if (process.env.E2E_DEBUG) {
 }
 await page.keyboard.press('Control+z');
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(600);
+await settle(page);
 check('undo removes chamfer and fillet', (await S()).features.length === 4);
 
 // Hole Tool on the top face: select the face, Hole Tool, counterbore, two positions, OK
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(300);
+await settle(page);
 await page.keyboard.press('f');
 await settle(page);
 const fm = await page.evaluate(() => window.__phlippoProjectWorld(15, 10, -15));
 await page.mouse.click(fm.x, fm.y);
-await page.waitForTimeout(150);
+await settle(page);
 check('face selected for the Hole Tool', !!(await page.evaluate(() => window.__phlippoStore.getState().selectedFace)));
 await page.click('.k-cm-big:has-text("Hole Tool") .k-cm-main');
 await settle(page);
@@ -256,7 +256,7 @@ const h1 = await page.evaluate(() => window.__phlippoProjectWorld(15, 10, -15));
 const h2 = await page.evaluate(() => window.__phlippoProjectWorld(15, 10, -65));
 await page.mouse.click(h1.x, h1.y);
 await page.mouse.click(h2.x, h2.y);
-await page.waitForTimeout(600);
+await settle(page);
 check('two hole positions placed', (await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft.points.length)) === 2);
 await shot('e12-hole-preview');
 await page.click('.k-pm-ok');
@@ -266,20 +266,20 @@ check('Hole1 added without errors', s6.features.length === 5 && s6.features[4].t
 // Linear pattern of the small cut hole along X
 await page.click('.k-tree-row:has-text("Cut-Extrude1")');
 await page.click('.k-cm-big:has-text("Linear Pattern") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('.k-pm-valuerow').locator('..').locator('input.k-num').first().fill('15');
 await page.locator('.k-field:has-text("Instances") input').fill('3');
 await page.locator('.k-field:has-text("Instances") input').press('Tab');
-await page.waitForTimeout(800);
+await settle(page);
 await shot('e13-pattern-preview');
 // Instances to Skip: click the marker of the second instance (as the intended yellow rings)
 check('pattern instance markers shown', (await page.locator('.k-pattern-marker').count()) === 2);
 await page.locator('.k-pattern-marker').nth(1).click();
-await page.waitForTimeout(300);
+await settle(page);
 check('instance added to Instances to Skip', JSON.stringify(await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft.skip)) === '[1]');
 await shot('e13b-pattern-skip');
 await page.locator('.k-pattern-marker').nth(1).click();
-await page.waitForTimeout(200);
+await settle(page);
 check('clicking again restores the instance', JSON.stringify(await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft.skip)) === '[]');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -298,12 +298,12 @@ await shot('e14-mirror');
 await page.keyboard.press('Control+z');
 await page.keyboard.press('Control+z');
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(800);
+await settle(page);
 check('undo removes mirror, pattern and holes', (await S()).features.length === 4);
 
 // Shell: select the top face, Shell, 2 mm, OK; the plate becomes a tray open at the top
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(300);
+await settle(page);
 await page.keyboard.press('f');
 await settle(page);
 await waitSettled(page);
@@ -341,7 +341,7 @@ await page.keyboard.press('f');
 await settle(page, { quiet: 300 });
 await shot('e16-shell');
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(800);
+await settle(page);
 check('undo removes the shell', (await S()).features.length === 4);
 
 // Sweep: a circle on the Front plane swept along a line on the Top plane (a tube across the plate, above it).
@@ -360,7 +360,7 @@ const sketchHas = (kind, n) => page.waitForFunction(([k, m]) => { const s = wind
 const sketchClosed = () => page.waitForFunction(() => !window.__phlippoStore.getState().activeSketchId && !window.__phlippoStore.getState().rebuild.pending, undefined, { timeout: 15000 });
 await page.keyboard.press('Escape');
 await openSketchOn('Front Plane');
-await page.waitForTimeout(300);
+await settle(page);
 const pc = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 20 }));
 const pr = await page.evaluate(() => window.__phlippoProject({ x: 44, y: 20 }));
 await page.click('.k-cm-iconbtn[data-tip="Circle"]');
@@ -372,7 +372,7 @@ await page.keyboard.press('Escape');
 await page.click('.k-confirm-ok');
 await sketchClosed();
 await openSketchOn('Top Plane');
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => window.__phlippoZoomFit());
 await settle(page);
 // a slow runner draws the Zoom to Fit animation late and drops a click now and then: every attempt waits for the
@@ -380,13 +380,13 @@ await settle(page);
 for (let k = 0; k < 5; k++) {
   if (!(await page.evaluate(() => !!window.__phlippoStore.getState().activeSketchId))) await openSketchOn('Top Plane');
   await page.waitForFunction(() => !window.__phlippoCamera.anim, undefined, { timeout: 5000 }).catch(() => undefined);
-  await page.waitForTimeout(200);
+  await settle(page);
   const la = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 0 }));
   const lb = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 60 }));
   await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
   await page.waitForFunction(() => window.__phlippoStore.getState().tool === 'line', undefined, { timeout: 5000 }).catch(() => undefined);
   await page.mouse.click(la.x, la.y);
-  await page.waitForTimeout(100);
+  await frames(page);
   await page.mouse.click(lb.x, lb.y);
   if (await sketchHas('line', 1).then(() => true, () => false)) break;
   console.log('path line attempt', k, JSON.stringify({ la, lb, state: await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return { active: s.activeSketchId, tool: s.tool, tab: s.tab, n: sk ? Object.keys(sk.entities).length : -1, anim: !!window.__phlippoCamera.anim }; }) }));
@@ -401,14 +401,14 @@ const sBefore = await S();
 const volBeforeSweep = await volume();
 await page.click('.k-tree-row:has-text("Sketch3")');
 await page.click('.k-cm-small:has-text("Swept Boss/Base")');
-await page.waitForTimeout(400);
+await settle(page);
 const pathSel = page.locator('.k-field:has(> label:text-is("Path")) select');
 await pathSel.selectOption({ label: 'Sketch4' });
-await page.waitForTimeout(800);
+await settle(page);
 await shot('e17-sweep-preview');
 await page.click('.k-pm-ok');
 await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return !s.featureEdit && !s.rebuild.pending; }, undefined, { timeout: 15000 });
-await page.waitForTimeout(300);
+await settle(page);
 const s10 = await S();
 check('Sweep1 added without errors', s10.features.length === sBefore.features.length + 1 && s10.features[s10.features.length - 1].type === 'sweep' && Object.keys(s10.errors).length === 0, JSON.stringify(s10.errors));
 const volAfterSweep = await volume();
@@ -420,7 +420,7 @@ await shot('e18-sweep');
 // Evaluate: Mass Properties reports the volume of the body; Measure shows the length of a selected edge
 await page.click('.k-cm-tab:has-text("Evaluate")');
 await page.click('.k-cm-big:has-text("Mass Properties") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 const report = await page.locator('.k-mass-report').innerText();
 // on the B-rep kernel (?kernel=brep) Mass Properties reports the exact volume of the exact bodies
 const volNow = (await page.evaluate(() => { const bs = window.__phlippoStore.getState().rebuild.bodies; return bs.length && bs.every((b) => b.exact) ? bs.reduce((t, b) => t + b.exactVolume, 0) : null; })) ?? (await volume());
@@ -443,7 +443,7 @@ for (let k = 0; k < 6; k++) {
   await page.mouse.move(me.x + (k % 2), me.y);
   await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverEdge, undefined, { timeout: 3000 }).catch(() => undefined);
   await page.mouse.click(me.x + (k % 2), me.y);
-  await page.waitForTimeout(400);
+  await settle(page);
   measureText = await page.locator('.k-measure-dialog').innerText().catch(() => '');
   if (/Length \(Edge<1>\):\s*80\.00mm/.test(measureText)) break;
   await page.keyboard.press('Escape');
@@ -489,27 +489,27 @@ const sImp = await S();
 check('Imported1 added from box.stl', sImp.features.length === featuresBefore + 1 && sImp.features[sImp.features.length - 1].type === 'imported' && Object.keys(sImp.errors).length === 0, JSON.stringify(sImp.errors));
 check('the imported box becomes a solid body (own body, as Insert ▸ Features ▸ Imported)', (await volume()) > volNow + 1000 * 0.5, String(await volume()));
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(400);
+await settle(page);
 check('undo removes the import', (await S()).features.length === featuresBefore);
 
 // Equations: a global variable "Width" drives D1@Sketch1 (the 80 mm of the plate); the body follows
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
 await page.click('.k-menu-item:has-text("Equations")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Equations dialog opens', (await page.locator('.k-dialog-title').innerText()).includes('Equations, Global Variables, and Dimensions'));
 await page.fill('.k-eq-table input[placeholder="Add global variable"]', '"Width" = 100');
 await page.press('.k-eq-table input[placeholder="Add global variable"]', 'Enter');
-await page.waitForTimeout(200);
+await settle(page);
 check('global variable row added', await page.locator('.k-eq-table input.mono').evaluateAll((els) => els.some((e) => e.value.includes('Width'))));
 await page.selectOption('.k-eq-table select:not([data-testid="eq-add-suppression"])', { label: '"D1@Sketch1" = 80' });
-await page.waitForTimeout(200);
+await settle(page);
 const eqInputs = page.locator('.k-eq-table input.mono');
 await eqInputs.last().fill('= "Width"');
-await page.waitForTimeout(200);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/e21-equations.png' });
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.waitForTimeout(1200);
+await settle(page);
 const sEq = await S();
 check('equations stored in the document', (await page.evaluate(() => window.__phlippoStore.getState().doc.equations.length)) === 2 && Object.keys(sEq.errors).length === 0, JSON.stringify(sEq.errors));
 const d1 = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.doc.features[0].sketchId]; const dims = sk.constraintOrder.map((id) => sk.constraints[id]).filter((c) => c.value !== undefined); return dims[0].value; });
@@ -521,39 +521,39 @@ await page.keyboard.press('f');
 await settle(page, { quiet: 300 });
 await shot('e22-equations-applied');
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(600);
+await settle(page);
 check('undo removes the equations', (await page.evaluate(() => window.__phlippoStore.getState().doc.equations.length)) === 0);
 
 // Options: System Options - General layout, View > Arrow keys drives the rotation step, Document Properties > Units decimals
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
 await page.click('.k-menu-item:has-text("Options")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Options dialog titled by design', (await page.locator('.k-options-title').innerText()).includes('System Options - General'));
 check('Options category list present', (await page.locator('.k-opt-cat').count()) >= 20);
 await page.click('.k-opt-cat:text-is("View")');
-await page.waitForTimeout(150);
+await settle(page);
 check('title follows the page', (await page.locator('.k-options-title').innerText()).includes('System Options - View'));
 const arrowInput = page.locator('.k-opt-row:has-text("Arrow keys") input[type=number]');
 await arrowInput.fill('30');
 await page.click('.k-options-tabs button:has-text("Document Properties")');
 await page.click('.k-opt-cat:text-is("Units")');
-await page.waitForTimeout(150);
+await settle(page);
 check('Document Properties - Units page', (await page.locator('.k-options-title').innerText()).includes('Document Properties - Units'));
 await page.selectOption('.k-opt-row:has-text("Decimals:") select', '.123');
 await page.screenshot({ path: 'e2e-out/e23-options.png' });
 await page.click('.k-options-actions button:has-text("OK")');
-await page.waitForTimeout(300);
+await settle(page);
 const prefsNow = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { arrow: s.prefs['view.arrowKeys'], dec: s.prefs['doc.lengthDecimals'], docProps: Object.keys(s.doc.properties || {}).length }; });
 check('options stored (system + document)', prefsNow.arrow === 30 && prefsNow.dec === '.123' && prefsNow.docProps > 0, JSON.stringify(prefsNow));
 const rotBefore = await page.evaluate(() => window.__phlippoCamera ? window.__phlippoCamera.rotation.toArray() : null);
 await page.mouse.click(960, 540);
 await page.keyboard.press('ArrowLeft');
-await page.waitForTimeout(500);
+await settle(page);
 const degBetween = (a, b) => { const dot = Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]); return (2 * Math.acos(Math.min(1, dot)) * 180) / Math.PI; };
 let rotAfter = await page.evaluate(() => window.__phlippoCamera ? window.__phlippoCamera.rotation.toArray() : null);
 // the turn takes a few frames; a slow runner (software GL) draws them late
-for (let k = 0; k < 20 && rotBefore && rotAfter && Math.abs(degBetween(rotBefore, rotAfter) - 30) >= 1; k++) { await page.waitForTimeout(250); rotAfter = await page.evaluate(() => window.__phlippoCamera ? window.__phlippoCamera.rotation.toArray() : null); }
+for (let k = 0; k < 20 && rotBefore && rotAfter && Math.abs(degBetween(rotBefore, rotAfter) - 30) >= 1; k++) { await page.waitForTimeout(250); rotAfter = await page.evaluate(() => window.__phlippoCamera ? window.__phlippoCamera.rotation.toArray() : null); } // fixed: poll interval
 if (rotBefore && rotAfter) {
   const deg = degBetween(rotBefore, rotAfter);
   check('arrow key rotates by the configured 30 degrees', Math.abs(deg - 30) < 1, deg.toFixed(1));
@@ -564,7 +564,7 @@ await settle(page);
 
 // Material: double-click the Material row, pick 1060 Alloy, Apply -> tree and Mass Properties follow
 await page.dblclick('.k-tree-row:has-text("Material <not specified>")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Material dialog opens from the tree', (await page.locator('.k-material').count()) === 1);
 await page.click('.k-material-cat:has-text("Aluminium Alloys")');
 await page.click('.k-material-item:has-text("1060 Alloy")');
@@ -572,11 +572,11 @@ check('Properties tab shows the density', (await page.locator('.k-material-props
 await page.screenshot({ path: 'e2e-out/e24-material.png' });
 await page.click('.k-material .k-dialog-actions button:has-text("Apply")');
 await page.click('.k-material .k-dialog-actions button:has-text("Close")');
-await page.waitForTimeout(300);
+await settle(page);
 check('tree shows 1060 Alloy', (await page.locator('.k-tree-row:has-text("1060 Alloy")').count()) === 1);
 await page.click('.k-cm-tab:has-text("Evaluate")');
 await page.click('.k-cm-big:has-text("Mass Properties") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 check('Mass Properties uses the material density', (await page.locator('.k-mass-report').innerText()).includes('Density = 0.003') || (await page.locator('.k-mass-report').innerText()).includes('0.0027'));
 await page.click('.k-mass-dialog button:has-text("Close")');
 await page.click('.k-cm-tab:has-text("Features")');
@@ -584,7 +584,7 @@ await page.click('.k-cm-tab:has-text("Features")');
 // Thin Feature: an open L profile on the Front plane is extruded as a wall (Extrude-Thin1), as intended
 await page.keyboard.press('Escape');
 await page.click('.k-tree-row:has-text("Front Plane")', { clickCount: 2 });
-await page.waitForTimeout(700);
+await settle(page);
 await page.evaluate(() => window.__phlippoZoomFit());
 await settle(page);
 const l1 = await page.evaluate(() => window.__phlippoProject({ x: 10, y: 15 }));
@@ -600,7 +600,7 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
 await page.locator('.k-pm-host').waitFor({ timeout: 15000 }).catch(() => undefined);
-await page.waitForTimeout(400);
+await settle(page);
 const thinDraft = await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft);
 check('open profile starts a Thin Feature extrude', thinDraft && thinDraft.thin && thinDraft.name === 'Extrude-Thin1', JSON.stringify(thinDraft && { thin: thinDraft.thin, name: thinDraft.name }));
 check('Thin Feature section shows the thickness', (await page.locator('.k-section:has-text("Thin Feature") input[type=checkbox]').first().isChecked()));
@@ -613,14 +613,14 @@ check('Extrude-Thin1 added without errors', sThin.features[sThin.features.length
 const volAfterThin = await volume();
 check('thin wall adds about (20 + 20) x 2 x 10 mm3', volAfterThin - volBeforeThin > 700 && volAfterThin - volBeforeThin < 900, `${(volAfterThin - volBeforeThin).toFixed(0)}`);
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(500);
+await settle(page);
 
 // Reference Geometry > Plane: an offset plane 25 mm from the Front Plane appears in the tree as Plane1 and in the graphics area
 await page.click('.k-cm-big:has-text("Reference Geometry") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 check('Plane Property Panel open', (await page.locator('.k-pm-title').innerText()).includes('Plane'));
 await page.locator('.k-section:has-text("First Reference") input.k-num').first().fill('25');
-await page.waitForTimeout(300);
+await settle(page);
 await shot('e26-plane-preview');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -629,23 +629,23 @@ check('Plane1 created 25 mm in front of the Front Plane', planes.length === 1 &&
 check('Plane1 listed in the tree', (await page.locator('.k-tree-row:has-text("Plane1")').count()) === 1);
 // right-click: context toolbar above the context menu, as for the standard planes; its Sketch button starts the sketch
 await page.click('.k-tree-row:has-text("Plane1")', { button: 'right' });
-await page.waitForTimeout(300);
+await settle(page);
 check('right-click on Plane1 shows the context toolbar and the menu "Feature (Plane1)"', (await page.locator('[data-testid="ctx-plane-sketch"]').count()) === 1 && (await page.locator('.k-menu-header:has-text("Feature (Plane1)")').count()) === 1);
 await page.click('[data-testid="ctx-plane-sketch"]');
-await page.waitForTimeout(500);
+await settle(page);
 check('sketch opens on Plane1', await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && s.doc.planes[sk.plane]?.name === 'Plane1'; }));
 await page.keyboard.press('Escape');
 await page.click('.k-confirm-cancel');
-await page.waitForTimeout(300);
+await settle(page);
 
 // mouse wheel zooms about the pointer: the sketch point under the pointer stays put
 await expandTree();
 await page.click('.k-tree-row:has-text("Sketch1")', { clickCount: 2 });
-await page.waitForTimeout(600);
+await settle(page);
 const probe = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 40 }));
 await page.mouse.move(probe.x, probe.y);
 await page.mouse.wheel(0, 240);
-await page.waitForTimeout(200);
+await settle(page);
 const after = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 40 }));
 const drift = Math.hypot(after.x - probe.x, after.y - probe.y);
 check('wheel zoom keeps the point under the pointer', drift < 2, `drift ${drift.toFixed(1)} px`);
@@ -654,9 +654,9 @@ await page.click('.k-confirm-ok');
 // arrow keys rotate the model
 const before = await page.locator('.k-viewname').textContent();
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await settle(page);
 await page.keyboard.press('ArrowLeft');
-await page.waitForTimeout(400);
+await settle(page);
 check('arrow key rotates (view name cleared)', (await page.locator('.k-viewname').textContent()) === '', `was ${before}`);
 await page.keyboard.press('Control+7');
 console.log(`

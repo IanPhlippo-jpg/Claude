@@ -2,6 +2,7 @@
 // van onderen (klauwen, ventilator), de module alleen, en het bureau met de afzuiging in het blad
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -13,8 +14,8 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const lees = (f) => { const d = JSON.parse(readFileSync(f, 'utf8')); delete d.format; return d; };
-const open = async (d) => { await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(3000); };
-const kijk = async (toets, naam) => { await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(1800); await page.screenshot({ path: `e2e-out/${naam}.png` }); };
+const open = async (d) => { await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(3000); }; // fixed: shot tool, time for the light and the exact bodies before the photo
+const kijk = async (toets, naam) => { await page.keyboard.press(toets); await settle(page); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(1800); await page.screenshot({ path: `e2e-out/${naam}.png` }); }; // fixed: shot tool, time for the light and the exact bodies before the photo
 
 // assemblage, en met het rooster eraf en het filter half uitgetild
 const asm = lees('voorbeelden/afzuiging/Afzuiging.kcad');
@@ -29,7 +30,7 @@ await open(knop);
 await kijk('Control+7', 'afzuiging-draaiknop');
 await kijk('Control+6', 'afzuiging-draaiknop-onder');
 await page.evaluate(() => window.__phlippoStore.setState({ sectionView: { plane: 'front', offset: 200, flip: false, cap: true } }));
-await page.waitForTimeout(1500);
+await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
 await kijk('Control+1', 'afzuiging-draaiknop-doorsnede');
 await page.evaluate(() => window.__phlippoStore.setState({ sectionView: null }));
 const uit = lees('voorbeelden/afzuiging/Afzuiging.kcad');
@@ -40,7 +41,7 @@ for (const c of uit.components) {
 await open(uit);
 await kijk('Control+7', 'afzuiging-filter-uit');
 // doorsnede door het midden (luchtweg: rooster, filterlagen, ventilator, lamellen) en door de klauwtorens
-const doorsnede = async (sv, toets, naam) => { await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), sv); await page.waitForTimeout(1500); await kijk(toets, naam); };
+const doorsnede = async (sv, toets, naam) => { await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), sv); await page.waitForTimeout(1500); await kijk(toets, naam); }; // fixed: shot tool, time for the light and the exact bodies before the photo
 await open(lees('voorbeelden/afzuiging/Afzuiging.kcad'));
 await doorsnede({ plane: 'right', offset: 0, flip: false, cap: true }, 'Control+4', 'afzuiging-doorsnede');
 await doorsnede({ plane: 'right', offset: 0, flip: false, cap: true }, 'Control+7', 'afzuiging-doorsnede-iso');

@@ -6,13 +6,15 @@ import { Icon } from '../../ui/icons';
 import { drawingToolClick, tableGrid } from './DrawingExtras';
 import { alternateLines, faceRegionAt, alignedPosition, nearestCircle, nearestLine, projectedPlacement, projectedView, sectionFlipFor, sectionFrame, sheetSize, sheetToView, viewBounds, viewGeometry, viewOnSheet, viewScale, viewToSheet } from '../../core/drawing/sheet';
 import { viewFrame } from '../../core/drawing/hlr';
-import { layoutBalloons, visibleAnchors } from '../../core/drawing/balloons';
+import { autoBalloonSet, componentCentres } from '../../core/drawing/autoBalloon';
+import { viewLines, EdgeLine } from './viewLines';
+import { CenterMarkGlyph } from './CenterMarkGlyph';
+import { centerMarkShown, DANGLING, detailedPreview, dimensionShown, noteShown, symbolShown } from './drawingPrefs';
 import { dimensionText } from '../../core/drawing/dimtext';
 import type { DrawingSheet, DrawingView } from '../../core/document/types';
 import { annotationFont, dimFontFamily, formatNumber, lengthDecimals, noteText, tableFont, tableLine, tableText, uppercaseDims } from '../prefsFormat';
 import { HatchPattern } from './HatchPattern';
-import { partRebuild, rebuildAssembly } from '../../core/assembly/assembly';
-import * as THREE from 'three';
+import { partRebuild } from '../../core/assembly/assembly';
 import { massProperties } from '../../core/features/measure';
 
 let symbolSeq = 0;
@@ -461,7 +463,7 @@ export function DrawingSheetView() {
     const b = viewBounds(sheet, v, v2d);
     const [bx, by] = toPx([b.x, b.y + b.h]);
     const selected = st.selectedDrawingViewId === v.id;
-    const drawLines = v.displayStyle === 'wireframe' ? lines.map((l) => ({ ...l, hidden: false })) : v.displayStyle === 'hiddenVisible' ? lines : lines.filter((l) => !l.hidden || (l.cosmetic && !!v.threadDraft));
+    const drawLines = viewLines(v, lines);
     return (
       <g key={v.id} className={`k-dv ${preview ? 'preview' : ''}`} data-view-id={v.id} opacity={preview ? 0.5 : 1}>
         {(selected || preview) && <rect x={bx} y={by} width={b.w * mm} height={b.h * mm} fill="none" stroke={preview ? '#1e6fd9' : '#4a90d9'} strokeDasharray="4 3" strokeWidth={1} />}
@@ -501,20 +503,9 @@ export function DrawingSheetView() {
             const mx = (a[0] + q[0]) / 2, my = (a[1] + q[1]) / 2;
             return <g key={i} className="k-bend-line" data-testid="bend-line"><line x1={a[0]} y1={a[1]} x2={q[0]} y2={q[1]} stroke="#000" strokeWidth={0.8} strokeDasharray="8 2 2 2 2 2" />{l.note && <text x={mx + 3} y={my - 3} fontSize={9} fill="#000" data-testid="bend-note">{l.note}</text>}</g>;
           }
-          return <line key={i} x1={a[0]} y1={a[1]} x2={q[0]} y2={q[1]} stroke={l.hidden ? '#555' : '#000'} strokeWidth={l.hidden ? 0.9 : 1.6} strokeDasharray={l.hidden ? '5 3' : undefined} strokeLinecap="round" />;
+          return <EdgeLine key={i} l={l} a={a} q={q} v={v} mm={mm} />;
         })}
-        {sheet.centerMarks.filter((m) => m.viewId === v.id).map((m) => {
-          const c = toPx(viewToSheet(sheet, v, v2d, m.c));
-          const r = m.r * viewScale(sheet, v) * mm;
-          const g = 2 * mm, ext = r + 3 * mm;
-          return (
-            <g key={m.id} stroke="#000" strokeWidth={0.7}>
-              <line x1={c[0] - ext} y1={c[1]} x2={c[0] - g} y2={c[1]} /><line x1={c[0] + g} y1={c[1]} x2={c[0] + ext} y2={c[1]} />
-              <line x1={c[0]} y1={c[1] - ext} x2={c[0]} y2={c[1] - g} /><line x1={c[0]} y1={c[1] + g} x2={c[0]} y2={c[1] + ext} />
-              <line x1={c[0] - 1.2 * mm} y1={c[1]} x2={c[0] + 1.2 * mm} y2={c[1]} /><line x1={c[0]} y1={c[1] - 1.2 * mm} x2={c[0]} y2={c[1] + 1.2 * mm} />
-            </g>
-          );
-        })}
+        {sheet.centerMarks.filter((m) => m.viewId === v.id && centerMarkShown(m)).map((m) => <CenterMarkGlyph key={m.id} m={m} at={(p) => toPx(viewToSheet(sheet, v, v2d, p))} k={viewScale(sheet, v) * mm} mm={mm} />)}
         {v.arrowLabel && !preview && (() => {
           // Projected View ▸ Arrow: VIEW A under this view
           const p1 = toPx([b.x + b.w / 2, b.y - 5]);
@@ -629,26 +620,6 @@ export function DrawingSheetView() {
     );
   };
 
-  /** BOM item number of the component under a point of an assembly view (1 for a part) */
-  const componentCentres = (v: DrawingView, visible = false): { name: string; item: number; at: [number, number] }[] => {
-    if (v.model.kind !== 'assembly') {
-      const g = viewGeometry(v);
-      // a part: the dot on the longest visible edge's midpoint, by design attaches to an edge of the part
-      const l = visible ? [...g.lines].filter((x) => !x.hidden).sort((a, b) => Math.hypot(b.b[0] - b.a[0], b.b[1] - b.a[1]) - Math.hypot(a.b[0] - a.a[0], a.b[1] - a.a[1]))[0] : undefined;
-      return [{ name: v.model.name, item: 1, at: l ? [(l.a[0] + l.b[0]) / 2, (l.a[1] + l.b[1]) / 2] : [(g.min[0] + g.max[0]) / 2, (g.min[1] + g.max[1]) / 2] }];
-    }
-    const fr = viewFrame(v.type);
-    const items = new Map<string, number>();
-    for (const c of v.model.components ?? []) if (!items.has(c.part.name)) items.set(c.part.name, items.size + 1);
-    const bodies = rebuildAssembly(v.model).bodies;
-    const vis = visible ? visibleAnchors(bodies, fr) : null;
-    return bodies.map((b) => {
-      b.geometry.computeBoundingBox();
-      const c = b.geometry.boundingBox!.getCenter(new THREE.Vector3());
-      const comp = (v.model.components ?? []).find((x) => x.id === b.id);
-      return { name: comp?.part.name ?? b.id, item: items.get(comp?.part.name ?? '') ?? 1, at: vis?.get(b.id) ?? ([c.dot(fr.u), c.dot(fr.v)] as [number, number]) };
-    });
-  };
   const balloonItem = (v: DrawingView, p: [number, number]): string => {
     const g = viewGeometry(v);
     const q = sheetToView(sheet, v, g, p);
@@ -657,36 +628,7 @@ export function DrawingSheetView() {
     return best;
   };
   /** Auto Balloon: one balloon per part, on a ring around the view with a leader to the part */
-  const autoBalloons = (v: DrawingView): { symbols: NonNullable<DrawingSheet['symbols']>; lines: NonNullable<DrawingSheet['magneticLines']> } => {
-    const g = viewGeometry(v);
-    const b = viewBounds(sheet, v, g);
-    const seen = new Set<number>();
-    const picked: { item: number; a: [number, number] }[] = [];
-    for (const c of componentCentres(v, true)) {
-      // Ignore multiple instances (default on): one balloon per part number
-      if (de?.ignoreMultiple !== false && seen.has(c.item)) continue;
-      seen.add(c.item);
-      let at = c.at;
-      if (de?.balloonAttach === 'edges') {
-        // Leader attachment ▸ Edges: the nearest point of a visible edge, with an arrow (a dot sits on a face)
-        let best = Infinity;
-        for (const l of g.lines) {
-          if (l.hidden) continue;
-          const dx = l.b[0] - l.a[0], dy = l.b[1] - l.a[1], L2 = dx * dx + dy * dy || 1;
-          const t = Math.max(0, Math.min(1, ((c.at[0] - l.a[0]) * dx + (c.at[1] - l.a[1]) * dy) / L2));
-          const q: [number, number] = [l.a[0] + dx * t, l.a[1] + dy * t];
-          const d = Math.hypot(q[0] - c.at[0], q[1] - c.at[1]);
-          if (d < best) { best = d; at = q; }
-        }
-      }
-      picked.push({ item: c.item, a: viewToSheet(sheet, v, g, at) });
-    }
-    // the balloons of the intended design sit clear of the view and of each other: 2 characters = 8 mm, 2 mm apart
-    const lay = layoutBalloons(picked.map((p) => p.a), { x: b.x, y: b.y, w: b.w, h: b.h }, de?.balloonLayout ?? 'square', { offset: 12, gap: 10 });
-    const symbols = picked.map((p, i) => ({ id: newSymbolId(), kind: 'balloon' as const, anchor: p.a, position: lay.positions[i], text: String(p.item), viewId: v.id, ...(de?.balloonAttach === 'edges' ? { head: 'arrow' as const } : {}) }));
-    const lines = de?.insertMagnetic === false ? [] : lay.lines.map((l) => ({ id: newSymbolId(), a: l.a, b: l.b, balloons: l.members.map((i) => symbols[i].id) }));
-    return { symbols, lines };
-  };
+  const autoBalloons = (v: DrawingView) => autoBalloonSet(sheet, v, { ignoreMultiple: de?.ignoreMultiple !== false, edges: de?.balloonAttach === 'edges', layout: de?.balloonLayout, magnetic: de?.insertMagnetic !== false }, newSymbolId);
   const renderSymbol = (sy: NonNullable<DrawingSheet['symbols']>[number]) => {
     const P = toPx(sy.position);
     const fs = 3.5 * mm;
@@ -916,7 +858,7 @@ export function DrawingSheetView() {
     const text = uppercaseDims(dt.main);
     const fs = (d.fontSize ?? 3.5) * mm;
     const sel = st.selectedDrawingDimensionId === d.id;
-    const col = sel ? '#1e6fd9' : '#1a3d8f';
+    const col = sel ? '#1e6fd9' : d.dangling ? DANGLING : '#1a3d8f';
     // tolerance stacked right of the value (bilateral / limit), dual value below, basic in a box
     const extras = (x: number, y: number, anchor: 'middle' | 'start' | 'end') => {
       const w = text.length * fs * 0.56;
@@ -1112,7 +1054,7 @@ export function DrawingSheetView() {
           const bo = de?.mode === 'brokenOut' && de.brokenOutPreview && de.brokenOut?.closed && de.brokenOut.viewId === v.id && de.brokenOut.points.length >= 3 ? de.brokenOut : null;
           return renderView(bo ? { ...v, brokenOut: { poly: bo.points, depth: Math.max(0.01, bo.depth) } } : v);
         })}
-        {previewView && (de?.mode !== 'modelView' || de.preview !== false ? renderView(previewView, true) : (() => {
+        {previewView && (de?.mode !== 'modelView' || (de.preview !== false && detailedPreview()) ? renderView(previewView, true) : (() => {
           // Preview off: only the outline of the view follows the pointer
           const g = viewGeometry(previewView);
           const s = viewScale(sheet, previewView);
@@ -1156,7 +1098,7 @@ export function DrawingSheetView() {
           if (!de.detailRadius || !cursorPos) return circle;
           return <g>{circle}{renderView({ ...parent, id: '__detprev', position: cursorPos, scale: de.useCustomScale ? de.scale : [2, 1], detail: { parentId: parent.id, parentType: parent.type, center: de.detailCenter, radius: de.detailRadius, label: '' } }, true)}</g>;
         })()}
-        {sheet.dimensions.map(renderDimension)}
+        {sheet.dimensions.filter(dimensionShown).map(renderDimension)}
         {de?.mode === 'dimension' && de.dimStart && cursorPos && (() => {
           const v = sheet.views.find((x) => x.id === de.dimStart!.viewId);
           if (!v) return null;
@@ -1166,7 +1108,7 @@ export function DrawingSheetView() {
           const d = { id: '__dimpreview', viewId: v.id, kind: de.dimStart.kind, a: de.dimStart.a, b: de.dimStart.b, label: viewLabel, value: de.dimStart.value, orientation: de.dimStart.kind === 'linear' ? orientationFor(de.dimStart.a, de.dimStart.b, viewLabel) : undefined } as DrawingSheet['dimensions'][number];
           return <g opacity={0.6}>{renderDimension(d)}</g>;
         })()}
-        {(sheet.symbols ?? []).map((sy) => renderSymbol(sy))}
+        {(sheet.symbols ?? []).filter(symbolShown).map((sy) => (sy.dangling ? <g key={sy.id} className="k-dangling" opacity={0.55}>{renderSymbol(sy)}</g> : renderSymbol(sy)))}
         {(sheet.tables ?? []).map((t) => (t.kind === 'hole' ? renderHoleTable(t) : t.kind === 'general' ? renderGeneralTable(t) : renderBom(t)))}
         {(sheet.magneticLines ?? []).filter((ml) => st.drawingTool?.kind === 'magneticLine' || (dragAnnot && ml.balloons.includes(dragAnnot))).map((ml) => { const a = toPx(ml.a), b = toPx(ml.b); return <line key={ml.id} data-testid="magnetic-line" x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#3a7bd5" strokeWidth={0.8} strokeDasharray="6 3" />; })}
         {st.drawingTool?.kind === 'magneticLine' && st.drawingTool.a && (() => { const a = toPx(st.drawingTool.a); return <circle cx={a[0]} cy={a[1]} r={3} fill="#3a7bd5" />; })()}
@@ -1195,7 +1137,7 @@ export function DrawingSheetView() {
         {de?.mode === 'symbol' && de.symbolAnchor && cursorPos && de.symbolKind && de.symbolKind !== 'centerline' && de.symbolKind !== 'autoBalloon' && (
           <g opacity={0.6}>{renderSymbol({ id: '__symprev', kind: de.symbolKind, position: cursorPos, anchor: de.symbolAnchor, text: de.symbolKind === 'surfaceFinish' ? de.finish : de.symbolText, symbol: de.gtolSymbol, tol: de.gtolTol, datum: de.gtolDatum })}</g>
         )}
-        {sheet.notes.map((n) => {
+        {sheet.notes.filter(noteShown).map((n) => {
           const p = toPx(n.position);
           const fs = (n.fontSize ?? 3.5) * mm;
           const lines = noteText(n.text).split('\n');

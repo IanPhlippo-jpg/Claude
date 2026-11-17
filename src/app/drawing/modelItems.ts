@@ -73,11 +73,11 @@ export function modelItems(views: DrawingView[], opts: ModelItemsOptions, existi
             const ln = dd.lines[0];
             const centre = c.kind === 'radius' ? ln.a : { x: (ln.a.x + ln.b.x) / 2, y: (ln.a.y + ln.b.y) / 2 };
             const onCircle = ln.b;
-            dim = { id: newId('dd'), viewId: v.id, kind: c.kind === 'radius' ? 'radius' : 'diameter', a: P(centre), b: P(onCircle), label: P(dd.label), value: c.value ?? 0 };
+            dim = { id: newId('dd'), viewId: v.id, kind: c.kind === 'radius' ? 'radius' : 'diameter', a: P(centre), b: P(onCircle), label: P(dd.label), value: c.value ?? 0, model: true };
           } else {
             const a = P(dd.lines[0].a), b = P(dd.lines[1].a), label = P(dd.label);
             const orientation: DrawingDimension['orientation'] = c.kind === 'hDistance' || c.kind === 'vDistance' ? (Math.abs(a[0] - b[0]) > Math.abs(a[1] - b[1]) ? 'h' : 'v') : Math.abs(a[1] - b[1]) < 1e-6 ? 'h' : Math.abs(a[0] - b[0]) < 1e-6 ? 'v' : 'aligned';
-            dim = { id: newId('dd'), viewId: v.id, kind: 'linear', a, b, label, value: c.value ?? 0, orientation };
+            dim = { id: newId('dd'), viewId: v.id, kind: 'linear', a, b, label, value: c.value ?? 0, orientation, model: true };
           }
           if (!shows(v, dim)) continue;
           if (opts.sketchPlacement === false) dim = { ...dim, label: offsetLabel(v, dim) };
@@ -106,7 +106,7 @@ export function modelItems(views: DrawingView[], opts: ModelItemsOptions, existi
         const a = to2(start), b = to2(end);
         const label: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
         label[across] += 10;
-        let dim: DrawingDimension = { id: newId('dd'), viewId: v.id, kind: 'linear', a, b, label, value: f.depth, orientation: along === 0 ? 'h' : 'v' };
+        let dim: DrawingDimension = { id: newId('dd'), viewId: v.id, kind: 'linear', a, b, label, value: f.depth, orientation: along === 0 ? 'h' : 'v', model: true };
         if (!shows(v, dim)) continue;
         if (opts.sketchPlacement === false) dim = { ...dim, label: offsetLabel(v, dim) };
         done.add(f.id);

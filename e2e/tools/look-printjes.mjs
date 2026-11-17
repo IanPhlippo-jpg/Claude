@@ -3,6 +3,7 @@
 // Gebruik: node e2e/tools/look-printjes.mjs [naam ...]  (zonder naam: alle beelden)
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -17,18 +18,18 @@ const F = 'voorbeelden/treinverlichting/Kabeldoos.kcad';
 const alleen = (re) => { const d = JSON.parse(readFileSync(F, 'utf8')); delete d.format; d.components = d.components.filter((c) => re.test(c.id)); return d; };
 const open = async (d) => {
   await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d);
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.waitForFunction(() => !window.__phlippoStore.getState().rebuild.pending, null, { timeout: 300_000 });
   const fout = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
   if (Object.keys(fout).length) errors.push(`rebuild: ${JSON.stringify(fout).slice(0, 400)}`);
 };
 /** aanzicht (toets), passend maken, dan inzoomen op een punt van het scherm */
 const kijk = async (naam, toets, zoom = 0, punt = [960, 540]) => {
-  await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1200);
+  await page.keyboard.press(toets); await settle(page); await page.keyboard.press('f'); await settle(page);
   await page.mouse.move(...punt);
   for (let i = 0; i < zoom; i++) { await page.mouse.wheel(0, 240); await page.waitForTimeout(200); }
   // de muis naar een lege hoek van het tekenvlak en geen oude hover (anders oranje randen)
-  await page.mouse.move(1700, 980); await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null })); await page.waitForTimeout(2500);
+  await page.mouse.move(1700, 980); await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null })); await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.screenshot({ path: `e2e-out/printje-${naam}.png` });
 };
 const wil = process.argv.slice(2), doe = (n) => !wil.length || wil.includes(n);

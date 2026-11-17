@@ -51,7 +51,7 @@ check('the part opens without errors', JSON.stringify(await S(() => window.__phl
 
 // 1. Boss-Extrude2 dragged onto Boss-Extrude1: it goes right below it, its sketch along
 await row('e3').dragTo(row('e1'));
-await page.waitForTimeout(500);
+await settle(page);
 check('Boss-Extrude2 with Sketch3 moved below Boss-Extrude1', (await order()) === 'k1 e1 k3 e3 k2 e2 p1', `${await order()} :: ${await S(() => window.__phlippoStore.getState().messages.map((m) => m.text).join(' | '))}`);
 check('the tree shows the new order', (await page.locator('.k-tree-row[data-depth="1"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-id')).filter((x) => /^(e|p)\d$/.test(x)).join(' '))) === 'e1 e3 e2 p1');
 check('the moved part still rebuilds without errors', JSON.stringify(await S(() => window.__phlippoStore.getState().rebuild.errors)) === '{}');
@@ -65,16 +65,16 @@ check('Undo puts the order back', (await order()) === start, await order());
 await row('p1').hover();
 const before2 = await order();
 await row('p1').dragTo(row('e1'));
-await page.waitForTimeout(400);
+await settle(page);
 check('LPattern1 cannot go above Cut-Extrude1 (its parent)', (await order()) === before2, await order());
 await row('e2').dragTo(row('e3'));
-await page.waitForTimeout(400);
+await settle(page);
 check('Cut-Extrude1 cannot go below LPattern1 (its child)', (await order()) === before2, await order());
 check('no drop line is left on the row', (await page.locator('.k-tree-row.drop-below').count()) === 0);
 
 // 3. a move that makes a feature fail is refused with a message: Boss-Extrude1 below the cut it is cut by
 await row('e1').dragTo(row('e3'));
-await page.waitForTimeout(600);
+await settle(page);
 const msgs = await S(() => window.__phlippoStore.getState().messages.map((m) => m.text).join(' | '));
 const o3 = await order();
 check('Boss-Extrude1 below the cut is refused or rebuilds clean', o3 === start ? /cannot be moved there/.test(msgs) : JSON.stringify(await S(() => window.__phlippoStore.getState().rebuild.errors)) === '{}', `${o3} :: ${msgs}`);

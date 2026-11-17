@@ -3,13 +3,13 @@
 // scharnier geeft geldige scènes (eindige punten, genummerde delen), aluminium wordt nooit gelast, staal wel, en de
 // prijzen vallen in de marktband (Ian, 2026-11-12: aluminium hoogstens ± € 880 excl. btw).
 import { describe, expect, it } from 'vitest';
-import { STIJLEN, ontwerp, SYSTEMEN } from '../../bibliotheek/taatsdeuren/deuren.mjs';
-import { montage, vlakken } from '../../bibliotheek/taatsdeuren/verbinding.mjs';
-import { montageBladen } from '../../bibliotheek/taatsdeuren/montage.mjs';
-import { kostprijs, MARKTBAND } from '../../bibliotheek/taatsdeuren/prijzen.mjs';
-import { stuklijst } from '../../bibliotheek/taatsdeuren/stuklijst.mjs';
-import { boringBladen } from '../../bibliotheek/taatsdeuren/boringblad.mjs';
-import { vorm3d } from '../../bibliotheek/taatsdeuren/detail.mjs';
+import { STIJLEN, ontwerp, SYSTEMEN } from '../taatsdeuren/deuren.mjs';
+import { montage, vlakken } from '../taatsdeuren/verbinding.mjs';
+import { montageBladen } from '../taatsdeuren/montage.mjs';
+import { kostprijs, MARKTBAND } from '../taatsdeuren/prijzen.mjs';
+import { stuklijst } from '../taatsdeuren/stuklijst.mjs';
+import { boringBladen } from '../taatsdeuren/boringblad.mjs';
+import { vorm3d } from '../taatsdeuren/detail.mjs';
 
 const stijl = (id) => STIJLEN.find((s) => s.id === id);
 const maak = (id, systeem, scharnier = 'budget') => { const s = stijl(id); return ontwerp(s.id, s.std.B, s.std.H, { systeem, scharnier }); };

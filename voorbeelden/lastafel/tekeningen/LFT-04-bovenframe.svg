@@ -9,7 +9,7 @@
 <line x1="105.50" y1="34.00" x2="105.50" y2="39.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="48.50" y1="39.50" x2="48.50" y2="39.48" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="48.50" y1="34.02" x2="48.50" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="103.03" y1="40.50" x2="103.03" y2="39.52" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="103.03" y1="40.50" x2="103.03" y2="39.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="51.40" y1="39.47" x2="51.40" y2="40.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="46.00" y1="34.00" x2="48.50" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="103.00" y1="34.00" x2="105.50" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -18,46 +18,38 @@
 <line x1="103.00" y1="34.02" x2="103.00" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="46.00" y1="39.50" x2="46.00" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="100.10" y1="39.47" x2="100.10" y2="40.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="48.47" y1="40.50" x2="48.47" y2="39.52" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="48.47" y1="40.50" x2="48.47" y2="39.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="105.50" y1="66.50" x2="105.50" y2="186.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="48.50" y1="66.50" x2="48.50" y2="186.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="100.20" y1="182.98" x2="100.20" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="99.90" y1="182.98" x2="99.90" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="53.30" y1="182.98" x2="53.30" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="53.00" y1="182.98" x2="53.00" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="100.20" y1="183.00" x2="100.20" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="99.90" y1="183.00" x2="99.90" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="53.30" y1="183.00" x2="53.30" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="53.00" y1="183.00" x2="53.00" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="51.40" y1="79.25" x2="51.40" y2="73.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="46.00" y1="186.00" x2="48.50" y2="186.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="103.00" y1="186.00" x2="105.50" y2="186.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="103.00" y1="69.50" x2="48.52" y2="69.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="102.98" y1="186.00" x2="48.52" y2="186.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="48.52" y1="79.25" x2="51.40" y2="79.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="100.10" y1="79.25" x2="102.98" y2="79.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="105.50" y1="66.50" x2="103.00" y2="66.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="48.50" y1="66.50" x2="46.00" y2="66.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="48.52" y1="66.50" x2="102.98" y2="66.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="102.98" y1="183.00" x2="48.52" y2="183.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="100.20" y1="148.75" x2="99.92" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="98.48" y1="148.75" x2="98.20" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="53.30" y1="148.75" x2="53.02" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="51.58" y1="148.75" x2="51.30" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="99.90" y1="148.75" x2="98.50" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="53.00" y1="148.75" x2="51.60" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="102.98" y1="73.25" x2="100.10" y2="73.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="51.40" y1="73.25" x2="48.52" y2="73.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="46.00" y1="186.00" x2="105.50" y2="186.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="103.00" y1="69.50" x2="48.50" y2="69.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="48.50" y1="79.25" x2="51.40" y2="79.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="100.10" y1="79.25" x2="103.00" y2="79.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="105.50" y1="66.50" x2="46.00" y2="66.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="103.00" y1="183.00" x2="48.50" y2="183.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="100.20" y1="148.75" x2="98.20" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="53.30" y1="148.75" x2="51.30" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="103.00" y1="73.25" x2="100.10" y2="73.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="51.40" y1="73.25" x2="48.50" y2="73.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="103.00" y1="66.50" x2="103.00" y2="186.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="46.00" y1="186.00" x2="46.00" y2="66.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="98.50" y1="182.98" x2="98.50" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="98.20" y1="182.98" x2="98.20" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="51.60" y1="182.98" x2="51.60" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="51.30" y1="182.98" x2="51.30" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="98.50" y1="183.00" x2="98.50" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="98.20" y1="183.00" x2="98.20" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="51.60" y1="183.00" x2="51.60" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="51.30" y1="183.00" x2="51.30" y2="148.75" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="100.10" y1="79.25" x2="100.10" y2="73.25" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="245.00" y1="34.00" x2="125.50" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="245.00" y1="39.50" x2="245.00" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="138.25" y1="40.50" x2="138.25" y2="39.52" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="138.25" y1="40.50" x2="138.25" y2="39.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="245.00" y1="39.50" x2="125.50" y2="39.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="138.25" y1="40.50" x2="132.25" y2="40.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="125.50" y1="39.50" x2="125.50" y2="34.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="132.25" y1="40.50" x2="132.25" y2="39.52" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="132.25" y1="40.50" x2="132.25" y2="39.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="46.00" y1="33.00" x2="46.00" y2="24.50" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
 <line x1="105.50" y1="33.00" x2="105.50" y2="24.50" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
 <line x1="46.00" y1="26.00" x2="105.50" y2="26.00" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
@@ -86,17 +78,17 @@
 <text x="75.75" y="192.00" font-size="3.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Bovenaanzicht</text>
 <text x="185.25" y="20.00" font-size="3.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Linkeraanzicht</text>
 <line x1="404.50" y1="66.70" x2="334.40" y2="107.17" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="300.97" y1="87.85" x2="300.98" y2="87.85" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="369.30" y1="48.40" x2="369.32" y2="48.39" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="333.64" y1="100.98" x2="353.14" y2="89.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="306.12" y1="85.09" x2="325.63" y2="73.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="300.97" y1="87.85" x2="300.97" y2="87.85" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="369.30" y1="48.40" x2="369.31" y2="48.40" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="333.62" y1="100.98" x2="353.14" y2="89.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="306.11" y1="85.10" x2="325.63" y2="73.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="369.32" y1="48.41" x2="368.81" y2="48.70" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="363.59" y1="51.72" x2="325.63" y2="73.63" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="300.98" y1="87.86" x2="300.97" y2="87.87" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="368.81" y1="51.34" x2="365.29" y2="53.38" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="334.40" y1="107.17" x2="332.94" y2="106.33" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="300.97" y1="87.87" x2="299.50" y2="87.02" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="363.58" y1="51.71" x2="363.59" y2="51.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="363.58" y1="51.72" x2="363.59" y2="51.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="396.45" y1="64.07" x2="369.30" y2="48.40" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="300.97" y1="87.85" x2="332.94" y2="106.31" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="365.29" y1="53.38" x2="363.57" y2="52.39" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -108,18 +100,18 @@
 <line x1="365.29" y1="49.07" x2="365.29" y2="53.38" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="404.50" y1="66.70" x2="404.50" y2="62.98" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="371.06" y1="43.67" x2="371.06" y2="43.69" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="302.73" y1="83.16" x2="302.73" y2="83.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="302.73" y1="83.15" x2="302.73" y2="83.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="352.97" y1="89.27" x2="352.97" y2="89.04" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="353.14" y1="89.72" x2="353.14" y2="89.38" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="325.46" y1="73.39" x2="325.46" y2="73.15" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="325.63" y1="73.83" x2="325.63" y2="73.49" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="367.10" y1="46.06" x2="367.10" y2="46.07" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="367.10" y1="46.06" x2="367.10" y2="46.06" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="368.81" y1="51.34" x2="368.81" y2="47.04" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="404.50" y1="62.98" x2="334.40" y2="103.45" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="371.06" y1="43.69" x2="369.30" y2="44.71" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="302.73" y1="83.14" x2="300.97" y2="84.16" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="371.06" y1="43.67" x2="300.97" y2="84.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="352.97" y1="89.27" x2="333.15" y2="100.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="352.97" y1="89.27" x2="333.16" y2="100.71" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="333.33" y1="100.82" x2="353.14" y2="89.38" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="332.95" y1="100.59" x2="352.97" y2="89.04" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="325.46" y1="73.39" x2="305.64" y2="84.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -132,19 +124,19 @@
 <line x1="401.26" y1="63.16" x2="369.30" y2="44.71" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="332.94" y1="102.62" x2="300.97" y2="84.16" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="363.59" y1="48.09" x2="365.29" y2="49.07" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="393.85" y1="65.57" x2="395.46" y2="66.49" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="393.85" y1="65.57" x2="395.47" y2="66.50" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="404.50" y1="62.98" x2="403.03" y2="62.13" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="371.06" y1="43.67" x2="369.60" y2="42.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="371.06" y1="43.69" x2="403.02" y2="62.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="334.68" y1="101.60" x2="302.73" y2="83.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="334.68" y1="101.59" x2="302.73" y2="83.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="353.14" y1="89.38" x2="352.97" y2="89.27" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="325.63" y1="73.49" x2="325.46" y2="73.39" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="352.97" y1="89.04" x2="352.15" y2="88.56" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="325.46" y1="73.15" x2="324.64" y2="72.68" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="398.98" y1="64.46" x2="397.37" y2="63.54" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="398.99" y1="64.47" x2="397.37" y2="63.54" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="368.81" y1="47.04" x2="367.10" y2="46.06" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="403.03" y1="62.13" x2="332.94" y2="102.60" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="332.94" y1="102.62" x2="332.95" y2="102.61" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="332.94" y1="102.62" x2="332.94" y2="102.62" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="299.50" y1="83.30" x2="369.60" y2="42.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="332.13" y1="100.12" x2="352.15" y2="88.56" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="304.62" y1="84.24" x2="324.64" y2="72.68" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -154,19 +146,19 @@
 <line x1="299.50" y1="87.02" x2="299.50" y2="83.30" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="393.85" y1="65.57" x2="393.85" y2="67.43" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="363.57" y1="52.39" x2="363.57" y2="51.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="332.94" y1="106.31" x2="332.95" y2="106.30" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="332.95" y1="106.32" x2="332.94" y2="106.33" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="299.50" y1="87.02" x2="299.51" y2="87.02" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="363.57" y1="52.39" x2="363.58" y2="52.38" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="404.50" y1="66.70" x2="404.49" y2="66.70" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="325.62" y1="73.83" x2="325.63" y2="73.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="353.13" y1="89.71" x2="353.14" y2="89.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="368.79" y1="51.34" x2="368.81" y2="51.34" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="403.03" y1="62.13" x2="403.03" y2="62.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="369.60" y1="42.84" x2="369.60" y2="42.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="352.15" y1="88.58" x2="352.15" y2="88.56" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="324.64" y1="72.69" x2="324.64" y2="72.68" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="397.37" y1="63.55" x2="397.37" y2="63.54" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="332.94" y1="106.31" x2="332.94" y2="106.31" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="332.94" y1="106.33" x2="332.94" y2="106.33" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="299.50" y1="87.02" x2="299.50" y2="87.02" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="363.57" y1="52.39" x2="363.57" y2="52.38" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="404.50" y1="66.70" x2="404.50" y2="66.70" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="325.63" y1="73.83" x2="325.63" y2="73.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="353.14" y1="89.71" x2="353.14" y2="89.72" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="368.80" y1="51.34" x2="368.81" y2="51.34" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="403.03" y1="62.13" x2="403.03" y2="62.13" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="369.60" y1="42.83" x2="369.60" y2="42.83" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="352.15" y1="88.57" x2="352.15" y2="88.56" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="324.64" y1="72.68" x2="324.64" y2="72.68" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="397.37" y1="63.54" x2="397.37" y2="63.54" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <text x="352.00" y="19.00" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Isometrie (schaal vrij)</text>
 <text x="292.00" y="137.00" font-size="3.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Belangrijke maten en bewerkingen</text>
 <text x="292.00" y="142.20" font-size="2.5" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Buitenmaat 1190 x 2390 x 110</text>
@@ -279,11 +271,12 @@
 <text x="336.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Maten en toleranties</text>
 <text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-m</text>
 <line x1="380.00" y1="287.00" x2="380.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="393.00" y2="284.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="279.60" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="384.00" y2="279.60" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="393.00" y1="284.10" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="382.50" y1="282.60" x2="394.50" y2="282.60" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
-<circle cx="401.00" cy="282.60" r="3.00" fill="none" stroke="#111" stroke-width="0.3"/>
-<circle cx="401.00" cy="282.60" r="1.50" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="381.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Projectie: 1e hoek</text>
+<line x1="387.00" y1="285.45" x2="393.30" y2="286.50" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="283.35" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="387.00" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="393.30" y1="286.50" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="385.95" y1="284.40" x2="394.35" y2="284.40" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
+<circle cx="398.90" cy="284.40" r="2.10" fill="none" stroke="#111" stroke-width="0.3"/>
+<circle cx="398.90" cy="284.40" r="1.05" fill="none" stroke="#111" stroke-width="0.3"/>
 </svg>

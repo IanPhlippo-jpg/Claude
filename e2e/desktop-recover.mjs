@@ -10,6 +10,7 @@ import { _electron as electron } from 'playwright';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { settle } from './lib/wait.mjs';
 
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'phlippo-recover-'));
 const env = { ...process.env, PHLIPPO_E2E: '1', VITE_DEV_SERVER_URL: process.env.PHLIPPO_DEV_URL ?? '', PHLIPPO_USER_DATA: profile };
@@ -25,7 +26,7 @@ const start = async () => {
   const page = await app.firstWindow();
   page.on('pageerror', (e) => console.log('pageerror: ' + e.message));
   await page.waitForSelector('.k-viewport', { timeout: 60000 });
-  await page.waitForTimeout(800);
+  await settle(page);
   return { app, page };
 };
 const recoverFiles = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter((n) => n.endsWith('.autorecover.kcad')) : []);
@@ -47,8 +48,14 @@ const makePart = (depth) => page.evaluate((depth) => {
 }, depth);
 const a = await makePart(8);
 check('a new document has a stable id and unsaved changes', !!a.id && a.name === 'Part1' && a.dirty, JSON.stringify(a));
+// P2-6: the autosave after a change goes by itself (≈2 s after the last change) to the auto-recover folder on disk,
+// not to the browser storage
+const until = async (ok, ms) => { const t = Date.now(); while (Date.now() - t < ms) { if (await ok()) return true; await new Promise((r) => setTimeout(r, 200)); } return ok(); };
+const autoCopy = await until(() => recoverFiles(defaultDir).length === 1, 15000);
+check('the autosave writes the copy to <profile>/autorecover without a forced write (P2-6)', autoCopy, recoverFiles(defaultDir).join(', '));
+check('… and not to the browser storage (P2-6)', (await page.evaluate(() => localStorage.getItem('phlippo.autosave'))) === null);
 check('the forced auto-recover write succeeds', await page.evaluate(() => window.__phlippoAutoRecover.write()));
-await page.waitForTimeout(50);
+await page.waitForTimeout(50); // fixed: a gap between two auto-recover writes
 const b = await makePart(12);
 check('a second document with the same name has another id', !!b.id && b.id !== a.id && b.name === 'Part1', JSON.stringify(b));
 await page.evaluate(() => window.__phlippoAutoRecover.write());
@@ -72,14 +79,15 @@ await page.waitForFunction(() => (document.querySelector('[data-testid="recover-
 const shownBefore = await page.locator('[data-testid="recover-folder"]').inputValue();
 check('Options shows the folder of the shell, read-only', path.normalize(shownBefore) === defaultDir && (await page.locator('[data-testid="recover-folder"]').getAttribute('readonly')) !== null, shownBefore);
 await page.locator('[data-testid="recover-folder-browse"]').click();
-await page.waitForTimeout(300);
+// the chosen folder comes back from the shell over IPC
+await page.waitForFunction((before) => (document.querySelector('[data-testid="recover-folder"]')?.value ?? '') !== before, shownBefore, { timeout: 15000 }).catch(() => undefined);
 const shownAfter = await page.locator('[data-testid="recover-folder"]').inputValue();
 const settings = JSON.parse(fs.readFileSync(path.join(profile, 'autorecover.json'), 'utf8'));
 check('Browse… uses the folder dialog of the shell and the choice is kept in the profile', path.normalize(shownAfter) === chosen && path.normalize(settings.folder) === chosen, `${shownAfter} / ${JSON.stringify(settings)}`);
 await page.evaluate(() => window.__phlippoAutoRecover.write());
 check('the next copy goes to the chosen folder', recoverFiles(chosen).length === 1, recoverFiles(chosen).join(', '));
 await page.locator('[data-testid="recover-folder-default"]').click();
-await page.waitForTimeout(300);
+await page.waitForFunction((before) => (document.querySelector('[data-testid="recover-folder"]')?.value ?? '') !== before, shownAfter, { timeout: 15000 }).catch(() => undefined);
 check('Default goes back to <profile>/autorecover', path.normalize(await page.locator('[data-testid="recover-folder"]').inputValue()) === defaultDir && !fs.existsSync(path.join(profile, 'autorecover.json')));
 // ---- F162: only the choice is kept ----
 await page.evaluate(() => window.phlippoDesktop.setSoftwareGL(true));
@@ -104,7 +112,7 @@ await new Promise((r) => setTimeout(r, 1500));
 
 ({ app, page } = await start());
 await page.keyboard.press('Escape');
-await page.waitForTimeout(500);
+await settle(page);
 const pane = await page.evaluate(() => window.__phlippoStore.getState().taskPane);
 check('after the crash Document Recovery opens by itself', pane === 'recovery', String(pane));
 const items = page.locator('[data-testid="recovery-disk"] li');
@@ -123,7 +131,7 @@ await app.evaluate(({ dialog }, f) => { globalThis.__saves = 0; dialog.showSaveD
 await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
 await page.keyboard.press('Control+s');
 await page.waitForFunction(() => !window.__phlippoStore.getState().dirty, null, { timeout: 15000 }).catch(() => {});
-await page.waitForTimeout(500);
+await settle(page);
 const saves = await app.evaluate(() => globalThis.__saves);
 files = recoverFiles(defaultDir);
 check('Save asks for a file (no handle of an earlier document is reused)', saves === 1 && fs.existsSync(target), String(saves));

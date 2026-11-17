@@ -2,8 +2,7 @@ import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
-import { FASTENER_NAMES, fastenerLength, LENGTHS, METRIC, type FastenerType } from '../../core/assembly/fasteners';
-import { isLibrarySize, screwLengths } from '../../core/library/iso';
+import { FASTENER_NAMES, fastenerLength, fastenerLengths, METRIC, type FastenerType } from '../../core/assembly/fasteners';
 
 /** Auto Fasteners Property Panel, by design: Selection (holes), Series Components (groups), Properties (type, size, length). */
 export function FastenerPM() {
@@ -47,7 +46,7 @@ export function FastenerPM() {
           </div>
           <div className="k-field"><label>Length</label>
             <select className="k-input" value={s.length} data-testid={`fastener-length-${i}`} onChange={(e) => st.updateFastenerSlot(i, { length: Number(e.target.value) })}>
-              {(s.type === 'shcs' && isLibrarySize(s.size) ? screwLengths(s.size) : LENGTHS).map((l) => <option key={l} value={l}>{l}</option>)}
+              {fastenerLengths(s.type, s.size).map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
           <div className="k-muted" style={{ fontSize: 11 }} data-testid={`fastener-grip-${i}`}>Grip: {s.grip.toFixed(2)}{st.doc.units}; hole Ø{s.top.diameter}{s.series ? ` (ISO 273 ${s.series})` : s.tapped ? ' (tapped)' : ''}</div>

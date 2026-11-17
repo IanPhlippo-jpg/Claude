@@ -21,13 +21,13 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 // an open L profile on the Front plane: (0,0) -> (40,0) -> (40,30)
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 const p0 = await P(0, 0), p1 = await P(40, 0), p2 = await P(40, 30);
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
@@ -40,11 +40,11 @@ await page.keyboard.press('Escape');
 // Base Flange/Tab from the Sheet Metal tab
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-big:has-text("Base Flange/Tab") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 const pmTitle = await page.locator('.k-pm-title').innerText();
 check('Base Flange PM: Direction 1, Sheet Metal Parameters, Bend Allowance', /Base-Flange1/.test(pmTitle) && (await page.locator('.k-section:has-text("Sheet Metal Parameters")').count()) >= 1 && (await page.locator('.k-section:has-text("Bend Allowance")').count()) === 1 && (await page.locator('.k-section:has-text("Direction 1")').count()) === 1, pmTitle);
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await settle(page);
 await shot('hm0-base-flange-pm');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -62,7 +62,7 @@ await shot('hm1-base-flange');
 // Hem on the top edge of the vertical leg
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Hem")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Hem PM: Edges, Type and Size (Closed/Open), Material Inside', (await page.locator('.k-pm-title:has-text("Hem1")').count()) === 1 && (await page.locator('.k-section:has-text("Type and Size")').count()) === 1 && (await page.locator('.k-pm-stylebtn[data-tip="Material Inside"].active').count()) === 1);
 const picked = await page.evaluate(() => {
   const s = window.__phlippoStore.getState();
@@ -75,7 +75,7 @@ const picked = await page.evaluate(() => {
 check('the top edge is the hem edge', picked === true);
 await page.locator('.k-section:has-text("Type and Size") input.k-num').first().fill('10');
 await page.locator('.k-section:has-text("Type and Size") input.k-num').first().press('Tab');
-await page.waitForTimeout(500);
+await settle(page);
 await shot('hm2-hem-preview');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -91,7 +91,7 @@ await shot('hm3-hem');
 // Flatten: the developed length grows by leg + bend allowance (180) - setback
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Flatten")');
-await page.waitForTimeout(900);
+await settle(page);
 const v3 = await volume();
 const ba90 = (Math.PI / 2) * (r + 0.5 * t), sb = (r + t);
 const flat0 = 70 - 2 * sb + ba90;

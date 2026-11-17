@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,7 +22,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(400);
+await settle(page);
 
 // ---- start-up: Welcome over an empty window, nothing in the tree, Command Ribbon greyed
 let s = await st();
@@ -33,7 +34,7 @@ await page.screenshot({ path: `${OUT}/qa1-startup.png` });
 
 // ---- a new part: Trimetric, by design
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(500);
+await settle(page);
 s = await st();
 check('new part opens in Trimetric', s.hasDocument && s.viewName === '*Trimetric', JSON.stringify(s));
 check('no watermark logo in the empty part', (await page.locator('[data-testid="bg-logo"]').count()) === 0);
@@ -54,34 +55,34 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 
 // ---- Rebuild keeps undo history and the unsaved flag
 await S(() => window.__phlippoStore.getState().applyDocument('Depth', { ...window.__phlippoStore.getState().doc, features: window.__phlippoStore.getState().doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 20 } : f)) }));
-await page.waitForTimeout(300);
+await settle(page);
 s = await st();
 check('an edit makes the document dirty and undoable', s.dirty && s.canUndo, JSON.stringify(s));
 await page.keyboard.press('Control+b');
-await page.waitForTimeout(500);
+await settle(page);
 s = await st();
 check('Rebuild (Ctrl+B) keeps undo and the unsaved flag', s.dirty && s.canUndo && s.features === 2, JSON.stringify(s));
 check('title shows the unsaved asterisk', (await page.locator('.k-title').first().innerText()).includes('*'));
 
 // ---- Save changes? before New (Ctrl+N) and Open; Cancel keeps everything
 await page.keyboard.press('Control+n');
-await page.waitForTimeout(300);
+await settle(page);
 s = await st();
 check('Ctrl+N with unsaved changes asks "Save changes to Plaat?"', s.ask === 'Save changes to Plaat?', JSON.stringify(s));
 check('the question offers Save, Don\'t Save and Cancel', (await page.locator('[data-testid="ask-yes"]').innerText()) === 'Save' && (await page.locator('[data-testid="ask-no"]').innerText()) === "Don't Save" && (await page.locator('[data-testid="ask-cancel"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/qa1-savechanges.png` });
 await page.click('[data-testid="ask-cancel"]');
-await page.waitForTimeout(200);
+await settle(page);
 s = await st();
 check('Cancel keeps the document and its changes', s.ask === null && s.dialog === null && s.features === 2 && s.dirty, JSON.stringify(s));
 await page.keyboard.press('Control+n');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="ask-no"]');
-await page.waitForTimeout(200);
+await settle(page);
 s = await st();
 check("Don't Save goes on to the New dialog", s.dialog === 'new', JSON.stringify(s));
 await page.keyboard.press('Escape');
@@ -89,28 +90,28 @@ await S(() => window.__phlippoStore.getState().setDialog(null));
 
 // ---- the autosave per document: Welcome ▸ Recent lists it, Document Recovery too
 await S(() => window.__phlippoStore.getState().setDialog('welcome'));
-await page.waitForTimeout(200);
+await settle(page);
 check('Recent Documents lists the plate', (await page.locator('[data-testid="welcome-recent-0"]').innerText()).includes('Plaat.kcad'));
 await S(() => window.__phlippoStore.getState().setDialog(null));
 await page.click('.k-taskpane-btn[data-tip="Document Recovery"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('Document Recovery lists the recovery copy', (await page.locator('[data-testid="recovery-list"]').innerText()).includes('Plaat.kcad'));
 await page.click('.k-taskpane-btn[data-tip="Document Recovery"]');
 
 // ---- reload: Welcome again, the document waits under Recent and comes back whole
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(400);
+await settle(page);
 s = await st();
 check('after a reload the Welcome dialog shows again, no document open', s.dialog === 'welcome' && !s.hasDocument, JSON.stringify(s));
 await page.click('[data-testid="welcome-recent-0"]');
-await page.waitForTimeout(600);
+await settle(page);
 s = await st();
 check('the recent document opens whole', s.hasDocument && s.features === 2 && s.name === 'Plaat', JSON.stringify(s));
 
 // ---- Modify refuses 0 and negative values for a length
 await S(() => { const s = window.__phlippoStore.getState(); s.editSketch('s1'); });
-await page.waitForTimeout(300);
+await settle(page);
 const cid = await S(() => {
   const K = window.__phlippoKit;
   const s = window.__phlippoStore.getState();
@@ -119,7 +120,7 @@ const cid = await S(() => {
   return id;
 });
 await S((cid) => window.__phlippoStore.getState().setModify({ id: cid, x: 400, y: 300 }), cid);
-await page.waitForTimeout(300);
+await settle(page);
 const before = await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid);
 // no units row (QA 0.5.13 F24, F193): the value field itself shows the unit after the number, as the reference box does
 const box = await page.evaluate(() => ({ value: document.querySelector('.k-modify input.k-num')?.value, rows: document.querySelectorAll('.k-modify select, .k-modify-units').length, text: document.querySelector('.k-modify')?.innerText }));
@@ -128,32 +129,32 @@ check('Modify shows the length unit in the value field', /^60(\.0+)?mm$/.test(bo
 await page.locator('.k-modify').screenshot({ path: `${OUT}/qa1-modify.png` });
 await page.fill('.k-modify input.k-num', '0');
 await page.keyboard.press('Enter');
-await page.waitForTimeout(300);
+await settle(page);
 const after0 = await S((cid) => ({ v: window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, open: !!window.__phlippoStore.getState().modify, msg: (window.__phlippoStore.getState().messages.at(-1) ?? {}).text }), cid);
 check('Modify refuses 0 for a length and stays open', after0.v === before && after0.open && /larger than zero/.test(after0.msg ?? ''), JSON.stringify(after0));
 await page.fill('.k-modify input.k-num', '-5');
 await page.keyboard.press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 const afterNeg = await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid);
 check('Modify refuses a negative length', afterNeg === before, String(afterNeg));
 await page.fill('.k-modify input.k-num', '50');
 await page.keyboard.press('Enter');
-await page.waitForTimeout(300);
+await settle(page);
 check('Modify accepts 50', (await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid)) === 50);
 // another unit is typed into the value field: 1in becomes 25.4 mm
 await S((cid) => window.__phlippoStore.getState().setModify({ id: cid, x: 400, y: 300 }), cid);
-await page.waitForTimeout(300);
+await settle(page);
 await page.fill('.k-modify input.k-num', '1in');
 await page.keyboard.press('Enter');
-await page.waitForTimeout(300);
+await settle(page);
 const inch = await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid);
 check('Modify converts a value typed in inches (1in = 25.4 mm)', Math.abs(inch - 25.4) < 1e-9, String(inch));
 await S(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- Confirm Delete defaults: absorbed features on, child features off, by design
 await S(() => window.__phlippoStore.getState().requestDeleteFeature('e1'));
-await page.waitForTimeout(300);
+await settle(page);
 check('Confirm Delete: "Also delete absorbed features" on, "Delete child features" off by default', (await page.locator('[data-testid="cdel-absorbed"]').isChecked()) === true && (await page.locator('[data-testid="cdel-childopt"]').isChecked()) === false);
 await page.keyboard.press('Escape');
 await S(() => window.__phlippoStore.getState().closeConfirmDelete());
@@ -161,26 +162,26 @@ await S(() => window.__phlippoStore.getState().closeConfirmDelete());
 // ---- no GPU leak: 30 depth edits keep the renderer's geometry count flat
 const mem = () => S(() => ({ ...window.__phlippoRenderer.info.memory }));
 for (let i = 0; i < 3; i++) await S((i) => window.__phlippoStore.getState().applyDocument('Depth', { ...window.__phlippoStore.getState().doc, features: window.__phlippoStore.getState().doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 10 + i } : f)) }), i);
-await page.waitForTimeout(400);
+await settle(page);
 const m0 = await mem();
 for (let i = 0; i < 30; i++) {
   await S((i) => window.__phlippoStore.getState().applyDocument('Depth', { ...window.__phlippoStore.getState().doc, features: window.__phlippoStore.getState().doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 12 + (i % 7) } : f)) }), i);
-  await page.waitForTimeout(60);
+  await page.waitForTimeout(60); // fixed: edits in quick succession, the cadence is the test
 }
-await page.waitForTimeout(500);
+await settle(page);
 const m1 = await mem();
 check('30 feature edits do not grow the GPU geometry count', m1.geometries <= m0.geometries + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m1)}`);
 
 // ---- Enter repeats the last Command Ribbon command
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 check('the command opens its Property Panel', !!(await S(() => window.__phlippoStore.getState().featureEdit)));
 await S(() => window.__phlippoStore.getState().cancelFeature());
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.click(960, 600);
 await page.keyboard.press('Enter');
-await page.waitForTimeout(300);
+await settle(page);
 check('Enter runs the last command again', (await S(() => window.__phlippoStore.getState().featureEdit?.draft.type)) === 'extrude');
 await S(() => window.__phlippoStore.getState().cancelFeature());
 
@@ -188,11 +189,11 @@ await S(() => window.__phlippoStore.getState().cancelFeature());
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
 await page.click('.k-menu-item:has-text("Close")');
-await page.waitForTimeout(300);
+await settle(page);
 s = await st();
 check('Close with unsaved changes asks first', s.ask === 'Save changes to Plaat?', JSON.stringify(s));
 await page.click('[data-testid="ask-no"]');
-await page.waitForTimeout(300);
+await settle(page);
 s = await st();
 check('Close without saving leaves the empty window', !s.hasDocument && (await page.locator('[data-testid="nodoc"]').count()) === 1, JSON.stringify(s));
 await page.screenshot({ path: `${OUT}/qa1-closed.png` });

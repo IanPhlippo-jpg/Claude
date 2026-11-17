@@ -37,12 +37,26 @@ Documentatie:
 Status per fase:
 1. 2D-schetser met constraint-solver — **gereed**
 2. Feature-modelleren (Extrude met draft en Up To Next/Surface, Cut, Revolve, Sweep, Loft, Rib, Fillet, Chamfer, Mirror, Linear/Circular Pattern, Hole Tool, Shell, Combine; multi-body met materiaal per body; op een mesh-solidkern met booleans) — **gereed**
-3. Variabelen en vergelijkingen (Tools ▸ Equations, Σ-maten) en configuraties (Configurations, Modify Configurations, configuratie per component) en ontwerptabellen (Design Tables als tabel en CSV; geen koppeling met Excel) — **gereed**
+3. Variabelen en vergelijkingen (Tools ▸ Equations, Σ-maten) en configuraties (Configurations, Modify Configurations, configuratie per component) en ontwerptabellen (Design Tables als tabel, CSV en Excel .xlsx) — **gereed**
 4. Assemblies (Insert Components, Mates, Move/Rotate, BOM, Interference Detection) — **basis gereed**
 5. 2D-tekeningen (Sheet Format/Size, Model View, Projected View, Smart Dimension, Center Mark, Note, titelblok) — **basis gereed**
 6. Import/export — STL in/uit en STEP in/uit (B-rep-kernel) **gereed**; tekeningen naar DXF en PDF; IGES niet (de meegeleverde OpenCascade-build heeft geen IGES-writer)
 7. Massa-eigenschappen, meten en materialen — **gereed** (Mass Properties, Measure, Edit Material met dichtheid per body, Appearances); geen fotorealistische render (raytracing)
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor, Hem, Jog, Miter Flange, Unfold/Fold) — **gereed** (e2e: sheetmetal, hem, jogmiter, unfoldfold)
+
+## Status 0.5.16 (2026-11-17)
+
+Rest van het advies Fable 5.2 verwerkt; per punt de stand onderaan `docs/32-advies-fable-5.2-cad-0.5.14.md`.
+- `npm test`: 1077 tests (`tools/doc-counts.cjs`). De bibliotheektests (deuren, balustrades, fitness) staan nu in
+  `bibliotheek/tests/` (groep `bibliotheek`). Dekking van `src/core` zonder extra pakket: `npm run test:coverage`. De strikte
+  QA-tests in `src/qa/`: qaStrict.test.ts (8), qaBrep.test.ts (37), qaCrossCheck.test.ts (16), qaNaming.test.ts (12),
+  qaTeam.test.ts (5), qaMismatch.test.ts (1).
+- Desktop: de autosave gaat naar de Auto-Recover-map op schijf, Document Recovery biedt de kopieën aan; een gecrashte of
+  hangende renderer is getest (`e2e/desktop-crash.mjs`). E2e wacht op een toestand in plaats van op de klok.
+- DXF-import (nieuw onderdeel of in de schets), STEP als exact lichaam, standaardonderdelen M3-M24 (13 normen, lagers),
+  ontwerptabellen in Excel (.xlsx), 50 opties meer die iets doen, tekeningen (verborgen lijnen, centermarks, centerlines,
+  Replace Model), meer sleephandgrepen, Shift+Tab onder de aanwijzer.
+- Rebuildbudgetten op een rustige machine: alles onder 45 s (zwaarste 25,5 s).
 
 ## Status 0.5.15 (2026-11-17)
 
@@ -61,7 +75,7 @@ Advies Fable 5.2 op 0.5.14 (3 x P1, 15 x P2, 13 x P3) verwerkt; per punt de stan
 QA-rapport 0.5.13 (5/10, NO-GO) verwerkt; per bevinding in `docs/31-qa-0.5.13.md`, het bewijs per commit in `qa-logs/0.5.14/`.
 - `npm test`: 810 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
   draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden"). De strikte QA-tests in `src/qa/`:
-  qaStrict.test.ts (8), qaBrep.test.ts (35), qaCrossCheck.test.ts (16), qaNaming.test.ts (12), qaTeam.test.ts (5),
+  qaStrict.test.ts (8), qaBrep.test.ts (toen 35), qaCrossCheck.test.ts (16), qaNaming.test.ts (12), qaTeam.test.ts (5),
   qaMismatch.test.ts (1).
 - Export eerlijk (F204): STEP telt alleen exacte lichamen als exact; export en Publish vragen bevestiging bij rebuildfouten.
 - Kruiscontrole strenger: standaardvolumegrens 0,01 %, gekromd × 0,03 mm (plafond 0,5 %) (F172/F198), vormtolerantie vast

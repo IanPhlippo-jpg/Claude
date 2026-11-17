@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { WIRED_PREFS } from './prefsWired';
+import { shownForFormat } from './prefsUi';
 
 import { applySoftwareGL, SoftwareGLNote } from './softwareGL';
 import { RecoverFolderRow } from './recoverFolder';
@@ -215,7 +216,7 @@ export function OptionsDialog() {
             {active.sections.map((s, i) => (
               <fieldset key={i} className={`k-opt-section ${s.title ? 'boxed' : ''}`}>
                 {s.title && <legend className="k-opt-section-title">{s.title}</legend>}
-                <div className="k-opt-section-body">{s.controls.map(render)}</div>
+                <div className="k-opt-section-body">{s.controls.map((c, i) => ('key' in c && !shownForFormat(c.key, draft) ? null : render(c, i)))}</div>
               </fieldset>
             ))}
           </div>

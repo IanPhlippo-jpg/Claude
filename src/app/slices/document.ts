@@ -6,6 +6,7 @@ import { createDocument, type Document, type ImportedFeature } from '../../core/
 import { autosave, validateDocument } from '../../core/document/persistence';
 import { newId } from '../../core/sketch/model';
 import { documentProperties, setDocumentProperties } from '../prefs';
+import { runImportDiagnostics } from '../prefsUi';
 import { isAssembly, isDrawing } from '../../core/document/types';
 import type { State, StoreSet, StoreGet, Library } from '../store';
 import { initialSolve, initialRebuild, history, rebuildFor, decideRebuild, whenRebuilt, historyFlags, featureName, solveAll, saveLibraries } from '../store';
@@ -58,7 +59,7 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     set({ prefs: setDocumentProperties(doc.properties), doc, hasDocument: true, solve: {}, rebuild: rebuildFor(doc, null), activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: kind === 'assembly', asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], hoverFace: null, hoverEdge: null, selection: [], selectedConstraint: null, dirty: false, tab: kind === 'assembly' ? 'assembly' : kind === 'drawing' ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, ...historyFlags() });
     autosave(doc);
   },
-  importMesh(source, positions) {
+  importMesh(source, positions, steps) {
     const { doc } = get();
     const base = source.replace(/\.[^.]+$/, '') || 'Imported';
     const fresh = !doc.features.length && !Object.keys(doc.sketches).length;
@@ -67,8 +68,10 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     const list = (positions.length && Array.isArray(positions[0]) ? positions : [positions]) as number[][];
     let d: Document = start;
     const added: ImportedFeature[] = [];
-    for (const pos of list) {
-      const feature: ImportedFeature = { id: newId('f'), type: 'imported', name: featureName(d, 'imported'), suppressed: false, positions: pos, source };
+    for (const [i, pos] of list.entries()) {
+      // a STEP body keeps the STEP text of its solid: the B-rep kernel builds the exact solid from it (docs/32 item 5)
+      const step = steps?.[i];
+      const feature: ImportedFeature = { id: newId('f'), type: 'imported', name: featureName(d, 'imported'), suppressed: false, positions: pos, source, ...(step ? { step } : {}) };
       added.push(feature);
       d = { ...d, features: [...d.features, feature] };
     }
@@ -81,6 +84,8 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
       if (failed.length) get().pushMessage(`${failed[0].name}: ${rebuild.errors[failed[0].id]}`, 'error');
       else if (added.length === 1) get().pushMessage(`${source} imported as ${added[0].name} (${triangles} triangles).`);
       else get().pushMessage(`${source} imported: ${added.length} bodies, ${added[0].name} to ${added[added.length - 1].name} (${triangles} triangles).`);
+      // Import ▸ Run Import Diagnostics (Healing): the imported bodies are checked at once
+      if (!failed.length && runImportDiagnostics()) queueMicrotask(() => get().setDialog('importDiagnostics')); // after the caller closed its dialog
     });
   },
   applyDocument(label, d) {

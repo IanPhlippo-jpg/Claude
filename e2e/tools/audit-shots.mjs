@@ -1,12 +1,13 @@
 // Screenshots of Phlippo in the states of the main calibration recording (1920 x 1080), for side-by-side checks:
 // audit-NN-*.png in e2e-out. Usage: E2E_URL=http://127.0.0.1:4173/ node e2e/tools/audit-shots.mjs [names...]
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 const OUT = process.env.E2E_OUT ?? 'e2e-out';
 const only = process.argv.slice(2);
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 let n = 0;
-const shot = async (name) => { n++; if (only.length && !only.includes(name)) return; await page.waitForTimeout(400); await page.screenshot({ path: `${OUT}/audit-${String(n).padStart(2, '0')}-${name}.png` }); };
+const shot = async (name) => { n++; if (only.length && !only.includes(name)) return; await settle(page); await page.screenshot({ path: `${OUT}/audit-${String(n).padStart(2, '0')}-${name}.png` }); };
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
@@ -20,7 +21,7 @@ await shot('part-sketchtab');
 await page.click('.k-tree-row:has-text("Top Plane")');
 await shot('topplane-selected');
 await page.click('.k-cm-big:has-text("Sketch")').catch(() => {});
-await page.waitForTimeout(900);
+await settle(page);
 await shot('sketch-open');
 // Corner rectangle tool: the PM
 await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'));
@@ -58,14 +59,14 @@ await shot('dim-done');
 // Extruded Boss/Base
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss")');
-await page.waitForTimeout(800);
+await settle(page);
 await shot('extrude-pm');
 await page.click('.k-pm-ok').catch(() => {});
-await page.waitForTimeout(800);
+await settle(page);
 await page.mouse.move(1500, 700);
 await shot('extruded');
 await page.click('.k-cm-big:has-text("Fillet")').catch(() => {});
-await page.waitForTimeout(600);
+await settle(page);
 await shot('fillet-pm');
 await page.keyboard.press('Escape');
 await page.click('.k-tree-row:has-text("Boss-Extrude1")', { button: 'right' });

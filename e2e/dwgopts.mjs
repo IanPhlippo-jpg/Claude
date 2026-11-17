@@ -4,7 +4,7 @@ import { exitCode } from './lib/check.mjs';
 // Balloon shape, Break line style, Auxiliary arrow, Sheet Properties next view label, custom sheet size.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -34,7 +34,7 @@ await page.click('.k-dialog label:has-text("Custom sheet size") input');
 await page.fill('[data-testid="sf-width"]', '400');
 await page.fill('[data-testid="sf-height"]', '250');
 await page.click('.k-dialog button:has-text("OK")');
-await page.waitForTimeout(400);
+await settle(page);
 let sh = await sheet();
 const de0 = await page.evaluate(() => window.__phlippoStore.getState().drawingEdit);
 check('custom sheet size 400 x 250', sh.customSize && sh.customSize[0] === 400 && sh.customSize[1] === 250, JSON.stringify(sh.customSize));
@@ -51,7 +51,7 @@ await page.click('.k-section-title:has-text("Import Options")');
 await page.click('[data-testid="mv-import"]');
 const host = await page.locator('.k-sheet-host').boundingBox();
 await page.mouse.move(host.x + host.width * 0.3, host.y + host.height * 0.4);
-await page.waitForTimeout(300);
+await frames(page, 3);
 check('Preview off: only the view frame follows the pointer', (await page.locator('[data-testid="view-frame-preview"]').count()) === 1);
 // the reload above reset the pref module; set it in the running app as well
 await page.evaluate(() => { /* prefs are read when the view is placed */ });
@@ -91,7 +91,7 @@ await page.evaluate(() => window.__phlippoStore.getState().startNote?.());
 await settle(page);
 const noteOpen = await page.evaluate(() => window.__phlippoStore.getState().drawingEdit?.mode === 'note');
 if (!noteOpen) await page.evaluate(() => window.__phlippoStore.setState({ drawingEdit: { mode: 'note', orientation: 'front', multiple: false, displayStyle: 'hiddenRemoved', useCustomScale: false, scale: [1, 1] } }));
-await page.waitForTimeout(200);
+await settle(page);
 await page.fill('.k-pm textarea', 'BREAK SHARP EDGES');
 await page.click('[data-testid="note-leader"]');
 await page.click('[data-testid="note-align-center"]');
@@ -121,7 +121,7 @@ await page.evaluate(() => window.__phlippoStore.getState().setDialog('sheetPrope
 await settle(page);
 await page.fill('[data-testid="sp-viewlabel"]', 'K');
 await page.click('.k-dialog button:has-text("Apply Changes")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDetailView(); s.setDetailCircle(id, [0, 0], 6); s.placeDetailView([330, 200]); }, front.id);
 await settle(page, { quiet: 300 });
 sh = await sheet();

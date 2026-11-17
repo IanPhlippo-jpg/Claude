@@ -386,10 +386,10 @@ Niet gedekt, voor zover ik zag:
 
 ---
 
-## Status na verwerking (0.5.15, 2026-11-17)
+## Status na verwerking (0.5.15, bijgewerkt in 0.5.16, 2026-11-17)
 
-Eerlijk per punt: "gedaan" alleen als het punt helemaal af is. Rebuildbudgetten en tijdmetingen: **nog te meten, alleen
-draaiend** (andere agenten draaiden zware tests; de genoemde tijden zijn ruwe enkelvoudige metingen onder belasting).
+Eerlijk per punt: "gedaan" alleen als het punt helemaal af is. Rebuildbudgetten: in 0.5.16 **alleen gemeten op een rustige
+machine** (geen andere agenten, CPU-belasting ±10 %), zie "Rebuildbudgetten op een rustige machine (0.5.16)" onderaan.
 
 | Punt | Stand | Waar | Opmerking |
 |---|---|---|---|
@@ -398,16 +398,16 @@ draaiend** (andere agenten draaiden zware tests; de genoemde tijden zijn ruwe en
 | P1-3 lichaam-ids | gedaan | `src/core/features/bodyIds.ts`, `rebuild.ts`, `src/core/document/migrate.ts` | `<featureId>#<k>`, ook vlaklichamen (`surfN`); oude `bodyN`/`surfN` worden bij het openen omgezet; negatieve test in beide kernen (`bodyIds.test.ts`). Restrisico: binnen één feature schuift `k` als die feature meer of minder stukken maakt |
 | P2-1 Options OK overschrijft | gedaan | `src/app/prefs.ts` (`patchPrefs`, `changedPrefs`), `options.tsx`, 8 losse schrijvers | Eén schrijfpad; OK schrijft alleen wat in het venster veranderde. Tests: `prefsLayers.test.ts`, `desktop-editsave.mjs` |
 | P2-2 doc-eigenschappen | gedaan | `prefs.ts` (`documentProperties`, `setDocumentProperties`), `slices/document.ts`, `slices/features.ts` | Een bestand zet alleen bekende `doc.*` van het juiste type; meteen actief; niet in het profiel; nieuw document = standaard. Test: `prefsLayers.test.ts` |
-| P2-3 dode/hangende renderer | deels | `electron/main.cjs` (`render-process-gone`, `unresponsive`, ontvangstbevestiging binnen 5 s), `preload.cjs` | Gebouwd, maar zonder geautomatiseerde test (crash en hang niet nagebootst) |
+| P2-3 dode/hangende renderer | gedaan (0.5.16) | `electron/main.cjs` (`render-process-gone`, `unresponsive`, ontvangstbevestiging binnen 5 s), `preload.cjs` | Test `e2e/desktop-crash.mjs` (11/11, ook in CI-job desktop): de renderer echt laten crashen (`forcefullyCrashRenderer`) met onopgeslagen werk → eigen melding, herladen, Document Recovery toont de kopie; een echte hang (bezette lus van 30 s) bij sluiten → keuze "Close" binnen enkele seconden, venster weg; `unresponsive` → "Wait" houdt het venster |
 | P2-4 exacte nabouw | gedaan | `src/core/occt/occtClient.ts`, `kernelPolicy.ts`, `src/workers/occt.worker.ts`, `src/app/brepRefine.ts` | Klok vanaf "started", limiet = budget + laadtijd, `stopped` terug zonder kruiscontrole, verouderde nabouw afgebroken, fouten één keer gemeld, herstart na fatale fout. Unit-tests (`kernelPolicy.test.ts`, `occtClient.test.ts`) |
-| P2-5 volledige rebuild | gedaan | `rebuildCache.ts`, `rebuildState.ts`, `src/app/rebuildQueue.ts`, `assembly.ts`, `slices/document.ts` (`reorderFeature`) | (a) tussenstanden per feature, beide kernen; (b) `SYNC_REBUILD_MS` 300 ms; (c) reorder en onderdelen van assemblies via de worker; (d) budget binnen patronen. Test: `rebuildCache.test.ts`. Budget: nog te meten |
-| P2-6 autosave | deels | `persistence.ts` (±2 s uitgesteld, zonder inspringing), `positionCodec.ts` (base64 Float32) | Nog naar localStorage, niet via de recover-brug naar schijf |
+| P2-5 volledige rebuild | gedaan | `rebuildCache.ts`, `rebuildState.ts`, `src/app/rebuildQueue.ts`, `assembly.ts`, `slices/document.ts` (`reorderFeature`) | (a) tussenstanden per feature, beide kernen; (b) `SYNC_REBUILD_MS` 300 ms; (c) reorder en onderdelen van assemblies via de worker; (d) budget binnen patronen. Test: `rebuildCache.test.ts`. Budget gemeten in 0.5.16: alles onder 45 s (zwaarste 26,1 s) |
+| P2-6 autosave | gedaan (0.5.16) | `persistence.ts` (`setAutosaveTarget`, ±2 s uitgesteld, zonder inspringing), `positionCodec.ts`, `src/app/autoRecover.ts` (`diskAutosave`), `store.ts`, `TaskPane.tsx` | De desktop schrijft de autosave na elke pauze naar de Auto-Recover-map op schijf (één kopie per document, via de bestaande recover-brug, schrijven en wissen na elkaar zodat een late schrijfactie geen kopie terugzet) en start met een nieuw document; Document Recovery biedt de kopieën aan, zoals het referentieprogramma. Browser, of Auto-Recover uit: localStorage zoals vroeger; lukt de schijf niet, dan localStorage als terugval. Tests: `autosaveTarget.test.ts`, `desktop-recover.mjs` (23/23), `desktop-crash.mjs`, `desktop-restore-autosave.mjs` (zet nu een kopie in de map en eist hem in Document Recovery na herstart) |
 | P2-7 bestandsformaat | gedaan | `persistence.ts`, `validateFeatures.ts`, `types.ts` | Formaat 3 met `app` en `commit`; een nieuwer bestand opent met een waarschuwing (`MenuBar.tsx` `readKcad`, `TaskPane.tsx`); grenzen per featuretype. Test: `persistence3.test.ts` |
 | P2-8 mesh-booleans | gedaan | `src/core/features/meshCheck.ts`, `solid.ts` | Cut/union zonder effect bij echte overlap = fout; geslotenheid op randen. Gaten: alleen binnen 0,1 % volume, zeldzame gedeelde-hoekpuntgevallen. Test: `meshCheck.test.ts` |
 | P2-9 schetssolver | gedaan | `src/core/solver/groups.ts`, `lm.ts`, `linalg.ts`, `solver.ts`, `store.ts` (`solveSketchCached` in `solveAll`) | Per samenhangende groep, ijle AᵀA; undo/redo/open lossen alleen gewijzigde schetsen op. Ruw: 541 gaten ±1 s (was 14-30 s). Test: `groups.test.ts` |
 | P2-10 rebuild-worker | gedaan | `src/app/rebuildWorkerClient.ts`, `rebuildWorker.ts`, `src/workers/rebuild.worker.ts` | Hergebruik, warme reserve, debounce, `onmessageerror`, waakhond. Test: `rebuildWorkerClient.test.ts` |
 | P2-11 testpoort | gedaan | `tools/test-groups.json`, `tools/run-tests.mjs`, `vite.config.ts`, `package.json`, `ci.yml` (job `bibliotheek`) | Eén lijst; `src/qa/testGroups.test.ts` bewaakt hem (vond meteen `typeplaatjeAfzuiging.test.ts`) |
-| P2-12 wandklok | deels | `brep.test.ts` e.a. (600 s), `vite.config.ts` (`testTimeout` 120 s), `e2e/lib/wait.mjs` | E2e: 558 van 1657 vaste pauzes vervangen door `settle()`, **1099 over** |
+| P2-12 wandklok | gedaan (0.5.16) | `brep.test.ts` e.a. (600 s), `vite.config.ts` (`testTimeout` 120 s), `e2e/lib/wait.mjs`, 165 e2e-bestanden | E2e: van 1357 vaste pauzes (stand 0.5.15) blijven er 152: 47 in testscripts, elk met `// fixed: <reden>` (de tijd is het gedrag: bevriezingstest, Stop van de bewegingsstudie, IPC-vlag, build of viewer zonder testhaken, stresslus), 105 in fotohulpmiddelen `e2e/tools` (licht en exacte lichamen vóór de foto). De rest wacht op een toestand (`settle`, `frames`, een element). Steekproef van 27 scripts groen (o.a. features 66/66, viewpanes 45/45, drawing 35/35, multibody en rebuildworker op `?kernel=brep&rebuild=worker`); features 78 → 66 s, drawopts 52 → 41 s |
 | P2-13 returnToAssembly op naam | gedaan | `src/app/editContext.ts` (`isEditedPart`) | Op `part.id`, de naam alleen voor oude onderdelen zonder id. Tests: `saveContext.test.ts`, `desktop-editsave.mjs` |
 | P2-14 regelbegroting | gedaan | `tools/line-length.cjs`, `tools/line-length-baseline.json`, `rebuild.ts` (1909 → 707 regels) | Regels > 200 tekens bevroren per bestand, tekenbudget per module; `rebuildDocument` 1209 → 75 regels (tabel `BUILDERS`). Het functieplafond is alleen een rapport (geen ESLint, niets geïnstalleerd) |
 | P2-15 undo met open paneel | gedaan | `src/app/slices/document.ts` (`closeOpenPanel`, rollback begrensd) | Undo annuleert eerst het paneel. Test: `saveContext.test.ts` |
@@ -420,8 +420,8 @@ draaiend** (andere agenten draaiden zware tests; de genoemde tijden zijn ruwe en
 | P3-7 rang in de solver | gedaan | `linalg.ts` (`rowRank`), `lm.ts` (vouwtest) | Centrale verschillen, genormaliseerde rijen. Test: `groups.test.ts` |
 | P3-8 console.warn | gedaan | `solid.ts` (`CadBrush`) | Bij een upgrade van three-bvh-csg de override nakijken |
 | P3-9 klok achter wachtrij | gedaan | `occtClient.ts` | |
-| P3-10 CI | deels | `ci.yml` (SHA-pins, `npm audit`), `.github/dependabot.yml` | Geen dekkingsmeting (provider niet geïnstalleerd) |
-| P3-11 bibliotheektests in src/qa | deels | `tools/test-groups.json` | Eigen groep, script en CI-job; niet verhuisd (qaFitness mocht niet aangeraakt worden) |
+| P3-10 CI | gedaan (0.5.16) | `ci.yml` (SHA-pins, `npm audit`, stap "coverage of src/core"), `.github/dependabot.yml`, `tools/coverage/` | Dekking zonder extra pakket: elke testworker zet V8's precieze dekking aan via de ingebouwde `node:inspector`, `tools/coverage/report.mjs` rekent de tellingen met vite's bronkaart terug naar regels van de .ts-bestanden (`npm run test:coverage`, tabel per map en `coverage/core.json`). Eerste meting (0.5.16, `npm test`): 86,6 % van 23 439 regels (assembly 80,9, document 84,5, drawing 78,6, features 85,5, sketch 87,4, solver 94,1, occt 96,7 %). Rapport, nog geen drempel |
+| P3-11 bibliotheektests in src/qa | gedaan (0.5.16) | `bibliotheek/tests/` (qaFitness, qaBalustrades, qaDeuren, montageDeuren), `tools/test-groups.json`, `vite.config.ts` (include), `tsconfig.app.json` | Verhuisd naar de bibliotheek zelf; groep `bibliotheek`, script en CI-job ongewijzigd; `src/qa/testGroups.test.ts` eist dat elke test in `bibliotheek/tests` in de groep staat en dat er geen bibliotheektest meer in `src/` staat. READMEs van de bibliotheken wijzen naar het nieuwe pad |
 | P3-12 CSP | gedaan | `vite.config.ts`, `main.cjs` | `style-src-elem 'self'`; desktop-e2e groen, de geïnstalleerde build niet nagekeken |
 | P3-13 volgnummer i.p.v. identiteit | gedaan | `src/app/rebuildQueue.ts` | Test: `rebuildQueue.test.ts` |
 
@@ -429,21 +429,33 @@ draaiend** (andere agenten draaiden zware tests; de genoemde tijden zijn ruwe en
 
 | Nr | Stand | Opmerking |
 |---|---|---|
-| 1 meerdere documenten, externe verwijzingen | niet | Besluit voor Ian, zie het voorstel hieronder |
-| 2 facetten → exact, selectie op gekromde vlakken | deels | `src/app/faceTransfer.ts`: eerst `ftag`, normaaldrempel naar kromming (test `faceTransfer.test.ts`); nog steeds twee kernen na elkaar |
-| 3 rebuildsnelheid | deels | Incrementeel (P2-5); budget nog te meten |
-| 4 Options zonder effect (F112) | niet | |
-| 5 uitwisseling (STEP als B-rep, DXF/DWG, Parasolid) | niet | |
-| 6 Instant3D | niet | |
+| 1 meerdere documenten, externe verwijzingen | niet | Besluit voor Ian, zie het voorstel hieronder (bewust niet gebouwd) |
+| 2 facetten → exact, selectie op gekromde vlakken | deels | `src/app/faceTransfer.ts`: eerst `ftag`, normaaldrempel naar kromming (test `faceTransfer.test.ts`). 0.5.16: een STEP-import is nu een exact lichaam (punt 5). Nog steeds twee kernen na elkaar; face fillet, full round, setback, guide curves, wrap en split lines blijven facetten (F51/F121): één exacte kern is een herbouw van de featurekern, niet in deze ronde |
+| 3 rebuildsnelheid | gedaan (0.5.16) | Incrementeel vanaf de eerste gewijzigde feature (P2-5); gemeten op een rustige machine: elk voorbeeldonderdeel ruim binnen het budget van 45 s (zwaarste: Voedingsbox 26,1 s, zie onderaan) |
+| 4 Options zonder effect (F112) | deels | 0.5.16: 200 van de 346 opties werken (was 150), elk met een effecttest (`prefsView.test.ts`, `drawing0516.test.ts`; `prefsWired.test.ts` bewaakt de lijst), e2e `prefs0516.mjs`. **146 staan nog grijs**: functies die er niet zijn (overgangsanimaties, schuifbalken, drijvende maten), multi-document (punt 1), of met een besluit nodig (`msg.showErrors` standaard aan zou elke rebuildfout een venster geven) |
+| 5 uitwisseling (STEP als B-rep, DXF/DWG, Parasolid) | deels | 0.5.16: **DXF-import** (R12-R2018: lijn, cirkel, boog, ellips, (lw)polylijn met bulges, spline, punt, blokken met INSERT, eenheden) als nieuw onderdeel met schets of in de open schets (`src/core/exchange/`, `dxf.test.ts`, e2e `dxfimport.mjs`); **STEP als exact B-rep** (de STEP-tekst per lichaam in het Imported-feature, OCCT leest hem terug; formaat blijft 3, oudere builds zien de mesh) (`stepRead.ts`, `stepExact.test.ts`, e2e `step.mjs`). Niet mogelijk: IGES lezen (de meegeleverde OpenCascade-WASM heeft geen IGES-lezer), DWG en Parasolid (gesloten formaten, licentie nodig); een DWG geeft een duidelijke melding |
+| 6 Instant3D | deels | 0.5.16 (`src/app/viewport/handles/`, e2e `draghandles2.mjs` 30/30): handgrepen op Mid Plane (beide kanten), Direction 2, thin, cut-bodem, Offset From Surface; liniaal klikt vast op hoekpunt, rand en evenwijdig vlak, loslaten op een vlak maakt er Up To Surface van; schaaldikte, draft-hoek, gatdiepte, patroonafstand en -hoek, ribdikte, revolve beide kanten; schetslijnen en cirkels van een extrude slepen via de solver (maat krijgt de nieuwe waarde). Eén undo-stap, Esc, Alt fijn. Niet: bogen, splines, ellipsen en slots slepen; shell met meerdere diktes; parting-line/step draft; schets- en tabelpatronen; ribdikte heeft nog geen e2e |
 | 7 grote schetsen | gedaan | P2-9 |
-| 8 tekeningen | niet | |
-| 9 standaardonderdelen, Excel-ontwerptabellen | niet | |
-| 10 uiterlijk | niet | bewust anders (F189) |
-| 11 toetsen | deels | Tab / Shift+Tab verbergen en tonen een component (`shortcuts.ts`; Shift+Tab toont de laatst met Tab verborgen, niet "onder de aanwijzer"); Ctrl+Tab vraagt meerdere documenten; P3-2 en P2-15 gedaan |
-| 12 installer niet ondertekend | niet | certificaat, besluit Ian |
+| 8 tekeningen | deels | 0.5.16: verborgen lijnen exact gesplitst (bisectie), silhouetten van gaten, geen facetranden, raaklijnen (zichtbaar / met lettertype / weg) per aanzicht; centermarks op gaten, slots, boogcirkels (bolt circle) en lineaire patronen, op afrondingen (`doc.autoCenterMarksFillets`), centerlines (`doc.autoCenterlines`), automatische ballonnen (`doc.autoBalloons`), detailfilters; **Replace Model** (een .kcad kiezen, alle aanzichten van dat model krijgen het nieuwe, annotaties zonder geometrie worden "dangling"). Tests `hlrSplit.test.ts`, `centerMarks.test.ts`, `drawing0516.test.ts`, e2e `drawing0516.mjs`. Open: automatisch bijwerken als het modelbestand verandert (vraagt punt 1); doorsnede- en hulpaanzichten zonder raaklijnen/centerlines; een maat op een verschoven rand wordt dangling in plaats van mee te gaan |
+| 9 standaardonderdelen, Excel-ontwerptabellen | gedaan (0.5.16) | **Standaardonderdelen** M3-M24 waar de norm ze kent: ISO 4762, 4017, 7380-1, 10642, 4026, moeren ISO 4032 en 7040, ring ISO 7089, pennen ISO 2338 en 8752, borgringen DIN 471/472, kogellagers 6000-6010 en 6200-6210 (ISO 15): 13 normen, 980 onderdelen, Auto Fasteners tot M24 (`src/core/library/`, `standardParts.test.ts`, e2e `library.mjs` 26/26). **Excel**: ontwerptabellen lezen en schrijven als .xlsx zonder pakket (eigen ZIP met `DecompressionStream`, `xlsx.ts`, `xlsx.test.ts`, in Excel 16 nagekeken), CSV blijft (e2e `designtable.mjs` 26/26). Vereenvoudigd: borgringen zonder oogjes, lagers als één lichaam. Niet mogelijk: de tabel in Excel bewerken als ingebed object (OLE) |
+| 10 uiterlijk | niet | Bewust anders om juridische redenen (F189): eigen iconen en lettertype. Een besluit voor Ian, geen bouwwerk |
+| 11 toetsen | deels | 0.5.16: Shift+Tab toont het verborgen component **onder de aanwijzer** (straal tegen de lichamen van de verborgen componenten, `src/app/tabShow.ts`, `tabShow.test.ts`, e2e `tabshow.mjs` 5/5); boven lege ruimte het laatst met Tab verborgen. Tab, P3-2 en P2-15 gedaan. Open: Ctrl+Tab (wisselen tussen open documenten) vraagt punt 1 |
+| 12 installer niet ondertekend | niet | Vraagt een codesigning-certificaat (aankoop, of SignPath Foundation met een open-sourcelicentie): besluit voor Ian. De ondertekenstap (`tools/sign-hook.cjs`, `sign-report.cjs`) staat klaar |
 
-Tellingen: P1 3 gedaan; P2 12 gedaan, 3 deels (P2-3, P2-6, P2-12); P3 11 gedaan, 2 deels (P3-10, P3-11); pariteit 1
-gedaan, 3 deels, 8 niet.
+Tellingen na 0.5.16: P1 3 gedaan; P2 15 gedaan; P3 13 gedaan; pariteit 3 gedaan (3, 7, 9), 6 deels (2, 4, 5, 6, 8, 11),
+3 niet (1 meerdere documenten, 10 uiterlijk, 12 ondertekening: alle drie een besluit voor Ian).
+(Na 0.5.15 was het: P2 12 gedaan, 3 deels; P3 11 gedaan, 2 deels; pariteit 1 gedaan, 3 deels, 8 niet.)
+
+Gedraaid voor 0.5.16 (2026-11-17): `npm run typecheck` schoon; `npx vitest run` 167 bestanden, 1077 tests, alle geslaagd;
+`npm run test:bibliotheek` op de nieuwe plek 4 bestanden, 5436 tests geslaagd; `tekeningenLastafel.test.ts` geslaagd (de
+9 lastafelbladen opnieuw gemaakt met het rechtgezette projectiesymbool eerste hoek en de nieuwe verborgen-lijnberekening,
+plus `Werktekeningen-lastafel.pdf`); tekstpoort, regelbegroting, regellengte en `tools/doc-counts.cjs` groen.
+E2e desktop (build:e2e): `desktop-editsave` 13/13, `desktop` 15/15, `desktop-recover` 23/23, `desktop-crash` 11/11,
+`desktop-restore-autosave` ok. E2e browser: `draghandles2` 30/30, `dragHandles` 14/14, `instant2d` 8/8, `dxfimport` 10/10,
+`step` 17/17, `drawing0516` 17/17, `prefs0516` 25/25, `library` 26/26, `designtable` 26/26, `tabshow` 5/5; de deelagenten
+draaiden daarnaast een steekproef van 27 bestaande scripts (P2-12) en drawing, drawing2, drawopts, dwgopts, drawingfix,
+annotations 1-3, smoke, prefs112, assembly, sketchtools, dialogopts, quickstart, asmoptions, relations groen. De volledige
+regressie (alle scripts, 3 passes) is niet gedraaid.
 
 Gedraaid: `npm run typecheck` schoon; `npx vitest run` 971 tests, 970 geslaagd, 0 gefaald, 1 overgeslagen (het tijdelijke hulpbestand
 `src/qa/fotosAfzuiging74.test.ts` van de afzuiging-agent; zolang het er staat, telt `tools/doc-counts.cjs` 971 i.p.v. 970), groen na
@@ -508,3 +520,43 @@ Na de oplossing, twee afwisselende paren (0.5.14 → 0.5.15, wandtijd, gemiddeld
 
 De schetsoplossing van dezelfde bestanden bleef 3-170 ms. Tests na de wijziging: `src/core/features` en de strikte
 QA-tests (81 bestanden, 354 tests) groen.
+
+### Rebuildbudgetten op een rustige machine (0.5.16, 2026-11-17, avond)
+
+Dit vervangt de "nog te meten" hierboven. Gemeten zonder andere agenten of tests op de machine (CPU-belasting ±10 % vóór de
+start), met een tijdelijke test die de mesh-rebuild zonder budget doet van de opgeslagen `.kcad`-bestanden, elk onderdeel
+koud (zonder tussenstanden van een eerdere rebuild). Twee rondes: eerst op 0.5.15 (565f190), daarna op de werkboom van
+0.5.16 met alle wijzigingen; het verschil tussen de rondes blijft onder 3 %. Wandtijd in seconden:
+
+| Model | 0.5.15 | 0.5.16 |
+|---|---:|---:|
+| Kabeldoos-bak-links (treinverlichting) | 13,3 | 13,2 |
+| Kabeldoos-bak-rechts (treinverlichting) | 8,7 | 8,6 |
+| Ventilatorkuip (afzuiging) | 21,1 | 20,6 |
+| Voedingsbox (afzuiging) | 26,1 | 25,5 |
+| Romp (afzuiging) | 2,8 | 2,8 |
+| Ventilatorkuip (afzuiging rond) | 14,2 | 13,9 |
+| Instroomplaat, Deksel-voedingsbox, Rooster-LB | ≤ 0,7 | ≤ 0,7 |
+| Lastafel: Tafelblad Ø28 DG (541 gaten) | 11,8 | 11,9 |
+| Lastafel: Schaararmen binnen | 3,5 | 3,4 |
+| Lastafel: alle 29 onderdelen samen | 22,2 | 22,1 |
+
+Niets komt boven 45 s; het zwaarste onderdeel (Voedingsbox) gebruikt 57 % van het budget. De hogere tijden van de vorige
+meting (27,6 / 44,3 / 54,6 / 46,2 s) kwamen van de belasting door andere agenten, niet van de code. Er was dus geen oorzaak
+te zoeken. Kanttekening: dit is de mesh-rebuild; de exacte (B-rep) nabouw loopt daarna in zijn eigen worker met een eigen
+limiet (P2-4) en is niet in deze tabel.
+
+### Open besluiten voor Ian (0.5.16)
+
+1. Meerdere documenten en externe verwijzingen (pariteit 1, en daarmee Ctrl+Tab en het automatisch bijwerken van tekeningen):
+   het voorstel hierboven, niet gebouwd.
+2. Code-signing (pariteit 12): een certificaat kopen of SignPath Foundation aanvragen.
+3. Uiterlijk (pariteit 10): eigen iconen en lettertype blijven bewust anders (F189).
+4. `msg.showErrors` ("Show errors every rebuild"): standaard aan zou bij elke rebuildfout het What's Wrong-venster openen;
+   welke standaard?
+5. Gedrag dat in 0.5.16 veranderde en dat Ian best even nakijkt:
+   - de desktop start met een nieuw document en biedt onopgeslagen werk aan in Document Recovery (vroeger werd het laatste
+     document uit de browseropslag teruggezet);
+   - standaard aan: Transparent flyout Feature Tree en Selection through transparency (zoals het referentieprogramma);
+     standaard uit: Single command per pick, Snap to length, Plane intersections;
+   - Export Design Table schrijft nu .xlsx; CSV staat apart in het menu.

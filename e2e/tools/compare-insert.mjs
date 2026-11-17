@@ -3,6 +3,7 @@
 // node e2e/tools/compare-insert.mjs
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { settle, frames } from '../lib/wait.mjs';
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
@@ -25,17 +26,17 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
 await page.click('.k-menu-item:has-text("New")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-doctype:has-text("Assembly")');
 await page.click('.k-dialog-actions button:has-text("OK")');
 await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => undefined);
-await page.waitForTimeout(800);
+await settle(page);
 await page.mouse.move(1150, 450);
-await page.waitForTimeout(400);
+await frames(page, 3);
 await page.screenshot({ path: 'e2e-out/app-320.png' });
 await browser.close();
 const py = `

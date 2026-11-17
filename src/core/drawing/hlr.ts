@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MeshBVH } from 'three-mesh-bvh';
 import type { Body } from '../features/rebuild';
+import { silhouettePieces, tangentSegments } from './meshEdges';
 
 export type ViewName = 'front' | 'back' | 'top' | 'bottom' | 'left' | 'right' | 'isometric' | 'trimetric' | 'dimetric';
 
@@ -46,6 +47,8 @@ export interface Line2D {
   /** a bend line of a flat pattern (phantom line) with its bend note */
   bend?: boolean;
   note?: string;
+  /** a tangent edge: where two faces meet smoothly (drawn as the view's Tangent Edge setting says) */
+  tangent?: boolean;
 }
 
 export interface Circle2D {
@@ -64,88 +67,44 @@ export interface View2D {
   max: [number, number];
 }
 
-const key = (p: THREE.Vector3) => `${Math.round(p.x * 1e3)},${Math.round(p.y * 1e3)},${Math.round(p.z * 1e3)}`;
+/**
+ * The circle a polyline lies on (centre, radius, unit normal, the angle it sweeps), or null: a circle through three
+ * of its points, spread along it, that every point lies on within a hundredth (and in its plane).
+ */
+export function circleFit(pts: THREE.Vector3[]): { c: THREE.Vector3; r: number; n: THREE.Vector3; sweep: number } | null {
+  const a = pts[0], b = pts[Math.floor(pts.length / 3)], d = pts[Math.floor((2 * pts.length) / 3)];
+  const ab = b.clone().sub(a), ad = d.clone().sub(a);
+  const n = ab.clone().cross(ad);
+  if (n.lengthSq() < 1e-12) return null;
+  const toC = n.clone().cross(ab).multiplyScalar(ad.lengthSq()).add(ad.clone().cross(n).multiplyScalar(ab.lengthSq())).divideScalar(2 * n.lengthSq());
+  const c = a.clone().add(toC), r = toC.length();
+  n.normalize();
+  if (r > 1e4) return null;
+  const tol = Math.max(0.01, r * 0.002);
+  let sweep = 0;
+  for (let i = 0; i < pts.length; i++) {
+    if (Math.abs(pts[i].distanceTo(c) - r) > tol || Math.abs(pts[i].clone().sub(c).dot(n)) > tol) return null;
+    if (i) sweep += pts[i - 1].clone().sub(c).angleTo(pts[i].clone().sub(c));
+  }
+  return { c, r, n, sweep };
+}
+
+const COS_FACET = Math.cos((40 * Math.PI) / 180);
+/** an edge between facets of the same named face, bent less than a facet of a coarse curved face is */
+export const facetEdge = (e: Body['edges'][number]): boolean => e.segments.length > 0 && e.segments.every((s) => !!s.f1 && s.f1 === s.f2 && s.n1.dot(s.n2) > COS_FACET);
 
 /** Silhouette segments of a mesh for a view direction: edges between a front- and a back-facing triangle. */
 export function silhouetteSegments(g: THREE.BufferGeometry, w: THREE.Vector3): [THREE.Vector3, THREE.Vector3][] {
-  const ng = g.index ? g.toNonIndexed() : g;
-  const a = ng.getAttribute('position');
-  const P = (i: number) => new THREE.Vector3().fromBufferAttribute(a, i);
-  const edges = new Map<string, { a: THREE.Vector3; b: THREE.Vector3; front: number; back: number }>();
-  for (let t = 0; t * 3 + 2 < a.count; t++) {
-    const p0 = P(t * 3), p1 = P(t * 3 + 1), p2 = P(t * 3 + 2);
-    const n = p1.clone().sub(p0).cross(p2.clone().sub(p0));
-    if (n.lengthSq() < 1e-14) continue;
-    const front = n.dot(w) > 0;
-    for (const [x, y] of [[p0, p1], [p1, p2], [p2, p0]] as [THREE.Vector3, THREE.Vector3][]) {
-      const kx = key(x), ky = key(y);
-      const k = kx < ky ? kx + '|' + ky : ky + '|' + kx;
-      const e = edges.get(k) ?? edges.set(k, { a: x, b: y, front: 0, back: 0 }).get(k)!;
-      if (front) e.front++;
-      else e.back++;
-    }
-  }
-  const out: [THREE.Vector3, THREE.Vector3][] = [];
-  const open: { a: THREE.Vector3; b: THREE.Vector3; front: number; back: number }[] = [];
-  for (const e of edges.values()) {
-    if (e.front === 1 && e.back === 1) out.push([e.a, e.b]);
-    else if (e.front + e.back === 1) open.push(e);
-  }
-  if (!open.length) return out;
-  // CSG meshes have T-junctions: an edge on one side meets several shorter edges on the other. Split the
-  // unmatched edges at every vertex lying on them, then pair the pieces again.
-  const pts = new Map<string, THREE.Vector3>();
-  for (const e of open) {
-    pts.set(key(e.a), e.a);
-    pts.set(key(e.b), e.b);
-  }
-  const box = new THREE.Box3();
-  for (const p of pts.values()) box.expandByPoint(p);
-  const cell = Math.max(box.getSize(new THREE.Vector3()).length() / 64, 1e-3);
-  const grid = new Map<string, THREE.Vector3[]>();
-  const ck = (x: number, y: number, z: number) => `${x},${y},${z}`;
-  for (const p of pts.values()) {
-    const k = ck(Math.floor(p.x / cell), Math.floor(p.y / cell), Math.floor(p.z / cell));
-    (grid.get(k) ?? grid.set(k, []).get(k)!).push(p);
-  }
-  const pieces = new Map<string, { a: THREE.Vector3; b: THREE.Vector3; front: number; back: number }>();
-  const d = new THREE.Vector3(), q = new THREE.Vector3();
-  for (const e of open) {
-    d.subVectors(e.b, e.a);
-    const L2 = d.lengthSq();
-    if (L2 < 1e-14) continue;
-    const ts: { t: number; p: THREE.Vector3 }[] = [{ t: 0, p: e.a }, { t: 1, p: e.b }];
-    const lo = new THREE.Vector3().copy(e.a).min(e.b), hi = new THREE.Vector3().copy(e.a).max(e.b);
-    for (let x = Math.floor(lo.x / cell); x <= Math.floor(hi.x / cell); x++)
-      for (let y = Math.floor(lo.y / cell); y <= Math.floor(hi.y / cell); y++)
-        for (let z = Math.floor(lo.z / cell); z <= Math.floor(hi.z / cell); z++) {
-          for (const p of grid.get(ck(x, y, z)) ?? []) {
-            const t = q.subVectors(p, e.a).dot(d) / L2;
-            if (t <= 1e-6 || t >= 1 - 1e-6) continue;
-            const foot = e.a.clone().addScaledVector(d, t);
-            if (foot.distanceToSquared(p) < 1e-8) ts.push({ t, p });
-          }
-        }
-    ts.sort((u, v) => u.t - v.t);
-    for (let i = 0; i + 1 < ts.length; i++) {
-      const x = ts[i].p, y = ts[i + 1].p;
-      const kx = key(x), ky = key(y);
-      if (kx === ky) continue;
-      const k = kx < ky ? kx + '|' + ky : ky + '|' + kx;
-      const pc = pieces.get(k) ?? pieces.set(k, { a: x, b: y, front: 0, back: 0 }).get(k)!;
-      pc.front += e.front;
-      pc.back += e.back;
-    }
-  }
-  for (const pc of pieces.values()) if (pc.front >= 1 && pc.back >= 1) out.push([pc.a, pc.b]);
-  return out;
+  return silhouettePieces(g, w);
 }
 
 /**
  * Project the bodies into a view: feature edges and silhouettes, each split into visible and
- * hidden runs by sampling against the meshes (BVH raycasts along the view direction).
+ * hidden runs by sampling against the meshes (BVH raycasts along the view direction). Where the visibility changes
+ * between two samples the boundary is found by bisection, so an edge that runs behind an occluding face is split
+ * where that face's outline crosses it (not half a sample step away). `tangent`: also the tangent edges.
  */
-export function projectView(bodies: Body[], frame: ViewFrame, sampleStep = 0.75): View2D {
+export function projectView(bodies: Body[], frame: ViewFrame, sampleStep = 0.75, opts: { tangent?: boolean } = {}): View2D {
   const geoms = bodies.map((b) => (b.geometry.index ? b.geometry.toNonIndexed() : b.geometry));
   const bvhs = geoms.map((g) => ({ g, bvh: new MeshBVH(g) }));
   // depth range for the ray origin
@@ -176,38 +135,52 @@ export function projectView(bodies: Body[], frame: ViewFrame, sampleStep = 0.75)
     min[0] = Math.min(min[0], q[0]); min[1] = Math.min(min[1], q[1]);
     max[0] = Math.max(max[0], q[0]); max[1] = Math.max(max[1], q[1]);
   };
-  const emitSegment = (a: THREE.Vector3, b: THREE.Vector3, silhouette: boolean) => {
+  // offset the samples slightly toward the viewer so an edge on a face is not occluded by that face
+  const lift = frame.w.clone().multiplyScalar(eps * 0.6);
+  const emitSegment = (a: THREE.Vector3, b: THREE.Vector3, silhouette: boolean, tangent = false) => {
     const len = a.distanceTo(b);
     if (len < 1e-6) return;
     // an edge seen exactly edge-on projects to a point: skip
     const a2 = to2(a), b2 = to2(b);
     if (Math.hypot(b2[0] - a2[0], b2[1] - a2[1]) < 1e-4) return;
     const n = Math.max(2, Math.ceil(len / sampleStep) + 1);
-    // offset the samples slightly toward the viewer so an edge on a face is not occluded by that face
-    const lift = frame.w.clone().multiplyScalar(eps * 0.6);
-    let runStart = 0, runVisible: boolean | null = null;
-    const flush = (endIdx: number, vis: boolean) => {
-      const t0 = runStart / (n - 1), t1 = endIdx / (n - 1);
-      const pa = a.clone().lerp(b, t0), pb = a.clone().lerp(b, t1);
-      const la = to2(pa), lb = to2(pb);
-      lines.push({ a: la, b: lb, hidden: !vis, silhouette });
+    const visAt = (t: number) => visibleAt(a.clone().lerp(b, t).add(lift));
+    const flush = (t0: number, t1: number, vis: boolean) => {
+      const la = to2(a.clone().lerp(b, t0)), lb = to2(a.clone().lerp(b, t1));
+      lines.push(tangent ? { a: la, b: lb, hidden: !vis, tangent } : { a: la, b: lb, hidden: !vis, silhouette });
       grow(la); grow(lb);
     };
-    for (let i = 0; i < n; i++) {
-      const p = a.clone().lerp(b, i / (n - 1)).add(lift);
-      const vis = visibleAt(p);
-      if (runVisible === null) { runVisible = vis; runStart = 0; continue; }
+    let runStart = 0, runVisible = visAt(0), prev = 0;
+    for (let i = 1; i < n; i++) {
+      const t = i / (n - 1);
+      const vis = visAt(t);
       if (vis !== runVisible) {
-        flush(i - 0.5, runVisible);
-        runStart = i - 0.5;
+        // the boundary lies between the two samples: halve the interval down to about a micron
+        let lo = prev, hi = t;
+        for (let k = 0; k < 24 && (hi - lo) * len > 5e-4; k++) {
+          const mid = (lo + hi) / 2;
+          if (visAt(mid) === runVisible) lo = mid;
+          else hi = mid;
+        }
+        const cut = (lo + hi) / 2;
+        flush(runStart, cut, runVisible);
+        runStart = cut;
         runVisible = vis;
       }
+      prev = t;
     }
-    flush(n - 1, runVisible ?? true);
+    flush(runStart, 1, runVisible);
   };
   const circles: Circle2D[] = [];
   for (const b of bodies) {
+    // pieces of circles (a boolean can leave a hole's rim as two half arcs, or tessellated unevenly): one circle per
+    // centre, radius and depth once the pieces go all the way round
+    const parts: { c: THREE.Vector3; r: number; n: THREE.Vector3; sweep: number; probes: THREE.Vector3[] }[] = [];
+    const same = (c: THREE.Vector3, r: number, c2: THREE.Vector3, r2: number) => c.distanceTo(c2) < Math.max(0.1, r * 0.02) && Math.abs(r - r2) < Math.max(0.1, r * 0.02);
     for (const e of b.edges) {
+      // a crease between two facets of one curved face (a coarse cylinder, a hole whose boolean left a wide facet) is
+      // no model edge: the face shows by its silhouette only
+      if (facetEdge(e)) continue;
       // a closed non-straight edge is a circle when its plane faces the viewer: keep it as a circle for center marks / diameters
       if (e.closed && !e.straight && e.points.length > 6) {
         const c = e.centroid;
@@ -219,12 +192,30 @@ export function projectView(bodies: Body[], frame: ViewFrame, sampleStep = 0.75)
           // visible when the midpoints of a few samples are visible
           const probes = [0, Math.floor(e.points.length / 3), Math.floor((2 * e.points.length) / 3)].map((i) => visibleAt(e.points[i].clone().addScaledVector(frame.w, eps * 0.6)));
           circles.push({ c: to2(c), r, hidden: !probes.some(Boolean), axis: [n.x, n.y, n.z] });
+          parts.push({ c, r, n, sweep: -Infinity, probes: [] });
+          for (let i = 0; i + 1 < e.points.length; i++) emitSegment(e.points[i], e.points[i + 1], false);
+          emitSegment(e.points[e.points.length - 1], e.points[0], false);
+          continue;
         }
+      }
+      const k = !e.straight && e.points.length >= (e.closed ? 7 : 4) ? circleFit(e.points) : null;
+      if (k && Math.abs(k.n.dot(frame.w)) > 0.999) {
+        let g = parts.find((x) => same(x.c, x.r, k.c, k.r));
+        if (!g) parts.push((g = { c: k.c, r: k.r, n: k.n, sweep: 0, probes: [] }));
+        g.sweep += e.closed ? 2 * Math.PI : k.sweep;
+        g.probes.push(...[0, Math.floor(e.points.length / 2), e.points.length - 1].map((i) => e.points[i]));
       }
       for (let i = 0; i + 1 < e.points.length; i++) emitSegment(e.points[i], e.points[i + 1], false);
       if (e.closed && e.points.length > 2) emitSegment(e.points[e.points.length - 1], e.points[0], false);
     }
+    // (a closed round edge was a circle already: its entry has no sweep and takes no pieces into a second circle)
+    for (const g of parts) {
+      if (g.sweep < 2 * Math.PI - 0.1) continue;
+      const hidden = !g.probes.some((p) => visibleAt(p.clone().addScaledVector(frame.w, eps * 0.6)));
+      circles.push({ c: to2(g.c), r: g.r, hidden, axis: [g.n.x, g.n.y, g.n.z] });
+    }
     for (const [p, q] of silhouetteSegments(b.geometry, frame.w)) emitSegment(p, q, true);
+    if (opts.tangent) for (const [p, q] of tangentSegments(b.geometry)) emitSegment(p, q, false, true);
   }
   if (!lines.length) return { lines, circles, min: [0, 0], max: [0, 0] };
   return { lines, circles, min, max };
@@ -252,7 +243,7 @@ export function mergeLines(lines: Line2D[], tol = 0.02): Line2D[] {
     while (grown) {
       grown = false;
       for (let j = 0; j < lines.length; j++) {
-        if (used[j] || lines[j].hidden !== base.hidden) continue;
+        if (used[j] || lines[j].hidden !== base.hidden || !lines[j].tangent !== !base.tangent) continue;
         const e = dirOf(lines[j]);
         if (Math.abs(d[0] * e[0] + d[1] * e[1]) < 0.9999) continue;
         if (offLine(lines[j].a) > tol || offLine(lines[j].b) > tol) continue;
@@ -284,34 +275,83 @@ export function mergeLines(lines: Line2D[], tol = 0.02): Line2D[] {
 
 /**
  * Lines ready to draw: merged per span, and hidden lines that coincide with a visible line are
- * removed (the intended design draws no hidden line under a visible one).
+ * removed (the intended design draws no hidden line under a visible one); a tangent edge that runs along a model
+ * edge or a silhouette (a fillet seen from the side: its tangent edge is the outline) is drawn once, as that edge.
  */
 export function cleanLines(lines: Line2D[], tol = 0.05): Line2D[] {
-  const merged = mergeLines(lines);
+  const merged = dropTwins(mergeLines(lines).filter((l) => Math.hypot(l.b[0] - l.a[0], l.b[1] - l.a[1]) > 1e-3));
   const visible = merged.filter((l) => !l.hidden);
-  const out: Line2D[] = [...visible];
-  for (const h of merged.filter((l) => l.hidden)) {
-    const dx = h.b[0] - h.a[0], dy = h.b[1] - h.a[1], len = Math.hypot(dx, dy);
-    if (len < 1e-6) continue;
-    const d: [number, number] = [dx / len, dy / len];
-    const along = (p: [number, number]) => (p[0] - h.a[0]) * d[0] + (p[1] - h.a[1]) * d[1];
-    const offLine = (p: [number, number]) => Math.abs((p[0] - h.a[0]) * d[1] - (p[1] - h.a[1]) * d[0]);
-    // spans of the hidden line still uncovered by visible collinear lines
-    let spans: [number, number][] = [[0, len]];
-    for (const v of visible) {
-      const vx = v.b[0] - v.a[0], vy = v.b[1] - v.a[1], vl = Math.hypot(vx, vy) || 1;
-      if (Math.abs((vx / vl) * d[0] + (vy / vl) * d[1]) < 0.9999) continue;
-      if (offLine(v.a) > tol || offLine(v.b) > tol) continue;
-      const lo = Math.min(along(v.a), along(v.b)) - tol, hi = Math.max(along(v.a), along(v.b)) + tol;
-      const next: [number, number][] = [];
-      for (const [a, b] of spans) {
-        if (hi <= a || lo >= b) { next.push([a, b]); continue; }
-        if (lo > a) next.push([a, lo]);
-        if (hi < b) next.push([hi, b]);
-      }
-      spans = next;
-    }
-    for (const [a, b] of spans) if (b - a > tol) out.push({ ...h, a: [h.a[0] + d[0] * a, h.a[1] + d[1] * a], b: [h.a[0] + d[0] * b, h.a[1] + d[1] * b] });
+  const solid = visible.filter((l) => !l.tangent);
+  const out: Line2D[] = [...solid];
+  for (const h of merged) {
+    if (!h.hidden && !h.tangent) continue;
+    for (const [a, b] of uncovered(h, h.hidden ? visible : solid, tol)) out.push({ ...h, a, b });
   }
   return out;
+}
+
+/**
+ * A faceted curved face (and the slivers a boolean leaves on it) can turn from facing the viewer to facing away more
+ * than once within a tenth of a millimetre: several silhouette lines side by side where the face has one. A
+ * silhouette alongside a longer one of the same kind, less than 0.2 mm off and within its span, is that one.
+ */
+function dropTwins(ls: Line2D[], off = 0.2): Line2D[] {
+  const L = (l: Line2D) => Math.hypot(l.b[0] - l.a[0], l.b[1] - l.a[1]);
+  // the kept silhouettes by direction (0.02 rad) and distance from the origin (0.5 mm): a twin lies in a neighbour cell
+  const N = Math.ceil(Math.PI / 0.02);
+  const cells = new Map<string, Line2D[]>();
+  const place = (l: Line2D): [number, number] => {
+    let t = Math.atan2(l.b[1] - l.a[1], l.b[0] - l.a[0]);
+    if (t < 0) t += Math.PI;
+    if (t >= Math.PI) t -= Math.PI;
+    return [Math.min(N - 1, Math.floor(t / 0.02)), -l.a[0] * Math.sin(t) + l.a[1] * Math.cos(t)];
+  };
+  const isTwin = (l: Line2D, k: Line2D) => {
+    if (k.hidden !== l.hidden) return false;
+    const len = L(k), d: [number, number] = [(k.b[0] - k.a[0]) / len, (k.b[1] - k.a[1]) / len];
+    const along = (p: [number, number]) => (p[0] - k.a[0]) * d[0] + (p[1] - k.a[1]) * d[1];
+    const offLine = (p: [number, number]) => Math.abs((p[0] - k.a[0]) * d[1] - (p[1] - k.a[1]) * d[0]);
+    return offLine(l.a) < off && offLine(l.b) < off && Math.min(along(l.a), along(l.b)) > -off && Math.max(along(l.a), along(l.b)) < len + off;
+  };
+  const out = new Set<Line2D>();
+  for (const l of [...ls].sort((p, q) => L(q) - L(p))) {
+    if (!l.silhouette) { out.add(l); continue; }
+    const [t, o] = place(l);
+    let twin = false;
+    for (let dt = -1; dt <= 1 && !twin; dt++) {
+      // across the wrap of the direction the distance changes sign
+      const ti = (t + dt + N) % N, oo = t + dt < 0 || t + dt >= N ? -o : o;
+      for (let k = -1; k <= 1 && !twin; k++) twin = (cells.get(`${ti}|${Math.round(oo / 0.5) + k}`) ?? []).some((x) => isTwin(l, x));
+    }
+    if (twin) continue;
+    const key = `${t}|${Math.round(o / 0.5)}`;
+    (cells.get(key) ?? cells.set(key, []).get(key)!).push(l);
+    out.add(l);
+  }
+  // the order of the input stays (callers and tests read the lines in projection order)
+  return ls.filter((l) => out.has(l));
+}
+
+/** the spans of a line that no collinear line of the cover runs along */
+function uncovered(h: Line2D, cover: Line2D[], tol: number): [[number, number], [number, number]][] {
+  const dx = h.b[0] - h.a[0], dy = h.b[1] - h.a[1], len = Math.hypot(dx, dy);
+  if (len < 1e-6) return [];
+  const d: [number, number] = [dx / len, dy / len];
+  const along = (p: [number, number]) => (p[0] - h.a[0]) * d[0] + (p[1] - h.a[1]) * d[1];
+  const offLine = (p: [number, number]) => Math.abs((p[0] - h.a[0]) * d[1] - (p[1] - h.a[1]) * d[0]);
+  let spans: [number, number][] = [[0, len]];
+  for (const v of cover) {
+    const vx = v.b[0] - v.a[0], vy = v.b[1] - v.a[1], vl = Math.hypot(vx, vy) || 1;
+    if (Math.abs((vx / vl) * d[0] + (vy / vl) * d[1]) < 0.9999) continue;
+    if (offLine(v.a) > tol || offLine(v.b) > tol) continue;
+    const lo = Math.min(along(v.a), along(v.b)) - tol, hi = Math.max(along(v.a), along(v.b)) + tol;
+    const next: [number, number][] = [];
+    for (const [a, b] of spans) {
+      if (hi <= a || lo >= b) { next.push([a, b]); continue; }
+      if (lo > a) next.push([a, lo]);
+      if (hi < b) next.push([hi, b]);
+    }
+    spans = next;
+  }
+  return spans.filter(([a, b]) => b - a > tol).map(([a, b]) => [[h.a[0] + d[0] * a, h.a[1] + d[1] * a], [h.a[0] + d[0] * b, h.a[1] + d[1] * b]]);
 }

@@ -9,7 +9,8 @@ import { activeConfiguration, configurations } from '../../core/document/configu
 const designTable = () => import('../designTableCommands');
 const designTableItems = [
   { label: 'Insert Design Table…', icon: <Icon.Open />, onSelect: () => void designTable().then((m) => m.insertDesignTableFile()) },
-  { label: 'Export Design Table…', icon: <Icon.Save />, onSelect: () => void designTable().then((m) => m.exportDesignTableFile()) },
+  { label: 'Export Design Table…', icon: <Icon.Save />, onSelect: () => void designTable().then((m) => m.exportDesignTableFile('xlsx')) },
+  { label: 'Export Design Table as CSV…', icon: <Icon.Save />, onSelect: () => void designTable().then((m) => m.exportDesignTableFile('csv')) },
 ];
 
 /**

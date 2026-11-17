@@ -24,7 +24,7 @@ const run = async (label) => {
   await page.locator('.k-viewport, .k-sheet-host').first().click({ position: { x: 200, y: 200 } });
   for (const k of keys) {
     await page.keyboard.press(k);
-    await page.waitForTimeout(120);
+    await settle(page);
     // a dialog that opened (Delete confirm, shortcut bar) is closed again
     if (await page.locator('[data-testid="confirm-delete"]').count()) await page.keyboard.press('Escape');
     const crash = await page.locator('[data-testid="crash"]').count();
@@ -42,13 +42,13 @@ await settle(page);
 // expected effects
 await page.locator('.k-viewport').click({ position: { x: 300, y: 300 } });
 await page.keyboard.press('Control+1');
-await page.waitForTimeout(500);
+await settle(page);
 check('Ctrl+1 = Front view', /Front/.test(await page.locator('.k-viewport').innerText()));
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(500);
+await settle(page);
 check('Ctrl+7 = Isometric view', /Isometric/.test(await page.locator('.k-viewport').innerText()));
 await page.keyboard.press('s');
-await page.waitForTimeout(300);
+await settle(page);
 check('S opens the shortcut bar', (await page.locator('.k-shortcut-bar').count()) === 1);
 await page.keyboard.press('Escape');
 await run('part');
@@ -58,10 +58,10 @@ await settle(page);
 await run('sketch');
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); if (s.activeSketchId) s.exitSketch(); });
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), load('voorbeelden/deurkruk/Deurkruk.kcad'));
-await page.waitForTimeout(2500);
+await settle(page);
 await run('assembly');
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), load('voorbeelden/deurkruk/Kruk-tekening.kcad'));
-await page.waitForTimeout(2500);
+await settle(page);
 await run('drawing');
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);
 process.exitCode = exitCode(results, errs);

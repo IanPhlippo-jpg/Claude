@@ -23,7 +23,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 const N = 8;
 // a 300 × 300 × 10 plate with one Ø6 hole, patterned N × N
@@ -115,7 +115,7 @@ const applied = await page.evaluate(() => {
 });
 check('the edit returns at once and the rebuild runs in the worker', applied.pending && applied.ms < 150, JSON.stringify(applied));
 check('the old model stays shown meanwhile', applied.bodies === 1);
-await page.waitForTimeout(200);
+await page.locator('[data-testid="status-rebuilding"]').waitFor({ timeout: 2000 }).catch(() => undefined);
 check('status bar: Rebuilding…', (await page.locator('[data-testid="status-rebuilding"]').count()) === 1);
 // with software GL one frame of this plate filling the window takes seconds (the main thread is idle meanwhile, the
 // GPU process draws): the screenshots wait longer than the default 30 s (the CI on Windows timed out on the last one)
@@ -144,7 +144,7 @@ await page.evaluate(() => {
   st2.applyDocument('Depth', { ...st2.doc, features: st2.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 8 } : f)) });
 });
 await settled();
-await page.waitForTimeout(300);
+await settle(page);
 s = await state();
 check('two edits in a row: the last one is shown (depth 8)', !s.pending && Math.abs(s.volume - expected(8)) / expected(8) < 0.01, `${s.volume.toFixed(0)} vs ${expected(8).toFixed(0)}`);
 

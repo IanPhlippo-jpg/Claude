@@ -27,6 +27,7 @@ const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION_
 const KCAD_FILTERS = [{ name: 'Phlippo CAD part', extensions: ['kcad'] }, { name: 'All files', extensions: ['*'] }];
 const STL_FILTERS = [{ name: 'STL', extensions: ['stl'] }];
 const STEP_FILTERS = [{ name: 'STEP AP203/214/242', extensions: ['step', 'stp'] }];
+const DXF_FILTERS = [{ name: 'DXF (*.dxf)', extensions: ['dxf'] }, { name: 'DWG (*.dwg)', extensions: ['dwg'] }];
 
 function download(name: string, data: BlobPart, type: string) {
   const blob = new Blob([data], { type });
@@ -202,7 +203,8 @@ function openStep(name: string, data: ArrayBuffer) {
       withUnsavedCheck(() => {
         const s = useStore.getState();
         s.newDocument('part');
-        s.importMesh(name, meshes);
+        // each body keeps the STEP text of its solid: the exact kernel has its real faces and edges (docs/32 item 5)
+        s.importMesh(name, meshes, bodies.map((b) => b.step));
         setDocumentHandle(null);
         s.setDialog(null);
       });
@@ -217,12 +219,14 @@ function readKcad(data: ArrayBuffer) {
   return doc;
 }
 
-/** Open a file: a loaded document (.kcad), an imported mesh (.stl) or a STEP file (.step, .stp). */
+/** Open a file: a loaded document (.kcad), an imported mesh (.stl), a STEP file (.step, .stp) or a 2D drawing (.dxf, .dwg). */
 export function openFileData(name: string, data: ArrayBuffer, handle: string | null) {
   const st = useStore.getState();
   try {
     if (data.byteLength > MAX_FILE_BYTES) throw new Error(`the file is larger than ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} MB`);
     if (/\.(step|stp)$/i.test(name)) return openStep(name, data);
+    // a DXF opens as a new part with the drawing as Sketch1 on the Front Plane (docs/32 item 5)
+    if (/\.(dxf|dwg)$/i.test(name)) return void import('./dxfOpen').then((m) => m.openDxf(name, data));
     if (/\.stl$/i.test(name)) st.importMesh(name, importScale(parseStl(data)));
     else if (st.doc.kind === 'drawing' && st.drawingEdit?.mode === 'modelView' && !st.drawingEdit.model) {
       const model = readKcad(data);
@@ -260,7 +264,8 @@ export function openDesktopFile(f: { name: string; handle: string; data?: ArrayB
 export function openFileDialog() {
   const api = desktop();
   if (api) {
-    api.openFile([{ name: 'Phlippo CAD files', extensions: ['kcad', 'json', 'stl', 'step', 'stp'] }, ...KCAD_FILTERS, ...STL_FILTERS, ...STEP_FILTERS]).then((f) => f && openDesktopFile(f));
+    const all = { name: 'Phlippo CAD files', extensions: ['kcad', 'json', 'stl', 'step', 'stp', 'dxf', 'dwg'] };
+    api.openFile([all, ...KCAD_FILTERS, ...STL_FILTERS, ...STEP_FILTERS, ...DXF_FILTERS]).then((f) => f && openDesktopFile(f));
     return;
   }
   (document.getElementById('phlippo-open-file') as HTMLInputElement | null)?.click();
@@ -384,6 +389,7 @@ export function MenuBar() {
     ],
     Insert: [
       { label: 'Sketch', icon: <Icon.Sketch />, onSelect: () => (inSketch ? st.exitSketch() : st.startPlanePick()) },
+      { label: 'DXF/DWG…', icon: <Icon.Imported />, disabled: !inSketch, onSelect: () => void import('./dxfOpen').then((m) => m.insertDxfDialog()) },
       { label: 'Component ▸ Existing Part/Assembly…', icon: <Icon.InsertComponent />, disabled: st.doc.kind !== 'assembly', onSelect: () => st.startInsertComponent() },
       { label: 'Mate…', icon: <Icon.Mate />, disabled: st.doc.kind !== 'assembly', onSelect: () => st.startMate() },
       { label: 'Drawing View ▸ Model…', icon: <Icon.ModelView />, disabled: st.doc.kind !== 'drawing', onSelect: () => st.startModelView() },
@@ -558,7 +564,7 @@ export function MenuBar() {
         id="phlippo-open-file"
         ref={fileRef}
         type="file"
-        accept={FILE_EXTENSION + ',.json,.stl,.step,.stp'}
+        accept={FILE_EXTENSION + ',.json,.stl,.step,.stp,.dxf,.dwg'}
         style={{ display: 'none' }}
         onChange={async (e) => {
           const f = e.target.files?.[0];

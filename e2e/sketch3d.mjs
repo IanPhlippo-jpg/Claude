@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -20,7 +20,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await settle(page);
 
@@ -28,7 +28,7 @@ await settle(page);
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.locator('.k-cm-big:has-text("Sketch") .k-cm-arrow').first().click();
 await page.click('.k-menu-item:has-text("3D Sketch")');
-await page.waitForTimeout(300);
+await settle(page);
 check('3D Sketch Property Panel (3DSketch1, XY plane)', (await page.locator('[data-testid="sketch3d-pm"]').count()) === 1 && (await page.locator('[data-testid="sketch3d-pm"] .k-pm-stylebtn.active').innerText()) === 'XY');
 const W = (x, y, z) => page.evaluate(([x, y, z]) => window.__phlippoProjectWorld(x, y, z), [x, y, z]);
 // origin -> (60, 0, 0) -> (60, 40, 0) on XY; Tab twice (ZX) -> (60, 40, 50)
@@ -37,31 +37,31 @@ q = await W(60, 0, 0); await page.mouse.move(q.x, q.y); await page.mouse.click(q
 q = await W(60, 40, 0); await page.mouse.move(q.x, q.y); await page.mouse.click(q.x, q.y);
 await page.keyboard.press('Tab');
 await page.keyboard.press('Tab');
-await page.waitForTimeout(150);
+await settle(page);
 check('Tab switches the space handle to ZX', (await page.locator('[data-testid="sketch3d-pm"] .k-pm-stylebtn.active').innerText()) === 'ZX');
-q = await W(60, 40, 50); await page.mouse.move(q.x, q.y); await page.waitForTimeout(150);
+q = await W(60, 40, 50); await page.mouse.move(q.x, q.y); await frames(page, 3);
 await shot('s3d1-drawing');
 await page.mouse.click(q.x, q.y);
-await page.waitForTimeout(200);
+await settle(page);
 const segs = await page.evaluate(() => window.__phlippoStore.getState().sketch3dEdit.segments);
 const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) < 0.6;
 check('three lines in space, the last one along Z', segs.length === 3 && near(segs[0][1], [60, 0, 0]) && near(segs[1][1], [60, 40, 0]) && near(segs[2][1], [60, 40, 50]), JSON.stringify(segs));
 // Orientation ▸ Along X: the next point stays on the X axis through the last point, wherever the pointer is
 await page.locator('[data-testid="sketch3d-orient-x"]').check();
 q = await W(90, 70, 20); await page.mouse.move(q.x, q.y); await page.mouse.click(q.x, q.y);
-await page.waitForTimeout(200);
+await settle(page);
 const along = await page.evaluate(() => window.__phlippoStore.getState().sketch3dEdit.last);
 check('Along X keeps Y and Z of the last point (40, 50)', Math.abs(along[1] - 40) < 0.01 && Math.abs(along[2] - 50) < 0.01, JSON.stringify(along));
 // Control Vertex Parameters: typing X moves the last point and the end of its line
 await page.locator('[data-testid="sketch3d-x"] input').fill('100');
 await page.locator('[data-testid="sketch3d-x"] input').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 const moved = await page.evaluate(() => { const e = window.__phlippoStore.getState().sketch3dEdit; return { last: e.last, end: e.segments[e.segments.length - 1][1] }; });
 check('Control Vertex Parameters X = 100 moves the last point and its line', moved.last[0] === 100 && moved.end[0] === 100, JSON.stringify(moved));
 await page.evaluate(() => window.__phlippoStore.getState().undo3DSegment());
 await page.locator('[data-testid="sketch3d-orient-free"]').check();
 await page.click('.k-cm-big:has-text("Exit Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 check('3DSketch1 in the tree', (await page.locator('.k-tree-row:has-text("3DSketch1")').count()) === 1);
 
 // ---- a circle on the right plane at the origin, swept along the 3D sketch
@@ -102,9 +102,9 @@ await page.evaluate(() => {
 });
 await settle(page);
 await page.locator('.k-tree-row:has-text("Loft1")').last().dblclick();
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('[data-testid="loft-add-guide"]').selectOption('sg');
-await page.waitForTimeout(300);
+await settle(page);
 check('guide curve listed in the Loft Property Panel', (await page.locator('[data-testid="loft-guides"]').innerText()).includes('Sketch3'));
 await page.click('.k-pm-ok');
 await settle(page);

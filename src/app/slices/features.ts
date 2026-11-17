@@ -20,7 +20,7 @@ import { draftEquations, withFieldEquations } from './fieldEquations'; import { 
 import { activateConfiguration, activeConfiguration, addConfiguration as addConfig, configurations, deleteConfiguration as deleteConfig, setConfigurationDimension as setCfgDim, setConfigurationSuppressed as setCfgSup, updateConfiguration } from '../../core/document/configurations';
 import { sketchChains } from '../../core/features/thin';
 import { sketchRegions } from '../../core/features/regions';
-import { applyColorScheme, changedPrefs, DEFAULT_PREFS, documentProperties, getPref, patchPrefs, setDocumentProperties } from '../prefs';
+import { applyColorScheme, changedPrefs, DEFAULT_PREFS, documentProperties, getPref, patchPrefs, setDocumentProperties } from '../prefs'; import { refuseUnderDefined } from '../prefsSketch';
 import { cylinderAxis, localRef } from '../../core/assembly/assembly';
 import { curveEndNormal, referencePlane, resolvePlaneDef } from '../../core/features/planes';
 import { DEFAULT_SHEET_METAL } from '../../core/features/sheetmetal';
@@ -110,7 +110,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
       const f = doc.features.find((x) => x.id === selectedFeatureId);
       if (f?.type === 'sketch') sketchId = f.sketchId;
     }
-    void isSolidFeature;
+    if (sketchId && refuseUnderDefined(doc.sketches[sketchId], get().solve[sketchId]?.status, get().pushMessage)) return; // Use fully defined sketches
     const sketch = sketchId ? doc.sketches[sketchId] : null;
     if (!sketch) {
       get().pushMessage('Select a sketch in the Feature Tree (or open one) before adding the feature.', 'warn');

@@ -3,6 +3,7 @@
 // 200 x redo the volume of the end, a 201st undo or redo changes nothing; with 201 edits the oldest step falls off.
 import { chromium } from 'playwright';
 import { exitCode, track, checks, waitSettled } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
@@ -14,7 +15,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 const AREA = 60 * 40, START = 10;
 /** a fresh block of the given depth (opening clears the undo stack) */

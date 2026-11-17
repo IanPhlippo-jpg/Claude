@@ -2,6 +2,7 @@
 // (de mates houden ze op de geleider en tussen 0 en 450 mm) en maakt screenshots.
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -12,8 +13,8 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-const open = async (f) => { const d = JSON.parse(readFileSync(`voorbeelden/bureau/${f}`, 'utf8')); delete d.format; await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(2500); };
-const iso = async () => { await page.keyboard.press('Control+7'); await page.waitForTimeout(600); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(1500); };
+const open = async (f) => { const d = JSON.parse(readFileSync(`voorbeelden/bureau/${f}`, 'utf8')); delete d.format; await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(2500); }; // fixed: shot tool, time for the light and the exact bodies before the photo
+const iso = async () => { await page.keyboard.press('Control+7'); await settle(page); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(1500); }; // fixed: shot tool, time for the light and the exact bodies before the photo
 const pos = (id) => page.evaluate((i) => window.__phlippoStore.getState().doc.components.find((c) => c.id === i).position, id);
 const proj = (p) => page.evaluate(([x, y, z]) => window.__phlippoProjectWorld(x, y, z), p);
 const results = [];
@@ -28,7 +29,7 @@ async function sleep(id, d) {
   await page.mouse.down();
   await page.mouse.move(b.x, b.y, { steps: 12 });
   await page.mouse.up();
-  await page.waitForTimeout(500);
+  await settle(page);
   return [p, await pos(id)];
 }
 
@@ -37,7 +38,7 @@ await iso();
 await page.screenshot({ path: 'e2e-out/bureau-dicht.png' });
 await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-cm-big:has-text("Move Component") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 const r = (v) => v.map((x) => Math.round(x));
 let [p0, p1] = await sleep('l8', [0, 0, 250]);
 check('rechts, middelste lade: schuift naar voren, niet opzij of omhoog', p1[2] - p0[2] > 100 && p1[2] - p0[2] <= 450 && Math.abs(p1[0] - p0[0]) < 0.01 && Math.abs(p1[1] - p0[1]) < 0.01, `${r(p0)} -> ${r(p1)}`);
@@ -53,9 +54,9 @@ await iso();
 await page.screenshot({ path: 'e2e-out/bureau-lades-open.png' });
 // van opzij, zodat de geleiders en loopregels zichtbaar zijn
 await page.keyboard.press('Control+3');
-await page.waitForTimeout(600);
+await settle(page);
 await page.keyboard.press('f');
-await page.waitForTimeout(1500);
+await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
 await page.screenshot({ path: 'e2e-out/bureau-zijaanzicht.png' });
 console.log(`${results.filter((x) => x.ok).length}/${results.length} passed`, 'errors', errors);
 await browser.close();

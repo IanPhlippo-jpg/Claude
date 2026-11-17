@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle as settleApp } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -18,7 +19,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settleApp(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.evaluate(() => {
   const K = window.__phlippoKit;
@@ -35,10 +36,10 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'f1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settleApp(page);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settleApp(page);
 // select the top face (normal +Y at y = 10)
 await page.evaluate(() => {
   const s = window.__phlippoStore.getState();
@@ -46,7 +47,7 @@ await page.evaluate(() => {
   const f = b.faces.find((x) => x.normal[1] > 0.99 && Math.abs(x.centroid[1] - 10) < 1e-6);
   window.__phlippoStore.setState({ selectedFace: { bodyId: b.id, faceId: f.id } });
 });
-await page.waitForTimeout(300);
+await settleApp(page);
 check('Drag Handles: the selected end face shows the drag arrow', (await page.locator('[data-testid="dragHandles-grip"]').count()) === 1);
 const grip = await page.locator('[data-testid="dragHandles-grip"]').boundingBox();
 // pixels per mm along +Y from the projection
@@ -61,11 +62,11 @@ await page.mouse.move(5, 900, { steps: 1 });
 await page.mouse.move(gx + pxmm.dx * 10, gy + pxmm.dy * 10);
 await shot('i3-drag');
 await page.mouse.up();
-await page.waitForTimeout(600);
+await settleApp(page);
 const depth = await page.evaluate(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'f1').depth);
 check('dragging 10 mm upward makes the extrusion 20 mm deep (readout 20.00mm)', Math.abs(depth - 20) <= 0.5 && /20\.00mm|19\.50mm|20\.50mm/.test(readout), `${depth} ${readout}`);
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(400);
+await settleApp(page);
 const back = await page.evaluate(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'f1').depth);
 check('Undo restores the depth', back === 10, String(back));
 
@@ -173,7 +174,7 @@ await page.evaluate(() => {
 await settle();
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(500);
+await settleApp(page);
 const v90 = await vol();
 const rev = await dragFeature('rv', 30, 'Revolve angle');
 const v120 = await vol();

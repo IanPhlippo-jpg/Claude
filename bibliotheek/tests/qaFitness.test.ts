@@ -6,32 +6,32 @@
  * bladen zijn geldige SVG met een titelblok; geen hoofdstukken die in elkaar steken en geen zwevende onderdelen.
  */
 import { describe, expect, it, vi } from 'vitest';
-import { TOESTELLEN, toestel } from '../../bibliotheek/fitness/catalogus.mjs';
-import { aabb, contact, lengteStuk, type Balk } from '../../bibliotheek/fitness/model.mjs';
-import { berekening } from '../../bibliotheek/fitness/bereken.mjs';
-import { stuklijst, zaagplan, nesting, STAAFLENGTE, ZAAGSNEDE } from '../../bibliotheek/fitness/stuklijst.mjs';
-import { kostprijs } from '../../bibliotheek/fitness/prijzen.mjs';
-import { alleBladen, stukBladen } from '../../bibliotheek/fitness/tekeningen.mjs';
-import { montageBladen } from '../../bibliotheek/fitness/montage.mjs';
-import { dossierHtml, lijstenCsv } from '../../bibliotheek/fitness/dossier.mjs';
-import { miniatuur } from '../../bibliotheek/fitness/aanzicht.mjs';
-import { botsingen, schijvenVrij, zwevend, kabelFouten, ergonomie, gaten, gatFouten, SPELING, haakFouten, monteerFouten, veiligheidFouten, smithHaakFouten, schijvenOpPlatform, hefboomFouten, steekFouten, boutLengte, sleutelFouten, gezetFouten } from '../../bibliotheek/fitness/controle.mjs';
-import { kantelTrek } from '../../bibliotheek/fitness/bereken.mjs';
-import { samenstellingBladen } from '../../bibliotheek/fitness/tekeningen.mjs';
-import { dxfBestanden } from '../../bibliotheek/fitness/dxf.mjs';
-import { add, mul, sub } from '../../bibliotheek/fitness/model.mjs';
-import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
-import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
-import { buigPad, afronden, terugVouwen, uitslagStrook, BUIGERIJEN, KANTBANK, buigKeuze } from '../../bibliotheek/fitness/vorm.mjs';
-import { nokFouten, lagerhuisFouten, laadpenFouten, inbedFouten, ontluchtFouten, uitslagFouten, kapFouten, aanslagFouten, materiaalFouten } from '../../bibliotheek/fitness/controle.mjs';
-import { NOKGRENS, NOKGRENS_BRON } from '../../bibliotheek/fitness/selectorized.mjs';
-import { KOOP } from '../../bibliotheek/fitness/onderdelen.mjs';
-import { massa } from '../../bibliotheek/fitness/model.mjs';
-import { totalen } from '../../bibliotheek/fitness/stuklijst.mjs';
-import { funderingBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
-import { bouwer } from '../../bibliotheek/fitness/model.mjs';
-import { PROFIEL, VERSIE } from '../../bibliotheek/fitness/onderdelen.mjs';
-import { plyobox } from '../../bibliotheek/fitness/opslag.mjs';
+import { TOESTELLEN, toestel } from '../fitness/catalogus.mjs';
+import { aabb, contact, lengteStuk, type Balk } from '../fitness/model.mjs';
+import { berekening } from '../fitness/bereken.mjs';
+import { stuklijst, zaagplan, nesting, STAAFLENGTE, ZAAGSNEDE } from '../fitness/stuklijst.mjs';
+import { kostprijs } from '../fitness/prijzen.mjs';
+import { alleBladen, stukBladen } from '../fitness/tekeningen.mjs';
+import { montageBladen } from '../fitness/montage.mjs';
+import { dossierHtml, lijstenCsv } from '../fitness/dossier.mjs';
+import { miniatuur } from '../fitness/aanzicht.mjs';
+import { botsingen, schijvenVrij, zwevend, kabelFouten, ergonomie, gaten, gatFouten, SPELING, haakFouten, monteerFouten, veiligheidFouten, smithHaakFouten, schijvenOpPlatform, hefboomFouten, steekFouten, boutLengte, sleutelFouten, gezetFouten } from '../fitness/controle.mjs';
+import { kantelTrek } from '../fitness/bereken.mjs';
+import { samenstellingBladen } from '../fitness/tekeningen.mjs';
+import { dxfBestanden } from '../fitness/dxf.mjs';
+import { add, mul, sub } from '../fitness/model.mjs';
+import { typeplaatBlad } from '../fitness/tekeningen.mjs';
+import { leegCache } from '../fitness/catalogus.mjs';
+import { buigPad, afronden, terugVouwen, uitslagStrook, BUIGERIJEN, KANTBANK, buigKeuze } from '../fitness/vorm.mjs';
+import { nokFouten, lagerhuisFouten, laadpenFouten, inbedFouten, ontluchtFouten, uitslagFouten, kapFouten, aanslagFouten, materiaalFouten } from '../fitness/controle.mjs';
+import { NOKGRENS, NOKGRENS_BRON } from '../fitness/selectorized.mjs';
+import { KOOP } from '../fitness/onderdelen.mjs';
+import { massa } from '../fitness/model.mjs';
+import { totalen } from '../fitness/stuklijst.mjs';
+import { funderingBlad } from '../fitness/tekeningen.mjs';
+import { bouwer } from '../fitness/model.mjs';
+import { PROFIEL, VERSIE } from '../fitness/onderdelen.mjs';
+import { plyobox } from '../fitness/opslag.mjs';
 
 // de volledige run (150 toestellen x versies) is zwaar: elke test krijgt 60 s (v6)
 vi.setConfig({ testTimeout: 60000 });

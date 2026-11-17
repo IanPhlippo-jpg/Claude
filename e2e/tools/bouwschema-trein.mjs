@@ -7,6 +7,7 @@ import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { settle, frames } from '../lib/wait.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
 const UIT = `${DIR}/tekeningen`;
@@ -229,14 +230,14 @@ for (const [i, s] of STAPPEN.entries()) {
     const vast = `${BEELD}/stap-${String(i + 1).padStart(2, '0')}-${String(n + 1).padStart(2, '0')}.jpg`;
     if (HERGEBRUIK && existsSync(vast)) { n++; s.foto.push(vast); continue; }
     await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), samenstelling(b));
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
     await page.waitForFunction(() => !window.__phlippoStore.getState().rebuild.pending, null, { timeout: 600_000 });
     const err = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
     if (Object.keys(err).length) fouten.push(`stap ${i + 1}: ${JSON.stringify(err).slice(0, 300)}`);
     await page.keyboard.press(b.toets ?? 'Control+7');
-    await page.waitForTimeout(600);
+    await settle(page);
     await page.keyboard.press('f');
-    await page.waitForTimeout(800);
+    await settle(page);
     const v = await page.locator('.k-viewport').boundingBox();
     if (!b.zoom && !b.toets) {
       // dichterbij: de doos vult het beeld (2 stappen inzoomen op het midden)
@@ -251,9 +252,9 @@ for (const [i, s] of STAPPEN.entries()) {
     }
     // de muis op een lege plek in het venster (linksboven): zo licht er niets op onder de cursor
     await page.mouse.move(v.x + 25, v.y + 70);
-    await page.waitForTimeout(400);
+    await frames(page, 3);
     await page.mouse.move(v.x + 30, v.y + 75);
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
     const f = `${BEELD}/stap-${String(i + 1).padStart(2, '0')}-${String(++n).padStart(2, '0')}.jpg`;
     // zonder de werkbalk bovenaan en het assenkruis onderaan
     await page.screenshot({ path: f, type: 'jpeg', quality: 88, clip: { x: v.x + 2, y: v.y + 44, width: v.width - 4, height: v.height - 104 } });

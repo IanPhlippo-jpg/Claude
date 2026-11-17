@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, dontSave } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -27,13 +27,13 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 // a 40 x 40 plate, 10 thick
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
@@ -43,7 +43,7 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx + 100, cy);
 await page.mouse.click(cx + 100, cy + 80);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-modify input.k-num').fill('40');
 await page.locator('.k-modify input.k-num').press('Enter');
 await settle(page);
@@ -54,7 +54,7 @@ await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
 await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page);
 let c = await C();
@@ -62,14 +62,14 @@ check('plate built', c.bodies === 1 && c.depth === 10, JSON.stringify(c));
 
 // ---- Configurations tab
 await page.click('.k-manager-tab[data-tip="Configurations"]');
-await page.waitForTimeout(200);
+await settle(page);
 const tree = (await page.locator('.k-tree').innerText()).replace(/\s+/g, ' ');
 check('Configurations lists Part1 Configuration(s) (Default) and Default [ Part1 ]', /Part1 Configuration\(s\) \(Default\)/.test(tree) && /Default \[ Part1 \]/.test(tree) && /Tables/.test(tree), tree);
 await shot('c1-configmanager');
 // Add Configuration… via the right mouse button on the top node
 await page.click('.k-tree-row:has-text("Configuration(s)")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Add Configuration")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Add Configuration Property Panel', (await page.locator('[data-testid="configuration-pm"]').count()) === 1 && (await page.locator('.k-pm-title').innerText()).includes('Add Configuration'));
 await shot('c2-add-configuration-pm');
 await page.locator('[data-testid="configuration-pm"] input.k-input').first().fill('210');
@@ -85,48 +85,48 @@ await shot('c3-two-configurations');
 // ---- Modify Configurations table: depth 20 in "210", new row "270" with 27
 await page.click('.k-tree-row:has-text("Configuration(s)")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Modify Configurations")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Modify Configurations dialog opens', (await page.locator('.k-dialog:has-text("Modify Configurations")').count()) === 1);
 await page.locator('.k-cfg-toolbar select').first().selectOption('D1@Boss-Extrude1');
-await page.waitForTimeout(100);
+await frames(page);
 const head = (await page.locator('.k-cfg-table thead').innerText()).replace(/\s+/g, ' ');
 check('table has the Boss-Extrude1 ▾ / D1 column', /Boss-Extrude1/.test(head) && /D1/.test(head), head);
 await page.locator('.k-cfg-table tr[data-config="210"] input[type=number]').fill('20');
 await page.locator('.k-cfg-table tr.k-cfg-new input').fill('270');
 await page.locator('.k-cfg-table tr.k-cfg-new input').press('Enter');
-await page.waitForTimeout(100);
+await frames(page);
 check('new row 270 (new) appears', (await page.locator('.k-cfg-table tr[data-config="270"]').count()) === 1);
 await page.locator('.k-cfg-table tr[data-config="270"] input[type=number]').fill('27');
 await shot('c4-modify-configurations');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.waitForTimeout(600);
+await settle(page);
 c = await C();
 check('table applied: 210 active with depth 20, 270 stored with 27', c.names.join(',') === 'Default,210,270' && c.active === '210' && c.depth === 20 && c.dims[2] === 27, JSON.stringify(c));
 
 // ---- show configurations by double-click
 await page.dblclick('.k-tree-row:has-text("Default [ Part1 ]")');
-await page.waitForTimeout(500);
+await settle(page);
 c = await C();
 check('Default shown: depth back to 10', c.active === 'Default' && c.depth === 10 && c.dims[1] === 20, JSON.stringify(c));
 await page.dblclick('.k-tree-row:has-text("270 [ Part1 ]")');
-await page.waitForTimeout(500);
+await settle(page);
 c = await C();
 check('270 shown: depth 27, one body', c.active === '270' && c.depth === 27 && c.bodies === 1, JSON.stringify(c));
 await shot('c5-config-270');
 
 // ---- Modify box: All Configurations writes the value into every configuration
 await page.click('.k-manager-tab[data-tip="Feature Tree"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').last().click({ button: 'right' });
 await page.click('[data-testid="ctx-edit-sketch"]');
-await page.waitForTimeout(400);
+await settle(page);
 await page.keyboard.press('Control+5');
-await page.waitForTimeout(400);
+await settle(page);
 let scopeFound = false;
 const nDim = await page.locator('.k-dim').count();
 if (nDim) {
   await page.locator('.k-dim').first().dispatchEvent('dblclick');
-  await page.waitForTimeout(300);
+  await settle(page);
   scopeFound = (await page.locator('[data-testid="modify-scope"]').count()) === 1;
 }
 check('Modify box offers This/All/Specify Configuration(s)', scopeFound, 'dims on screen: ' + nDim);
@@ -141,16 +141,16 @@ if (scopeFound) {
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Exit Sketch") .k-cm-main').catch(() => page.keyboard.press('Escape'));
-await page.waitForTimeout(500);
+await settle(page);
 
 // ---- Configure Feature from the Feature Tree: suppress Boss-Extrude1 in Default only
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').last().click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Configure Feature")');
-await page.waitForTimeout(200);
+await settle(page);
 check('Configure Feature opens the table with a Suppress column', (await page.locator('.k-cfg-table thead').innerText()).includes('Suppress'));
 await page.locator('.k-cfg-table tr[data-config="Default"] select').selectOption('suppressed');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.waitForTimeout(400);
+await settle(page);
 c = await C();
 check('Default has the feature suppressed, 270 (active) still built', c.sup[0] === 1 && c.bodies === 1 && !c.suppressed, JSON.stringify(c));
 
@@ -158,7 +158,7 @@ check('Default has the feature suppressed, 270 (active) still built', c.sup[0] =
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
-await page.waitForTimeout(800);
+await settle(page);
 c = await C();
 check('configurations survive a reload', c.names.join(',') === 'Default,210,270' && c.active === '270' && c.depth === 27, JSON.stringify(c));
 check('Feature Tree top node names the active configuration', (await page.locator('.k-tree-row').first().innerText()).includes('(270)'));
@@ -175,11 +175,11 @@ await dontSave(page); // Save changes? → Don't Save, when it asks
 await settle(page);
 for (let i = 0; i < 3; i++) {
   if (i) await page.click('.k-cm-big:has-text("Insert Components") .k-cm-main');
-  await page.waitForTimeout(200);
+  await settle(page);
   await page.setInputFiles('#phlippo-open-file', { name: 'Part1.kcad', mimeType: 'application/json', buffer: Buffer.from(plateFile) });
-  await page.waitForTimeout(300);
+  await settle(page);
   await placeGhost();
-  await page.waitForTimeout(500);
+  await settle(page);
 }
 const A = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { comps: (s.doc.components ?? []).map((c) => ({ name: c.name, cfg: c.configuration })), bodies: s.rebuild.bodies.map((b) => { b.geometry.computeBoundingBox(); const bb = b.geometry.boundingBox; return Math.round((bb.max.y - bb.min.y) * 100) / 100; }), errors: s.rebuild.errors }; });
 let a = await A();
@@ -191,7 +191,7 @@ await page.click('.k-menu-item:has-text("210")');
 await settle(page);
 await page.click('.k-tree-row:has-text("Part1<3>")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Default")');
-await page.waitForTimeout(500);
+await settle(page);
 a = await A();
 check('instances show 270 / 210 / Default', a.comps.map((x) => x.cfg).join(',') === '270,210,Default', JSON.stringify(a.comps));
 check('world bodies follow the configuration (27 and 20 thick; Default has no body)', a.bodies.length === 2 && a.bodies.includes(27) && a.bodies.includes(20), JSON.stringify(a.bodies));
@@ -202,7 +202,7 @@ await shot('c6-assembly-configurations');
 // Mass Properties of the assembly adds all components (50 x 40 x 27 + 50 x 40 x 20 = 94000 mm³)
 await page.click('.k-cm-tab:has-text("Evaluate")');
 await page.click('.k-cm-big:has-text("Mass Properties") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 const report = await page.locator('.k-mass-report').innerText();
 const mv = /Volume = ([\d.]+)/.exec(report);
 const expectVol = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies.reduce((sum, b) => { b.geometry.computeBoundingBox(); const bb = b.geometry.boundingBox; return sum + (bb.max.x - bb.min.x) * (bb.max.y - bb.min.y) * (bb.max.z - bb.min.z); }, 0));
@@ -213,7 +213,7 @@ await page.click('.k-dialog-actions button:has-text("Close")');
 // BOM: one row per configuration
 await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-cm-big:has-text("Bill of Materials") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const bom = (await page.locator('.k-bom tbody').innerText()).replace(/\s+/g, ' ');
 check('BOM lists a row per configuration', (bom.match(/Part1/g) || []).length === 3, bom);
 await shot('c8-bom');

@@ -19,7 +19,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.evaluate(() => {
   const K = window.__phlippoKit;
@@ -45,7 +45,7 @@ await settle(page);
 await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click();
 await page.locator('.k-cm-big:has-text("Linear Pattern") .k-cm-arrow').first().click();
 await page.click('.k-menu-item:has-text("Sketch Driven Pattern")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Sketch Driven Pattern Property Panel with the seed', (await page.locator('.k-pm-title:has-text("Sketch Driven Pattern")').count()) === 1 && (await page.locator('.k-section:has-text("Features and Faces")').innerText()).includes('Cut-Extrude1'));
 await page.locator('[data-testid="skpattern-sketch"]').selectOption('sk3');
 await page.click('.k-pm-ok');

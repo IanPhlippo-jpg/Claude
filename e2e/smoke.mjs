@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { checks, exitCode } from './lib/check.mjs';
+import { frames } from './lib/wait.mjs';
 const { results, check } = checks();
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -26,9 +27,9 @@ const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 // front plane is drawn centred; iso view -> click slightly left/below centre lands on the front plane
 await page.mouse.move(cx - 60, cy + 40);
-await page.waitForTimeout(100);
+await frames(page, 3);
 await page.mouse.click(cx - 60, cy + 40);
-await page.waitForTimeout(500);
+await page.locator('.k-status-cell:has-text("Editing")').waitFor({ timeout: 10000 }).catch(() => undefined);
 check('a click on the Front Plane starts Sketch1', /Editing Sketch1/.test(await page.locator('.k-status-cell:has-text("Editing")').textContent()));
 
 // draw a rectangle: press R, click two corners
@@ -36,7 +37,7 @@ await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
 await page.mouse.click(cx - 120, cy + 80);
 await page.mouse.move(cx + 120, cy - 60);
 await page.mouse.click(cx + 120, cy - 60);
-await page.waitForTimeout(100);
+await frames(page, 2);
 await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx + 250, cy);
 await page.mouse.click(cx + 290, cy);
@@ -46,7 +47,7 @@ await page.mouse.click(cx + 120, cy - 60);
 await page.mouse.click(cx + 200, cy - 150);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
-await page.waitForTimeout(100);
+await frames(page, 2);
 let status = await page.locator('.k-statusbar .status').first().textContent();
 check('the drawn sketch is under defined', status.trim() === 'Under Defined', status.trim());
 
@@ -54,12 +55,12 @@ check('the drawn sketch is under defined', status.trim() === 'Under Defined', st
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx, cy + 80);
 await page.mouse.click(cx, cy + 130);
-await page.waitForTimeout(200);
+await page.locator('.k-modify').waitFor({ timeout: 10000 }).catch(() => undefined);
 check('Smart Dimension shows the Modify box', (await page.locator('.k-modify').count()) === 1);
 const input = page.locator('.k-modify input.k-num');
 await input.fill('100');
 await input.press('Enter');
-await page.waitForTimeout(200);
+await frames(page, 3);
 status = await page.locator('.k-statusbar .status').first().textContent();
 console.log('status after dimension:', status.trim());
 await page.keyboard.press('Escape');
@@ -71,12 +72,12 @@ check('the dimension reads 100.00', (await page.locator('.k-overlay text').allTe
 await page.keyboard.press('Control+z');
 await page.keyboard.press('Control+z');
 await page.keyboard.press('Control+y');
-await page.waitForTimeout(100);
+await frames(page, 2);
 check('undo, undo, redo leaves one dimension label', (await page.locator('.k-overlay text').allTextContents()).length === 1, JSON.stringify(await page.locator('.k-overlay text').allTextContents()));
 
 // right-click context menu with context toolbar on a line
 await page.mouse.click(cx, cy + 80, { button: 'right' });
-await page.waitForTimeout(100);
+await frames(page, 2);
 check('a right-click on a line shows the context toolbar and menu', (await page.locator('.k-ctx-toolbar button').count()) > 0 && (await page.locator('.k-ctx .k-menu-item').count()) > 5);
 await page.keyboard.press('Escape');
 
@@ -89,27 +90,27 @@ await page.keyboard.press('d');
 // dark mode + relations task pane
 await page.keyboard.press('Control+Shift+d');
 await page.click('.k-cm-big:has-text("Display/Delete Relations") .k-cm-main');
-await page.waitForTimeout(200);
+await frames(page, 3);
 await page.screenshot({ path: `${OUT}/03-sketch-dark.png` });
 await page.keyboard.press('Control+Shift+d');
 
 // exit via the confirmation corner (sketch symbol), isometric view
 await page.click('.k-confirm-ok');
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await page.locator('.k-viewname:text-is("*Isometric")').waitFor({ timeout: 10000 }).catch(() => undefined);
 check('Ctrl+7 shows *Isometric', (await page.locator('.k-viewname').textContent()) === '*Isometric');
 // orientation dialog (space) and view selector (ctrl+space)
 await page.keyboard.press(' ');
 check('space opens the Orientation dialog', (await page.locator('.k-orientation-dialog').count()) === 1);
 await page.click('.k-viewgrid-btn:has-text("Front")');
-await page.waitForTimeout(300);
+await page.locator('.k-viewname:text-is("*Front")').waitFor({ timeout: 10000 }).catch(() => undefined);
 check('the Orientation dialog sets *Front', (await page.locator('.k-viewname').textContent()) === '*Front');
 await page.keyboard.press('Control+ ');
 check('Ctrl+space shows the View Selector', (await page.locator('.k-viewselector').count()) === 1);
 await page.screenshot({ path: `${OUT}/04-viewselector.png` });
 await page.keyboard.press('Escape');
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await page.waitForTimeout(400); // fixed: no camera hook here, the view turns on time before the photo
 await page.screenshot({ path: `${OUT}/04-part-iso.png` });
 
 // autosave persisted?

@@ -3,6 +3,7 @@
 // Gebruik: node e2e/tools/trein-fable-shots.mjs [uitmap]   (standaard e2e-out); ZOOM_<NAAM>="x,y,n" stuurt het inzoomen
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
+import { settle, frames } from '../lib/wait.mjs';
 const UIT = process.argv[2] ?? 'e2e-out';
 mkdirSync(UIT, { recursive: true });
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -18,7 +19,7 @@ const F = 'voorbeelden/treinverlichting/Kabeldoos.kcad';
 const alleen = (re) => { const d = JSON.parse(readFileSync(F, 'utf8')); delete d.format; d.components = d.components.filter((c) => re.test(c.id)); return d; };
 const open = async (d) => {
   await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d);
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(3000); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.waitForFunction(() => !window.__phlippoStore.getState().rebuild.pending, null, { timeout: 600_000 });
   const e = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
   if (Object.keys(e).length) fouten.push(JSON.stringify(e).slice(0, 300));
@@ -27,13 +28,13 @@ const open = async (d) => {
 const rust = async () => {
   // eerst over een lege plek in het venster (linksboven), dan naar de lege boom links en het venster laten weten dat de
   // muis weg is (bij sterk inzoomen is er geen lege plek meer)
-  await page.mouse.move(400, 220); await page.waitForTimeout(300);
-  await page.mouse.move(100, 960); await page.waitForTimeout(300);
+  await page.mouse.move(400, 220); await frames(page, 3);
+  await page.mouse.move(100, 960); await frames(page, 3);
   await page.evaluate(() => { for (const c of document.querySelectorAll('.k-viewport canvas')) for (const t of ['pointerleave', 'mouseleave', 'pointerout', 'mouseout']) c.dispatchEvent(new PointerEvent(t, { bubbles: true, clientX: -10, clientY: -10 })); });
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(1800); // fixed: shot tool, time for the light and the exact bodies before the photo
 };
 const shot = async (toets, naam, zoom) => {
-  await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1200);
+  await page.keyboard.press(toets); await settle(page); await page.keyboard.press('f'); await settle(page);
   if (zoom) {
     // in stappen: "x,y,n;x,y,n" (eerst grof op het midden, dan fijn op het detail)
     for (const stap of (process.env[`ZOOM_${naam.toUpperCase().replace(/-/g, '_')}`] ?? zoom).split(';')) {
@@ -53,7 +54,7 @@ if (wat.includes('lippen') || wat.includes('lippen-boven')) {
   // doorsnede evenwijdig aan het vooraanzicht door het midden van de lippen (z = midden rij 3 + 9)
   if (wat.includes('lippen')) {
     await page.evaluate(() => window.__phlippoStore.setState({ sectionView: { plane: 'front', offset: -35.15 + 9, flip: false, cap: true } }));
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
     await shot('Control+1', 'trein-lippen-doorsnede', '960,560,9;725,800,6');
     // hetzelfde beeld zonder de knoppenbalken, voor het bouwschema (stap 5)
     const v = await page.locator('.k-viewport').boundingBox();

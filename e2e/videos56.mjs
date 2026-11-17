@@ -6,7 +6,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -25,7 +25,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 // a plate 80 x 60 x 10 with the global variable "Width" = 40 and a steel material
 await S(() => {
@@ -44,24 +44,24 @@ await settle(page);
 
 // ---- = in the Depth field of Boss-Extrude1
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().dblclick();
-await page.waitForTimeout(400);
+await settle(page);
 check('Boss-Extrude1 ▸ status prompt "Drag an arrow handle to change the size."', (await status()).includes('Drag an arrow handle to change the size.'), await status());
 const depth = page.locator('.k-pm-host input.k-num').first();
 await depth.focus();
 await depth.press('=');
-await page.waitForTimeout(150);
+await settle(page);
 check('= turns the field into an equation with Global Variables / Functions / File Properties', (await page.locator('[data-testid="eq-input"]').count()) === 1 && /Global Variables ▸[\s\S]*Functions ▸[\s\S]*File Properties ▸/.test(await page.locator('[data-testid="eq-menu"]').innerText()));
 await page.hover('[data-testid="eq-globals"]');
-await page.waitForTimeout(150);
+await frames(page, 2);
 check('Global Variables ▸ lists "Width"', (await page.locator('[data-testid="eq-globals"]').innerText()).includes('Width'));
 await page.locator('[data-testid="eq-globals"] .k-eq-subitems .k-menu-item:has-text("Width")').dispatchEvent('mousedown');
 await page.locator('[data-testid="eq-input"]').press('End');
 await page.locator('[data-testid="eq-input"]').type(' / 2');
 await page.screenshot({ path: `${OUT}/videos56-equation.png` });
 await page.locator('[data-testid="eq-input"]').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 if (await page.locator('.k-pm-ok').count()) await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 let r = await S(() => { const s = window.__phlippoStore.getState(); return { depth: s.doc.features.find((f) => f.id === 'e1').depth, eqs: s.doc.equations.map((e) => `${e.target}=${e.expression}`) }; });
 check('the Depth is driven by the equation: D1@Boss-Extrude1 = "Width" / 2 (20 mm)', r.depth === 20 && r.eqs.includes('D1@Boss-Extrude1="Width" / 2'), JSON.stringify(r));
 await S(() => { const s = window.__phlippoStore.getState(); s.setEquations(s.doc.equations.map((e) => (e.target === 'Width' ? { ...e, expression: '60' } : e))); });
@@ -81,16 +81,16 @@ await S(() => window.__phlippoStore.getState().setSelectedFace(null));
 
 // ---- the tree context toolbar of a sketch: Show/Hide, Zoom to Selection, Normal To
 await page.locator('.k-tree-row:has-text("Boss-Extrude1") .caret').first().click();
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Sketch1")').first().click();
 await page.locator('[data-testid="ctx-show"]').waitFor({ timeout: 6000 }).catch(() => undefined);
 check('a sketch in the tree: context toolbar Show, Zoom to Selection, Normal To (no Edit Sketch)', (await page.locator('[data-testid="ctx-show"]').count()) === 1 && (await page.locator('[data-testid="ctx-zoom-selection"]').count()) === 1 && (await page.locator('[data-testid="ctx-normal-to"]').count()) === 1 && (await page.locator('[data-testid="ctx-edit-sketch"]').count()) === 0);
 check('the used sketch offers "Show"', (await page.locator('[data-testid="ctx-show"]').getAttribute('data-tip')) === 'Show');
 await page.screenshot({ path: `${OUT}/videos56-ctxbar.png` });
 const bb = await page.locator('[data-testid="tree-ctxbar"]').boundingBox();
-if (bb) { await page.mouse.move(bb.x + 10, bb.y + bb.height / 2); await page.waitForTimeout(150); }
+if (bb) { await page.mouse.move(bb.x + 10, bb.y + bb.height / 2); await frames(page, 3); }
 await page.locator('[data-testid="ctx-show"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Show makes the used sketch visible', await S(() => window.__phlippoStore.getState().doc.sketches.s1.visible === true));
 
 // ---- Rib: Type Linear / Natural (Normal to Sketch), Draft On/Off, Rib Thickness
@@ -113,16 +113,16 @@ await S(() => {
 });
 await settle(page);
 await page.locator('.k-tree-row:has-text("Rib1")').last().dblclick();
-await page.waitForTimeout(400);
+await settle(page);
 check('Rib1 ▸ status prompt "Set the direction and the thickness of the rib."', (await status()).includes('Set the direction and the thickness of the rib.'), await status());
 check('Rib (Normal to Sketch) ▸ Type: Linear / Natural', /Type:[\s\S]*Linear[\s\S]*Natural/.test(await page.locator('[data-testid="rib-type"]').innerText().catch(skip('videos56.mjs:117', ''))));
 check('without draft no Rib Thickness choice', (await page.locator('[data-testid="rib-thickness-at"]').count()) === 0);
 await page.click('[data-testid="rib-draft-toggle"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('Draft On/Off turns the draft on (1°) and shows At sketch plane / At wall interface', (await page.locator('[data-testid="rib-thickness-at"]').innerText()).includes('At wall interface') && await S(() => window.__phlippoStore.getState().featureEdit.draft.draft === 1));
 await page.click('[data-testid="rib-at-wall"]');
 await page.click('[data-testid="rib-natural"]');
-await page.waitForTimeout(300);
+await settle(page);
 await page.screenshot({ path: `${OUT}/videos56-rib.png` });
 await page.click('.k-pm-ok');
 await settle(page);
@@ -134,7 +134,7 @@ await S(() => window.__phlippoStore.getState().startDeleteFace());
 await settle(page);
 check('Delete Face ▸ Show selection toolbar and Show preview', (await page.locator('[data-testid="deleteface-seltoolbar"]').count()) === 1 && (await page.locator('[data-testid="deleteface-preview"]').count()) === 1);
 await page.click('[data-testid="deleteface-preview"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('Show preview turns the detailed preview on', await S(() => window.__phlippoStore.getState().detailedPreview));
 await page.click('[data-testid="deleteface-preview"]');
 await S(() => window.__phlippoStore.getState().cancelFeature());
@@ -143,7 +143,7 @@ await S(() => window.__phlippoStore.getState().cancelFeature());
 await S(() => window.__phlippoStore.getState().addSensor?.('mass'));
 await settle(page);
 await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click();
-await page.waitForTimeout(200);
+await settle(page);
 const tree = await page.locator('.k-tree').first().innerText();
 const m = /Mass1\((\d+)\.(\d+) g\)/.exec(tree);
 check('Mass1 shows 9 significant digits', !!m && m[1].length + m[2].length === 9, m?.[0] ?? tree.slice(0, 200));

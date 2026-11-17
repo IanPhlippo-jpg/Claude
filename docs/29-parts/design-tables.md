@@ -35,9 +35,30 @@ er wordt niets extra in het document bewaard.
 ## UI
 
 Configurations-paneel: rechtsklik op het documentknooppunt (`Part1 Configuration(s)`) of op de map **Tables** →
-**Insert Design Table…** (bestand kiezen, `.csv`/`.txt`) en **Export Design Table…** (download
-`<naam> - Design Table.csv`, met BOM zodat Excel UTF-8 leest). De commando's staan in
-`src/app/designTableCommands.ts` en worden pas bij het eerste gebruik geladen (`import()`), samen met de kern.
+**Insert Design Table…** (bestand kiezen: `.xlsx`, `.csv` of `.txt`; herkend aan de inhoud, een ZIP is een werkmap),
+**Export Design Table…** (Excel-werkmap `<naam> - Design Table.xlsx`) en **Export Design Table as CSV…**
+(`<naam> - Design Table.csv`, met BOM zodat Excel UTF-8 leest). In de desktop-app gaan beide via de eigen
+bestandsdialogen (`openFile` / `saveFileAs`), in de browser via een bestandskeuze en een download. De commando's staan
+in `src/app/designTableCommands.ts` en worden pas bij het eerste gebruik geladen (`import()`), samen met de kern.
+
+## Excel (.xlsx), 0.5.16 (advies 5.2 punt 9)
+
+Zonder pakket, in `src/core/document/`:
+- `zip.ts`: ZIP-lezer (einde-centrale-map, centrale map, lokale headers; methode 0 stored en 8 deflate, uitgepakt met
+  `DecompressionStream('deflate-raw')`, async; CRC-32 gecontroleerd; grens 64 MB per item; geen ZIP64 of versleuteling)
+  en ZIP-schrijver (stored items met CRC-32, UTF-8-namen).
+- `xlsx.ts`: leest het eerste werkblad (via `xl/workbook.xml` en de relaties): gedeelde strings (ook rich text, zonder
+  fonetische runs), inline strings, getallen, booleans, formule-strings en fouten; een formule geeft de waarde die
+  Excel mee opsloeg; celverwijzingen A1…XFD met gaten (lege cellen en rijen blijven leeg); cellen zonder `r` volgen de
+  vorige. Schrijft één werkblad met gedeelde strings, getallen als getal, kolombreedtes en de minimale delen
+  (`[Content_Types].xml`, relaties, workbook, sheet1, sharedStrings, styles).
+- `designTableFile.ts`: `exportDesignTableXlsx` (de rijen van `designTableRows`, dezelfde als de CSV) en
+  `importDesignTableFile` (werkmap → tekstcellen → `importDesignTableRows`, hetzelfde tabelmodel als CSV; een getal komt
+  als `12.5` binnen). Een `.xls` (Excel 97-2003, OLE) wordt gemeld: opslaan als `.xlsx` of CSV.
+- Nagegaan met Excel 16 (COM, niet in de suite): een geschreven werkmap opent met de juiste waarden (getallen als
+  Double), en een door Excel zelf opgeslagen werkmap (deflate, sharedStrings, calcChain, theme, formule) leest juist.
+- Niet mogelijk: de tabel als ingebed Excel-object (OLE) in het model bewerken, zoals het referentieprogramma doet. De
+  tabel gaat naar een bestand en komt terug met Insert Design Table.
 Insert is één undo-stap "Insert Design Table" (`applyDocument`, schetsen opnieuw opgelost met `solveAll`). Bij fouten:
 statusmelding "Design Table not applied: …" (error) plus de volgende drie meldingen als waarschuwing.
 
@@ -51,11 +72,19 @@ statusmelding "Design Table not applied: …" (error) plus de volgende drie meld
   tussen aanhalingstekens, lege cellen.
 - `e2e/designtable.mjs` (15 checks, in `run-regression.mjs`): plaat tekenen, menu, Insert (3 configuraties, decimale
   komma, `$STATE` S → geen body), elke configuratie tonen en de maten van de body meten, foute tabel → melding en geen
-  wijziging, Export (bestandsnaam, kop, rijen), export opnieuw inlezen → 0 toegevoegd.
+  wijziging, Export as CSV (bestandsnaam, kop, rijen), export opnieuw inlezen → 0 toegevoegd; Excel: export `.xlsx`
+  (delen, getalcellen, gedeelde strings), terug inlezen → 0 toegevoegd, de dialoog biedt `.xlsx` en `.csv`, een
+  Excel-achtige werkmap met deflate, rich text, lege cellen en een formule (Long bijgewerkt, Wide toegevoegd en gemeten),
+  `.xls` gemeld (26 checks).
+- `src/core/document/xlsx.test.ts` (10 tests): CRC-32, ZIP stored rond-trip, deflate-items met data descriptor en
+  commentaar (gemaakt met `CompressionStream('deflate-raw')`), beschadigd item geweigerd; celverwijzingen en
+  XML-escapes; werkblad met gaten, inline strings, booleans, fouten en formules; xlsx rond-trip; Excel-achtig bestand
+  (tweede blad als eerste, absolute Target, rich text, fonetische run, lege cellen); Insert uit Excel = Insert uit CSV;
+  export → import verandert niets en de CSV heeft dezelfde cellen; `.xls` en beschadigde werkmap gemeld.
 
 ## Beperkingen
 
-- Alleen CSV/tekst, geen `.xlsx` en geen ingebedde spreadsheet die in de app bewerkt wordt; de tabel wordt niet als
+- Geen ingebedde spreadsheet die in de app bewerkt wordt (zie Excel hierboven); de tabel wordt niet als
   object in het document bewaard (de map Tables toont dus geen "Design Table"-knooppunt) en is niet gekoppeld aan
   een extern bestand.
 - Geen formules in cellen (een spreadsheet exporteert de berekende waarden), geen eenheden in cellen (`12 mm` is een

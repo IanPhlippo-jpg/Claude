@@ -34,17 +34,17 @@ const rep0 = await page.locator('.k-mass-report').innerText();
 await page.click('[data-testid="mass-options"]');
 await page.click('[data-testid="mass-custom"]');
 await page.selectOption('[data-testid="mass-mass"]', 'kg');
-await page.waitForTimeout(300);
+await settle(page);
 const rep1 = await page.locator('.k-mass-report').innerText();
 check('Mass options: kilograms', /kilograms/.test(rep1) && /grams/.test(rep0), rep1.slice(0, 200));
 await page.click('[data-testid="mass-override"]');
 await page.click('[data-testid="mass-ov-mass"]');
 await page.fill('[data-testid="mass-ov-value"]', '500');
-await page.waitForTimeout(300);
+await settle(page);
 const rep2 = await page.locator('.k-mass-report').innerText();
 check('Override mass: 500 g = 0.50 kg (user overridden)', /Mass = 0\.50 kilograms \(user overridden\)/.test(rep2), rep2.match(/Mass = [^\n]*/)?.[0]);
 await page.click('[data-testid="mass-com"]');
-await page.waitForTimeout(400);
+await settle(page);
 check('Create Center of Mass feature: tree node', (await page.locator('.k-tree-row:has-text("Center of Mass")').count()) === 1);
 await page.screenshot({ path: `${OUT}/dlg-mass.png` });
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('x', { ...s.doc, massOverride: undefined }); s.setDialog(null); });
@@ -53,7 +53,7 @@ await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('x',
 await S(() => window.__phlippoStore.getState().setDialog('check'));
 await settle(page);
 await page.click('[data-testid="check-selected"]');
-await page.waitForTimeout(300);
+await settle(page);
 check('Check ▸ Selected items with nothing selected checks no body', /Bodies checked: 0/.test(await page.locator('[data-testid="check-dialog"]').innerText()));
 await S(() => window.__phlippoStore.getState().setDialog(null));
 
@@ -66,7 +66,7 @@ check('Floor reflections are on by default', await page.locator('[data-testid="s
 await page.click('[data-testid="scene-reflect"]');
 await page.click('[data-testid="scene-tab-illumination"]');
 await page.fill('[data-testid="scene-brightness"]', '1.4').catch(async () => { await page.locator('[data-testid="scene-brightness"]').evaluate((el) => { const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(el, '1.4'); el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }); });
-await page.waitForTimeout(400);
+await settle(page);
 const sc = await S(() => window.__phlippoStore.getState().doc.scene);
 check('Scene: courtyard, reflections off, brightness', sc.environment === 'courtyard' && sc.floorReflections === false && Math.abs((sc.brightness ?? 1) - 1.4) < 0.01, JSON.stringify(sc));
 await page.screenshot({ path: `${OUT}/dlg-scene.png` });
@@ -80,13 +80,13 @@ await page.locator('.k-material-item').first().click();
 await page.click('[data-testid="mat-copy"]');
 await page.fill('[data-testid="mat-density"]', '7000');
 await page.click('[data-testid="mat-save"]');
-await page.waitForTimeout(200);
+await settle(page);
 const custom = await S(() => JSON.parse(JSON.parse(localStorage.getItem('phlippo.prefs'))['material.custom']));
 check('Material copied to Custom Materials and edited', custom.length === 1 && custom[0].density === 7000, JSON.stringify(custom.map((m) => [m.name, m.density])));
 await page.selectOption('[data-testid="mat-units"]', 'mpa');
 check('Material units MPa', (await page.locator('.k-material-props').innerText()).includes('N/mm^2'));
 await page.click('.k-dialog-actions button:has-text("Apply")');
-await page.waitForTimeout(200);
+await settle(page);
 check('custom material applied', (await S(() => window.__phlippoStore.getState().doc.material?.density)) === 7000);
 await S(() => window.__phlippoStore.getState().setDialog(null));
 
@@ -135,7 +135,7 @@ await S(() => window.__phlippoStore.getState().setDialog('equations'));
 await settle(page);
 await page.selectOption('[data-testid="eq-angle"]', 'rad');
 await page.click('.k-dialog button:has-text("OK")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Equations angle units radians', (await S(() => window.__phlippoStore.getState().doc.equationAngleUnits)) === 'rad');
 
 // ---- Appearances pane: back / forward, new folder
@@ -146,7 +146,7 @@ if ((await page.locator('[data-testid="ap-newfolder"]').count()) === 1) {
   await page.click('[data-testid="ap-back"]');
   check('Appearances Back works', (await page.locator('[data-testid="ap-forward"]').isEnabled()));
   await page.click('[data-testid="ap-newfolder"]');
-  await page.waitForTimeout(200);
+  await settle(page);
   check('New Folder in My Appearances', (await page.locator('.k-ap-row:has-text("New Folder1")').count()) === 1);
   await page.screenshot({ path: `${OUT}/dlg-appearances.png` });
 } else check('Appearances pane open', false);

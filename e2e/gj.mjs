@@ -5,6 +5,7 @@ import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -42,65 +43,65 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 
 // ---- status bar readouts in the sketch and on the body
 await S(() => window.__phlippoStore.getState().editSketch('s1'));
-await page.waitForTimeout(400);
+await settle(page);
 const lineId = await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const id = sk.entityOrder.find((e) => sk.entities[e].kind === 'line'); s.setSelection([{ kind: 'entity', id }]); return id; });
-await page.waitForTimeout(300);
+await settle(page);
 check('status bar: Length of the selected line (60)', /Length: 60mm/.test(await page.locator('[data-testid="status-readout"]').innerText().catch(skip('gj.mjs:52', ''))), await page.locator('[data-testid="status-readout"]').innerText().catch(skip('gj.mjs:52', '?')));
 check('Line Properties PM title', /Line Properties/.test(await page.locator('.k-pm-title').innerText()));
 await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const id = sk.entityOrder.find((e) => sk.entities[e].kind === 'circle'); s.setSelection([{ kind: 'entity', id }]); });
-await page.waitForTimeout(300);
+await settle(page);
 check('status bar: Diameter and Center of the circle', /Diameter: 10mm/.test(await page.locator('[data-testid="status-readout"]').innerText()) && /Center: 0mm, 0mm/.test(await page.locator('[data-testid="status-readout"]').innerText()));
 check('Circle Properties PM title', /Circle Properties/.test(await page.locator('.k-pm-title').innerText()));
 await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const ids = Object.keys(sk.points).slice(0, 2); s.setSelection([{ kind: 'point', id: ids[0] }, { kind: 'point', id: ids[1] }]); });
-await page.waitForTimeout(300);
+await settle(page);
 check('status bar: Distance with dX dY dZ for two points', /Distance: .*dX: .*dY: .*dZ: 0mm/.test(await page.locator('[data-testid="status-readout"]').innerText()));
 // Insert Line message box
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('Insert Line PM has the Message box of the intended design', (await page.locator('[data-testid="line-message"]').innerText()) === 'Edit the settings of the next new line or sketch a new line.');
 await page.keyboard.press('Escape');
 await shot('gj0-line-properties');
 // Display/Delete Relations: filters, Delete All, Entities
 await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const l1 = sk.entityOrder[0], l2 = sk.entityOrder[1]; s.setSelection([{ kind: 'entity', id: l1 }, { kind: 'entity', id: l2 }]); s.addRelation('perpendicular', [l1, l2]); });
-await page.waitForTimeout(300);
+await settle(page);
 await S(() => window.__phlippoStore.getState().setTaskPane('relations'));
-await page.waitForTimeout(300);
+await settle(page);
 check('Display/Delete Relations pane with the filter list', (await page.locator('[data-testid="relations-filter"] option').count()) === 8);
 const relCount = await page.locator('[data-testid="relations-pane"] .k-list li').count();
 check('relations listed', relCount >= 1, String(relCount));
 await page.locator('[data-testid="relations-pane"] .k-list li').first().click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Entities of the selected relation listed', (await page.locator('[data-testid="relations-entities"] .k-selbox-row').count()) >= 1);
 await page.locator('[data-testid="relations-filter"]').selectOption('Locked');
-await page.waitForTimeout(200);
+await settle(page);
 check('the Locked filter shows no relations here', /No relations match/.test(await page.locator('[data-testid="relations-pane"] .k-list').innerText()));
 await page.locator('[data-testid="relations-filter"]').selectOption('All in this sketch');
 await shot('gj1-relations');
 await page.locator('[data-testid="relations-deleteall"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Delete All removes the relations', (await S(() => window.__phlippoStore.getState().doc.sketches.s1.constraintOrder.length)) === 0);
 await S(() => window.__phlippoStore.getState().setTaskPane(null));
 await S(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(400);
+await settle(page);
 // body edge readout
 await S(() => { const s = window.__phlippoStore.getState(); const e = s.rebuild.bodies[0].edges.find((x) => x.straight && Math.abs(x.length - 60) < 0.5); s.toggleSelectedEdge(e.id); });
-await page.waitForTimeout(300);
+await settle(page);
 check('status bar: Length of a body edge', /Length: 60mm/.test(await page.locator('[data-testid="status-readout"]').innerText()));
 await S(() => window.__phlippoStore.getState().toggleSelectedEdge(window.__phlippoStore.getState().selectedEdges[0]));
 
 // ---- Hole Tool: ANSI Inch standard with its sizes
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => !x.curved && x.normal[1] > 0.99); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); s.startHole(); });
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('[data-testid="hole-standard"]').selectOption('ANSI Inch');
-await page.waitForTimeout(200);
+await settle(page);
 check('ANSI Inch sizes (#4 … 1/2) and the fit list', (await page.locator('[data-testid="hole-size"] option').count()) === 8 && (await page.locator('[data-testid="hole-size"]').inputValue()) === '#4');
 await page.locator('[data-testid="hole-size"]').selectOption('1/4');
-await page.waitForTimeout(200);
+await settle(page);
 check('1/4 Normal fit sets the diameter to 7.1', Math.abs((await S(() => window.__phlippoStore.getState().featureEdit.draft.diameter)) - 7.1) < 1e-6);
 await shot('gj2-hole-ansi');
 await page.click('.k-pm-cancel');
@@ -108,18 +109,18 @@ await page.click('.k-pm-cancel');
 // ---- View ▸ Display submenu and Up Axis
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
-await page.waitForTimeout(150);
+await settle(page);
 for (const l of ['Display ▸ ✓ Shaded With Edges', 'Display ▸ Shaded', 'Display ▸ Hidden Lines Visible', 'Display ▸ Wireframe', 'Display ▸ Zebra Stripes', 'Display ▸ Perspective', 'Display ▸ Shadows In Shaded Mode', 'Display ▸ ✓ Tangent Edges Visible', 'Modify ▸ Up Axis ▸ ✓ Y up', 'Modify ▸ Up Axis ▸ Z up']) check(`View menu has ${l}`, (await menuItem(l).count()) === 1);
 await menuItem('Display ▸ Zebra Stripes').click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Display ▸ Zebra Stripes toggles the zebra display', await S(() => window.__phlippoStore.getState().show.zebra));
 await S(() => window.__phlippoStore.getState().toggleShow('zebra'));
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
 await menuItem('Modify ▸ Up Axis ▸ Z up').click();
-await page.waitForTimeout(600);
+await settle(page);
 const qZ = await S(() => { const c = window.__phlippoCamera; c.setView('top'); return window.__phlippoStore.getState().prefs['view.upAxis']; });
-await page.waitForTimeout(500);
+await settle(page);
 check('Up Axis Z stored in the preferences', qZ === 'Z');
 // the view transition moves on with each drawn frame: wait until it is done instead of a fixed 600 ms (with software
 // GL one frame can take seconds, the CI on Windows read the camera half way between Top and Front)
@@ -130,23 +131,23 @@ check('Front view with Z up: the world Z axis points up the screen', await S(() 
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
 await menuItem('Modify ▸ Up Axis ▸ Y up').click();
-await page.waitForTimeout(600);
+await settle(page);
 await S(() => window.__phlippoCamera.setView('front'));
 await viewDone();
 check('Front view with Y up again: the world Y axis points up the screen', await S(() => { const c = window.__phlippoCamera; const THREE_V = window.__phlippoScene.position.constructor; const p0 = c.worldToPixel(new THREE_V(0, 0, 0)), p1 = c.worldToPixel(new THREE_V(0, 10, 0)); return p1.y < p0.y - 1; }));
 
 // ---- Deform (point) on the top face
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await settle(page);
 const v0 = await vol();
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => !x.curved && x.normal[1] > 0.99); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); s.startDeform(); });
-await page.waitForTimeout(400);
+await settle(page);
 check('Deform PM: Deform Type (Point), Deform Point, Deform Region, Shape Options', (await page.locator('.k-pm-title:has-text("Deform")').count()) >= 1 && (await page.locator('[data-testid="deform-point"] .k-selbox-row').count()) === 1 && (await page.locator('[data-testid="deform-rigid"]').count()) === 1);
 await page.locator('[data-testid="deform-flexible"]').click();
-await page.waitForTimeout(600);
+await settle(page);
 await shot('gj3-deform-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(1200);
+await settle(page);
 const v1 = await vol();
 check('Deform1 presses a dent into the top (volume drops, no error)', v0 - v1 > 200 && v0 - v1 < 4000 && !Object.keys(await errs()).length, `${(v0 - v1).toFixed(0)} ${JSON.stringify(await errs())}`);
 check('tree: Deform1', await S(() => window.__phlippoStore.getState().doc.features.some((f) => f.name === 'Deform1')));
@@ -155,7 +156,7 @@ await shot('gj4-deform');
 // ---- Publish to Phlippo Viewer (.html)
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
-await page.waitForTimeout(150);
+await settle(page);
 check('File menu has Publish to Phlippo Viewer', (await menuItem('Publish to Phlippo Viewer (*.html)…').count()) === 1);
 const dl = page.waitForEvent('download', { timeout: 8000 });
 await menuItem('Publish to Phlippo Viewer (*.html)…').click();
@@ -165,7 +166,7 @@ check('Blok.html downloads with the embedded model and the viewer script', file.
 // the published page works on its own
 const viewer = await browser.newPage({ viewport: { width: 1000, height: 700 } });
 await viewer.setContent(html, { waitUntil: 'load' });
-await viewer.waitForTimeout(500);
+await viewer.waitForTimeout(500); // fixed: the exported viewer page has no app state to wait on
 check('the viewer page lists the body and draws the canvas', (await viewer.locator('#bodies label').count()) === 1 && (await viewer.evaluate(() => { const c = document.getElementById('v'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let dark = 0; for (let i = 0; i < d.length; i += 4) if (d[i] < 200) dark++; return dark > 500; })));
 await viewer.screenshot({ path: `${OUT}/gj5-viewer.png` });
 await viewer.close();
@@ -174,7 +175,7 @@ await viewer.close();
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
 await menuItem('Save As…').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Save As dialog: file name, Save as copy and continue / and open, Include all referenced components', (await page.locator('[data-testid="saveas-dialog"]').count()) === 1 && (await page.locator('[data-testid="saveas-copy"]').count()) === 1);
 await page.locator('[data-testid="saveas-name"]').fill('Blok-v2');
 await page.locator('[data-testid="saveas-copy"]').check();
@@ -201,7 +202,7 @@ await S(() => {
   d.sheets[0].views = [{ id: 'v1', name: 'Drawing View1', type: 'top', position: [120, 120], displayStyle: 'hiddenRemoved', model: part, modelName: 'Hoek<1>', bendLines: true, bendNotes: true }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(1200);
+await settle(page);
 check('drawing view of the flat pattern shows the bend line with its note', (await page.locator('[data-testid="bend-line"]').count()) >= 1 && /UP 90° R 3/.test(await page.locator('[data-testid="bend-note"]').first().evaluate((e) => e.textContent ?? '')), String(await page.locator('[data-testid="bend-line"]').count()));
 await shot('gj6-drawing-bendlines');
 

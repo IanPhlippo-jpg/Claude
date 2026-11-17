@@ -43,12 +43,12 @@ await page.evaluate(() => { const st = window.__phlippoStore.getState(); st.edit
 await settle(page);
 await page.evaluate(() => window.__phlippoStore.setState({ selectedConstraint: 'dimA' }));
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(500);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/look-dim.png' });
 check('the selected dimension shows its value (15.00mm) in Primary Value', (await page.locator('.k-pm-host input.k-num').first().inputValue()) === '15.00mm');
 check('the Dimension Property Panel has OK only, by design', (await page.locator('.k-pm-host .k-pm-ok').count()) === 1 && (await page.locator('.k-pm-host .k-pm-cancel').count()) === 0);
 await page.fill('[data-testid="dim-text"]', '2X <DIM>');
-await page.waitForTimeout(300);
+await settle(page);
 const label = await page.evaluate(() => document.body.innerText.includes('2X Ø15.00'));
 check('Dimension Text 2X <DIM> shows on the dimension', label);
 await page.screenshot({ path: 'e2e-out/look-dim.png' });

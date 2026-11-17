@@ -6,7 +6,7 @@ import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 // the regression writes to a temporary folder; the committed examples are only rewritten on purpose (QA v0.3.4 F84):
@@ -23,12 +23,12 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e.message + (e.stack ? '
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 
-const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
+const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await frames(page); } };
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 
 const docs = await page.evaluate(() => {
@@ -260,7 +260,7 @@ check('Auto Fasteners: four ISO 10642 M4 countersunk screws in the rosettes', sf
   await settle(page);
 }
 writeFileSync(`${DIR}/Deurkruk.kcad`, JSON.stringify({ format: 'phlippo-cad', ...docs.asm }, null, 2));
-await page.waitForTimeout(300);
+await settle(page);
 await page.mouse.move(120, 1000);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
@@ -272,7 +272,7 @@ await shot('deurkruk-assembly');
 // close-up of the handle (zoom in around the front lever)
 const zoomTo = async (x, y, z, factor) => page.evaluate(([x, y, z, factor]) => { const c = window.__phlippoCamera; const r = document.querySelector('.k-viewport').getBoundingClientRect(); const p = window.__phlippoProjectWorld(x, y, z); c.zoomAt(p.x - r.left, p.y - r.top, factor); }, [x, y, z, factor]);
 await zoomTo(45, -30, 60, 0.3);
-await page.waitForTimeout(300);
+await settle(page);
 await shot('deurkruk-closeup');
 await page.keyboard.press('f');
 await settle(page, { quiet: 300 });
@@ -292,7 +292,7 @@ await page.mouse.move(120, 1000);
 await page.keyboard.press('f');
 await settle(page, { quiet: 300 });
 await zoomTo(20, -36, 40, 0.42);
-await page.waitForTimeout(600);
+await settle(page);
 await shot('deurkruk-exploded');
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shadedEdges'); s.toggleShow('realisticShading'); });
 await page.evaluate(() => window.__phlippoStore.getState().setExploded(false));
@@ -363,7 +363,7 @@ const secDom = await page.evaluate(() => ({ hatch: document.querySelectorAll('pa
 check('section is hatched, cutting line and detail circle drawn on the front view', secDom.hatch === 1 && secDom.line === 1 && secDom.circ === 1 && secDom.labels.length === 2, JSON.stringify(secDom));
 drawing.sheets = (await page.evaluate(() => window.__phlippoStore.getState().doc.sheets)).map((sh) => ({ ...sh, views: sh.views.map((v) => ({ ...v, model: drawing.sheets[0].views[0].model })) }));
 writeFileSync(`${DIR}/Kruk-tekening.kcad`, JSON.stringify({ format: 'phlippo-cad', ...drawing }, null, 2));
-await page.waitForTimeout(800);
+await settle(page);
 await page.mouse.move(120, 1000);
 await shot('deurkruk-tekening');
 
@@ -382,7 +382,7 @@ await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-small:has-text("Auto Balloon")');
 { const q = await page.evaluate(() => window.__phlippoSheet.toPx([180, 150])); await page.mouse.click(q.x, q.y); }
 await page.keyboard.press('Escape');
-await page.waitForTimeout(300);
+await settle(page);
 const bom = await page.evaluate(() => ({ rows: document.querySelectorAll('[data-testid="bom-table"] text').length / 4 - 1, balloons: (window.__phlippoStore.getState().doc.sheets[0].symbols ?? []).filter((x) => x.kind === 'balloon').length }));
 check('assembly drawing: BOM with 6 parts (with the screws) and 6 balloons', bom.rows === 6 && bom.balloons === 6, JSON.stringify(bom));
 // front view with the pressed handle as Alternate Position View (phantom lines from Motion Study 1 at 1 s)
@@ -409,7 +409,7 @@ await shot('deurkruk-samenstelling-tekening');
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), docs.asm);
 await settle(page);
 await page.click('[data-testid="motion-tab"]');
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().setMotionTime(1));
 await settle(page);
 const motion = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { open: s.motionOpen, motors: s.doc.motionStudy?.motors.length, rows: document.querySelectorAll('.k-motion-row').length }; });

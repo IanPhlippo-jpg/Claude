@@ -1,8 +1,9 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { showBreadcrumbs } from '../prefsEffects';
+import { breadcrumbsAtCursor } from '../prefsView';
 import { Icon } from '../../ui/icons';
 import { featureIcon } from '../panels/featureIcon';
 import { MATE_ICON } from '../panels/mateIcons';
@@ -18,6 +19,19 @@ export function Breadcrumbs() {
   const st = useStore(useShallow((s) => ({ selectedFeatureId: s.selectedFeatureId, doc: s.doc, selectedFace: s.selectedFace, rebuild: s.rebuild, mateEdit: s.mateEdit, insertingComponent: s.insertingComponent, setSelectedFeature: s.setSelectedFeature, selectComponent: s.selectComponent, activeSketchId: s.activeSketchId, featureEdit: s.featureEdit, editSketch: s.editSketch, editFeature: s.editFeature })));
   const ref = useRef<HTMLDivElement>(null);
   const on = showBreadcrumbs();
+  // Display ▸ Show breadcrumbs at mouse pointer: the pointer where the selection was made, in the graphics area
+  const pointer = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const down = (e: PointerEvent) => {
+      const vp = (e.target as Element | null)?.closest?.('.k-viewport');
+      if (!vp || (e.target as Element).closest('.k-crumbs')) return;
+      const r = vp.getBoundingClientRect();
+      pointer.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+    window.addEventListener('pointerdown', down, true);
+    return () => window.removeEventListener('pointerdown', down, true);
+  }, []);
+  const at = breadcrumbsAtCursor() && pointer.current ? { left: pointer.current.x + 14, top: pointer.current.y + 14, right: 'auto', bottom: 'auto' } : {};
 
   // the feature of the selection: the selected feature, or the feature that made the selected face
   const feature: Feature | null = useMemo(() => {
@@ -42,7 +56,7 @@ export function Breadcrumbs() {
   if (on && comp && opacity > 0 && !st.mateEdit && !st.insertingComponent) {
     const mates = (st.doc.mates ?? []).filter((m) => m.refs.some((r) => r.componentId === comp.id));
     return (
-      <div className="k-crumbs" data-testid="breadcrumbs" ref={ref} style={{ opacity }} onPointerDown={(e) => e.stopPropagation()}>
+      <div className="k-crumbs" data-testid="breadcrumbs" ref={ref} style={{ opacity, ...at }} onPointerDown={(e) => e.stopPropagation()}>
         {mates.length > 0 && (
           <div className="k-crumbs-mates" data-testid="crumb-mates">
             <svg width={14} height={14} viewBox="0 0 14 14" aria-hidden><path d="M2.5 12.5v-7h7M7 2.5l3 3-3 3" fill="none" stroke="#8a8a8a" strokeWidth={1.3} strokeLinejoin="round" /></svg>
@@ -65,7 +79,7 @@ export function Breadcrumbs() {
   const isSketch = feature.type === 'sketch';
   const bodyName = st.rebuild.bodies.length > 1 ? st.rebuild.bodies.find((b) => b.featureIds?.includes(feature.id))?.id : null;
   return (
-    <div className="k-crumbs" data-testid="breadcrumbs" ref={ref} style={{ opacity }} onPointerDown={(e) => e.stopPropagation()}>
+    <div className="k-crumbs" data-testid="breadcrumbs" ref={ref} style={{ opacity, ...at }} onPointerDown={(e) => e.stopPropagation()}>
       <div className="k-crumbs-bar">
         <span className="k-crumb k-tip" data-tip={st.doc.name}><Icon.Part size={18} /></span>
         <Chevron />

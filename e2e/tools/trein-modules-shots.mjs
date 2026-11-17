@@ -2,6 +2,7 @@
 // moduleplaat alleen en een close-up van modules op hun paaltjes. Gebruik: node e2e/tools/trein-modules-shots.mjs <uitmap>
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
+import { settle, frames } from '../lib/wait.mjs';
 const UIT = process.argv[2];
 mkdirSync(UIT, { recursive: true });
 const browser = await chromium.launch({ channel: 'msedge' });
@@ -18,20 +19,20 @@ const lees = () => { const d = JSON.parse(readFileSync(F, 'utf8')); delete d.for
 const filter = (f) => { const d = lees(); d.components = d.components.filter((c) => f(c.id)); return d; };
 const open = async (d) => {
   await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d);
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(3000); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.waitForFunction(() => !window.__phlippoStore.getState().rebuild.pending, null, { timeout: 900_000 });
   const e = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
   if (Object.keys(e).length) fouten.push(JSON.stringify(e).slice(0, 300));
 };
 const rust = async () => {
   // na het zoomen de muis naar een lege hoek van het venster (rechtsonder), niet over de boom (die licht dan een deel op)
-  await page.mouse.move(1500, 1000); await page.waitForTimeout(300);
-  await page.mouse.move(1840, 1010); await page.waitForTimeout(300);
+  await page.mouse.move(1500, 1000); await frames(page, 3);
+  await page.mouse.move(1840, 1010); await frames(page, 3);
   await page.evaluate(() => { for (const c of document.querySelectorAll('.k-viewport canvas')) for (const t of ['pointerleave', 'mouseleave', 'pointerout', 'mouseout']) c.dispatchEvent(new PointerEvent(t, { bubbles: true, clientX: -10, clientY: -10 })); });
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(1800); // fixed: shot tool, time for the light and the exact bodies before the photo
 };
 const shot = async (toets, naam, zoom = '') => {
-  await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1200);
+  await page.keyboard.press(toets); await settle(page); await page.keyboard.press('f'); await settle(page);
   for (const stap of (process.env[`ZOOM_${naam.toUpperCase().replace(/-/g, '_')}`] ?? zoom).split(';').filter(Boolean)) {
     const [x, y, n] = stap.split(',').map(Number);
     await page.mouse.move(x, y);

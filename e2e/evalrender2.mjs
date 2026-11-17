@@ -35,29 +35,29 @@ await settle(page);
 // Geometry Analysis
 await page.click('.k-cm-tab:has-text("Evaluate")');
 await page.click('.k-cm-small:has-text("Geometry Analysis")');
-await page.waitForTimeout(400);
+await settle(page);
 const geo = (await page.locator('[data-testid="geometry-results"]').textContent()) ?? '';
 check('Geometry Analysis reports short edges, small faces and knife edges', /Short edges: 0/.test(geo) && /Small faces: 0/.test(geo) && /Knife edges: 0/.test(geo), geo);
 await page.click('.k-cm-small:has-text("Geometry Analysis")');
 
 // Design Study on the extrusion depth
 await page.click('.k-cm-big:has-text("Design Study")');
-await page.waitForTimeout(300);
+await settle(page);
 const dims = await page.evaluate(() => [...document.querySelectorAll('[data-testid="ds-dim"] option')].map((o) => o.value));
 const depthDim = dims.find((d) => /Boss-Extrude1/.test(d)) ?? dims[0];
 await page.selectOption('[data-testid="ds-dim"]', depthDim);
 await page.click('[data-testid="ds-run"]');
-await page.waitForTimeout(1500);
+await page.locator('[data-testid="ds-results"] tbody tr').nth(4).waitFor({ timeout: 60000 }).catch(() => undefined); await settle(page);
 const rows = await page.locator('[data-testid="ds-results"] tbody tr').count();
 check('Design Study runs 5 scenarios and marks the optimum', rows === 5 && (await page.locator('.k-ds-best').count()) === 1, `${rows} ${JSON.stringify(dims)}`);
 await page.screenshot({ path: `${OUT}/er2-designstudy.png` });
 await page.locator('[data-testid="ds-results"] tbody tr').first().locator('button:has-text("Apply")').click();
-await page.waitForTimeout(800);
+await settle(page);
 const depth = await page.evaluate(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'e').depth);
 check('Apply sets the scenario value on the model', depth < 10, String(depth));
 await page.click('.k-dialog-actions button:has-text("Close")');
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(500);
+await settle(page);
 
 // Edit Decal on the top face
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => !x.curved && x.normal[1] > 0.99); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
@@ -99,10 +99,10 @@ check('Ambient Occlusion is on and the page keeps working', await page.evaluate(
 
 // Tolerance Tree and Display Panel tabs
 await page.click('[data-testid="tab-autoTolerance"]');
-await page.waitForTimeout(300);
+await settle(page);
 check('Tolerance Tree lists the model dimensions', (await page.locator('[data-testid="dx-dim"]').count()) >= 2, String(await page.locator('[data-testid="dx-dim"]').count()));
 await page.click('[data-testid="tab-display"]');
-await page.waitForTimeout(300);
+await settle(page);
 const dm = (await page.locator('[data-testid="display-manager"]').textContent()) ?? '';
 check('Display Panel lists appearances, the decal and the scene', /Appearances/.test(dm) && /Decal1/.test(dm) && /Scene/.test(dm), dm.slice(0, 200));
 await page.screenshot({ path: `${OUT}/er2-display.png` });

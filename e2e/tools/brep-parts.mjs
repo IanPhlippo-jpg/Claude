@@ -3,6 +3,7 @@
 // Usage: npm run build:e2e, vite preview on 4173, then node e2e/tools/brep-parts.mjs
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 
 const OUT = 'e2e-out';
 mkdirSync(OUT, { recursive: true });
@@ -21,7 +22,7 @@ for (const name of ['Deur', 'Rozet', 'Sleutelrozet', 'Vierkantstift', 'Kruk']) {
   await page.evaluate((t) => { const d = JSON.parse(t); delete d.format; window.__phlippoStore.getState().openDocument(d); }, text);
   const mesh = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies.map((b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return Math.abs(v); }));
   await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies.some((b) => b.exact), null, { timeout: 15000 }).catch(() => undefined);
-  await page.waitForTimeout(500);
+  await settle(page);
   const st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { features: s.doc.features.filter((f) => f.type !== 'sketch').map((f) => f.type), errors: s.rebuild.errors, bodies: s.rebuild.bodies.map((b) => ({ exact: !!b.exact, vol: b.exactVolume })) }; });
   rows.push({ name, ...st, mesh });
   await page.screenshot({ path: `${OUT}/brep-part-${name}.png` });

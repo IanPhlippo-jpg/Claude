@@ -3,6 +3,7 @@
 // Reference (beginners' part, default grey): the vertical face reads 230 away from the corner and about 160 a short
 // way above it; the floor face reads 254 far from it and about 134 close to it.
 import { chromium } from 'playwright';
+import { settle, frames } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:5173/');
@@ -20,11 +21,11 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'midPlane', depth: 30, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(1500);
+await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(640, 700);
-await page.waitForTimeout(800);
+await frames(page, 3);
 // points in world space: on the vertical face (x = 30) 2, 8 and 25 mm above the floor face (y = 15), and on the floor
 // face 2, 8 and 25 mm from the vertical face; all half-way in depth (z = 0)
 const pts = await page.evaluate(() => {
@@ -33,7 +34,7 @@ const pts = await page.evaluate(() => {
 });
 const measure = async (cfg) => {
   await page.evaluate(async (cfg) => { Object.assign(window.__phlippoAO, cfg); window.__phlippoStore.getState().toggleShow('grid'); }, cfg);
-  await page.waitForTimeout(1200);
+  await settle(page);
   const buf = await page.screenshot();
   return page.evaluate(async ([b64, pts]) => {
     const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();

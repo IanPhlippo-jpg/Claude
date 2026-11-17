@@ -58,7 +58,7 @@ await settle(page);
 const v0 = await vol();
 check('block 48000 with three planar surfaces', Math.abs(v0 - 48000) < 1 && (await nSurf()) === 3, `${v0} surfaces ${await nSurf()} ${JSON.stringify(await errs())}`);
 await page.click('.k-cm-tab:has-text("Surfaces")');
-await page.waitForTimeout(200);
+await settle(page);
 for (const l of ['Filled Surface', 'Ruled Surface', 'Surface Flatten', 'Replace Face', 'Delete Hole', 'Extend Surface', 'Untrim Surface', 'Thicken', 'Thickened Cut', 'Cut With Surface']) check(`Surfaces tab has ${l}`, (await page.locator(`.k-cm-main:has-text("${l}"), .k-cm-small:has-text("${l}")`).count()) >= 1);
 await page.screenshot({ path: `${OUT}/gd-surfaces-tab.png` });
 
@@ -69,7 +69,7 @@ const run = async (kind, patch) => {
   await S(() => window.__phlippoStore.getState().commitFeature());
   await settle(page);
 };
-const undo = async () => { await S(() => window.__phlippoStore.getState().undo()); await page.waitForTimeout(400); };
+const undo = async () => { await S(() => window.__phlippoStore.getState().undo()); await settle(page); };
 
 // ---- Cut With Surface: the Right-plane surface (x = 0) cuts away one half → 24000
 await run('cutWithSurface', { target: 'sfR' });

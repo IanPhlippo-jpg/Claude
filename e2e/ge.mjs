@@ -25,14 +25,14 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 
 // ---- an L sheet from an open profile (as hem.mjs), Mid Plane 60 wide: horizontal leg x 0..40 (y 0..3), vertical leg at x 40 (y up to 30)
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 const p0 = await P(0, 0), p1 = await P(40, 0), p2 = await P(40, 30);
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
@@ -48,10 +48,10 @@ for (const l of ['Base Flange/Tab', 'Convert to Sheet Metal', 'Lofted-Bend', 'Sw
 }
 await shot('ge0-sheetmetal-tab');
 await page.click('.k-cm-big:has-text("Base Flange/Tab") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 check('Base Flange PM: Profile Sketch check says the sketch is valid', (await page.locator('[data-testid="bf-sketchcheck"]').innerText()) === 'The sketch is valid.');
 await page.locator('.k-section:has-text("Direction 1") select').first().selectOption('midPlane');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page);
 const v0 = await vol();
@@ -75,10 +75,10 @@ await settle(page);
 const vBefore = await vol();
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Vent")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Vent PM: Boundary, Geometry Properties, Flow Area, Ribs, Spars, Fill-In Boundary', (await page.locator('.k-pm-title:has-text("Vent")').count()) >= 1 && (await page.locator('.k-section-name:text-is("Flow Area")').count()) === 1 && (await page.locator('.k-section-name:text-is("Fill-In Boundary")').count()) === 1, await page.locator('.k-pm-title').innerText().catch(skip('ge.mjs:78', '?')));
 await page.locator('[data-testid="vent-sketch"]').selectOption('vent1');
-await page.waitForTimeout(600);
+await settle(page);
 check('Vent lists 2 ribs and 1 spar', (await page.locator('[data-testid="vent-ribs"] .k-selbox-row').count()) === 2 && (await page.locator('[data-testid="vent-spars"] .k-selbox-row').count()) === 1, await page.locator('[data-testid="vent-flow"]').innerText().catch(skip('ge.mjs:81', '?')));
 await shot('ge1-vent-pm');
 await page.click('.k-pm-ok');
@@ -102,7 +102,7 @@ const topFace = await S(() => {
 });
 check('the top face of the leg is selected', !!topFace);
 await page.click('.k-cm-small:has-text("Forming Tool")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Form Tool Feature PM: Type/Position tabs, Placement Face, Forming Tool (Part Library list), Flat Pattern Visibility', (await page.locator('.k-pm-title:has-text("Form Tool Feature")').count()) === 1 && (await page.locator('[data-testid="form-shape"] option').count()) === 6 && (await page.locator('.k-section:has-text("Flat Pattern Visibility")').count()) === 1);
 check('the placement face is filled in', (await page.locator('[data-testid="form-face"] .k-selbox-row').count()) === 1);
 await S(() => { const st = window.__phlippoStore.getState(); st.updateFeatureDraft({ width: 8, length: 8, height: 4 }); st.addFormToolPoint({ x: 0, y: 18 }); });
@@ -120,7 +120,7 @@ await shot('ge4-formtool');
 
 // ---- Sheet Metal Gusset across the bend: the top face of the leg and the inner face of the upright
 await page.click('.k-cm-small:has-text("Sheet Metal Gusset")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Sheet Metal Gusset PM: Position, Profile (Indent depth / Profile dimensions), Dimensions, Preview, Flat Pattern Visibility', (await page.locator('.k-pm-title:has-text("Sheet Metal Gusset")').count()) === 1 && (await page.locator('.k-section:has-text("Profile")').count()) >= 1 && (await page.locator('.k-section:has-text("Preview")').count()) === 1);
 const gussetFaces = await S(() => {
   const s = window.__phlippoStore.getState();
@@ -137,7 +137,7 @@ await shot('ge5a-gusset-before');
 const gDepth = page.locator('.k-section:has-text("Profile") input.k-num').first();
 await gDepth.fill('8');
 await gDepth.press('Tab');
-await page.waitForTimeout(600);
+await settle(page);
 await shot('ge5-gusset-pm');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -154,7 +154,7 @@ await S(() => {
   s.setSelectedFace({ bodyId: b.id, faceId: f.id });
 });
 await page.click('.k-cm-small:has-text("Simple Hole")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Simple Hole PM: title Hole, Direction 1 (Blind/Through All) and the diameter, no Hole Tool pages', (await page.locator('.k-pm-title').innerText()).trim().startsWith('Hole') && (await page.locator('.k-section-name:text-is("Direction 1")').count()) === 1 && (await page.locator('[data-testid="hole-types"]').count()) === 0, await page.locator('.k-pm-title').innerText());
 await S(() => window.__phlippoStore.getState().addHolePoint({ x: 0, y: -18 }));
 await settle(page, { quiet: 300 });
@@ -182,10 +182,10 @@ await S(() => {
 await settle(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Extruded Cut")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Extruded Cut PM on a sheet metal part: Link to thickness, Normal cut, Optimize geometry', (await page.locator('[data-testid="cut-linkthickness"]').count()) === 1 && (await page.locator('[data-testid="cut-normal"]').isChecked()) && (await page.locator('[data-testid="cut-optimize"]').isChecked()));
 await page.locator('[data-testid="cut-linkthickness"]').check();
-await page.waitForTimeout(400);
+await settle(page);
 check('Link to thickness sets the depth to the sheet thickness (3)', (await S(() => window.__phlippoStore.getState().featureEdit?.draft?.depth)) === 3);
 await page.locator('[data-testid="cut-normal"]').uncheck();
 check('Optimize geometry is greyed when Normal cut is off', await page.locator('[data-testid="cut-optimize"]').isDisabled());
@@ -199,11 +199,11 @@ check('Cut-Extrude linked to thickness removes 6 × 6 × 3', Math.abs(vHole - vC
 // ---- Insert Bends: the alias of Convert to Sheet Metal with its own PM title
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Insert Bends")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Insert Bends PM: title Bends with the message about the fixed face', (await page.locator('.k-pm-title').innerText()).trim().startsWith('Bends') && (await page.locator('.k-section:has-text("Message")').count()) === 1);
 check('the draft is named Process-Bends1', (await S(() => window.__phlippoStore.getState().featureEdit?.draft?.name)) === 'Process-Bends1');
 await page.click('.k-pm-cancel');
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- Tab and Slot: two plates (the upright beyond the edge of the flat plate)
 const twoPlates = () => S(() => {
@@ -230,7 +230,7 @@ const twoPlates = () => S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await twoPlates();
-await page.waitForTimeout(800);
+await settle(page);
 const twoBodies = await S(() => window.__phlippoStore.getState().rebuild.bodies.length);
 check('two separate bodies (Merge result off)', twoBodies === 2, String(twoBodies));
 const vTS0 = await vol();
@@ -245,7 +245,7 @@ const tabEdge = await S(() => {
 check('the top edge of the plate at the upright is selected', !!tabEdge);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Tab and Slot")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Tab and Slot PM: Selection (tab edge, slot face), Offset, Spacing, Tab, Slot', (await page.locator('.k-pm-title:has-text("Tab and Slot")').count()) === 1 && (await page.locator('[data-testid="ts-edge"] .k-selbox-row').count()) === 1 && (await page.locator('.k-section:has-text("Spacing")').count()) === 1);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ edgeOffset: 2 }));
 await S(() => {
@@ -303,12 +303,12 @@ const ripEdge = await S(() => {
 check('a vertical corner edge of the box is selected', !!ripEdge);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Rip")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Rip PM: Rip Parameters with the edge, Change Direction buttons and the rip gap', (await page.locator('.k-pm-title').innerText()).trim().startsWith('Rip') && (await page.locator('[data-testid="rip-edges"] .k-selbox-row').count()) === 1 && (await page.locator('[data-testid="rip-both"]').count()) === 1);
 const ripGap = page.locator('.k-section:has-text("Rip Parameters") input.k-num').first();
 await ripGap.fill('0.5');
 await ripGap.press('Tab');
-await page.waitForTimeout(500);
+await settle(page);
 await shot('ge11-rip-pm');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -353,10 +353,10 @@ const pathEdge = await S(() => {
 check('the top end edge of the plate is selected as the path', !!pathEdge);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Swept Flange")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Swept Flange PM: Profile and Path (sketch selects, edges box), Sheet Metal Parameters, Flat Pattern Options', (await page.locator('.k-pm-title:has-text("Swept Flange")').count()) === 1 && (await page.locator('[data-testid="sf-edges"] .k-selbox-row').count()) === 1 && (await page.locator('.k-section:has-text("Flat Pattern Options")').count()) === 1);
 await page.locator('[data-testid="sf-profile"]').selectOption('pr');
-await page.waitForTimeout(700);
+await settle(page);
 await shot('ge13-sweptflange-pm');
 await page.click('.k-pm-ok');
 await settle(page);

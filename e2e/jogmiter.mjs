@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -18,7 +19,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 
 // the tab and two sketches: a jog line on the top plane (bottom face, x = 50) and a miter profile on the right plane at the far edge
@@ -46,11 +47,11 @@ const B = () => page.evaluate(() => { const s = window.__phlippoStore.getState()
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch2")').last().click();
 await page.click('.k-cm-small:has-text("Jog")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Jog Property Panel with the sketch', (await page.locator('.k-pm-title:has-text("Jog1")').count()) === 1 && (await page.locator('[data-testid="jog-sketch"]').inputValue()) === 'sk2');
 await page.locator('.k-section:has-text("Jog Offset") input.k-num').first().fill('12');
 await page.locator('.k-section:has-text("Jog Offset") input.k-num').first().press('Tab');
-await page.waitForTimeout(300);
+await settle(page);
 await shot('jm1-jog-pm');
 await page.click('.k-pm-ok');
 // the rebuild has to be done before the body is read: on a slow runner (software GL, the worker and the exact kernel)
@@ -76,15 +77,15 @@ await waitSettled(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch3")').last().click();
 await page.click('.k-cm-small:has-text("Miter Flange")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Miter Flange Property Panel with the profile sketch', (await page.locator('[data-testid="miter-sketch"]').inputValue()) === 'sk3');
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page);
 // click the two top edges of the fixed half (x 50..100): along x at z = 60 and the end x = 100 along z
 for (const w of [[75, t, 60], [100, t, 30]]) {
   const q = await page.evaluate((w) => window.__phlippoProjectWorld(w[0], w[1], w[2]), w);
   await page.mouse.click(q.x, q.y);
-  await page.waitForTimeout(250);
+  await settle(page);
 }
 const picked = await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft?.edges?.length ?? 0);
 check('two edges picked in the graphics area', picked === 2, String(picked));
@@ -95,7 +96,7 @@ b = await B();
 check('Miter Flange1 built: a 20 mm wall on the top of the sheet', b && Object.keys(b.errors).length === 0 && Math.abs(b.max[1] - (t + 20)) < 0.1 && b.feats.includes('Miter Flange1'), JSON.stringify(b));
 await page.mouse.move(5, 600);
 await page.keyboard.press('Escape');
-await page.waitForTimeout(300);
+await settle(page);
 await shot('jm3-result');
 
 // ---- Sketched Bend: a new tab, a line across it, bend 90 degrees through the ribbon
@@ -119,14 +120,14 @@ await waitSettled(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch2")').last().click();
 await page.click('.k-cm-small:has-text("Sketched Bend")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Sketched Bend Property Panel (SketchBend1, 90.00deg)', (await page.locator('.k-pm-title:has-text("SketchBend1")').count()) === 1 && (await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().inputValue()) === '90.00deg');
 await page.click('.k-pm-ok');
 await waitSettled(page);
 b = await B();
 check('SketchBend1 built: the 40 mm side hangs 90 degrees down', b && Object.keys(b.errors).length === 0 && b.min[1] < -35 && b.feats.includes('SketchBend1'), JSON.stringify(b));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page);
 await shot('jm4-sketched-bend');
 
 console.log(`

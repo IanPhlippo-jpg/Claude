@@ -7,6 +7,7 @@ import { _electron as electron } from 'playwright';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { settle } from './lib/wait.mjs';
 
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'phlippo-editsave-'));
 const target = path.join(profile, 'Pins.kcad');
@@ -64,7 +65,7 @@ await S(() => window.__phlippoStore.getState().returnToAssembly());
 
 // ---- P1-2: a restart with unsaved changes
 await S(() => { const st = window.__phlippoStore.getState(); st.applyDocument('Units', { ...st.doc, units: 'mm' }); });
-await page.waitForTimeout(300); // the dirty flag reaches the shell over IPC
+await page.waitForTimeout(300); // fixed: the dirty flag reaches the shell over IPC
 const refused = await S(() => window.phlippoDesktop.restartApp());
 check('the shell refuses a restart while there are unsaved changes (P1-2)', refused === false && !app.process().killed, String(refused));
 await S(() => window.phlippoDesktop.setSoftwareGL(true));
@@ -86,7 +87,7 @@ if (await off.count()) {
   await shot(page, 'p1-2-save-question');
   check('the restart asks to save first (Save / Don\'t Save / Cancel)', /Save/.test(text) && /Cancel/.test(text), text.slice(0, 120));
   await page.locator('[data-testid="ask"] .k-btn:has-text("Cancel")').click().catch(() => page.keyboard.press('Escape'));
-  await page.waitForTimeout(500);
+  await settle(page);
   const alive = await S(() => ({ dirty: window.__phlippoStore.getState().dirty, units: window.__phlippoStore.getState().doc.units }));
   check('Cancel keeps the app and the unsaved work', alive.dirty === true && !app.process().killed, JSON.stringify(alive));
 }
@@ -103,7 +104,7 @@ await S(() => {
   localStorage.setItem('phlippo.prefs', JSON.stringify(p));
 });
 await page.click('.k-dialog .k-btn.primary:has-text("OK")');
-await page.waitForTimeout(300);
+await settle(page);
 const fav = await S(() => JSON.parse(localStorage.getItem('phlippo.prefs') ?? '{}')['material.favorites']);
 check('Options ▸ OK keeps a favourite saved elsewhere (P2-1)', fav === JSON.stringify(['AISI 304']), String(fav));
 // ---- P3-1: Package Files writes every file into one folder the user picks, by base name only

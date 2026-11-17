@@ -19,13 +19,13 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
 await settle(page);
 const toPx = (p) => page.evaluate((q) => window.__phlippoSheet.toPx(q), p);
-const click = async (p) => { const q = await toPx(p); await page.mouse.click(q.x, q.y); await page.waitForTimeout(150); };
+const click = async (p) => { const q = await toPx(p); await page.mouse.click(q.x, q.y); await settle(page); };
 const sheetState = () => page.evaluate(() => { const s = window.__phlippoStore.getState().doc.sheets[0]; return { tb: s.titleBlock ?? {}, revs: (s.revisions ?? []).map((r) => r.rev), symbols: (s.symbols ?? []).map((x) => x.kind + ':' + (x.text ?? '')) }; });
 
 // Title Block Fields

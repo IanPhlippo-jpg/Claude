@@ -2,6 +2,8 @@ import { LEGAL_NOTICE } from './legal';
 import { EquationMenu } from '../ui/equationMenu';
 import { getPref } from './prefs';
 import { recentDocuments, spinIncrement, welcomeTabs } from './prefsEffects';
+import { defaultTemplate, promptForTemplate } from './prefsUi';
+import { sketchOnNewPart } from './prefsSketch';
 import { sketchDimensionName } from '../core/document/equations';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
@@ -28,7 +30,11 @@ export function WelcomeDialog() {
     }
   })();
   const recents = recentDocuments(listAutosaves());
-  const newPart = () => withUnsavedCheck(() => { useStore.getState().openDocument(createDocument()); useStore.getState().setDialog(null); });
+  // Default Templates: a new part from the default part template, or the New dialog's template list (Prompt user …)
+  const newPart = () => (promptForTemplate() ? openTemplateList() : withUnsavedCheck(() => {
+    openFromTemplate(defaultTemplate(TEMPLATES, 'part') ?? TEMPLATES[0], 'Part1');
+    useStore.getState().setDialog(null);
+  }));
   const [hide, setHide] = useState(() => { try { return localStorage.getItem('phlippo.welcome.hide') === '1'; } catch { return false; } });
   const openRecent = (key: string) => withUnsavedCheck(() => {
     const d = loadAutosaveEntry(key);
@@ -54,7 +60,7 @@ export function WelcomeDialog() {
                 <Icon.Part size={40} />
                 <b>Part</b>
               </button>
-              <button className="k-doctype" onClick={() => withUnsavedCheck(() => { const s = useStore.getState(); s.newDocument('assembly'); s.setDialog(null); if (getPref('assembly.startInsert') !== false) { s.startInsertComponent(); if (getPref('assembly.autoBrowse') !== false) openFileDialog(); } })}>
+              <button className="k-doctype" onClick={() => promptForTemplate() ? openTemplateList() : withUnsavedCheck(() => { const s = useStore.getState(); s.newDocument('assembly'); templateUnits(defaultTemplate(TEMPLATES, 'assembly') ?? TEMPLATES[1]); s.setDialog(null); if (getPref('assembly.startInsert') !== false) { s.startInsertComponent(); if (getPref('assembly.autoBrowse') !== false) openFileDialog(); } })}>
                 <Icon.Component size={40} />
                 <b>Assembly</b>
               </button>
@@ -112,7 +118,32 @@ export function WelcomeDialog() {
 
 /** New document dialog (Part / Assembly / Drawing). */
 /** the templates of New Document ▸ Advanced: a kind, and for a part its material and unit system */
-const TEMPLATES: { name: string; kind: 'part' | 'assembly' | 'drawing'; material?: string; units: 'MMGS' | 'IPS' }[] = [
+type Template = { name: string; kind: 'part' | 'assembly' | 'drawing'; material?: string; units: 'MMGS' | 'IPS' };
+
+/** Default Templates ▸ Prompt user to select document template: the New dialog opens on its template list */
+function openTemplateList() {
+  try { localStorage.setItem('phlippo.newDocAdvanced', '1'); } catch { /* the dialog opens in its last mode */ }
+  useStore.getState().setDialog('new');
+}
+
+/** the units of a template on the new document (a change of units only when they differ: no undo step, not dirty) */
+function templateUnits(t: Template) {
+  const st = useStore.getState();
+  if (st.doc.units !== (t.units === 'IPS' ? 'in' : 'mm')) st.setUnitSystem(t.units);
+  else useStore.setState({ unitSystem: t.units });
+}
+
+/** a new part or assembly from a template (its material and units); Sketch ▸ Create sketch on new part opens a sketch */
+function openFromTemplate(t: Template, name: string) {
+  const st = useStore.getState();
+  const d = createDocument(name, t.kind);
+  const mat = t.material ? findMaterial(t.material) : undefined;
+  st.openDocument(mat ? { ...d, material: { name: mat.name, density: mat.density, color: mat.color } } : d);
+  templateUnits(t);
+  if (t.kind === 'part' && sketchOnNewPart()) st.newSketch('front');
+}
+
+const TEMPLATES: Template[] = [
   { name: 'Part', kind: 'part', units: 'MMGS' },
   { name: 'Assembly', kind: 'assembly', units: 'MMGS' },
   { name: 'Drawing', kind: 'drawing', units: 'MMGS' },
@@ -136,10 +167,9 @@ export function NewDocumentDialog() {
   const ok = () => withUnsavedCheck(() => {
     const k = advanced ? tpl.kind : kind;
     if (k === 'drawing') { st.setDialog('sheetFormat'); return; }
-    const d = createDocument(advanced ? (k === 'assembly' ? 'Assem1' : 'Part1') : name || (k === 'assembly' ? 'Assem1' : 'Part1'), k);
-    const mat = advanced && tpl.material ? findMaterial(tpl.material) : undefined;
-    st.openDocument(mat ? { ...d, material: { name: mat.name, density: mat.density, color: mat.color } } : d);
-    if (advanced) st.setUnitSystem(tpl.units);
+    // Novice: the default template of the kind (Options ▸ Default Templates); Advanced: the template picked in the list
+    const t = advanced ? tpl : defaultTemplate(TEMPLATES, k) ?? TEMPLATES[0];
+    openFromTemplate(t, advanced ? (k === 'assembly' ? 'Assem1' : 'Part1') : name || (k === 'assembly' ? 'Assem1' : 'Part1'));
     if (k === 'assembly' && getPref('assembly.startInsert') !== false) { st.startInsertComponent(); if (getPref('assembly.autoBrowse') !== false) openFileDialog(); }
     st.setDialog(null);
   });

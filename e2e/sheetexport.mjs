@@ -25,7 +25,7 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk-tekening.kcad', 'utf8')); delete tek.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
-await page.waitForTimeout(2500);
+await settle(page);
 const info = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sh = s.doc.sheets[0]; return { views: sh.views.length, dims: sh.dimensions.length, size: sh.size, landscape: sh.landscape }; });
 // a view selected: its blue frame must not end up in the file
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.selectDrawingView(s.doc.sheets[0].views[0].id); });
@@ -34,7 +34,7 @@ await settle(page);
 const save = async (label) => {
   await page.hover('.k-brand');
   await page.click('.k-mb-menu:has-text("File")');
-  await page.waitForTimeout(200);
+  await settle(page);
   const item = menuPath(page, label);
   const dl = page.waitForEvent('download', { timeout: 10000 });
   await item.click();
@@ -77,7 +77,7 @@ if (process.platform === 'win32') {
   const viewer = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
   // OUT is relative on Windows and absolute elsewhere: a proper file URL either way (QA F146)
   await viewer.goto(pathToFileURL(resolve(OUT, 'sheet.pdf')).href);
-  await viewer.waitForTimeout(2500);
+  await viewer.waitForTimeout(2500); // fixed: the exported viewer page has no app state to wait on
   await viewer.screenshot({ path: `${OUT}/sheet-pdf.png` });
   await viewer.close();
 }

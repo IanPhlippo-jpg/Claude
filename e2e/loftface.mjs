@@ -21,7 +21,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- Loft from a circle (y = 60) to the top face of a block (y = 20)
 await page.evaluate(() => {
@@ -46,7 +46,7 @@ await page.evaluate(() => {
 });
 await settle(page);
 await page.locator('.k-tree-row:has-text("Loft1")').last().dblclick();
-await page.waitForTimeout(400);
+await settle(page);
 // the top face of the block, selected
 await page.evaluate(() => {
   const st = window.__phlippoStore.getState();
@@ -56,15 +56,15 @@ await page.evaluate(() => {
 });
 await settle(page);
 await page.click('[data-testid="loft-face2"]');
-await page.waitForTimeout(400);
+await settle(page);
 check('Profiles: Sketch2 and Face<1>', (await page.locator('[data-testid="loft-profiles"]').innerText()).includes('Face<1>'), await page.locator('[data-testid="loft-profiles"]').innerText());
 await page.click('.k-section-title:has-text("Start/End Constraints")');
 await settle(page);
 await page.locator('[data-testid="loft-end"]').selectOption('curvature');
-await page.waitForTimeout(300);
+await settle(page);
 check('End constraint offers Curvature To Face with Next Face', (await page.locator('[data-testid="loft-end-nextface"]').count()) === 1);
 await page.click('[data-testid="loft-end-nextface"]');
-await page.waitForTimeout(300);
+await settle(page);
 await page.screenshot({ path: `${OUT}/loftface-pm.png` });
 await page.click('.k-pm-ok');
 await settle(page);
@@ -97,7 +97,7 @@ await settle(page);
 await page.click('[data-testid="fillet-type-face"]');
 await settle(page);
 await page.locator('[data-testid="fillet-method"]').selectOption('hold');
-await page.waitForTimeout(200);
+await settle(page);
 check('Face Fillet ▸ Hold line: the hold line box asks for an edge', (await page.locator('[data-testid="fillet-holdline"]').innerText()).includes('Select the hold line'));
 // faces: top and front, then the hold line (the back top edge)
 await page.evaluate(() => {

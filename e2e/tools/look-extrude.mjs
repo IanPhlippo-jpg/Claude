@@ -1,5 +1,6 @@
 // look-dev: Boss-Extrude Property Panel on an 80 x 80 plate with a Ø35 circle, like calibration frame 0111
 import { chromium } from 'playwright';
+import { settle, frames } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
@@ -23,12 +24,12 @@ await page.evaluate(() => {
   window.__phlippoStore.getState().openDocument(d);
   window.__phlippoStore.getState().editSketch('s1');
 });
-await page.waitForTimeout(400);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().startFeature('extrude', 'boss'));
-await page.waitForTimeout(400);
+await settle(page);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(700, 600);
-await page.waitForTimeout(600);
+await frames(page, 3);
 await page.screenshot({ path: 'e2e-out/look-extrude.png' });
 await browser.close();

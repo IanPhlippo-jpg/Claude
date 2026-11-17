@@ -57,7 +57,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'bibliotheek/tests/*.test.ts'],
     // the model tests of the examples and the library tests take minutes and depend on bibliotheek/ and voorbeelden/:
     // not in `npm test` (the gate of the CAD core), but required in their own CI jobs (npm run test:voorbeelden and
     // test:bibliotheek, ci.yml jobs voorbeelden and bibliotheek); VOORBEELDEN=1 lifts the exclusion

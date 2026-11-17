@@ -49,7 +49,7 @@ await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
 check('plane pick started from a tool', (await S()).planePick && (await S()).pendingTool === 'line');
 await page.click('.k-flyout-toggle');
 await page.dblclick('.k-flyout-body .k-tree-row:has-text("Front Plane")');
-await page.waitForTimeout(600);
+await settle(page);
 check('sketch opened on Front Plane with pending tool', (await S()).activeSketchId && (await S()).tool === 'line' && (await sk()).plane === 'front');
 
 // ---- line chain with inference
@@ -152,7 +152,7 @@ const dim = async (clicks, place, value) => {
   await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
   for (const [x, y] of clicks) await page.mouse.click(x, y);
   await page.mouse.click(...place);
-  await page.waitForTimeout(120);
+  await settle(page);
   const vis = (await page.locator('.k-modify').count()) === 1;
   if (vis && value !== undefined) {
     await page.locator('.k-modify input.k-num').fill(String(value));
@@ -235,7 +235,7 @@ check('item inserted into sketch', (await nEnt()) === nIns + 1 && !(await S()).p
 const [dl] = await Promise.all([page.waitForEvent('download'), page.click('.k-library-folder-row .k-btn[data-tip="Export library"]')]);
 check('library export .kcadlib', dl.suggestedFilename().endsWith('.kcadlib'));
 await page.setInputFiles('.k-library input[type=file]', await dl.path());
-await page.waitForTimeout(200);
+await settle(page);
 check('library import adds a library', (await S()).libraries.length === 2);
 await page.reload();
 await page.waitForSelector('.k-viewport');
@@ -246,7 +246,7 @@ await page.click('.k-taskpane-panel .k-panel-header .k-btn');
 
 // ---- Display/Delete Relations in task pane, delete a relation
 await page.dblclick('.k-tree-row:has-text("Sketch1")');
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Display/Delete Relations") .k-cm-main');
 check('relations task pane open', (await page.locator('.k-taskpane-panel').count()) === 1);
@@ -267,10 +267,10 @@ await page.mouse.move(cx - 100, cy - 100);
 await page.mouse.down();
 await page.mouse.move(cx + 100, cy + 100, { steps: 3 });
 await page.mouse.up();
-await page.waitForTimeout(350);
+await settle(page);
 const txt1 = await page.locator('.k-status-coords').textContent();
 await page.click('.k-hud-btn[data-tip^="Previous View"]');
-await page.waitForTimeout(350);
+await settle(page);
 check('zoom to area then previous view', true, txt1);
 await page.keyboard.press('f');
 await settle(page);
@@ -287,7 +287,7 @@ await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
 await page.click('.k-flyout-toggle');
 await page.dblclick('.k-flyout-body .k-tree-row:has-text("Top Plane")');
-await page.waitForTimeout(500);
+await settle(page);
 check('second sketch on Top Plane', (await sk()).plane === 'top' && (await S()).doc.features.length === 2);
 await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx, cy);
@@ -301,12 +301,12 @@ await page.keyboard.type('TopSketch');
 await page.keyboard.press('Enter');
 check('rename feature', (await S()).doc.features[1].name === 'TopSketch', (await S()).doc.features[1].name);
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(300);
+await settle(page);
 check('Ctrl+7 isometric', (await S()).viewName === '*Isometric');
 await page.keyboard.press(' ');
 check('space opens orientation', (await page.locator('.k-orientation-dialog').count()) === 1);
 await page.click('.k-viewgrid-btn:has-text("Top")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Top view', (await S()).viewName === '*Top');
 // the context menu of the last tree row is long: it has to move up to stay inside the window (else Delete is off-screen)
 await page.click('.k-tree-row:has-text("TopSketch")', { button: 'right' });
@@ -328,7 +328,7 @@ await page.locator('.k-dialog input').fill('Bracket');
 await page.click('.k-dialog .k-btn.primary');
 check('new document named Bracket', (await S()).doc.name === 'Bracket' && (await S()).doc.features.length === 0);
 await page.setInputFiles('#phlippo-open-file', path);
-await page.waitForTimeout(300);
+await settle(page);
 check('open restores 2 features', (await S()).doc.features.length === 2, String((await S()).doc.features.length));
 
 // ---- options: reverse wheel; theme; manager collapse; task pane; dock float

@@ -1,5 +1,6 @@
 // look-dev: an assembly with two plates; select a component in the tree (blue component, triad, breadcrumbs)
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -30,11 +31,11 @@ await page.evaluate(() => {
     { id: 'm2', type: 'parallel', name: 'Parallel1', refs: [ref(c1, 10), ref(c2, 20)], aligned: true, suppressed: false },
   ] });
 });
-await page.waitForTimeout(1200);
+await settle(page);
 await page.keyboard.press('f');
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('.k-tree-row:has-text("BasePlate<2>")');
-await page.waitForTimeout(800);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/look-compsel.png' });
 console.log('crumbs', await page.locator('[data-testid="breadcrumbs"]').count(), 'mates', await page.locator('.k-crumb-mate').count());
 console.log('errors', errors);

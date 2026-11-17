@@ -7,15 +7,15 @@ import { rebuildDocument } from '../features/rebuild';
 import { meshVolume } from '../features/solid';
 import { rebuildAssembly } from '../assembly/assembly';
 import { assemblyHoles, fastenerSlots, placeFasteners } from '../assembly/fasteners';
-import { ISO273, LIBRARY_SIZES, requiredScrewLength, screwLengthFor, screwLengths, sizeForClearanceHole, type LibrarySize } from './iso';
+import { ISO273, LIBRARY_SIZES, requiredScrewLength, screwLengthFor, screwLengths, sizeForClearanceHole } from './iso';
 import { screwChamfers, standardPart, standardPartCatalog, standardPartDimensions, standardPartName } from './parts';
 
 // the reference values of the standards, written out once more by hand (size: values) so a slip in iso.ts shows
-const REF_4762 = 'M3 5.5 3 2.5 1.3|M4 7 4 3 2|M5 8.5 5 4 2.5|M6 10 6 5 3|M8 13 8 6 4|M10 16 10 8 5|M12 18 12 10 6'; // dk k s t
-const REF_4032 = 'M3 5.5 2.4|M4 7 3.2|M5 8 4.7|M6 10 5.2|M8 13 6.8|M10 16 8.4|M12 18 10.8'; // s m
-const REF_7089 = 'M3 3.2 7 0.5|M4 4.3 9 0.8|M5 5.3 10 1|M6 6.4 12 1.6|M8 8.4 16 1.6|M10 10.5 20 2|M12 13 24 2.5'; // d1 d2 h
-const REF_273 = 'M3 3.2 3.4 3.6|M4 4.3 4.5 4.8|M5 5.3 5.5 5.8|M6 6.4 6.6 7|M8 8.4 9 10|M10 10.5 11 12|M12 13 13.5 14.5'; // fine medium coarse
-const ref = (t: string) => Object.fromEntries(t.split('|').map((r) => { const [k, ...v] = r.split(' '); return [k, v.map(Number)]; })) as Record<LibrarySize, number[]>;
+const REF_4762 = 'M3 5.5 3 2.5 1.3|M4 7 4 3 2|M5 8.5 5 4 2.5|M6 10 6 5 3|M8 13 8 6 4|M10 16 10 8 5|M12 18 12 10 6|M16 24 16 14 8|M20 30 20 17 10|M24 36 24 19 12'; // dk k s t
+const REF_4032 = 'M3 5.5 2.4|M4 7 3.2|M5 8 4.7|M6 10 5.2|M8 13 6.8|M10 16 8.4|M12 18 10.8|M16 24 14.8|M20 30 18|M24 36 21.5'; // s m
+const REF_7089 = 'M3 3.2 7 0.5|M4 4.3 9 0.8|M5 5.3 10 1|M6 6.4 12 1.6|M8 8.4 16 1.6|M10 10.5 20 2|M12 13 24 2.5|M16 17 30 3|M20 21 37 3|M24 25 44 4'; // d1 d2 h
+const REF_273 = 'M3 3.2 3.4 3.6|M4 4.3 4.5 4.8|M5 5.3 5.5 5.8|M6 6.4 6.6 7|M8 8.4 9 10|M10 10.5 11 12|M12 13 13.5 14.5|M16 17 17.5 18.5|M20 21 22 24|M24 25 26 28'; // fine medium coarse
+const ref = (t: string) => Object.fromEntries(t.split('|').map((r) => { const [k, ...v] = r.split(' '); return [k, v.map(Number)]; })) as Record<string, number[]>;
 
 const built = (doc: Document) => {
   const r = rebuildDocument(doc, null);
@@ -32,8 +32,8 @@ describe('Standard Parts library', () => {
     const all = standardPartCatalog();
     expect(all.length).toBeGreaterThanOrEqual(30);
     expect(new Set(all.map(standardPartName)).size).toBe(all.length);
-    expect(all.filter((p) => p.standard === 'iso4032').length).toBe(7);
-    expect(all.filter((p) => p.standard === 'iso7089').length).toBe(7);
+    expect(all.filter((p) => p.standard === 'iso4032').length).toBe(10);
+    expect(all.filter((p) => p.standard === 'iso7089').length).toBe(10);
     // the lengths of a screw stay in its standard range (M6: 10 to 60)
     expect(screwLengths('M6')).toEqual([10, 12, 16, 20, 25, 30, 35, 40, 45, 50, 55, 60]);
     expect(standardPartName({ standard: 'iso4762', size: 'M6', length: 20 })).toBe('ISO 4762 M6 x 20');
@@ -41,7 +41,7 @@ describe('Standard Parts library', () => {
 
   it('every part carries the dimensions of its standard table', () => {
     const r4762 = ref(REF_4762), r4032 = ref(REF_4032), r7089 = ref(REF_7089);
-    for (const p of standardPartCatalog()) {
+    for (const p of standardPartCatalog().filter((q) => ['iso4762', 'iso4032', 'iso7089'].includes(q.standard))) {
       const d = standardPartDimensions(p);
       if (p.standard === 'iso4762') expect([d.dk, d.k, d.s, d.t]).toEqual(r4762[p.size]);
       else if (p.standard === 'iso4032') expect([d.s, d.m]).toEqual(r4032[p.size]);
@@ -89,7 +89,7 @@ describe('Standard Parts library', () => {
       const ring = (Math.PI / 4) * (w.d2 ** 2 - w.d1 ** 2) * w.h;
       expect(Math.abs(c.volume - ring) / ring).toBeLessThan(0.02);
     }
-  }, 600_000); // 21 rebuilds: more than the default 5 s when the suite runs in parallel
+  }, 600_000); // 30 rebuilds: more than the default 5 s when the suite runs in parallel
 
   it('volume of ISO 4762 M6 x 20 within 2 % of the hand calculation (cylinder + head - chamfers - socket)', () => {
     const d = 6, l = 20, dk = 10, k = 6, s = 5, t = 3;

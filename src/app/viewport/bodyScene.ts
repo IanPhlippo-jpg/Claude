@@ -15,6 +15,7 @@ import type { Body } from '../../core/features/rebuild';
 import type { DisplayStyle } from '../store';
 import { displayEdgeSets, featureEdgeSets, featureEdges, smoothNormals, type TangentMode } from '../../core/features/edges';
 import { hiddenEdgesDashed, tangentEdgeMode } from '../prefsEffects';
+import { highlightFeatureEdges, openEdgeColor, openEdgeSegments, selectThroughTransparency, shadedEdgeColor, shadedFaceHighlight, temporaryAxis } from '../prefsView';
 import type { BodyEdge } from '../../core/features/edgesets';
 
 export interface BodySceneInput {
@@ -68,6 +69,8 @@ export interface BodySceneInput {
   hiddenBodies?: string[];
   /** Mate > Make first selection transparent: those bodies are drawn see-through */
   transparentBodies?: string[];
+  /** the open surfaces among the bodies (Display ▸ Show open edges of surfaces in different color) */
+  surfaceBodies?: string[];
   /** Edit Decal: images on planar faces */
   decals?: { id: string; face: { normal: [number, number, number]; point: [number, number, number] }; image: string; width: number; rotation: number; height?: number; lighting?: 'appearance' | 'custom'; brightness?: number; shininess?: number; /** only on these bodies (a part's decal in an assembly) */ bodies?: string[] }[];
   /** reference curves (Helix/Spiral) */
@@ -565,6 +568,9 @@ export class BodyScene {
   update(input: BodySceneInput): void {
     // fat lines need the viewport size in pixels
     this.edgeMat2.resolution.copy(SketchScene.resolution);
+    // Colors ▸ Use specified color for Shaded With Edges mode
+    this.edgeMat2.color.set(shadedEdgeColor());
+    this.seeThrough = new Set(input.transparentBodies ?? []);
     const wanted = new THREE.Color(input.bodyColor ?? STUDIO.color);
     if (!this.faceMat.color.equals(wanted)) this.faceMat.color.copy(wanted);
     // Realistic Shading: the environment lights the model; the lamps are turned down
@@ -752,10 +758,14 @@ export class BodyScene {
       if (e) edgeTube(e, input.colors.hover);
     }
     for (const f of input.selectedFaces ?? []) if (f.faceId !== input.selectedFace?.faceId) overlay(f, input.colors.selected, 1, true);
-    if (input.selectedFace) overlay(input.selectedFace, input.colors.selected, 1, true);
+    // Display ▸ Use shaded face highlighting: off, a selected face shows only its boundary in the selection colour
+    if (input.selectedFace) { if (shadedFaceHighlight()) overlay(input.selectedFace, input.colors.selected, 1, true); else this.faceOutline(input, input.selectedFace, input.colors.selected); }
     if (input.hoverFace && !(input.selectedFace && input.hoverFace.faceId === input.selectedFace.faceId)) this.faceOutline(input, input.hoverFace, input.colors.hover);
     // a selected feature pointed at in the tree shows the full selection blue, else half over the part
     for (const f of input.featureFaces ?? []) overlay(f, input.colors.selected, input.featureHot ? 1 : 0.5, true);
+    // Display ▸ Highlight all edges of features selected in graphics view
+    if (highlightFeatureEdges()) for (const f of input.featureFaces ?? []) this.faceOutline(input, f, input.colors.selected);
+    this.extraOverlays(input);
     for (const f of input.mateFaces ?? []) overlay(f, '#8ffffc', 0.95);
     for (const f of input.hoverFeatureFaces ?? []) this.faceOutline(input, f, input.colors.hover);
     // preview
@@ -784,6 +794,33 @@ export class BodyScene {
     if (this.previewMesh) this.previewMesh.visible = !input.previewWire;
   }
 
+  /** the bodies drawn see-through (Selection ▸ Enable selection through transparency) */
+  private seeThrough = new Set<string>();
+
+  /** Display ▸ temporary axis of the cylindrical face under the pointer, and the open edges of surfaces */
+  private extraOverlays(input: BodySceneInput): void {
+    const fat = (arr: number[], color: string, width: number, name: string, dashed = false) => {
+      if (!arr.length) return;
+      const g = new LineSegmentsGeometry();
+      g.setPositions(arr);
+      const m = new LineMaterial({ color: new THREE.Color(color).getHex(), linewidth: width, worldUnits: false, dashed, dashSize: 8 * input.scale, gapSize: 3 * input.scale, depthTest: !dashed });
+      m.resolution.copy(SketchScene.resolution);
+      const ls = new LineSegments2(g, m);
+      if (dashed) ls.computeLineDistances();
+      ls.renderOrder = 5;
+      ls.frustumCulled = false;
+      ls.name = name;
+      this.overlays.add(ls);
+    };
+    const hover = input.hoverFace && input.bodies.find((b) => b.id === input.hoverFace!.bodyId);
+    const face = hover && hover.faces.find((f) => f.id === input.hoverFace!.faceId);
+    const axis = hover && face ? temporaryAxis(hover.geometry, face) : null;
+    // the axis runs through the solid: drawn on top, as a temporary axis is
+    if (axis) fat([axis[0].x, axis[0].y, axis[0].z, axis[1].x, axis[1].y, axis[1].z], '#1a1a1a', 1.5, 'temp-axis', true);
+    const open = openEdgeColor();
+    if (open) for (const b of input.bodies) if (input.surfaceBodies?.includes(b.id)) fat(openEdgeSegments(b.geometry), open, 2, 'open-edges');
+  }
+
   /** the face under a ray, nearest first */
   pick(ray: THREE.Ray): { bodyId: string; faceId: string; point: THREE.Vector3 } | null {
     const rc = new THREE.Raycaster();
@@ -791,7 +828,11 @@ export class BodyScene {
     rc.near = -1e6;
     rc.far = 1e6;
     let best: { bodyId: string; faceId: string; point: THREE.Vector3; d: number } | null = null;
-    for (const [id, e] of this.entries) {
+    // Selection ▸ Enable selection through transparency: a see-through body is picked only when nothing opaque is behind it
+    const through = selectThroughTransparency() && this.seeThrough.size > 0;
+    for (const pass of through ? [false, true] : [true]) for (const [id, e] of this.entries) {
+      if (through && pass && best) break;
+      if (through && !pass && this.seeThrough.has(id)) continue;
       if (!e.mesh.visible && this.lastStyle !== 'wireframe') continue;
       const hits = rc.intersectObject(e.mesh, false);
       for (const h of hits) {

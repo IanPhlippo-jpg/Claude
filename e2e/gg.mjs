@@ -45,10 +45,10 @@ const tabsBefore = await page.locator('.k-cm-tab').count();
 // ---- open from Tools ▸ Customize…
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
-await page.waitForTimeout(150);
+await settle(page);
 check('Tools menu has Customize…', (await page.locator('.k-menu-item:has-text("Customize…")').count()) === 1);
 await page.locator('.k-menu-item:has-text("Customize…")').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Customize dialog with the seven tabs', (await page.locator('[data-testid="customize-dialog"]').count()) === 1 && (await page.locator('.k-customize-tabs button').count()) === 7);
 await shot('gg0-customize-toolbars');
 
@@ -77,11 +77,11 @@ await page.locator('[data-testid="cz-tab-menus"]').click();
 await page.locator('[data-testid="cz-menu-Tools-Equations…"]').uncheck();
 // ---- Keyboard: Shift+T for the Top view
 await page.locator('[data-testid="cz-tab-keyboard"]').click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Keyboard tab lists the commands with their shortcuts (Line = L)', (await page.locator('[data-testid="cz-key-sketch.line"]').inputValue()) === 'L');
 await page.locator('[data-testid="cz-key-view.top"]').focus();
 await page.keyboard.press('Shift+T');
-await page.waitForTimeout(200);
+await settle(page);
 check('Shift+T recorded for Top', (await page.locator('[data-testid="cz-key-view.top"]').inputValue()) === 'Shift+T');
 await shot('gg3-customize-keyboard');
 // ---- Mouse Gestures: up = Isometric in the part context
@@ -104,35 +104,35 @@ check('tooltips off and lock: root class and disabled collapse button', (await p
 await shot('gg5-customized-ui');
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
-await page.waitForTimeout(150);
+await settle(page);
 check('Tools ▸ Equations… hidden', (await page.locator('.k-menu-item:has-text("Equations…")').count()) === 0 && (await page.locator('.k-menu-item:has-text("Options…")').count()) === 1);
 await page.keyboard.press('Escape');
 await page.mouse.click(1000, 600);
-await page.waitForTimeout(200);
+await settle(page);
 // the S bar without Rib
 await page.keyboard.press('s');
-await page.waitForTimeout(300);
+await settle(page);
 const skeyCount = await page.locator('.k-skey-cell').count();
 check('the part shortcut bar lost Rib', skeyCount === sbCount - 1, `${skeyCount} vs ${sbCount - 1}`);
 await page.keyboard.press('Escape');
 await page.mouse.click(1000, 600);
 // Shift+T → Top
 await page.keyboard.press('Shift+T');
-await page.waitForTimeout(300);
+await settle(page);
 check('Shift+T sets the Top view', (await viewName()) === 'top', await viewName());
 // the moved default: Ctrl+5 (default Top) still works because it was not changed; 'f' still fits
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(200);
+await settle(page);
 check('Ctrl+7 Isometric still works', (await viewName()) === 'isometric', await viewName());
 // gesture up → Isometric (set from Front first)
 await page.keyboard.press('Control+1');
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.move(1000, 600);
 await page.mouse.down({ button: 'right' });
 await page.mouse.move(1000, 520, { steps: 3 });
 await page.mouse.move(1000, 440, { steps: 3 });
 await page.mouse.up({ button: 'right' });
-await page.waitForTimeout(300);
+await settle(page);
 check('mouse gesture up runs the new Isometric binding', (await viewName()) === 'isometric', await viewName());
 await page.keyboard.press('Escape');
 
@@ -144,12 +144,12 @@ await page.locator('[data-testid="cz-gestures-on"]').uncheck();
 await page.locator('[data-testid="cz-ok"]').click();
 await settle(page);
 await page.keyboard.press('Control+1');
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.move(1000, 600);
 await page.mouse.down({ button: 'right' });
 await page.mouse.move(1000, 440, { steps: 6 });
 await page.mouse.up({ button: 'right' });
-await page.waitForTimeout(300);
+await settle(page);
 check('with mouse gestures disabled the view stays Front', (await viewName()) === 'front', await viewName());
 await page.keyboard.press('Escape');
 

@@ -1,5 +1,6 @@
 // look-dev at Ian's DPI: Boss-Extrude of a dimensioned sketch, and Fillet with one edge picked -> e2e-out/ian-ext-dims.png, ian-fillet.png
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: 1.5 });
 const errors = [];
@@ -29,24 +30,24 @@ await page.evaluate(() => {
     return K.addConstraint(sk, 'diameter', [ids.circle], { value: 35 })[0];
   });
 });
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(1200);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/ian-ext-dims.png' });
 await page.click('.k-pm-ok').catch(() => undefined);
-await page.waitForTimeout(1200);
+await settle(page);
 // Fillet on a vertical edge
 await page.evaluate(() => window.__phlippoStore.getState().startRound('fillet'));
-await page.waitForTimeout(300);
+await settle(page);
 const edge = await page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; const e = b.edges.find((x) => x.straight && Math.abs(x.length - 10) < 1e-3); return e.id; });
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.toggleSelectedEdge(id, false); s.updateFeatureDraft({ size: 15 }); }, edge);
-await page.waitForTimeout(1500);
+await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
 await page.screenshot({ path: 'e2e-out/ian-fillet.png' });
 const tb = await page.locator('[data-testid="selection-toolbar"]').count();
 const n0 = await page.evaluate(() => window.__phlippoStore.getState().featureEdit.draft.edges.length);
 await page.click('[data-testid="seltb-face1"]').catch(() => undefined);
-await page.waitForTimeout(400);
+await settle(page);
 const n1 = await page.evaluate(() => window.__phlippoStore.getState().featureEdit.draft.edges.length);
 await page.screenshot({ path: 'e2e-out/ian-fillet-tb.png' });
 console.log('selection toolbar', tb, 'edges', n0, '->', n1);

@@ -136,6 +136,8 @@
 .k-flyout-toggle span { overflow: hidden; text-overflow: ellipsis; }
 .k-flyout-toggle:hover { background: var(--bg-hover); }
 .k-flyout-body { max-height: 260px; overflow: auto; border: 1px solid var(--border); background: var(--bg-panel); box-shadow: var(--shadow-1); }
+/* Options ▸ Feature Tree ▸ Use transparent flyout Feature Tree: the tree lies on the graphics area without a panel */
+.k-flyout-tree.transparent .k-flyout-body { background: transparent; border-color: transparent; box-shadow: none; }
 
 /* --- viewport --------------------------------------------------------------------- */
 .k-viewport { position: relative; flex: 1; border: 1px solid var(--border); border-radius: 0; overflow: hidden; outline: none; background: var(--bg-viewport-gradient); }

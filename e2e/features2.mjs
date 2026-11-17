@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -140,7 +140,7 @@ check('Offset On Surface creates a 3D sketch', st.feats.some((f) => f.type === '
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(700, 1000);
-await page.waitForTimeout(800);
+await frames(page, 3);
 await page.screenshot({ path: `${OUT}/features2.png` });
 
 console.log(`

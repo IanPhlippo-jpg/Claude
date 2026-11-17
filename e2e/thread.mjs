@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -20,7 +20,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 // socket head cap screw: head Ø21 x 14 on the Top Plane, shank Ø14 x 40 below it
 await page.evaluate(() => {
@@ -51,11 +51,11 @@ const pm = await page.evaluate(() => { const d = window.__phlippoStore.getState(
 check('Thread PM takes the shank edge and proposes M14x2.0 (Metric Die)', pm && pm.size === 'M14x2.0' && pm.internal === false && /Edge</.test(pm.label), JSON.stringify(pm));
 await page.locator('.k-pm-host input.k-num').nth(1).fill('30');
 await page.keyboard.press('Tab');
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.move(5, 900);
 await shot('th1-thread-pm');
 await page.locator('.k-pm-host .k-pm-ok').click({ timeout: 5000 }).catch(async () => { await page.evaluate(() => window.__phlippoStore.getState().commitFeature()); });
-await page.waitForTimeout(1500);
+await settle(page);
 const v1 = await volume();
 const st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { names: s.doc.features.map((f) => f.name), errors: s.rebuild.errors }; });
 const h = 0.6134 * 2;
@@ -64,7 +64,7 @@ check('M14x2.0 Thread1 cuts the helical groove over 30 mm', st.names.includes('M
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);
-await page.waitForTimeout(500);
+await frames(page, 3);
 await shot('th2-thread');
 
 console.log(`

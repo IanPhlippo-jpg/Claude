@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -18,9 +19,9 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 // a block 80 x 80 x 30
 await page.evaluate(() => {
   const K = window.__phlippoKit;
@@ -45,7 +46,7 @@ await page.keyboard.press('Control+7');
 // the view turns with an animation: wait until the test point stands still on screen
 const W = (x, y, z) => page.evaluate(([x, y, z]) => window.__phlippoProjectWorld(x, y, z), [x, y, z]);
 for (let i = 0, prev = null; i < 40; i++) {
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(150); // fixed: poll interval
   const now = await W(40, 30, 40);
   if (prev && Math.hypot(now.x - prev.x, now.y - prev.y) < 0.5) break;
   prev = now;
@@ -90,7 +91,7 @@ const glassPixels = () => page.evaluate(() => {
 // the point on the top face (40, 30, 40): its pixel
 const q = await W(40, 30, 40);
 await page.mouse.move(q.x, q.y);
-await page.waitForTimeout(100);
+await frames(page, 3);
 check('no magnifying glass before G', (await page.locator('[data-testid="magnifier"]').count()) === 0);
 await page.keyboard.press('g');
 await page.mouse.move(q.x + 1, q.y);
@@ -114,17 +115,17 @@ check('a click in the glass selects the face under its centre', !!sel && !!under
 check('the glass stays open after the click', (await page.locator('[data-testid="magnifier"]').count()) === 1);
 
 await page.mouse.wheel(0, -100);
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.move(q.x + 2, q.y);
 const zoomed = await page.waitForFunction(() => Number((document.querySelector('[data-testid="magnifier-canvas"]')?.dataset.at ?? '').split(',')[2]) > 3, undefined, { timeout: 10000 }).then(() => true, () => false);
 check('the wheel enlarges the glass, not the view', zoomed, await page.locator('[data-testid="magnifier-canvas"]').getAttribute('data-at'));
 
 await page.keyboard.press('Escape');
-await page.waitForTimeout(200);
+await settle(page);
 const after = await page.evaluate(() => window.__phlippoStore.getState().selectedFace);
 check('Esc closes the glass and keeps the selection', (await page.locator('[data-testid="magnifier"]').count()) === 0 && !!after && after.faceId === sel?.faceId);
 await page.keyboard.press('g');
-await page.waitForTimeout(150);
+await settle(page);
 check('G opens it again', (await page.locator('[data-testid="magnifier"]').count()) === 1);
 // over a corner of the block the glass shows the edges between the faces; on the flat face it showed (next to) none
 const v = await W(80, 30, 80);
@@ -134,7 +135,7 @@ await page.screenshot({ path: `${OUT}/magnify-corner.png` });
 const corner = await glassPixels();
 check('the edges of the corner show in the glass (far more edge pixels than on the flat face)', painted1 && corner.edges > 150 && corner.edges > 4 * flat.edges + 50, JSON.stringify({ painted1, corner: corner.edges, flat: flat.edges }));
 await page.keyboard.press('g');
-await page.waitForTimeout(150);
+await settle(page);
 check('G closes it', (await page.locator('[data-testid="magnifier"]').count()) === 0);
 
 console.log(`

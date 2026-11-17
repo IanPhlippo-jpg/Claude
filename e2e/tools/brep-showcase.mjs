@@ -2,6 +2,7 @@
 // neck, built with the B-rep kernel; prints which bodies are exact and saves e2e-out/brep-showcase.png.
 // Usage: npm run build:e2e, vite preview on 4173, then node e2e/tools/brep-showcase.mjs
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
@@ -39,6 +40,6 @@ const ok = await page.waitForFunction(() => window.__phlippoStore.getState().reb
 const st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, bodies: s.rebuild.bodies.map((b) => ({ exact: !!b.exact, vol: b.exactVolume })) }; });
 console.log(ok, JSON.stringify(st));
 await page.evaluate(() => window.__phlippoZoomFit?.());
-await page.waitForTimeout(500);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/brep-showcase.png' });
 await browser.close();

@@ -120,6 +120,18 @@ export function tangentSnap(s: Sketch, p: SketchPoint, from: SketchPoint, tol: n
   return best;
 }
 
+/**
+ * Relations/Snaps ▸ Length: a line (or radius) drawn from `from` gets a length that is a whole number of the grid's
+ * snap increments (Document Properties ▸ Grid/Snap), whether the grid is shown or not.
+ */
+export function lengthSnap(p: SketchPoint, from: SketchPoint, step: number): SketchPoint {
+  if (!on('snaps.enableSnapping') || getPref('snaps.length') !== true || !(step > 0)) return p;
+  const dx = p.x - from.x, dy = p.y - from.y, l = Math.hypot(dx, dy);
+  if (l < 1e-9) return p;
+  const L = Math.max(step, Math.round(l / step) * step);
+  return { x: from.x + (dx / l) * L, y: from.y + (dy / l) * L };
+}
+
 export interface GridState { quick: boolean; shown: boolean; size: number }
 
 /** the pointer on the grid when the grid snap is on */
@@ -138,6 +150,7 @@ export function snapPoint(s: Sketch, p: SketchPoint, tol: number, ref: SketchPoi
   if (t) return { p: t.point, snap: t };
   if (hits.length) return { p: hits[0].point, snap: hits[0] };
   const d = ref ? directionSnap(s, p, ref, tol) : null;
-  if (d) return { p: d.point, snap: d };
+  if (d) return { p: lengthSnap(d.point, ref!, gridSnapStep(grid.size)), snap: d };
+  if (ref && !gridSnapOn(grid.quick, grid.shown)) return { p: lengthSnap(p, ref, gridSnapStep(grid.size)), snap: null };
   return { p: gridPoint(p, grid), snap: null };
 }

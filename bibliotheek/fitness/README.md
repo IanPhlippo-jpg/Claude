@@ -111,7 +111,7 @@ staat op het bureaublad in `Fitnesstoestellen/` met een LEESMIJ.
 ```bash
 node bibliotheek/fitness/maak-web.mjs <map>            # index.html + js/ (met js/balustrades en js/taatsdeuren)
 node bibliotheek/fitness/maak-presentatie.mjs [map]    # presentatie/uit/Fitnesstoestellen.html (esbuild, three gebundeld)
-npx vitest run src/qa/qaFitness.test.ts                # 826 tests, ± 4 s (ook in npm run test:voorbeelden)
+npx vitest run bibliotheek/tests/qaFitness.test.ts                # 826 tests, ± 4 s (ook in npm run test:bibliotheek)
 npm run typecheck
 ```
 
@@ -157,7 +157,7 @@ De test bouwt elk toestel in de thuis- en de proversie en controleert:
 ## Versie 2: controles op elk toestel (2026-11-15)
 
 Elk toestel wordt in de thuis- en de proversie en in 5 standen van de beweging (0, 25, 50, 75 en 100 %) gecontroleerd
-(`controle.mjs`, test `src/qa/qaFitness.test.ts`):
+(`controle.mjs`, test `bibliotheek/tests/qaFitness.test.ts`):
 
 - **Botsingen:** elk stalen deel en elk kussen als georiënteerde doos (scheidende-assenstelling); gelaste paren en delen
   die in elkaar schuiven (as in een bus) tellen niet. De schijven (Ø450) mogen nergens door het staal.
@@ -200,7 +200,7 @@ Alle 40 bevindingen uit [docs/Advies-Fable-5.2.md](docs/Advies-Fable-5.2.md) zij
 - **Web:** badge "berekend" (geen "voldoet"), klantweergave met `?klant` (zonder werkplaats en kostprijs), open punten per
   toestel in de werkplaats.
 
-Elke P1 heeft een test met een negatieve proef (`src/qa/qaFitness.test.ts`, blok "Fable 5.2").
+Elke P1 heeft een test met een negatieve proef (`bibliotheek/tests/qaFitness.test.ts`, blok "Fable 5.2").
 
 ## Versie 4: de deels-punten van Fable 5.2 afgewerkt (2026-11-15)
 
@@ -445,7 +445,7 @@ De 50 punten uit [docs/Advies-Fable-5.2-v5.md](docs/Advies-Fable-5.2-v5.md) (P1 
 
 ## Testen: snel of volledig
 
-`npx vitest run src/qa/qaFitness.test.ts` is de snelle standaardrun (± 30 s). De tests per toestel lopen op een
+`npx vitest run bibliotheek/tests/qaFitness.test.ts` is de snelle standaardrun (± 30 s). De tests per toestel lopen op een
 steekproef: per soort het eerste, het middelste en het laatste toestel. Na een wijziging aan bepaalde toestellen zet je
 die erbij met `FITNESS_IDS=FM-05,FM-06`. De volledige run over alle toestellen (± 5 min) start je met
 `FITNESS_VOLLEDIG=1`. Zo draait ook `npm run test:voorbeelden`. Draai de volledige run aan het einde van elk blok.

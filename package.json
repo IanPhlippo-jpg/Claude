@@ -1,7 +1,7 @@
 {
   "name": "phlippo-cad",
   "private": true,
-  "version": "0.5.15",
+  "version": "0.5.16",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "node tools/coverage/report.mjs",
     "test:voorbeelden": "node tools/run-tests.mjs voorbeelden",
     "test:bibliotheek": "node tools/run-tests.mjs bibliotheek",
     "test:afz-snel": "cross-env VOORBEELDEN=1 vitest run src/qa/qaAfzuiging.test.ts -t \"is één body|B-rep\"",

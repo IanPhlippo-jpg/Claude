@@ -3,6 +3,7 @@
 import { _electron as electron } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { dontSave } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 // a fresh profile of its own: the checks never touch the user's documents or settings
 const profile = (await import('node:fs')).mkdtempSync((await import('node:path')).join((await import('node:os')).tmpdir(), 'phlippo-desktop-'));
 
@@ -20,21 +21,21 @@ const consoleLog = [];
 page.on('console', (m) => consoleLog.push(`${m.type()}: ${m.text()}`.slice(0, 300)));
 page.on('pageerror', (e) => consoleLog.push(`pageerror: ${e.message}`.slice(0, 300)));
 await page.waitForSelector('.k-viewport', { timeout: 30000 });
-await page.waitForTimeout(800);
+await settle(page);
 // start-up by design: the Welcome dialog over an empty window (no document is made: this runs in the real profile)
 check('Welcome dialog over an empty window', (await page.locator('.k-dialog-title').innerText()).includes('Welcome') && (await page.locator('[data-testid="nodoc"]').count()) === 1);
 await page.keyboard.press('Escape');
-await page.waitForTimeout(300);
+await settle(page);
 check('desktop bridge present', await page.evaluate(() => typeof window.phlippoDesktop?.toggleMaximize === 'function'));
 check('window is frameless with the app title row', await page.locator('.k-win-controls button').count() === 3);
 const maximized0 = await page.evaluate(() => window.phlippoDesktop.isMaximized());
 check('window starts maximized', maximized0 === true, String(maximized0));
 await page.click('.k-win-controls button:nth-child(2)');
-await page.waitForTimeout(500);
+await page.waitForTimeout(500); // fixed: the window state changes in the shell (with the OS animation)
 const maximized1 = await page.evaluate(() => window.phlippoDesktop.isMaximized());
 check('restore button leaves the maximized state', maximized1 === false, String(maximized1));
 await page.click('.k-win-controls button:nth-child(2)');
-await page.waitForTimeout(500);
+await page.waitForTimeout(500); // fixed: the window state changes in the shell (with the OS animation)
 check('maximize button maximizes again', (await page.evaluate(() => window.phlippoDesktop.isMaximized())) === true);
 check('title row shows no document name without a document', !(await page.locator('.k-title').innerText()).includes('Part1'));
 await page.screenshot({ path: 'e2e-out/desktop-app.png' });
@@ -44,9 +45,9 @@ check('the app is served from app://phlippo (F88)', page.url().startsWith('app:/
 // F28: a new assembly starts Insert Component and opens the file dialog by itself (the native dialog is stubbed)
 await app.evaluate(({ dialog }) => { globalThis.__opens = 0; dialog.showOpenDialog = async () => { globalThis.__opens++; return { canceled: true, filePaths: [] }; }; });
 await page.evaluate(() => window.__phlippoStore.getState().setDialog('welcome'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-doctype:has-text("Assembly")');
-await page.waitForTimeout(800);
+await page.waitForTimeout(800); // fixed: the file dialog is asked from the shell over IPC
 const opens = await app.evaluate(() => globalThis.__opens);
 check('a new assembly opens the file dialog for Insert Component (F28)', opens === 1 && (await page.evaluate(() => window.__phlippoStore.getState().insertingComponent)) === true, String(opens));
 // F28 (QA 0.5.13): Browse… in the Insert Component panel goes through the native Open dialog of the shell; the stub
@@ -83,9 +84,9 @@ const stepFile = (await import('node:path')).resolve('e2e/fixtures/plate-hole.st
 await app.evaluate(({ dialog }, f) => { globalThis.__stepOpens = 0; dialog.showOpenDialog = async () => { globalThis.__stepOpens++; return { canceled: false, filePaths: [f] }; }; }, stepFile);
 await page.evaluate(() => window.__phlippoStore.getState().cancelInsertComponent?.());
 await page.evaluate(() => window.__phlippoStore.getState().setDialog('welcome'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(500);
+await settle(page);
 await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
 await page.keyboard.press('Escape');
 await page.keyboard.press('Control+o');

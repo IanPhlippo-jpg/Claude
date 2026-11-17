@@ -4,32 +4,32 @@
  * onderdeel bouwt als één lichaam en in de samenstelling botst niets behalve de greep op zijn voeten.
  */
 import { describe, expect, it } from 'vitest';
-import { rebuildDocument } from './rebuildStreng';
-import { parseDocument } from '../core/document/persistence';
-import { rebuildAssembly } from '../core/assembly/assembly';
-import { echteBotsingen } from './overlap';
-import { detectInterferences } from '../core/assembly/interference';
-import type { Component, Document } from '../core/document/types';
+import { rebuildDocument } from '../../src/qa/rebuildStreng';
+import { parseDocument } from '../../src/core/document/persistence';
+import { rebuildAssembly } from '../../src/core/assembly/assembly';
+import { echteBotsingen } from '../../src/qa/overlap';
+import { detectInterferences } from '../../src/core/assembly/interference';
+import type { Component, Document } from '../../src/core/document/types';
 // @ts-expect-error: de bibliotheek is plain JavaScript
-import { STIJLEN, ontwerp, lijsten, opp, kaderVan, veelhoek, minMaat } from '../../bibliotheek/taatsdeuren/deuren.mjs';
+import { STIJLEN, ontwerp, lijsten, opp, kaderVan, veelhoek, minMaat } from '../taatsdeuren/deuren.mjs';
 // @ts-expect-error: idem
-import { band } from '../../bibliotheek/taatsdeuren/teken.mjs';
+import { band } from '../taatsdeuren/teken.mjs';
 // @ts-expect-error: idem
-import { samenstelling } from '../../bibliotheek/taatsdeuren/model.mjs';
+import { samenstelling } from '../taatsdeuren/model.mjs';
 // @ts-expect-error: idem
-import { stukBladen } from '../../bibliotheek/taatsdeuren/stukblad.mjs';
+import { stukBladen } from '../taatsdeuren/stukblad.mjs';
 // @ts-expect-error: idem
-import { STAAF } from '../../bibliotheek/taatsdeuren/prijzen.mjs';
+import { STAAF } from '../taatsdeuren/prijzen.mjs';
 // @ts-expect-error: idem
-import { verbindingen, explodeBlad } from '../../bibliotheek/taatsdeuren/explode.mjs';
+import { verbindingen, explodeBlad } from '../taatsdeuren/explode.mjs';
 // @ts-expect-error: idem
-import { gewicht } from '../../bibliotheek/taatsdeuren/deuren.mjs';
+import { gewicht } from '../taatsdeuren/deuren.mjs';
 // @ts-expect-error: idem
-import { detailBladen, vorm3d, volume3d, profiel } from '../../bibliotheek/taatsdeuren/detail.mjs';
+import { detailBladen, vorm3d, volume3d, profiel } from '../taatsdeuren/detail.mjs';
 // @ts-expect-error: idem
-import { zaagplan, bestelBlad } from '../../bibliotheek/taatsdeuren/bestel.mjs';
+import { zaagplan, bestelBlad } from '../taatsdeuren/bestel.mjs';
 // @ts-expect-error: idem
-import { kostprijs } from '../../bibliotheek/taatsdeuren/prijzen.mjs';
+import { kostprijs } from '../taatsdeuren/prijzen.mjs';
 
 type P = [number, number];
 // klein (net boven de kleinste maat), standaard en groot

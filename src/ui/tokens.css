@@ -24,6 +24,9 @@
   --tree-hover-border: #858585;
   --bg-viewport: #fcfcfc;
   --bg-viewport-2: #fcfcfc;
+  /* Options ▸ Colors: Edges in Shaded With Edges Mode (used when "Use specified color" is on), Surfaces, Open Edges */
+  --shaded-edges: #000000;
+  --open-edges: #d01818;
   /* the graphics area of the default scene, by design: white, a soft blue-grey band around the middle */
   --bg-viewport-gradient: linear-gradient(180deg, #fdfdfd 0%, #f9f9fb 15%, #ebeef3 27%, #dfe4ea 39%, #dee2eb 50%, #f4f8f9 62%, #fefefe 74%, #fefefe 92%, #f9f9fb 100%);
   /* drawing graphics area: light gradient behind the sheet, by design */

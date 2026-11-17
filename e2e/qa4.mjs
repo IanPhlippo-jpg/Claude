@@ -5,6 +5,7 @@
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track, skip } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -20,7 +21,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- F14: Linear Pattern (and its flyout) is grey in an empty part
 check('empty part: Linear Pattern greyed (F14)', await page.locator('.k-cm-big:has-text("Linear Pattern") .k-cm-main').evaluate((el) => el.disabled || !!el.closest('[disabled]') || el.classList.contains('disabled')));
@@ -70,7 +71,7 @@ await S(() => {
   d.features.push({ id: 'k2', type: 'sketch', name: 'Sketch2', sketchId: 's2', suppressed: false }, { id: 'c1', type: 'extrude', name: 'Cut-Extrude1', sketchId: 's2', suppressed: false, op: 'cut', end: 'blind', depth: 5, reverse: false });
   st.openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 const errs = await S(() => Object.keys(window.__phlippoStore.getState().rebuild.errors));
 check("a model with rebuild errors opens with What's Wrong (F78)", errs.length > 0 && (await page.locator('[data-testid="whats-wrong"]').count()) === 1 && /Cut-Extrude1/.test(await page.locator('[data-testid="whats-wrong-list"]').innerText()), JSON.stringify(errs));
 const marker = await page.locator('[data-testid="tree-error"]').first().evaluate((el) => { const r = el.getBoundingClientRect(); const pane = el.closest('.k-panel-body, .k-manager, .k-tree')?.parentElement?.getBoundingClientRect(); const tree = document.querySelector('.k-tree')?.closest('[class*="k-"]')?.getBoundingClientRect(); return { right: r.right, paneRight: Math.min(pane?.right ?? 9999, document.querySelector('.k-viewport').getBoundingClientRect().left) }; }).catch(skip('qa4.mjs:76', null));
@@ -82,7 +83,7 @@ await page.locator('[data-testid="whats-wrong"] .k-btn:has-text("Close")').click
 await S(() => window.__phlippoStore.setState({ dirty: true }));
 await page.mouse.click(1000, 600);
 await page.keyboard.press('Control+s');
-await page.waitForTimeout(300);
+await settle(page);
 check('Save of a model with rebuild errors asks first (F40)', /could not be rebuilt/.test(await page.locator('[data-testid="ask"]').innerText().catch(skip('qa4.mjs:86', ''))));
 await page.locator('[data-testid="ask"] .k-btn:has-text("Cancel")').click();
 await S(() => window.__phlippoStore.setState({ dirty: false }));
@@ -96,45 +97,45 @@ await S((part) => {
   asm.mates = [];
   window.__phlippoStore.getState().openDocument(asm);
 }, part);
-await page.waitForTimeout(500);
+await settle(page);
 await S(() => window.__phlippoStore.getState().setComponentHidden('c2', true)); // an unsaved change in the assembly
 await S(() => window.__phlippoStore.getState().editComponent('c1'));
-await page.waitForTimeout(400);
+await settle(page);
 await page.mouse.click(1000, 600);
 await page.keyboard.press('Control+n');
-await page.waitForTimeout(300);
+await settle(page);
 const ask74 = await page.locator('[data-testid="ask"]').innerText().catch(skip('qa4.mjs:106', ''));
 check('Ctrl+N during Edit Component asks to save the assembly (F74)', /being edited in Assem1/.test(ask74) && /save/i.test(ask74), ask74.slice(0, 120));
 await page.locator('[data-testid="ask-cancel"]').click();
 check('Cancel keeps the component edit open', await S(() => !!window.__phlippoStore.getState().editContext));
 await S(() => window.__phlippoStore.getState().returnToAssembly());
-await page.waitForTimeout(300);
+await settle(page);
 await S(() => window.__phlippoStore.setState({ dirty: false }));
 
 // ---- F81: refused and adjusted values are explained
 await S(() => window.__phlippoStore.getState().openDocument(window.__phlippoKit.createDocument('Leeg')));
 await S((d) => window.__phlippoStore.getState().openDocument(d), await block());
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-tree-row:has-text("Boss-Extrude1")');
 await S(() => window.__phlippoStore.getState().editFeature?.('e1'));
-await page.waitForTimeout(300);
+await settle(page);
 const depth = page.locator('.k-pm-host .k-section:has-text("Direction 1") input.k-num').first();
 if (await depth.count()) {
   await depth.fill('1e7');
   await depth.blur();
-  await page.waitForTimeout(150);
+  await settle(page);
   check('a depth of 1e7 is refused with a note (F81)', /Refused/.test(await page.locator('[data-testid="num-note"]').first().innerText().catch(skip('qa4.mjs:127', ''))));
   await depth.fill('-5');
   await depth.blur();
-  await page.waitForTimeout(150);
+  await settle(page);
   check('a depth of -5 is adjusted with a note (F81)', /Adjusted to/.test(await page.locator('[data-testid="num-note"]').first().innerText().catch(skip('qa4.mjs:131', ''))));
   await shot('qa4-f81-note');
   await S(() => window.__phlippoStore.getState().cancelFeature());
 } else check('the Extrude panel opens for editing', false);
 // pattern limit
 await S(() => { const s = window.__phlippoStore.getState(); window.__phlippoStore.setState({ selectedFeatureId: 'e1' }); s.startPattern('linearPattern'); s.updateFeatureDraft({ featureIds: ['e1'], dir1: { axis: [1, 0, 0], spacing: 70, count: 20 }, dir2: { axis: [0, 0, 1], spacing: 50, count: 20 } }); });
-await page.waitForTimeout(300);
+await settle(page);
 check('more than 250 instances: the pattern panel says so (F81)', /maximum is 250/.test(await page.locator('[data-testid="pattern-limit"]').innerText().catch(skip('qa4.mjs:138', ''))));
 await S(() => window.__phlippoStore.getState().cancelFeature());
 

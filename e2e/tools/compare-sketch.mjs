@@ -4,6 +4,7 @@
 // then node e2e/tools/compare-sketch.mjs
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { settle, frames } from '../lib/wait.mjs';
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
@@ -15,18 +16,18 @@ await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 // frame 57: the empty sketch on the Top Plane, the red sketch origin in the middle
 await page.mouse.move(1100, 560);
 await page.screenshot({ path: 'e2e-out/app-sk-57.png' });
 // frame 70: a corner rectangle from the origin, its Property Panel open
 await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'));
-await page.waitForTimeout(200);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 let p = await P(0, 0); await page.mouse.click(p.x, p.y);
 p = await P(92, 75); await page.mouse.click(p.x, p.y);
 await page.mouse.move(820, 680);
-await page.waitForTimeout(500);
+await frames(page, 3);
 await page.screenshot({ path: 'e2e-out/app-sk-70.png' });
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
@@ -56,12 +57,12 @@ const open = (withCircle) => page.evaluate((circle) => {
 await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => undefined);
 await open(false);
 await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => undefined);
-await page.waitForTimeout(600);
+await settle(page);
 await page.mouse.move(1300, 770);
 await page.screenshot({ path: 'e2e-out/app-sk-82.png' });
 await open(true);
 await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => undefined);
-await page.waitForTimeout(600);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/app-sk-95.png' });
 await browser.close();
 const py = `

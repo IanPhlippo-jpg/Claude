@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -15,12 +15,12 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e.message + (e.stack ? '
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 
-const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
+const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await frames(page); } };
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.evaluate(() => {
   const K = window.__phlippoKit;
@@ -36,7 +36,7 @@ const R = () => page.evaluate(() => { const s = window.__phlippoStore.getState()
 await page.click('.k-cm-tab:has-text("Surfaces")');
 await page.locator('.k-tree-row:has-text("Sketch1")').last().click();
 await page.click('.k-cm-big:has-text("Extruded Surface") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 check('Surface-Extrude Property Panel with Sketch1', (await page.locator('[data-testid="surface-sketch"]').inputValue()) === 'a');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -59,7 +59,7 @@ r = await R();
 check('two planar surfaces added (3 surface bodies)', r.surfaces === 3, JSON.stringify(r));
 await page.click('.k-cm-tab:has-text("Surfaces")');
 await page.click('.k-cm-big:has-text("Knit Surface") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('.k-section:has-text("Selections") .k-check:has-text("Create solid") input').check();
 await page.click('.k-pm-ok');
 await settle(page);

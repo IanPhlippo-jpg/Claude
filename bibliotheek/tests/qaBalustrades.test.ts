@@ -5,18 +5,18 @@
  * marktband en de tekeningen (bladen, stukken, montage) hebben geen NaN.
  */
 import { describe, expect, it } from 'vitest';
-import { ontwerp, lengtes, type Ontwerp } from '../../bibliotheek/balustrades/model.mjs';
-import { berekening, combineer, windLast, lasW, keel, keelDun, randBreuk, glasKlemReken, conformiteit, maxAfstand, plaatVoor } from '../../bibliotheek/balustrades/bereken.mjs';
-import { kostprijs, MARKTBAND } from '../../bibliotheek/balustrades/prijzen.mjs';
-import { stuklijst, zaagplan } from '../../bibliotheek/balustrades/stuklijst.mjs';
-import { alleBladen, stukBladen } from '../../bibliotheek/balustrades/tekeningen.mjs';
-import { montageBladen } from '../../bibliotheek/balustrades/montage.mjs';
-import { dossierHtml, lijstenCsv, dossierBladen, btwFactor } from '../../bibliotheek/balustrades/dossier.mjs';
-import { SOORTEN, PROFIEL, ANKER, GLASOPBOUW } from '../../bibliotheek/balustrades/onderdelen.mjs';
-import { NORM, piekstuwdruk, cpNet, trapDriehoek } from '../../bibliotheek/balustrades/normen.mjs';
+import { ontwerp, lengtes, type Ontwerp } from '../balustrades/model.mjs';
+import { berekening, combineer, windLast, lasW, keel, keelDun, randBreuk, glasKlemReken, conformiteit, maxAfstand, plaatVoor } from '../balustrades/bereken.mjs';
+import { kostprijs, MARKTBAND } from '../balustrades/prijzen.mjs';
+import { stuklijst, zaagplan } from '../balustrades/stuklijst.mjs';
+import { alleBladen, stukBladen } from '../balustrades/tekeningen.mjs';
+import { montageBladen } from '../balustrades/montage.mjs';
+import { dossierHtml, lijstenCsv, dossierBladen, btwFactor } from '../balustrades/dossier.mjs';
+import { SOORTEN, PROFIEL, ANKER, GLASOPBOUW } from '../balustrades/onderdelen.mjs';
+import { NORM, piekstuwdruk, cpNet, trapDriehoek } from '../balustrades/normen.mjs';
 import { readFileSync } from 'node:fs';
 // @ts-expect-error: de taatsdeuren zijn plain JavaScript
-import { vlakken } from '../../bibliotheek/taatsdeuren/verbinding.mjs';
+import { vlakken } from '../taatsdeuren/verbinding.mjs';
 
 const VORM: Record<string, Record<string, unknown>> = {
   recht: { vorm: 'recht', L1: 3500 }, hoek: { vorm: 'hoek', L1: 4000, L2: 2500, hoek: 90 }, u: { vorm: 'u', L1: 2000, L2: 3200, L3: 2000, hoek: 90 },

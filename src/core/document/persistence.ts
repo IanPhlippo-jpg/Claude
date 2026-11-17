@@ -10,6 +10,9 @@ export const FILE_EXTENSION = '.kcad';
  * The file format this build writes; older files pass through MIGRATIONS, a newer one opens with a warning.
  * 3 (0.5.15): stable body ids (`<featureId>#<k>`, migrated from `body<N>`), imported mesh positions in base64,
  * and the program version (`app`, `commit`) that wrote the file.
+ * Still 3 in 0.5.16: an Imported body of a STEP file may carry the STEP text of its solid (`step`, docs/32 item 5).
+ * The field is optional and the triangles stay as they were, so an older build opens the file and builds the same
+ * mesh body; only the B-rep kernel reads the exact solid. The meaning of nothing stored before changed: no new format.
  */
 export const FILE_VERSION = 3;
 /** the program version written into every file (vite define; 'dev' where the define is absent) */
@@ -345,18 +348,29 @@ let pendingSince = 0;
  * puts the user's own autosave back, Clear autosave) the waiting copy does not overwrite it */
 let storedAtStart: string | null = null;
 let pageHooked = false;
+/**
+ * Where the autosave goes instead of the browser storage (P2-6): the desktop app writes it to its auto-recover folder
+ * on disk (autoRecover.ts). Without a target (the browser) the copy goes to localStorage, as before.
+ */
+let target: ((doc: Document) => boolean) | null = null;
+export function setAutosaveTarget(fn: ((doc: Document) => boolean) | null): void {
+  target = fn;
+}
+export const hasAutosaveTarget = (): boolean => target !== null;
+/** the browser-storage copy, also the fallback of a target whose write failed */
+export const writeAutosaveToStorage = (doc: Document): boolean => writeAutosave(doc);
 
 /**
  * Schedules the autosave of `doc`: written ≈2 s after the last change (when the page is idle, where the browser
  * says so), at once when the page is hidden or closed. Returns false when there is no storage at all.
  */
 export function autosave(doc: Document): boolean {
-  if (typeof localStorage === 'undefined') return false;
+  if (!target && typeof localStorage === 'undefined') return false;
   const now = Date.now();
   if (!pending) {
     pendingSince = now;
     try {
-      storedAtStart = localStorage.getItem(AUTOSAVE_KEY);
+      storedAtStart = target ? null : localStorage.getItem(AUTOSAVE_KEY);
     } catch {
       storedAtStart = null;
     }
@@ -389,6 +403,7 @@ export function flushAutosave(): boolean {
   const doc = pending;
   pending = null;
   if (!doc) return false;
+  if (target) return target(doc);
   try {
     if (localStorage.getItem(AUTOSAVE_KEY) !== storedAtStart) return false;
   } catch {

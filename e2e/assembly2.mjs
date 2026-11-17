@@ -23,18 +23,18 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8')); delete asm.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm);
-await page.waitForTimeout(2500);
+await settle(page);
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { comps: (s.doc.components ?? []).map((c) => c.name), mates: (s.doc.mates ?? []).length, pats: (s.doc.componentPatterns ?? []).map((p) => p.name), feats: s.doc.features.map((f) => f.name), errors: s.rebuild.errors, snaps: (s.doc.snapshots ?? []).length, comments: (s.doc.comments ?? []).length, markups: (s.doc.markups ?? []).length }; });
 const n0 = (await S()).comps.length;
 
 // New Part / New Assembly
 await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow');
-await page.waitForTimeout(200);
+await settle(page);
 const fly = await page.evaluate(() => [...document.querySelectorAll('.k-menu .k-menu-item')].map((x) => ({ t: x.textContent.trim(), d: x.classList.contains('disabled') || x.getAttribute('aria-disabled') === 'true' })));
 check('Insert Components flyout: New Part, New Assembly, Copy with Mates enabled', ['New Part', 'New Assembly', 'Copy with Mates'].every((l) => fly.some((x) => x.t === l && !x.d)), JSON.stringify(fly));
 await page.click('.k-menu .k-menu-item:has-text("New Assembly")');
-await page.waitForTimeout(800);
+await settle(page);
 let st = await S();
 check('New Assembly adds an empty sub-assembly', st.comps.length === n0 + 1 && st.comps.some((c) => /^Assem\d+\^/.test(c)), JSON.stringify(st.comps));
 
@@ -43,7 +43,7 @@ await page.evaluate(() => { const s = window.__phlippoStore.getState(); const c 
 const m0 = (await S()).mates;
 await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow');
 await page.click('.k-menu .k-menu-item:has-text("Copy with Mates")');
-await page.waitForTimeout(1200);
+await settle(page);
 st = await S();
 check('Copy with Mates copies the component and its mates', st.comps.length === n0 + 2 && st.mates > m0, JSON.stringify({ comps: st.comps.length, mates: [m0, st.mates] }));
 
@@ -52,15 +52,15 @@ await page.evaluate(() => window.__phlippoStore.getState().setDialog('mirrorComp
 await settle(page);
 await page.locator('[data-testid="mirror-comps"] .k-check input').first().check();
 await page.click('[data-testid="mirror-ok"]');
-await page.waitForTimeout(1200);
+await settle(page);
 check('Mirror Components adds the mirrored copy', (await S()).comps.length >= n0 + 3, String((await S()).comps.length - n0));
 
 // Snapshot, Component Preview, Large Assembly Settings
 await page.click('.k-cm-big:has-text("Take Snapshot")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Take Snapshot stores the view (Snapshots folder in the tree)', (await S()).snaps === 1 && (await page.locator('.k-tree-row:has-text("Snapshots")').count()) === 1);
 await page.click('.k-cm-big:has-text("Component Preview Window")');
-await page.waitForTimeout(500);
+await settle(page);
 check('Component Preview Window opens', (await page.locator('[data-testid="component-preview"]').count()) === 1);
 await page.evaluate(() => window.__phlippoStore.getState().setDialog(null));
 await page.click('.k-cm-big:has-text("Large Assembly Settings") .k-cm-main').catch(async () => page.click('.k-cm-big:has-text("Large Assembly Settings")'));
@@ -88,18 +88,18 @@ const belt = await page.evaluate(() => {
   return out;
 });
 check('Belt/Chain makes a belt around the picked pulleys', belt.feats.includes('belt') && belt.curve && !Object.keys(belt.err).length, JSON.stringify(belt));
-await page.waitForTimeout(1500);
+await settle(page);
 
 // Make Multibody Part asks and opens a part with one body per component
 await page.click('.k-cm-big:has-text("Make Multibody Part")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Make Multibody Part asks first', (await page.locator('[data-testid="ask"]').count()) === 1);
 await page.keyboard.press('Escape');
 
 // Share tab: Package Files, Share, Markup, Comments
 await page.click('.k-cm-tab:text-is("Share")');
 await page.click('.k-cm-big:has-text("Package Files")');
-await page.waitForTimeout(300);
+await settle(page);
 const files = await page.locator('[data-testid="pack-files"] tbody tr').count();
 check('Package Files lists the assembly and its parts', files >= 5, String(files));
 await page.click('[data-testid="packandgo"] button:has-text("Cancel")');
@@ -109,7 +109,7 @@ await page.click('[data-testid="share"] button:has-text("Close")');
 await page.click('.k-cm-big:has-text("Comments")');
 await page.fill('[data-testid="comment-text"]', 'Check the screw length');
 await page.click('[data-testid="comment-add"]');
-await page.waitForTimeout(300);
+await settle(page);
 check('Comments: a comment is added', (await S()).comments === 1 && /screw length/.test((await page.locator('[data-testid="comment-list"]').textContent()) ?? ''));
 await page.click('[data-testid="comments"] button:has-text("Close")');
 await page.click('.k-cm-big:has-text("Markup")');
@@ -119,7 +119,7 @@ await page.mouse.down();
 await page.mouse.move(box.x + 420, box.y + 340, { steps: 6 });
 await page.mouse.move(box.x + 520, box.y + 300, { steps: 6 });
 await page.mouse.up();
-await page.waitForTimeout(300);
+await settle(page);
 check('Markup: a pen stroke is kept with the document', (await S()).markups === 1);
 await page.click('.k-cm-big:has-text("Markup")');
 await page.screenshot({ path: `${OUT}/asm2-markup.png` });

@@ -38,15 +38,15 @@ const pickFace = (n, bodyIndex = 0, nearest = null) => S(({ n, bodyIndex, neares
 const insert = async (label) => {
   await page.hover('.k-brand');
   await page.click('.k-mb-menu:has-text("Insert")');
-  await page.waitForTimeout(150);
+  await settle(page);
   await menuPath(page, label).click();
-  await page.waitForTimeout(400);
+  await settle(page);
 };
 const field = async (testid, v) => {
   const inp = page.locator(`[data-testid="${testid}"] input`).first();
   await inp.fill(String(v));
   await inp.press('Tab');
-  await page.waitForTimeout(400);
+  await settle(page);
 };
 /** puts the open feature's position at a corner of the body's face plane: (+-1, +-1) picks the corner */
 const placeAt = (cu, cv) => S(({ cu, cv }) => {
@@ -60,7 +60,7 @@ const placeAt = (cu, cv) => S(({ cu, cv }) => {
   }
   st.updateFeatureDraft({ point: { x: cu < 0 ? lo[0] + 14 : hi[0] - 14, y: cv < 0 ? lo[1] + 14 : hi[1] - 14 } });
 }, { cu, cv });
-const ok = async () => { await S(() => window.__phlippoStore.getState().commitFeature()); await page.waitForTimeout(700); };
+const ok = async () => { await S(() => window.__phlippoStore.getState().commitFeature()); await settle(page); };
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
@@ -96,7 +96,7 @@ check('Elliptical dome is offered on a round face, Continuous dome is not', (awa
 const clip = { x: 500, y: 250, width: 1300, height: 650 };
 const before = await page.screenshot({ clip });
 await field('dome-distance', 6);
-await page.waitForTimeout(800);
+await settle(page);
 check('the dome shows in the model while the panel is open (preview)', !before.equals(await page.screenshot({ clip })));
 await page.screenshot({ path: `${OUT}/plastics-dome-pm.png` });
 await ok();
@@ -108,7 +108,7 @@ check('Dome1 is in the tree with its icon', (await page.locator('.k-tree-row:has
 await S(() => { const st = window.__phlippoStore.getState(); const f = st.doc.features.find((x) => x.type === 'dome'); st.editFeature(f.id); });
 await settle(page);
 await page.locator('[data-testid="dome-reverse"]').click();
-await page.waitForTimeout(400);
+await settle(page);
 await ok();
 const v2 = (await volumes())[0];
 check('Reverse Direction makes the dome a dimple in the pad', Math.abs(v0 - v2 - cap) / cap < 0.03, `${v0 - v2}`);
@@ -118,7 +118,7 @@ check('no rebuild errors after the dome', (await errs()) === '{}', await errs())
 await pickFace(up, 0, [-25, 10, 0].map((x, k) => (up[k] ? 10 : x)));
 await insert('Fastening Feature ▸ Mounting Boss…');
 await placeAt(-1, -1);
-await page.waitForTimeout(500);
+await settle(page);
 check('Insert ▸ Fastening Feature ▸ Mounting Boss… opens its panel', (await page.locator('.k-pm-host').innerText()).includes('Mounting Boss') && (await page.locator('[data-testid="mb-fins"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/plastics-boss-pm.png` });
 const vb0 = (await volumes())[0];
@@ -206,9 +206,9 @@ const rim = (featureId, sign) => S(({ featureId, sign, n }) => {
 await insert('Fastening Feature ▸ Lip/Groove…');
 check('the Lip/Groove panel asks for the groove rim first', (await page.locator('[data-testid="lg-groove"]').getAttribute('class')).includes('focus'));
 await rim('e1', -1);
-await page.waitForTimeout(200);
+await settle(page);
 await rim('e2', 1);
-await page.waitForTimeout(500);
+await settle(page);
 check('groove and lip rim faces are filled in', /Face<\d+>/.test(await page.locator('[data-testid="lg-groove"]').innerText()) && /Face<\d+>/.test(await page.locator('[data-testid="lg-lip"]').innerText()));
 await page.screenshot({ path: `${OUT}/plastics-lg-pm.png` });
 await ok();

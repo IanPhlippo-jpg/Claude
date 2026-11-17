@@ -3,6 +3,7 @@
 // een bordje en een doorsnede. Nodig: de app met VITE_TEST_HOOKS op E2E_URL (standaard poort 5184).
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -22,11 +23,11 @@ const open = async (d, wacht = 3000) => {
   const fout = await page.evaluate(() => window.__phlippoStore.getState().rebuild.errors ?? {});
   if (Object.keys(fout).length) errors.push(`rebuild: ${JSON.stringify(fout).slice(0, 400)}`);
 };
-const kijk = async (toets, naam) => { await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(2000); await page.screenshot({ path: `e2e-out/${naam}.png` }); };
+const kijk = async (toets, naam) => { await page.keyboard.press(toets); await settle(page); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(2000); await page.screenshot({ path: `e2e-out/${naam}.png` }); }; // fixed: shot tool, time for the light and the exact bodies before the photo
 const zoom = async (x, y, n, naam) => {
   await page.mouse.move(x, y);
   for (let i = 0; i < n; i++) { await page.mouse.wheel(0, 240); await page.waitForTimeout(250); }
-  await page.mouse.move(700, 1000); await page.waitForTimeout(2000);
+  await page.mouse.move(700, 1000); await page.waitForTimeout(2000); // fixed: shot tool, time for the light and the exact bodies before the photo
   await page.screenshot({ path: `e2e-out/${naam}.png` });
 };
 const F = 'voorbeelden/treinverlichting/Kabeldoos.kcad';
@@ -47,18 +48,18 @@ if (doe('doos')) {
   await kijk('Control+7', 'trein-goten');
   await kijk('Control+5', 'trein-doos-boven');
   // de goten van dichtbij: de sleuven voor de klemmen, de klikvingers, de zijgoot met een tule
-  await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
+  await page.keyboard.press('Control+7'); await settle(page); await page.keyboard.press('f'); await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await zoom(720, 470, 6, 'trein-kabels');
   // een gootdeksel opgetild boven zijn goot (de nokken en de klikgroef)
   const d = zonder(re(String.raw`d2|sd\d|` + PLAAT));
   for (const c of d.components) if (/^g[46]$/.test(c.id)) c.position = [c.position[0], c.position[1] + 25, c.position[2]];
   await open(d);
-  await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
+  await page.keyboard.press('Control+7'); await settle(page); await page.keyboard.press('f'); await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
   await zoom(900, 500, 4, 'trein-gootdeksel');
   // doorsnede door rij 3 (de goten, de ring met zijn bordjes en een gootdeksel in doorsnede)
   await open(zonder(/^(sd\d)$/));
   await page.evaluate(() => window.__phlippoStore.setState({ sectionView: { plane: 'right', offset: 0, flip: false, cap: true } }));
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(2000); // fixed: shot tool, time for the light and the exact bodies before the photo
   await kijk('Control+7', 'trein-doorsnede');
   await page.evaluate(() => window.__phlippoStore.setState({ sectionView: null }));
 }
@@ -85,12 +86,12 @@ if (doe('fable')) {
   // PCA9685 erboven; ZOOM_LIP / ZOOM_DC = "x,y,n" (schermpunt en aantal stappen inzoomen)
   const pt = (v, d) => (v ?? d).split(',').map(Number);
   await open(alleen(/^(d1|b\d+(k\d|e\d|r)?)$/));
-  await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
+  await page.keyboard.press('Control+7'); await settle(page); await page.keyboard.press('f'); await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
   { const [x, y, n] = pt(process.env.ZOOM_LIP, '760,420,7'); await zoom(x, y, n, 'trein-klemlippen'); }
   await open(alleen(/^(d1|b\d+(k\d|e\d|r)?)$/));
   await kijk('Control+7', 'trein-bordjes-lippen');
   await open(alleen(new RegExp(`^(d1|w1|${PLAAT})$`)));
-  await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
+  await page.keyboard.press('Control+7'); await settle(page); await page.keyboard.press('f'); await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
   { const [x, y, n] = pt(process.env.ZOOM_DC, '640,640,5'); await zoom(x, y, n, 'trein-dcbus'); }
   await open(alleen(/^(w1|mp|mx[1237][ab]?_\d+|mt2_\d+|mk2_\d+)$/), 4000);
   await kijk('Control+7', 'trein-voeding-dcbus');

@@ -6,7 +6,7 @@ import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track, skip, dontSave } from './lib/check.mjs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -22,7 +22,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 // a plate 80 × 60 with a horizontal dimension of 80
 await S(() => {
@@ -69,14 +69,14 @@ const dimId = await S(() => { const sk = window.__phlippoStore.getState().doc.sk
 await S((id) => { window.__phlippoStore.getState().setSelection([]); window.__phlippoStore.getState().selectConstraint(id); }, dimId);
 const vp = await page.locator('.k-viewport').boundingBox();
 await page.mouse.click(vp.x + vp.width - 150, vp.y + vp.height - 120, { button: 'right' });
-await page.waitForTimeout(200);
+await settle(page);
 const head = await page.locator('.k-menu-header').first().innerText().catch(skip('inventory47.mjs:67', ''));
 check('the shortcut menu starts with the dimension heading Dimension (D1@Sketch1(80.00))', head.includes('D1@Sketch1(80.00)'), head);
 check('Link Values…, Driven and Mark For Drawing are offered for the dimension', (await page.locator('.k-menu-item:has-text("Link Values")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Driven")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Mark For Drawing")').count()) === 1);
 await page.locator('.k-menu-item:has-text("Sketch Entities")').hover();
-await page.waitForTimeout(150);
+await frames(page, 2);
 await page.locator('.k-menu-sub .k-menu-item:has-text("Circle")').first().click();
-await page.waitForTimeout(150);
+await settle(page);
 check('Sketch Entities ▸ Circle starts the Circle tool', (await S(() => window.__phlippoStore.getState().tool)) === 'circle');
 await S(() => window.__phlippoStore.getState().setTool('select'));
 
@@ -86,7 +86,7 @@ await settle(page);
 const pointX = () => S(() => { const sk = window.__phlippoStore.getState().doc.sketches.s1; const c = Object.values(sk.constraints).find((k) => k.kind === 'hDistance'); return sk.points[c.refs[1]].x; });
 const xBefore = await pointX();
 await page.locator('[data-testid="modify-reverse"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 const xAfter = await pointX();
 check('Reverse the sense moves the point to the other side (80 → -80)', Math.round(xBefore) === 80 && Math.round(xAfter) === -80, `${xBefore} → ${xAfter}`);
 await S(() => { const s = window.__phlippoStore.getState(); s.setModify(null); s.undo(); });
@@ -97,12 +97,12 @@ await S(() => window.__phlippoStore.getState().setTool('segment'));
 await settle(page);
 const topMid = await S(() => window.__phlippoProject({ x: 40, y: 60 }));
 await page.mouse.click(topMid.x, topMid.y);
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="segment-segments"]').check();
 await page.locator('.k-pm-host .k-pm-valuerow:has(input) input').first().fill('3');
 await page.locator('.k-pm-host .k-pm-valuerow:has(input) input').first().press('Tab');
 await page.locator('[data-testid="segment-apply"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 const linesAfter = await S(() => { const sk = window.__phlippoStore.getState().doc.sketches.s1; return sk.entityOrder.filter((id) => sk.entities[id].kind === 'line').length; });
 check('Segment cuts the top line into three segments', linesAfter === linesBefore + 2, `${linesBefore} → ${linesAfter}`);
 await S(() => { const s = window.__phlippoStore.getState(); s.undo(); s.setTool('select'); });
@@ -117,9 +117,9 @@ check('a click on Boss-Extrude1 shows its context toolbar (Edit Feature, Edit Sk
 const bb = await bar.boundingBox();
 if (bb) {
   await page.mouse.move(bb.x + 50, bb.y + bb.height / 2);
-  await page.waitForTimeout(150);
+  await frames(page, 3);
   await page.locator('[data-testid="ctx-suppress"]').click();
-  await page.waitForTimeout(300);
+  await settle(page);
 }
 check('Suppress on the context toolbar suppresses the feature', await S(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'e1').suppressed));
 await S(() => window.__phlippoStore.getState().undo());
@@ -129,7 +129,7 @@ await settle(page);
 await S(() => { const s = window.__phlippoStore.getState(); s.startMoveBody(); s.updateFeatureDraft({ copy: true, copies: 2, translate: [100, 0, 0] }); s.commitFeature(); });
 await settle(page);
 await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click();
-await page.waitForTimeout(150);
+await settle(page);
 const names = await page.locator('.k-tree-row[data-id^="body-"]').allInnerTexts();
 check('two bodies of one feature are named Body-Move/Copy1[1] and [2]', names.some((n) => n.includes('Body-Move/Copy1[1]')) && names.some((n) => n.includes('Body-Move/Copy1[2]')), JSON.stringify(names));
 await S(() => window.__phlippoStore.getState().undo());
@@ -139,10 +139,10 @@ await settle(page);
 await S(() => window.__phlippoStore.getState().setDialog('equations'));
 await settle(page);
 await page.selectOption('[data-testid="eq-add-suppression"]', { label: '"Boss-Extrude1"' });
-await page.waitForTimeout(150);
+await settle(page);
 check('Equations ▸ Features: "Boss-Extrude1" evaluates to Suppressed', (await page.locator('.k-eq-table tr:has-text("Boss-Extrude1")').first().innerText()).includes('Suppressed'));
 await page.locator('.k-dialog button:has-text("OK")').click();
-await page.waitForTimeout(400);
+await settle(page);
 check('OK suppresses Boss-Extrude1 through the equation', await S(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'e1').suppressed));
 await S(() => window.__phlippoStore.getState().setEquations([]));
 await S(() => window.__phlippoStore.getState().toggleSuppress('e1'));
@@ -156,10 +156,10 @@ await S(() => window.__phlippoStore.getState().cancelSectionView());
 await settle(page);
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
-await page.waitForTimeout(150);
+await settle(page);
 check('View offers Redraw, Full Screen and the three Tangent Edges choices', (await page.locator('.k-menu-item:has-text("Redraw")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Full Screen")').count()) === 1 && (await menuPath(page, 'Display ▸ Tangent Edges Visible').count()) === 1 && (await page.locator('.k-menu-sub .k-menu-item:has-text("Tangent Edges")').count()) === 3);
 await page.locator('.k-menu-sub .k-menu-item:has-text("Tangent Edges Removed")').click();
-await page.waitForTimeout(150);
+await settle(page);
 check('Tangent Edges Removed is stored', await S(() => window.__phlippoStore.getState().prefs['view.tangentEdges'] === 'removed'));
 
 // ---- Import Diagnostics: a box of loose triangles with a hair gap is healed
@@ -181,7 +181,7 @@ await page.waitForSelector('[data-testid="import-diagnostics"]', { timeout: 5000
 const gapsOf = () => page.locator('[data-testid="import-diagnostics"] tbody td').nth(2).innerText().catch(skip('inventory47.mjs:175', ''));
 const gaps0 = await gapsOf();
 await page.locator('[data-testid="import-heal"]').click();
-await page.waitForTimeout(400);
+await settle(page);
 const gaps1 = await gapsOf();
 check('Import Diagnostics finds the gaps and Attempt to Heal All closes them', Number(gaps0) > 0 && Number(gaps1) === 0, `${gaps0} → ${gaps1}`);
 await page.screenshot({ path: `${OUT}/inventory47.png` });
@@ -203,7 +203,7 @@ await S(() => {
 await dontSave(page); // Save changes? → Don't Save, when it asks
 await settle(page);
 await page.locator('.k-tree-row:has-text("Base-Flange1") .caret').first().click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Base-Flange1 holds BaseBend1 and BaseBend2', (await page.locator('.k-tree-row:has-text("BaseBend1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("BaseBend2")').count()) === 1);
 
 await browser.close();

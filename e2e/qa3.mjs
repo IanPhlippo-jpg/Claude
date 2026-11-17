@@ -7,7 +7,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -25,12 +25,12 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(400);
+await settle(page);
 
 // ---- Welcome: the independence notice, no trademarked product names anywhere in the visible UI (F72, F50)
 check('Welcome shows the independence notice', /not affiliated with or endorsed by Dassault Systèmes SolidWorks Corp\./.test(await page.locator('[data-testid="welcome-legal"]').innerText()));
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(500);
+await settle(page);
 const tmNames = /FeatureManager|PropertyManager|CommandManager|ConfigurationManager|DisplayManager|MotionManager|DimXpert|TolAnalyst|SimulationXpress|FeatureXpert|DraftXpert|Instant3D|RealView|SpeedPak|eDrawings|Hole Wizard|Toolbox|Design Library|Lifecycle and Collaboration|Smart Fasteners|Tree Tree|tree tree|a Auto/;
 const visibleNames = await S(() => {
   const texts = [document.body.innerText];
@@ -46,7 +46,7 @@ check('empty part: Fillet greyed', await disabled('.k-cm-big:has-text("Fillet") 
 check('empty part: Shell and Mirror greyed', (await disabled('.k-cm-small:has-text("Shell")')) && (await disabled('.k-cm-small:has-text("Mirror")')));
 check('the document kind is a part (createDocument)', (await S(() => window.__phlippoStore.getState().doc.kind ?? 'part')) === 'part');
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
-await page.waitForTimeout(200);
+await settle(page);
 check('empty part: Base Flange stays active, Edge Flange / Unfold / Flatten greyed', !(await disabled('.k-cm-big:has-text("Base Flange") .k-cm-main')) && (await disabled('.k-cm-big:has-text("Edge Flange") .k-cm-main')) && (await disabled('.k-cm-small:has-text("Unfold")')) && (await disabled('.k-cm-small:has-text("Flatten")')));
 await shot('qa3-f14-sheetmetal-greyed');
 
@@ -68,7 +68,7 @@ await S(() => {
 });
 await settle(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
-await page.waitForTimeout(200);
+await settle(page);
 check('a solid without sheet metal: Convert to Sheet Metal active, Edge Flange and Normal Cut greyed', !(await disabled('.k-cm-small:has-text("Convert to Sheet Metal")')) && (await disabled('.k-cm-big:has-text("Edge Flange") .k-cm-main')) && (await disabled('.k-cm-small:has-text("Normal Cut")')));
 await page.click('.k-cm-tab:has-text("Features")');
 check('with a body: Extruded Cut and Fillet active', !(await disabled('.k-cm-big:has-text("Extruded Cut") .k-cm-main')) && !(await disabled('.k-cm-big:has-text("Fillet") .k-cm-main')));
@@ -93,13 +93,13 @@ check('without the hooks: F (Zoom to Fit) still fits the model', fitWorks.gone &
 await page.click('.k-cm-tab:has-text("Render Tools")');
 await settle(page);
 await page.click('.k-cm-big:has-text("Final Render") .k-cm-main');
-await page.waitForTimeout(1500);
+await page.waitForFunction(() => !!window.__qa.store.getState().finalImage, undefined, { timeout: 30000 }).catch(() => undefined);
 check('without the hooks: Final Render makes the image', await S(() => !!window.__qa.store.getState().finalImage));
 await S(() => window.__qa.store.getState().setFinalImage?.(null));
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 });
-await page.waitForTimeout(600);
+await settle(page);
 check('the hooks come back after a reload (test build)', await S(() => typeof window.__phlippoCamera === 'object' && typeof window.__phlippoZoomFit === 'function'));
 
 // ---- F61: after a drawing was shown, F fits the part again (not the sheet)
@@ -178,7 +178,7 @@ const hiddenAfter = await S(() => window.__phlippoStore.getState().doc.component
 check('Return to Assembly keeps the undo from before Edit Component (F39)', back.kind === 'assembly' && back.canUndo && back.hidden === true && !hiddenAfter, JSON.stringify({ back, hiddenAfter }));
 const inEdit = await S(() => { window.__phlippoStore.getState().editComponent('c1'); return !!window.__phlippoStore.getState().editContext; });
 check('Edit Component again from the assembly', inEdit);
-await page.waitForTimeout(400);
+await settle(page);
 await S(() => window.__phlippoStore.getState().openDocument(window.__phlippoKit.createDocument('Nieuw')));
 await settle(page);
 const f74 = await S(() => ({ ctx: window.__phlippoStore.getState().editContext === null, name: window.__phlippoStore.getState().doc.name, bar: [...document.querySelectorAll('.k-viewport button')].some((b) => b.textContent === 'Return to Assembly') }));
@@ -188,7 +188,7 @@ check('Open/New during Edit Component ends the edit context (F74)', f74.ctx && f
 await S(() => { const st = window.__phlippoStore.getState(); st.setPrefs({ ...st.prefs, 'addin.standardParts': true }); window.__phlippoStore.setState({ dirty: true }); st.setTaskPane('library'); });
 await settle(page);
 await page.locator('[data-testid="toolbox-folder"] button:has-text("Open")').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Standard Parts Open with unsaved changes asks "Save changes?"', /Save changes to Nieuw\?/.test(await page.locator('[data-testid="ask"]').innerText().catch(skip('qa3.mjs:191', ''))));
 await page.locator('[data-testid="ask"] button:has-text("Cancel"), [data-testid="ask-cancel"]').first().click().catch(() => page.keyboard.press('Escape'));
 await S(() => window.__phlippoStore.getState().setTaskPane('library'));
@@ -198,7 +198,7 @@ await S(() => { window.__phlippoStore.setState({ dirty: false }); window.__phlip
 await settle(page);
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const labels = await page.locator('.k-plane-label').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { t: e.textContent, x: r.x, y: r.y, w: r.width, h: r.height }; }));
 const overlap = labels.some((a, i) => labels.some((b, j) => j > i && a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h));
 check('the three plane labels are shown without overlap', labels.length === 3 && !overlap, JSON.stringify(labels));
@@ -206,9 +206,9 @@ await shot('qa3-f66-plane-labels');
 const top = labels.find((l) => l.t === 'Top Plane');
 if (top) {
   await page.mouse.move(top.x + top.w / 2, top.y + top.h / 2);
-  await page.waitForTimeout(150);
+  await frames(page, 3);
   await page.mouse.click(top.x + top.w / 2, top.y + top.h / 2);
-  await page.waitForTimeout(500);
+  await settle(page);
 }
 const planeOf = await S(() => { const s = window.__phlippoStore.getState(); return s.activeSketchId ? s.doc.sketches[s.activeSketchId].plane : null; });
 check('a click on the "Top Plane" label sketches on the Top Plane', planeOf === 'top', String(planeOf));
@@ -228,14 +228,14 @@ await settle(page);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-tree-row:has-text("Sketch1")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const depthField = page.locator('.k-pm-host .k-section:has-text("Direction 1") input.k-num').first();
 const depth0 = await S(() => window.__phlippoStore.getState().featureEdit?.draft.depth);
 await depthField.fill('1e300');
-await page.waitForTimeout(150);
+await settle(page);
 const depthHuge = await S(() => window.__phlippoStore.getState().featureEdit?.draft.depth);
 await depthField.fill('2*25+5');
-await page.waitForTimeout(150);
+await settle(page);
 const depthExpr = await S(() => window.__phlippoStore.getState().featureEdit?.draft.depth);
 check('a depth of 1e300 is refused (the value stays)', depthHuge === depth0, `${depth0} → ${depthHuge}`);
 check('2*25+5 gives a depth of 55', Math.abs(depthExpr - 55) < 1e-9, String(depthExpr));

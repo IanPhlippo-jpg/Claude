@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { skip } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: 1.5, acceptDownloads: true });
@@ -54,10 +55,10 @@ const reset = async (doc) => {
       S.setState({ selection: ids.slice(0, 2).map((id) => ({ kind: 'entity', id })) });
     }
   }, { doc: JSON.stringify(doc), sketch: currentKind === 'sketch' });
-  await page.waitForTimeout(150);
+  await settle(page);
 };
 const check = async (kind, label) => {
-  await page.waitForTimeout(300);
+  await settle(page);
   const crash = await page.locator('[data-testid="crash"]').count();
   if (errs.length || crash) {
     report.push({ doc: kind, command: label, errors: [...new Set(errs)].slice(0, 3), crash: !!crash });
@@ -71,12 +72,12 @@ for (const [kind, doc] of docs) {
   if (only && only !== kind) continue;
   currentKind = kind;
   await reset(doc);
-  await page.waitForTimeout(1500);
+  await settle(page);
   const tabs = await page.locator('.k-cm-tab').allTextContents();
   for (let ti = 0; ti < tabs.length; ti++) {
     await reset(doc);
     await page.locator('.k-cm-tab').nth(ti).click();
-    await page.waitForTimeout(150);
+    await settle(page);
     // every enabled command of the tab (big, small, menu block), then every flyout item
     const labels = await page.evaluate(() => [...document.querySelectorAll('.k-cm-body button.k-cm-main, .k-cm-body button.k-cm-small, .k-cm-body button.k-cm-mbbtn')].map((b) => (b.getAttribute('data-tip') || b.textContent || '').trim()));
     for (let i = 0; i < labels.length; i++) {

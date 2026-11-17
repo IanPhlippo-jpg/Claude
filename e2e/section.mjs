@@ -20,12 +20,12 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 const a = await P(-40, -30), b = await P(40, 30);
 await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
@@ -43,7 +43,7 @@ await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
 await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('20');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page);
 await page.keyboard.press('f');
@@ -53,7 +53,7 @@ check('plate with a hole drawn', !!full && full.max[0] - full.min[0] > 70, JSON.
 
 // Section View from the heads-up toolbar
 await page.click('.k-hud button[data-tip="Section View"]').catch(() => page.click('[data-tip="Section View"]'));
-await page.waitForTimeout(400);
+await settle(page);
 check('Section View PM opens (Section Method, Section Options, Section 1)', (await page.locator('[data-testid="section-pm"]').count()) === 1 && (await page.locator('.k-section:has-text("Section 1")').count()) === 1);
 // Front plane section at offset 0: the drawn body is only the half behind the plane (z <= 0)
 let cut = await drawnBox();
@@ -62,11 +62,11 @@ check('the drawn body is cut at the Front plane while editing', !!cut && cut.max
 await page.click('.k-pm-stylebtn[data-tip="Right Plane"]');
 await page.locator('[data-testid="section-pm"] input.k-num').first().fill('10');
 await page.locator('[data-testid="section-pm"] input.k-num').first().press('Enter');
-await page.waitForTimeout(500);
+await settle(page);
 cut = await drawnBox();
 check('Right plane, offset 10: cut at x = 10', !!cut && Math.abs(cut.max[0] - 10) < 0.5, JSON.stringify(cut));
 await page.click('.k-pm-stylebtn[data-tip="Flip Direction"]');
-await page.waitForTimeout(500);
+await settle(page);
 cut = await drawnBox();
 check('Flip keeps the other side (x >= 10)', !!cut && Math.abs(cut.min[0] - 10) < 0.5, JSON.stringify(cut));
 await shot('sec1-section-view');
@@ -80,7 +80,7 @@ const real = await page.evaluate(() => { const b = window.__phlippoStore.getStat
 check('the model itself is untouched', real < -39, String(real));
 // toggle off
 await page.click('[data-tip="Section View"]');
-await page.waitForTimeout(400);
+await settle(page);
 const after = await drawnBox();
 check('clicking the button again switches the section off', !!after && after.min[0] < -39 && !(await page.evaluate(() => window.__phlippoStore.getState().sectionView)), JSON.stringify(after));
 

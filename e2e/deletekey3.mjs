@@ -21,12 +21,12 @@ if (!exe) {
   await page.reload();
   await page.waitForSelector('.k-viewport');
   await page.click('.k-doctype:has-text("Part")');
-} else await page.waitForTimeout(6000);
+} else await page.waitForTimeout(6000); // fixed: the installed app starts up
 // the installed app holds the user's own autosave: keep a copy and put it back at the end
 const savedAutosave = exe ? await page.evaluate(() => localStorage.getItem('phlippo.autosave')) : null;
 const doc = JSON.parse(readFileSync(new URL('./fixtures/user-part1.json', import.meta.url), 'utf8'));
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), doc);
-await page.waitForTimeout(1500);
+await page.waitForTimeout(1500); // fixed: freeze check, the wait must not run inside a page that may hang
 await alive('open the part');
 const sid = Object.values(doc.sketches).find((s) => s.name === 'Sketch2').id;
 const t0 = Date.now();
@@ -41,21 +41,21 @@ for (const kind of ['line', 'point', 'all']) {
     s.setSelection(sel);
   }, [sid, kind]);
   await page.keyboard.press('Delete');
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(500); // fixed: freeze check, the wait must not run inside a page that may hang
   await alive(`Delete ${kind}`);
   await page.keyboard.press('Control+z');
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(500); // fixed: freeze check, the wait must not run inside a page that may hang
   await alive(`Undo after deleting ${kind}`);
 }
 await page.evaluate(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(500);
+await page.waitForTimeout(500); // fixed: freeze check, the wait must not run inside a page that may hang
 for (const name of ['Fillet1', 'Sketch2', 'Boss-Extrude1', 'Sketch1']) {
   await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), doc);
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(800); // fixed: freeze check, the wait must not run inside a page that may hang
   const id = doc.features.find((f) => f.name === name)?.id;
   await page.evaluate((id) => window.__phlippoStore.getState().setSelectedFeature(id), id);
   await page.keyboard.press('Delete');
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(1200); // fixed: freeze check, the wait must not run inside a page that may hang
   await alive(`Delete feature ${name}`);
   const st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { feats: s.doc.features.map((f) => f.name), dialog: s.dialog, msgs: (s.messages ?? []).slice(-2) }; });
   console.log('   ', JSON.stringify(st));

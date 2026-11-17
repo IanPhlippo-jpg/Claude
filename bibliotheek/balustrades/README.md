@@ -123,7 +123,7 @@ De regels onder het dak zijn **AANNAMES**: Buildwise en de Nederlandse Bbl zegge
 ```bash
 node bibliotheek/balustrades/maak-web.mjs <map>           # index.html + js/ (ook de gebruikte taatsdeuren-modules)
 node bibliotheek/balustrades/maak-presentatie.mjs [map]   # presentatie/uit/Balustrades.html (esbuild, three gebundeld)
-npx vitest run src/qa/qaBalustrades.test.ts               # 490 tests, ± 6 s (ook in npm run test:voorbeelden)
+npx vitest run bibliotheek/tests/qaBalustrades.test.ts              # 490 tests, ± 6 s (ook in npm run test:bibliotheek)
 npm run typecheck
 ```
 

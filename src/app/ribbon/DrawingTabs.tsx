@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { BigButton as Big, Group, SmallButton as Small } from './Ribbon';
 import { DRAWING_BLOCKS, startEmptyView } from '../drawing/DrawingExtras';
+import { startReplaceModel } from '../drawing/replaceModelCommand';
 
 /** View Layout tab of a drawing, by design. */
 export function ViewLayoutTab() {
@@ -32,6 +33,9 @@ export function ViewLayoutTab() {
           <Small label="Alternate Position View" icon={<Icon.ModelView />} active={de?.mode === 'altPosition'} onClick={() => (de?.mode === 'altPosition' ? st.cancelDrawingEdit() : st.startAltPosition())} />
           <Small label="Empty View" icon={<Icon.Sheet />} active={!!de?.emptyView} onClick={() => startEmptyView(false)} />
           <Small label="Predefined View" icon={<Icon.Sheet />} active={!!de?.predefined} onClick={() => startEmptyView(true)} />
+        </div>
+        <div className="k-cm-col">
+          <Small label="Replace Model" icon={<Icon.ModelView />} onClick={() => startReplaceModel()} />
         </div>
       </Group>
     </>

@@ -6,7 +6,7 @@
 export type PrefValue = boolean | number | string;
 
 export const DEFAULT_PREFS: Record<string, PrefValue> = {
-  'general.recentMax': 50, 'general.includeOpenedFromOthers': false, 'general.openLastAtStartup': 'Never', 'general.inputDimensionValue': true, 'general.singleCommandPerPick': true,
+  'general.recentMax': 50, 'general.includeOpenedFromOthers': false, 'general.openLastAtStartup': 'Never', 'general.inputDimensionValue': true, 'general.singleCommandPerPick': false,
   'general.systemSeparator': true, 'general.separator': '.', 'general.confirmationCorner': true, 'general.autoShowPM': true, 'general.autoSizePM': true,
   'general.autoFixFillets': true, 'general.freezeBar': false, 'general.rebuildError': 'Prompt', 'general.componentDescription': 'Description', 'general.technicalAlerts': true,
   'mbd.autoShow': true, 'mbd.hideWhenRotating': false,
@@ -14,7 +14,7 @@ export const DEFAULT_PREFS: Record<string, PrefValue> = {
   'drawings.displayStyle': 'Hidden lines removed', 'drawings.tangentEdges': 'Visible', 'drawings.quality': 'High quality', 'drawings.hatch': 'Hatch', 'drawings.hatchPattern': 'ISO (Steel)', 'drawings.hatchScale': 1, 'drawings.hatchAngle': 0, 'drawings.perf.detailedPreview': true, 'drawings.perf.includeHidden': false,
   'colors.iconColors': 'Default', 'colors.background': 'Light', 'colors.scheme': 'Blue', 'colors.defaultAppearance': 'color', 'colors.defaultScene': '3 point faded', 'colors.backgroundAppearance': 'Use document scene background', 'colors.drawingsPaper': false, 'colors.shadedWithEdges': false, 'colors.editParts': true, 'colors.changedDims': false, 'colors.envelopes': 'Semi Transparent',
   'sketch.autoRotate': true, 'sketch.fullyDefined': false, 'sketch.arcCenterpoints': true, 'sketch.entityPoints': true, 'sketch.promptClose': true, 'sketch.sketchOnNewPart': false, 'sketch.overrideDims': false, 'sketch.displayPlaneShaded': true, 'sketch.virtualSharps': true, 'sketch.splineHandles': true, 'sketch.splinePolygon': false, 'sketch.ghostImage': true, 'sketch.curvatureComb': true, 'sketch.numericInput': false, 'sketch.numericInputOnlyValue': false, 'sketch.previewDim': true, 'sketch.promptDriven': true, 'sketch.setDrivenDefault': true, 'sketch.autoSolveThreshold': 2000,
-  'snaps.enableSnapping': true, 'snaps.modelGeometry': true, 'snaps.automaticRelations': true, 'snaps.endPoints': true, 'snaps.centerPoints': true, 'snaps.midPoints': true, 'snaps.quadrantPoints': true, 'snaps.intersections': true, 'snaps.nearest': true, 'snaps.tangent': true, 'snaps.perpendicular': true, 'snaps.parallel': true, 'snaps.hv': true, 'snaps.hvPoints': true, 'snaps.length': true, 'snaps.grid': false, 'snaps.gridOnlyWhenDisplayed': true, 'snaps.angle': false, 'snaps.snapAngle': 45,
+  'snaps.enableSnapping': true, 'snaps.modelGeometry': true, 'snaps.automaticRelations': true, 'snaps.endPoints': true, 'snaps.centerPoints': true, 'snaps.midPoints': true, 'snaps.quadrantPoints': true, 'snaps.intersections': true, 'snaps.nearest': true, 'snaps.tangent': true, 'snaps.perpendicular': true, 'snaps.parallel': true, 'snaps.hv': true, 'snaps.hvPoints': true, 'snaps.length': false, 'snaps.grid': false, 'snaps.gridOnlyWhenDisplayed': true, 'snaps.angle': false, 'snaps.snapAngle': 45,
   'display.hiddenEdges': 'Solid', 'display.tangentEdges': 'As visible', 'display.edgeMode': 'HLR', 'display.optimizeThin': false, 'display.assemblyTransparency': 'Opaque assembly', 'display.transparencyLevel': 75, 'display.antialias': 'Anti-alias edges/sketches', 'display.shadedFaceHighlighting': true, 'display.highlightAllEdges': false, 'display.dynamicHighlight': true, 'display.tempAxes': true, 'display.openEdges': false, 'display.shadedPlanes': true, 'display.dimsFlat': true, 'display.autoToleranceOnTop': true, 'display.notesFlat': true, 'display.refTriad': true, 'display.scrollbars': false, 'display.draftQualityHLR': false, 'display.patternPreview': true, 'display.breadcrumbs': true, 'display.breadcrumbsAtCursor': false, 'display.projection': 'Third angle',
   'selection.bulk': 'Box', 'selection.wireframeHLV': true, 'selection.hlrShaded': false, 'selection.throughTransparency': true, 'selection.smallFace': false,
   'perf.brepKernel': true, 'perf.rebuildWorker': true, 'perf.verification': false, 'perf.ignoreSelfIntersect': false, 'perf.hqNormal': true, 'perf.hqDynamic': false, 'perf.curvature': 'Only on demand', 'perf.levelOfDetail': 50, 'perf.rebuildOnLoad': 'Prompt', 'perf.mateAnimation': 50, 'perf.smartMate': 50, 'perf.magnifiedSelection': true, 'perf.purgeUnused': false, 'perf.updateMass': false, 'perf.shadedPreview': true, 'perf.softwareOpenGL': false, 'perf.noPreviewHidden': false,
@@ -46,7 +46,7 @@ export const DEFAULT_PREFS: Record<string, PrefValue> = {
   'doc.shadedQuality': 60, 'doc.deviation': 0.02, 'doc.optimizeEdgeLength': false, 'doc.wireframeQuality': 50, 'doc.preciselyRenderOverlapping': false, 'doc.improveCurveQuality': false, 'doc.isometricPreview': false,
   'doc.smSimplifyBends': true, 'doc.smCornerTreatment': true, 'doc.smMergeFaces': true, 'doc.smShowFixedFace': false, 'doc.smShowGrainDirection': false,
   'doc.weldCreateCutLists': true, 'doc.weldUpdateCutLists': true, 'doc.weldRenameCutLists': false, 'doc.weldCollectIdentical': true, 'doc.weldBoundingBox': true, 'doc.weldSort': 'Order of creation',
-  'doc.planeTransparency': 75, 'doc.planeIntersections': true,
+  'doc.planeTransparency': 75, 'doc.planeIntersections': false,
   'doc.configRebuildOnActivate': true, 'doc.configAddRebuild': false, 'doc.configPurge': false,
   'doc.mateAlignment': 'Closest', 'doc.mateShowPopup': true, 'doc.mateShowPreview': true, 'doc.mateUseForPositioning': false, 'doc.mateMakeFirstFixed': true,
   'doc.perfVerification': false, 'doc.perfImageQuality': 60,
@@ -211,8 +211,8 @@ export const COLOR_SCHEME_ITEMS: { label: string; token: string }[] = [
   { label: 'Reference Triad X Axis', token: '--sk-axis-x' },
   { label: 'Reference Triad Y Axis', token: '--sk-axis-y' },
   { label: 'Reference Triad Z Axis', token: '--sk-axis-z' },
-  { label: 'Edges in Shaded With Edges Mode', token: '--text' },
-  { label: 'Surfaces, Open Edges', token: '--sk-over' },
+  { label: 'Edges in Shaded With Edges Mode', token: '--shaded-edges' },
+  { label: 'Surfaces, Open Edges', token: '--open-edges' },
   { label: 'Feature Tree Text', token: '--text' },
   { label: 'Flyout Feature Tree Text', token: '--text' },
 ];

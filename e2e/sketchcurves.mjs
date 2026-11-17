@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -23,15 +23,15 @@ await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
-const clicks = async (pts) => { for (const [x, y] of pts) { const p = await P(x, y); await page.mouse.click(p.x, p.y); await page.waitForTimeout(120); } };
+const clicks = async (pts) => { for (const [x, y] of pts) { const p = await P(x, y); await page.mouse.click(p.x, p.y); await frames(page); } };
 const ents = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return Object.values(sk.entities).map((e) => ({ kind: e.kind, style: !!e.style, eq: e.equation?.expr, parabola: !!e.parabola, rho: e.rho })); });
 const tool = (t) => page.evaluate((t) => window.__phlippoStore.getState().setTool(t), t);
 
 // flyout entries are enabled now
 await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Ellipse"]) .k-cm-small-arrow');
-await page.waitForTimeout(150);
+await settle(page);
 const fly = await page.evaluate(() => [...document.querySelectorAll('.k-menu .k-menu-item')].filter((x) => /Partial Ellipse|Parabola|Conic/.test(x.textContent)).map((x) => ({ t: x.textContent.trim(), d: x.classList.contains('disabled') || x.hasAttribute('disabled') || x.getAttribute('aria-disabled') === 'true' })));
 check('Ellipse flyout: Partial Ellipse, Parabola and Conic are enabled', fly.length === 3 && fly.every((x) => !x.d), JSON.stringify(fly));
 await page.keyboard.press('Escape');
@@ -59,16 +59,16 @@ check('Conic with rho from the shoulder point (≈ 0.63)', conic && Math.abs(con
 await tool('styleSpline');
 await clicks([[-80, -60], [-70, -20], [-40, -20], [-30, -60]]);
 await page.keyboard.press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 E = await ents();
 check('Style Spline is a Bezier spline', E.some((e) => e.kind === 'spline' && e.style), JSON.stringify(E));
 
 // Equation Driven Curve through the Property Panel
 await tool('equationCurve');
-await page.waitForTimeout(200);
+await settle(page);
 await page.fill('[data-testid="eq-expr"]', '5*sin(x/5)');
 await page.click('[data-testid="eq-apply"]');
-await page.waitForTimeout(300);
+await settle(page);
 E = await ents();
 check('Equation Driven Curve y = 5*sin(x/5) is added', E.some((e) => e.kind === 'spline' && e.eq === '5*sin(x/5)'), JSON.stringify(E));
 await page.screenshot({ path: `${OUT}/sketchcurves.png` });
@@ -78,16 +78,16 @@ await page.evaluate(() => window.__phlippoStore.getState().exitSketch());
 await page.click('.k-tree-row:has-text("Top Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await tool('rectangle');
 await clicks([[10, 10], [70, 50]]);
 await tool('circle');
 await clicks([[40, 30], [46, 30]]);
 const dof0 = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.solve[s.activeSketchId]?.dof; });
 await tool('fullyDefine');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="fd-calc"]');
-await page.waitForTimeout(800);
+await settle(page);
 const fd = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { dof: s.solve[s.activeSketchId]?.dof, status: s.solve[s.activeSketchId]?.status }; });
 check('Fully Define Sketch: the sketch becomes fully defined', dof0 > 0 && fd.dof === 0 && fd.status === 'full', JSON.stringify({ dof0, ...fd }));
 await page.screenshot({ path: `${OUT}/fullydefine.png` });
@@ -105,7 +105,7 @@ if (grip) {
   await page.mouse.move(grip.x + grip.width / 2 + 60, grip.y + grip.height / 2 + 1, { steps: 6 });
   await page.mouse.move(grip.x + grip.width / 2 - 60, grip.y + grip.height / 2 + 1, { steps: 6 });
   await page.mouse.up();
-  await page.waitForTimeout(400);
+  await settle(page);
   const v1 = await page.evaluate((id) => { const s = window.__phlippoStore.getState(); return s.doc.sketches[s.activeSketchId].constraints[id].value; }, dim.id);
   check('dragging the Drag Dimensions handle changes the dimension value', Math.abs(v1 - dim.v) >= 1, JSON.stringify({ before: dim.v, after: v1, sc }));
 }

@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode, dontSave } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,7 +22,7 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Assembly")');
 await dontSave(page);
-await page.waitForTimeout(500);
+await settle(page);
 const S = () => page.evaluate(() => {
   const s = window.__phlippoStore.getState();
   return { kind: s.doc.kind, comps: (s.doc.components ?? []).map((c) => ({ name: c.name, pos: c.position, fixed: c.fixed })), mates: (s.doc.mates ?? []).map((m) => m.type), errors: s.rebuild.errors, bodies: s.rebuild.bodies.length, ghost: !!s.insertGhost, fe: !!s.fastenerEdit };
@@ -45,7 +46,7 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().insertComponent(plate, { atOrigin: true });
 });
-await page.waitForTimeout(600);
+await settle(page);
 let st = await S();
 check('assembly with the plate (Ø6.6 hole) as its first, fixed component', st.kind === 'assembly' && st.comps.length === 1 && st.comps[0].fixed && !Object.keys(st.errors).length, JSON.stringify(st));
 
@@ -56,7 +57,9 @@ check('Standard Parts folder in the Part Library offers Load now while it is not
 await page.click('[data-testid="stdparts-load"]');
 await page.waitForSelector('[data-testid="stdparts"]');
 const folders = await page.locator('[data-testid="toolbox-type"] optgroup').evaluateAll((g) => g.map((x) => x.label));
-check('Standard Parts lists Bolts and Screws, Nuts and Washers', JSON.stringify(folders) === JSON.stringify(['Bolts and Screws', 'Nuts', 'Washers']), JSON.stringify(folders));
+check('Standard Parts lists Bolts and Screws, Nuts, Washers, Pins, Retaining Rings and Bearings', JSON.stringify(folders) === JSON.stringify(['Bolts and Screws', 'Nuts', 'Washers', 'Pins', 'Retaining Rings', 'Bearings']), JSON.stringify(folders));
+const standards = await page.locator('[data-testid="toolbox-type"] option').evaluateAll((o) => o.map((x) => x.value));
+check('13 standards: ISO 4762, 4017, 7380-1, 10642, 4026, 4032, 7040, 7089, 2338, 8752, DIN 471, 472, ISO 15 bearings', standards.length === 13 && ['iso4017', 'iso7380', 'iso10642', 'iso4026', 'iso7040', 'iso2338', 'iso8752', 'din471', 'din472', 'iso15'].every((x) => standards.includes(x)), JSON.stringify(standards));
 await page.selectOption('[data-testid="toolbox-type"]', 'iso4762');
 await page.selectOption('[data-testid="toolbox-size"]', 'M6');
 const lens = await page.locator('[data-testid="toolbox-length"] option').evaluateAll((o) => o.map((x) => Number(x.value)));
@@ -70,15 +73,15 @@ await page.screenshot({ path: `${OUT}/library-stdparts.png` });
 const vp = await page.locator('.k-viewport').boundingBox();
 const insertAt = async (fx, fy) => {
   await page.click('[data-testid="toolbox-insert"]');
-  await page.waitForTimeout(300);
+  await settle(page);
   await page.mouse.move(vp.x + vp.width * fx, vp.y + vp.height * fy, { steps: 4 });
-  await page.waitForTimeout(300);
+  await frames(page, 3);
   const g = (await S()).ghost;
   await page.mouse.click(vp.x + vp.width * fx, vp.y + vp.height * fy);
-  await page.waitForTimeout(800);
+  await settle(page);
   if ((await S()).ghost) await page.evaluate(() => window.__phlippoStore.getState().placeInsertGhost([80, 0, 0]));
   await page.evaluate(() => window.__phlippoStore.getState().cancelInsertComponent());
-  await page.waitForTimeout(300);
+  await settle(page);
   return g;
 };
 const ghost = await insertAt(0.7, 0.5);
@@ -109,11 +112,13 @@ await page.screenshot({ path: `${OUT}/library-inserted.png` });
 await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-cm-big:has-text("Auto Fasteners")');
 await page.waitForSelector('[data-testid="fastener-pm"]');
+const pmSizes = await page.locator('[data-testid="fastener-size-0"] option').evaluateAll((o) => o.map((x) => x.value));
+check('Auto Fasteners offers the sizes M3 to M24', pmSizes.join() === 'M3,M4,M5,M6,M8,M10,M12,M16,M20,M24', pmSizes.join());
 const pm = await page.evaluate(() => ({ size: document.querySelector('[data-testid="fastener-size-0"]')?.value, length: document.querySelector('[data-testid="fastener-length-0"]')?.value, grip: document.querySelector('[data-testid="fastener-grip-0"]')?.textContent, groups: document.querySelectorAll('[data-testid="fastener-groups"] .k-selbox-row').length }));
 check('Auto Fasteners chooses M6 for the Ø6.6 hole (ISO 273 medium) and length 20', pm.groups === 1 && pm.size === 'M6' && pm.length === '20' && /ISO 273 medium/.test(pm.grip ?? ''), JSON.stringify(pm));
 await page.screenshot({ path: `${OUT}/library-autofasteners.png` });
 await page.click('[data-testid="fastener-pm"] .k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 st = await S();
 const added = st.comps.find((c) => c.name === 'ISO 4762 M6 x 20<2>');
 check('OK adds the library screw ISO 4762 M6 x 20<2>, concentric and coincident with the hole', !st.fe && added && st.mates.join() === 'concentric,coincident', JSON.stringify({ comps: st.comps.map((c) => c.name), mates: st.mates }));
@@ -123,6 +128,53 @@ check('the head stays out of the hole: the screw spans y = -10 .. 16 (shank 20 d
 check('the assembly rebuilds without errors (5 bodies)', st.bodies === 5 && !Object.keys(st.errors).length, JSON.stringify({ bodies: st.bodies, errors: st.errors }));
 await page.screenshot({ path: `${OUT}/library-fastened.png` });
 
+// the extended library: a hex head screw M16, a lock nut, a dowel pin, a retaining ring and a ball bearing, each a part
+// of the standard's size in the assembly
+if (!(await page.locator('[data-testid="stdparts"]').count())) await page.click('.k-taskpane-btn[data-pane="library"]');
+await page.waitForSelector('[data-testid="stdparts"]');
+const pick = async (std, size, length) => {
+  await page.selectOption('[data-testid="toolbox-type"]', std);
+  await page.selectOption('[data-testid="toolbox-size"]', size);
+  if (length !== undefined) await page.selectOption('[data-testid="toolbox-length"]', String(length));
+  await frames(page);
+  return page.locator('[data-testid="stdparts-dims"]').innerText();
+};
+let txt = await pick('iso4017', 'M16', 60);
+check('ISO 4017 M16 x 60: s 24, k 10, lengths 30 to 150', /ISO 4017 M16 x 60/.test(txt) && /s = 24\b/.test(txt) && /k = 10\b/.test(txt) && /17 \/ 17\.5 \/ 18\.5/.test(txt), txt);
+const l4017 = await page.locator('[data-testid="toolbox-length"] option').evaluateAll((o) => o.map((x) => Number(x.value)));
+check('ISO 4017 M16 offers its lengths 30 to 150', l4017[0] === 30 && l4017.at(-1) === 150, JSON.stringify(l4017));
+await insertAt(0.62, 0.35);
+await pick('iso7040', 'M10');
+await insertAt(0.66, 0.7);
+await pick('iso2338', '6', 20);
+await insertAt(0.72, 0.3);
+await pick('din471', '20');
+await insertAt(0.78, 0.66);
+txt = await pick('iso15', '6204');
+check('Ball Bearing 6204: d 20, D 47, B 14 (ISO 15)', /Ball Bearing 6204/.test(txt) && /d = 20\b/.test(txt) && /D = 47\b/.test(txt) && /B = 14\b/.test(txt), txt);
+await page.screenshot({ path: `${OUT}/standaard-1-bearing-dims.png` });
+await insertAt(0.84, 0.45);
+await page.keyboard.press('f');
+await settle(page, { quiet: 300 });
+st = await S();
+const want = ['ISO 4017 M16 x 60<1>', 'ISO 7040 M10<1>', 'ISO 2338 6 m6 x 20<1>', 'DIN 471 20 x 1.2<1>', 'Ball Bearing 6204<1>'];
+check('the new library parts are components with their designation as name (BOM)', want.every((n) => st.comps.some((c) => c.name === n)), JSON.stringify(st.comps.map((c) => c.name)));
+check('the assembly rebuilds without errors (10 bodies)', st.bodies === 10 && !Object.keys(st.errors).length, JSON.stringify({ bodies: st.bodies, errors: st.errors }));
+const ext = await page.evaluate((names) => {
+  const s = window.__phlippoStore.getState();
+  return Object.fromEntries(names.map((n) => {
+    const c = s.doc.components.find((x) => x.name === n);
+    const b = c && s.rebuild.bodies.find((x) => x.id === c.id);
+    if (!b) return [n, null];
+    b.geometry.computeBoundingBox();
+    const bb = b.geometry.boundingBox;
+    return [n, [bb.max.x - bb.min.x, bb.max.y - bb.min.y, bb.max.z - bb.min.z].map((v) => Math.round(v * 100) / 100).sort((p, q) => p - q)];
+  }));
+}, want);
+const near = (a, b, tol = 0.05) => a && b.every((v, i) => Math.abs(a[i] - v) <= tol);
+check('the bearing is 47 x 47 x 14, the pin 6 x 6 x 20, the hex screw 70 long (k 10 + l 60)', near(ext['Ball Bearing 6204<1>'], [14, 47, 47], 0.3) && near(ext['ISO 2338 6 m6 x 20<1>'], [6, 6, 20], 0.1) && Math.abs((ext['ISO 4017 M16 x 60<1>'] ?? [0, 0, 0])[2] - 70) < 0.01, JSON.stringify(ext));
+await page.screenshot({ path: `${OUT}/standaard-2-assembly.png` });
+
 // Open: the part opens as a part document of its own (after the question to save the assembly)
 await page.click('.k-taskpane-btn[data-pane="library"]').catch(() => {});
 if (!(await page.locator('[data-testid="stdparts"]').count())) await page.click('.k-taskpane-btn[data-pane="library"]');
@@ -130,9 +182,20 @@ await page.selectOption('[data-testid="toolbox-type"]', 'iso4032');
 await page.selectOption('[data-testid="toolbox-size"]', 'M8');
 await page.click('[data-testid="toolbox-folder"] button:has-text("Open")');
 await dontSave(page, 1000);
-await page.waitForTimeout(800);
+await settle(page);
 const opened = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { name: s.doc.name, kind: s.doc.kind, bodies: s.rebuild.bodies.length, errors: s.rebuild.errors, tree: s.doc.features.map((f) => f.name) }; });
 check('Open makes ISO 4032 M8 a part of its own (hexagon, chamfer revolve cut)', opened.name === 'ISO 4032 M8' && opened.kind !== 'assembly' && opened.bodies === 1 && !Object.keys(opened.errors).length && opened.tree.includes('Cut-Revolve1'), JSON.stringify(opened));
+// a bearing and a button head screw opened as parts of their own (the 6204 section, the domed head)
+for (const [std, size, length, name, shotName] of [['iso15', '6204', undefined, 'Ball Bearing 6204', 'standaard-3-bearing-part'], ['iso7380', 'M8', 20, 'ISO 7380-1 M8 x 20', 'standaard-4-button-head']]) {
+  if (!(await page.locator('[data-testid="stdparts"]').count())) await page.click('.k-taskpane-btn[data-pane="library"]');
+  await pick(std, size, length);
+  await page.click('[data-testid="toolbox-folder"] button:has-text("Open")');
+  await dontSave(page, 1000);
+  await settle(page, { quiet: 300 });
+  const o = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { name: s.doc.name, bodies: s.rebuild.bodies.length, errors: s.rebuild.errors }; });
+  check(`Open makes ${name} a part of its own`, o.name === name && o.bodies === 1 && !Object.keys(o.errors).length, JSON.stringify(o));
+  await page.screenshot({ path: `${OUT}/${shotName}.png` });
+}
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);

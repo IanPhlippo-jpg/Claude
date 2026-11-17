@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -20,7 +20,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8')); delete asm.format;
 // an assembly sketch on the Top Plane: the region around the handle (x -40..60, z -80..120)
@@ -43,13 +43,13 @@ await settle(page);
 const v0 = await vols();
 await page.evaluate(() => window.__phlippoStore.getState().setSelectedFeature('ksk'));
 await page.click('.k-cm-big:has-text("Assembly Features") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 check('Assembly Features starts Cut-Extrude1 on the assembly sketch', await page.evaluate(() => { const d = window.__phlippoStore.getState().featureEdit?.draft; return d?.type === 'extrude' && d.op === 'cut' && d.sketchId === 'cutsk' && d.name === 'Cut-Extrude1'; }));
 await page.evaluate(() => window.__phlippoStore.getState().updateFeatureDraft({ end: 'throughAll', reverse: false }));
 await page.mouse.move(5, 900);
 await shot('ac1-assembly-cut-pm');
 await page.locator('.k-pm-host .k-pm-ok').click();
-await page.waitForTimeout(6000);
+await settle(page);
 const v1 = await vols();
 const st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, names: s.doc.features.map((f) => f.name), partFeatures: s.doc.components.find((c) => c.name === 'Kruk<1>').part.features.length }; });
 const cutIds = Object.keys(v1).filter((id) => v0[id] - v1[id] > 1);
@@ -58,7 +58,7 @@ check('the tree lists Cut-Extrude1 after the mates', (await page.locator('.k-tre
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);
-await page.waitForTimeout(800);
+await frames(page, 3);
 await shot('ac2-cutaway');
 
 console.log(`

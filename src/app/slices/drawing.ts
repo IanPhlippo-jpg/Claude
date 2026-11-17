@@ -8,7 +8,10 @@ import { freeSpot } from '../../core/drawing/tables';
 import { newId } from '../../core/sketch/model';
 import { activateConfiguration, activeConfiguration, documentForConfiguration, addConfiguration as addConfig, configurations, setConfigurationDimension as setCfgDim, setConfigurationSuppressed as setCfgSup } from '../../core/document/configurations';
 import { getPref } from '../prefs';
-import { autoCenterMarksOn, autoScaleNewViews, eliminateDuplicateDims, firstAngleStandard, newViewDraft } from '../prefsEffects';
+import { autoScaleNewViews, eliminateDuplicateDims, firstAngleStandard, newViewDraft } from '../prefsEffects';
+import { autoBalloonsOn, autoCenterlinesOn, autoMarkOptions, newViewTangentEdges } from '../drawing/drawingPrefs';
+import { autoCenterlines } from '../../core/drawing/centerlines';
+import { autoBalloonSet } from '../../core/drawing/autoBalloon';
 import { bomTableGrid as tableGrid } from '../prefsTables';
 import { isDrawing, type DrawingView as DrawingViewT, type DrawingDimension, type DrawingSheet, type DrawingView } from '../../core/document/types';
 import { modelItems } from '../drawing/modelItems';
@@ -31,12 +34,32 @@ type DrawingKeys =
   | 'startTitleBlock' | 'startSymbol' | 'addSymbol' | 'startNote' | 'placeNote' | 'startCenterMark'
   | 'addCenterMark' | 'applyConfigurationTable' | 'setSheet';
 
-/** Auto insert on view creation ▸ Center marks-holes (Document Properties ▸ Detailing, QA v0.5.1 F122) */
+/**
+ * Auto insert on view creation (Document Properties ▸ Detailing, QA v0.5.1 F122, 0.5.16): center marks on holes, slots
+ * and hole patterns, on fillets, centerlines of the cylinders seen from the side, balloons on the views of an assembly
+ * (a part gets one balloon on the sheet, in the first view that shows it).
+ */
 function withAutoMarks(d: Document, views: DrawingView[]): Document {
-  const sheet = d.sheets?.[0];
-  if (!sheet || !autoCenterMarksOn()) return d;
-  const marks = autoCenterMarks(views, sheet.centerMarks, () => newId('cm'));
-  return marks.length ? { ...d, sheets: [{ ...sheet, centerMarks: [...sheet.centerMarks, ...marks] }, ...(d.sheets ?? []).slice(1)] } : d;
+  let sheet = d.sheets?.[0];
+  if (!sheet) return d;
+  const mo = autoMarkOptions();
+  const marks = mo.holes || mo.fillets ? autoCenterMarks(views, sheet.centerMarks, () => newId('cm'), mo) : [];
+  if (marks.length) sheet = { ...sheet, centerMarks: [...sheet.centerMarks, ...marks] };
+  const lines = autoCenterlinesOn() ? autoCenterlines(sheet, views, () => newId('sy')) : [];
+  if (lines.length) sheet = { ...sheet, symbols: [...(sheet.symbols ?? []), ...lines] };
+  if (autoBalloonsOn()) {
+    for (const v of views.filter((x) => x.model.kind === 'assembly' && !x.empty && !x.predefined)) {
+      const cur: DrawingSheet = sheet;
+      const skip = new Set<string>((cur.symbols ?? []).filter((x) => x.kind === 'balloon' && x.text).map((x) => x.text!));
+      const ab = autoBalloonSet(cur, v, {}, () => newId('sy'));
+      const fresh = ab.symbols.filter((x) => !skip.has(x.text ?? ''));
+      if (!fresh.length) continue;
+      const keep = new Set(fresh.map((x) => x.id));
+      const ml = ab.lines.map((l) => ({ ...l, balloons: l.balloons.filter((b) => keep.has(b)) })).filter((l) => l.balloons.length);
+      sheet = { ...sheet, symbols: [...(sheet.symbols ?? []), ...fresh], magneticLines: [...(sheet.magneticLines ?? []), ...ml] };
+    }
+  }
+  return sheet === d.sheets?.[0] ? d : { ...d, sheets: [sheet, ...(d.sheets ?? []).slice(1)] };
 }
 
 export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingKeys> => ({
@@ -81,7 +104,7 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     history.push('Model View', doc);
     // Reference Configuration: the model as that configuration
     const model = drawingEdit.configuration ? documentForConfiguration(drawingEdit.model, drawingEdit.configuration) : drawingEdit.model;
-    const view: DrawingView = { id: newId('dv'), name: nextViewName(sheet), type: drawingEdit.orientation, position, scale: drawingEdit.useCustomScale ? drawingEdit.scale : undefined, displayStyle: drawingEdit.displayStyle, model, modelName: `${drawingEdit.model.name}<1>`, relative: drawingEdit.relative, empty: drawingEdit.emptyView || undefined, predefined: drawingEdit.predefined || undefined, ...(drawingEdit.configuration ? { configuration: drawingEdit.configuration } : {}), ...(drawingEdit.draftQuality ? { draftQuality: true } : {}), ...(drawingEdit.trueDims ? { trueDims: true } : {}), ...(drawingEdit.threadDraft ? { threadDraft: true } : {}), ...(drawingEdit.bendLines !== false && drawingEdit.model.features.some((f) => f.type === 'flatPattern' && !f.suppressed) ? { bendLines: true } : {}), ...(drawingEdit.bendNotes ? { bendNotes: true } : {}) };
+    const view: DrawingView = { id: newId('dv'), name: nextViewName(sheet), type: drawingEdit.orientation, position, scale: drawingEdit.useCustomScale ? drawingEdit.scale : undefined, displayStyle: drawingEdit.displayStyle, model, modelName: `${drawingEdit.model.name}<1>`, relative: drawingEdit.relative, empty: drawingEdit.emptyView || undefined, predefined: drawingEdit.predefined || undefined, ...(drawingEdit.configuration ? { configuration: drawingEdit.configuration } : {}), ...(drawingEdit.draftQuality ? { draftQuality: true } : {}), ...(drawingEdit.trueDims ? { trueDims: true } : {}), ...(drawingEdit.threadDraft ? { threadDraft: true } : {}), ...(drawingEdit.bendLines !== false && drawingEdit.model.features.some((f) => f.type === 'flatPattern' && !f.suppressed) ? { bendLines: true } : {}), ...(drawingEdit.bendNotes ? { bendNotes: true } : {}), tangentEdges: newViewTangentEdges() };
     // Drawings ▸ Display Style ▸ Display quality for new views
     if (newViewDraft()) view.draftQuality = true;
     let d: Document = withAutoMarks({ ...doc, sheets: [{ ...sheet, views: [...sheet.views, view] }] }, [view]);
@@ -160,7 +183,7 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     const label = nextViewLabel(sheet);
     const ps = parent.scale ?? sheet.scale;
     const scale: [number, number] = de.useCustomScale ? de.scale : [ps[0] * 2, ps[1]];
-    const view: DrawingView = { id: newId('dv'), name: `Detail View ${label} (${scale[0]} : ${scale[1]})`, type: parent.type, position, scale, displayStyle: 'hiddenRemoved', model: parent.model, modelName: parent.modelName, detail: { parentId: parent.id, parentType: parent.type, center: de.detailCenter, radius: de.detailRadius, label, outline: de.detailOutline ?? 'none', pinned: de.detailPinned !== false, ...(de.detailStyle && de.detailStyle !== 'perStandard' ? { style: de.detailStyle } : {}), ...(de.detailProfile && de.detailRect ? { rect: de.detailRect } : {}) } };
+    const view: DrawingView = { id: newId('dv'), name: `Detail View ${label} (${scale[0]} : ${scale[1]})`, type: parent.type, position, scale, displayStyle: 'hiddenRemoved', model: parent.model, modelName: parent.modelName, ...(parent.tangentEdges ? { tangentEdges: parent.tangentEdges } : {}), detail: { parentId: parent.id, parentType: parent.type, center: de.detailCenter, radius: de.detailRadius, label, outline: de.detailOutline ?? 'none', pinned: de.detailPinned !== false, ...(de.detailStyle && de.detailStyle !== 'perStandard' ? { style: de.detailStyle } : {}), ...(de.detailProfile && de.detailRect ? { rect: de.detailRect } : {}) } };
     // a detail view gets its centre marks too (the holes it shows whole), QA 0.5.10 F122
     const d: Document = withAutoMarks({ ...doc, sheets: [{ ...sheet, views: [...sheet.views, view] }] }, [view]);
     set({ doc: d, drawingEdit: null, selectedDrawingViewId: view.id, dirty: true, ...historyFlags() });
@@ -188,7 +211,7 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     const usedLabels = new Set(sheet.views.map((v) => v.arrowLabel ?? v.section?.label ?? v.detail?.label ?? v.aux?.label).filter(Boolean));
     const arrowLabel = de?.projArrow ? 'ABCDEFGHJKLMNPRSTUVWXYZ'.split('').find((c) => !usedLabels.has(c)) : undefined;
     const model = de?.configuration && de.configuration !== parent.configuration ? documentForConfiguration(parent.model, de.configuration) : parent.model;
-    const view: DrawingView = { id: newId('dv'), name: nextViewName(sheet), type, position, scale, parentId, displayStyle: de?.useParentStyle === false ? de.displayStyle : parent.displayStyle, model, modelName: parent.modelName, ...(de?.configuration ?? parent.configuration ? { configuration: de?.configuration ?? parent.configuration } : {}), ...(parent.draftQuality ? { draftQuality: true } : {}), ...(parent.threadDraft ? { threadDraft: true } : {}), ...(arrowLabel ? { arrowLabel } : {}) };
+    const view: DrawingView = { id: newId('dv'), name: nextViewName(sheet), type, position, scale, parentId, displayStyle: de?.useParentStyle === false ? de.displayStyle : parent.displayStyle, model, modelName: parent.modelName, ...(de?.configuration ?? parent.configuration ? { configuration: de?.configuration ?? parent.configuration } : {}), ...(parent.draftQuality ? { draftQuality: true } : {}), ...(parent.threadDraft ? { threadDraft: true } : {}), ...(arrowLabel ? { arrowLabel } : {}), ...(parent.tangentEdges ? { tangentEdges: parent.tangentEdges } : {}) };
     const d: Document = withAutoMarks({ ...doc, sheets: [{ ...sheet, views: [...sheet.views, view] }] }, [view]);
     set({ doc: d, selectedDrawingViewId: parent.id, dirty: true, ...historyFlags() });
     autosave(d);
@@ -207,7 +230,7 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     history.push('Standard 3 View', doc);
     const firstAngle = firstAngleStandard(get().prefs['doc.standard']);
     const style = newViewStyle(getPref('drawings.displayStyle'));
-    const views: DrawingView[] = buildThreeViews(model, sheet, threeViewsCentre(model, sheet, firstAngle), firstAngle).map((v, i) => ({ ...v, displayStyle: style, ...(newViewDraft() ? { draftQuality: true } : {}), id: newId('dv'), name: `Drawing View${sheet.views.length + i + 1}` }));
+    const views: DrawingView[] = buildThreeViews(model, sheet, threeViewsCentre(model, sheet, firstAngle), firstAngle).map((v, i) => ({ ...v, displayStyle: style, tangentEdges: newViewTangentEdges(), ...(newViewDraft() ? { draftQuality: true } : {}), id: newId('dv'), name: `Drawing View${sheet.views.length + i + 1}` }));
     views[1].parentId = views[0].id;
     views[2].parentId = views[0].id;
     const d: Document = withAutoMarks({ ...doc, sheets: [{ ...sheet, views: [...sheet.views, ...views] }] }, views);
@@ -238,7 +261,9 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     // the balloons of the view move with it (leader ends stay on the geometry), and so do their magnetic lines
     const sh = (p: [number, number]): [number, number] => [p[0] + dx, p[1] + dy];
     const own = new Set((sheet.symbols ?? []).filter((s) => s.viewId === id && s.kind !== 'areaHatch').map((s) => s.id));
-    const symbols = own.size ? (sheet.symbols ?? []).map((s) => (own.has(s.id) ? { ...s, position: sh(s.position), anchor: s.anchor && sh(s.anchor) } : s)) : sheet.symbols;
+    // (a centerline's end points too)
+    const moveSym = (s: NonNullable<DrawingSheet['symbols']>[number]) => ({ ...s, position: sh(s.position), anchor: s.anchor && sh(s.anchor), a: s.a && sh(s.a), b: s.b && sh(s.b) });
+    const symbols = own.size ? (sheet.symbols ?? []).map((s) => (own.has(s.id) ? moveSym(s) : s)) : sheet.symbols;
     const magneticLines = own.size ? (sheet.magneticLines ?? []).map((l) => (l.balloons.length && l.balloons.every((b) => own.has(b)) ? { ...l, a: sh(l.a), b: sh(l.b) } : l)) : sheet.magneticLines;
     set({ doc: { ...doc, sheets: [{ ...sheet, views, symbols, magneticLines }] }, dirty: true });
   },
@@ -251,7 +276,7 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     if (!sheet) return;
     history.push('Delete view', doc);
     const gone = new Set([id, ...sheet.views.filter((v) => v.parentId === id).map((v) => v.id)]);
-    const d: Document = { ...doc, sheets: [{ ...sheet, views: sheet.views.filter((v) => !gone.has(v.id)), dimensions: sheet.dimensions.filter((x) => !gone.has(x.viewId)), centerMarks: sheet.centerMarks.filter((m) => !gone.has(m.viewId)) }] };
+    const d: Document = { ...doc, sheets: [{ ...sheet, views: sheet.views.filter((v) => !gone.has(v.id)), dimensions: sheet.dimensions.filter((x) => !gone.has(x.viewId)), centerMarks: sheet.centerMarks.filter((m) => !gone.has(m.viewId)), ...(sheet.symbols ? { symbols: sheet.symbols.filter((x) => !x.viewId || !gone.has(x.viewId)) } : {}) }] };
     set({ doc: d, selectedDrawingViewId: null, dirty: true, ...historyFlags() });
     autosave(d);
   },

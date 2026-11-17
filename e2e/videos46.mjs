@@ -5,7 +5,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -26,7 +26,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 // two plates side by side (two bodies) with a Ø20 hole in the first; the depth of Boss-Extrude1 = "T" * 2
 await S(() => {
@@ -52,13 +52,13 @@ await S(() => {
 await settle(page);
 
 // ---- Σ in the field and in the tree
-check('the Equations folder shows its equations', /"T" = 6/.test(await page.locator('.k-tree').first().innerText()) || (await page.locator('.k-tree-row:has-text("Equations") .caret').first().click().then(() => page.waitForTimeout(150)).then(() => page.locator('.k-tree').first().innerText())).includes('"T" = 6'));
+check('the Equations folder shows its equations', /"T" = 6/.test(await page.locator('.k-tree').first().innerText()) || (await page.locator('.k-tree-row:has-text("Equations") .caret').first().click().then(() => frames(page)).then(() => page.locator('.k-tree').first().innerText())).includes('"T" = 6'));
 await page.locator('.k-tree-row[data-id="e1"]').first().dblclick();
-await page.waitForTimeout(400);
+await settle(page);
 check('the Depth driven by "T" * 2 shows Σ', (await page.locator('[data-testid="field-sigma"]').count()) >= 1);
 const dep = page.locator('.k-number-eq input').first();
 await dep.click();
-await page.waitForTimeout(150);
+await settle(page);
 check('a click into the field shows its equation', (await page.locator('[data-testid="eq-input"]').inputValue().catch(skip('videos46.mjs:61', ''))).includes('"T" * 2'));
 await page.keyboard.press('Escape');
 await S(() => window.__phlippoStore.getState().cancelFeature());
@@ -79,28 +79,28 @@ await page.locator('.k-tree-row:has-text("Top Plane")').first().click();
 await page.locator('[data-testid="ctx-plane-sketch"]').waitFor({ timeout: 6000 }).catch(() => undefined);
 check('Top Plane: context toolbar Sketch, Show, Zoom to Selection, Normal To', (await page.locator('[data-testid="ctx-plane-sketch"]').count()) === 1 && (await page.locator('[data-testid="ctx-plane-show"]').count()) === 1 && (await page.locator('[data-testid="ctx-zoom-selection"]').count()) === 1 && (await page.locator('[data-testid="ctx-normal-to"]').count()) === 1);
 const pb = await page.locator('[data-testid="tree-ctxbar"]').boundingBox();
-if (pb) { await page.mouse.move(pb.x + 30, pb.y + pb.height / 2); await page.waitForTimeout(150); }
+if (pb) { await page.mouse.move(pb.x + 30, pb.y + pb.height / 2); await frames(page, 3); }
 await page.locator('[data-testid="ctx-plane-show"]').click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Show makes Top Plane visible on its own', await S(() => window.__phlippoStore.getState().doc.planeVisibility?.top === true));
 await page.locator('.k-tree-row:has-text("Top Plane")').first().click();
 await page.keyboard.press('Escape');
 await page.keyboard.press('F2');
-await page.waitForTimeout(150);
+await settle(page);
 await page.locator('[data-testid="tree-rename"]').fill('Top Plane-FLOOR PLANE');
 await page.locator('[data-testid="tree-rename"]').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 check('F2 renames Top Plane', (await page.locator('.k-tree').first().innerText()).includes('Top Plane-FLOOR PLANE'));
 
 // ---- a body renamed through its menu
 await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click();
-await page.waitForTimeout(150);
+await settle(page);
 await page.locator('.k-tree-row[data-id^="body-"]').first().click({ button: 'right' });
-await page.waitForTimeout(150);
+await settle(page);
 await page.locator('.k-menu-item:has-text("Rename")').first().click();
 await page.locator('[data-testid="tree-rename"]').fill('MAIN ROD');
 await page.locator('[data-testid="tree-rename"]').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 check('a body renamed to MAIN ROD', (await page.locator('.k-tree').first().innerText()).includes('MAIN ROD'));
 
 // ---- Mass Properties of a selected body
@@ -108,16 +108,16 @@ await S(() => window.__phlippoStore.getState().setDialog('mass'));
 await settle(page);
 const massAll = await page.locator('.k-panel-body').last().innerText();
 await page.locator('[data-testid="mass-bodies"] input').first().check();
-await page.waitForTimeout(300);
+await settle(page);
 check('Mass Properties lists the picked body in Selected items', (await page.locator('[data-testid="mass-selected"]').inputValue()) === 'MAIN ROD');
 check('the report changes to that body only', (await page.locator('.k-panel-body').last().innerText()) !== massAll);
 await S(() => window.__phlippoStore.getState().setDialog(null));
 
 // ---- Delete/Keep Body as a Property Panel
 await page.locator('.k-tree-row[data-id^="body-"]').nth(1).click({ button: 'right' });
-await page.waitForTimeout(150);
+await settle(page);
 await page.locator('.k-menu-item:has-text("Delete/Keep Body")').first().click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Delete/Keep Body opens its Property Panel with Delete Bodies / Keep Bodies', (await page.locator('.k-pm-host').innerText()).includes('Keep Bodies') && (await page.locator('[data-testid="dkb-bodies"] input:checked').count()) === 1);
 await page.click('[data-testid="dkb-keep"]');
 await page.click('.k-pm-ok');
@@ -128,7 +128,7 @@ check('Keep Bodies keeps only the picked body', r.n === 1 && r.f?.keep === true 
 // ---- Selection Filter: F5 shows it; Filter Faces lets no edge through
 await page.mouse.click(1000, 600);
 await page.keyboard.press('F5');
-await page.waitForTimeout(150);
+await settle(page);
 check('F5 shows the Selection Filter toolbar', (await page.locator('[data-testid="selection-filter"]').count()) === 1);
 await page.click('[data-testid="selfilter-faces"]');
 check('Filter Faces is checked', await S(() => window.__phlippoStore.getState().selFilter.types.join() === 'faces'));
@@ -197,9 +197,9 @@ await S(() => window.__phlippoStore.getState().cancelFeature());
 
 // ---- Sketch/Curve Color as a Property Panel
 await page.locator('.k-tree-row:has-text("Sketch2")').last().click({ button: 'right' });
-await page.waitForTimeout(150);
+await settle(page);
 await page.locator('.k-menu-item:has-text("Sketch Color")').first().click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Sketch Color opens the Sketch/Curve Color panel (Remove Color, standard palette, configurations)', /Remove Color[\s\S]*standard[\s\S]*All configurations/.test(await page.locator('[data-testid="curvecolor-pm"]').innerText().catch(skip('videos46.mjs:201', ''))));
 await page.locator('[data-testid="curvecolor-grid"] button[title="#ff0000"]').click();
 await page.screenshot({ path: `${OUT}/videos46-curvecolor.png` });

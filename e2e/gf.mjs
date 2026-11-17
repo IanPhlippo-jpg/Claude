@@ -59,7 +59,7 @@ await shot('gf0-evaluate-tab');
 
 // ---- Performance Evaluation
 await page.click('.k-cm-big:has-text("Performance Evaluation") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 check('Performance Evaluation lists the features with their rebuild time', (await page.locator('[data-testid="perf-table"] tbody tr').count()) === 2 && /Total rebuild time/.test(await text('[data-testid="perf-total"]')));
 await page.locator('.k-pm-tabs button:has-text("Statistics")').click();
 check('Statistics: 2 solid bodies', /Solid bodies\s*2/.test((await text('[data-testid="perf-stats"]')).replace(/\s+/g, ' ')));
@@ -71,18 +71,18 @@ await page.click('.k-cm-small:has-text("Symmetry Check")');
 await settle(page);
 await page.locator('[data-testid="symmetry-plane"]').selectOption('front');
 await page.locator('[data-testid="symmetry-run"]').click();
-await page.waitForTimeout(800);
+await settle(page);
 check('Symmetry Check: symmetric about the Front plane', /is symmetric/.test(await text('[data-testid="symmetry-result"]')), await text('[data-testid="symmetry-result"]'));
 await page.locator('[data-testid="symmetry-plane"]').selectOption('top');
 await page.locator('[data-testid="symmetry-run"]').click();
-await page.waitForTimeout(800);
+await settle(page);
 check('Symmetry Check: not symmetric about the Top plane, asymmetric faces listed', /not symmetric/.test(await text('[data-testid="symmetry-result"]')) && /asymmetric face/.test(await text('[data-testid="symmetry-result"]')));
 await shot('gf2-symmetry');
 await page.locator('[data-testid="symmetry-dialog"] .k-btn:has-text("Close")').click();
 
 // ---- Deviation Analysis on two edges of the beam
 await page.click('.k-cm-small:has-text("Deviation Analysis")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Deviation Analysis PM opens and asks for edges', (await page.locator('[data-testid="deviation-pm"]').count()) === 1);
 // the edges are picked while the PM is open (opening an analysis clears the selection, by design)
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; s.toggleSelectedEdge(b.edges[0].id); s.toggleSelectedEdge(b.edges[1].id, true); });
@@ -93,7 +93,7 @@ await page.locator('[data-testid="deviation-pm"] .k-pm-ok').click();
 
 // ---- Parting Line Analysis along Y: top faces green, bottom red, the parting line around the sides
 await page.click('.k-cm-small:has-text("Parting Line Analysis")');
-await page.waitForTimeout(500);
+await settle(page);
 const legend = await text('[data-testid="parting-legend"]');
 check('Parting Line Analysis: positive and negative faces counted, straddle faces too', /2 faces with positive draft/.test(legend) && /2 faces with negative draft/.test(legend) && /8 straddle faces/.test(legend), legend.replace(/\n/g, ' '));
 check('the parting line result is shown', /edge\(s\), total length/.test(await text('[data-testid="parting-result"]')));
@@ -104,14 +104,14 @@ await page.locator('[data-testid="parting-pm"] .k-pm-ok').click();
 await page.click('.k-cm-big:has-text("Compare") .k-cm-main');
 await settle(page);
 await page.locator('[data-testid="compare-run"]').click();
-await page.waitForTimeout(800);
+await settle(page);
 const cmp = await text('[data-testid="compare-result"]');
 check('Body Compare: the bodies differ, common volume 0, only-in volumes 10000 and 8000', /bodies differ/.test(cmp) && /Common volume: 0/.test(cmp) && /10,000/.test(cmp) && /8,000/.test(cmp), cmp.replace(/\n/g, ' '));
 await page.locator('.k-pm-tabs button:has-text("Compare Documents")').click();
 // a modified copy of the document as the file to compare with
 const other = await S(() => { const s = window.__phlippoStore.getState(); const d = JSON.parse(JSON.stringify(s.doc)); d.format = 'phlippo-cad'; d.name = 'Balk-v2'; d.features[1].depth = 12; d.features.push({ id: 'f9', type: 'fillet', name: 'Fillet1', suppressed: false, edges: [], radius: 1 }); return JSON.stringify(d); });
 await page.locator('[data-testid="compare-file"]').setInputFiles({ name: 'Balk-v2.kcad', mimeType: 'application/json', buffer: Buffer.from(other) });
-await page.waitForTimeout(800);
+await settle(page);
 const docs = await text('[data-testid="compare-docs"]');
 const lastMsg = await S(() => window.__phlippoStore.getState().messages.map((m) => m.text).join(' | '));
 check('Compare Documents: Boss-Extrude1 modified, Fillet1 added, name differs', /Modified: Boss-Extrude1/.test(docs) && /Added: Fillet1/.test(docs) && /Name: Balk → Balk-v2/.test(docs), docs.replace(/\n/g, ' '));
@@ -121,13 +121,13 @@ await page.locator('[data-testid="compare-dialog"] .k-btn:has-text("Close")').cl
 // ---- Tools ▸ Evaluate menu has Check Active Document and the new entries
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
-await page.waitForTimeout(150);
+await settle(page);
 for (const l of ['Evaluate ▸ Check Active Document…', 'Evaluate ▸ Performance Evaluation…', 'Evaluate ▸ Symmetry Check…', 'Evaluate ▸ Compare ▸ Body Compare…', 'Evaluate ▸ Quick Beam Estimate…']) check(`Tools menu has ${l}`, (await menuPath(page, l).count()) === 1);
 await page.keyboard.press('Escape');
 
 // ---- Quick Beam Estimate: fix the left end face, 100 N on the top face of the 100 mm beam
 await page.click('.k-cm-big:has-text("Quick Beam Estimate") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 check('Quick Beam Estimate wizard: six steps, Welcome first', (await page.locator('[data-testid="beam-steps"] span').count()) === 6);
 await page.locator('[data-testid="beam-next"]').click();
 // fixture: the face at x = 0 of the first beam
@@ -145,7 +145,7 @@ await page.locator('[data-testid="beam-next"]').click();
 await page.locator('[data-testid="beam-run"]').click();
 await settle(page);
 await page.locator('[data-testid="beam-next"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 const res = (await text('[data-testid="beam-results"]')).replace(/\s+/g, ' ');
 // the load acts at the top face centre (x 50): M = 100 · 50 = 5000 N·mm, σ = 5000 · 5 / 833 = 30 MPa, FOS = 220 / 30 ≈ 7
 check('Quick Beam Estimate results: FOS ≈ 7, stress ≈ 30 MPa, displacement, beam model', /Indicative ratio yield \/ stress 7\.\d+/.test(res) && /von Mises stress \(max\) 3\d\.\d+ MPa/.test(res) && /span 50\.\d mm/.test(res), res);

@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -25,16 +25,16 @@ await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.commit('c', (k) => window.__phlippoKit.addCircle(window.__phlippoKit.addCircle(k, { x: 0, y: 0 }, 10)[0], { x: 60, y: 0 }, 10)[0]); });
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 // shortcut menu ▸ Selection Tools ▸ Lasso Selection
 const vp = await page.locator('.k-viewport').boundingBox();
 await page.mouse.click(vp.x + vp.width - 200, vp.y + vp.height - 120, { button: 'right' });
-await page.waitForTimeout(200);
+await settle(page);
 // Lasso Selection sits in the Selection Tools fly-out, by design
 await page.locator('.k-menu-item:has-text("Selection Tools")').first().hover();
-await page.waitForTimeout(150);
+await frames(page, 2);
 const lassoItem = page.locator('.k-menu-item:has-text("Lasso Selection")').first();
 const hasLasso = await lassoItem.count();
 if (hasLasso) await lassoItem.click(); else await page.keyboard.press('Escape');
@@ -44,7 +44,7 @@ await page.mouse.move(p.x, p.y);
 await page.mouse.down();
 for (const q of pts.slice(1)) { p = await P(...q); await page.mouse.move(p.x, p.y, { steps: 5 }); }
 await page.mouse.up();
-await page.waitForTimeout(300);
+await settle(page);
 const sel = await page.evaluate(() => window.__phlippoStore.getState().selection.length);
 check('Lasso Selection selects only what is inside the loop', hasLasso && sel === 1, `menu ${hasLasso} sel ${sel}`);
 await page.keyboard.press('Escape');
@@ -74,7 +74,7 @@ let c0 = await page.evaluate(() => window.__phlippoProjectWorld(15, 5, -15));
 for (let k = 0; k < 10; k++) {
   c0 = await page.evaluate(() => window.__phlippoProjectWorld(15, 5, -15));
   await page.mouse.click(c0.x, c0.y);
-  await page.waitForTimeout(200);
+  await settle(page);
   if (await page.evaluate(() => !!window.__phlippoStore.getState().selectedFace)) break;
 }
 await page.mouse.click(c0.x, c0.y, { button: 'right' });
@@ -104,7 +104,7 @@ check('Delete Body adds Body-Delete/Keep1 and leaves one body', left.n === 1 && 
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.addSensor('mass'); const sn = s.doc.sensors?.[0] ?? window.__phlippoStore.getState().doc.sensors[0]; const st2 = window.__phlippoStore.getState(); st2.applyDocument('n', { ...st2.doc, sensors: st2.doc.sensors.map((x) => ({ ...x, alert: { op: '>', value: 1 } })) }); });
 await settle(page);
 await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click();
-await page.waitForTimeout(200);
+await settle(page);
 check('a sensor above its notification limit shows the alarm', (await page.locator('.k-sensor-alarm').count()) === 1);
 
 // Derived configuration
@@ -122,7 +122,7 @@ await page.evaluate(() => window.__phlippoStore.getState().setViewportLayout('si
 // Animate collapse on the door handle assembly
 const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8')); delete asm.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm);
-await page.waitForTimeout(2000);
+await settle(page);
 const hasSteps = await page.evaluate(() => (window.__phlippoStore.getState().doc.explodeSteps ?? []).length);
 if (hasSteps) {
   await page.evaluate(() => window.__phlippoStore.getState().setExploded(true));

@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -44,18 +45,18 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 
 // ---- Material dialog: the extra fields and Favorites
 await page.locator('.k-tree-row[data-id="material"]').dblclick();
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-material-item:has-text("AISI 1020")').click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Properties table has a Compressive Strength row', (await page.locator('.k-material-props tr:has-text("Compressive Strength")').count()) === 1);
 check('Description / Source / Environmental Class shown for the library material', /Low carbon steel/.test(await page.locator('[data-testid="mat-description"]').inputValue()) && /Phlippo CAD Materials/.test(await page.locator('[data-testid="mat-source"]').inputValue()) && /Carbon steel/.test(await page.locator('[data-testid="mat-sustainability"]').inputValue()));
 await page.locator('.k-material-cat:has-text("Iron")').first().click();
 await page.locator('.k-material-item:has-text("Gray Cast Iron")').click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Gray Cast Iron has a compressive strength value', /5\.72/.test(await page.locator('.k-material-props tr:has-text("Compressive Strength") td:nth-child(2)').innerText()));
 await shot('gi0-material-properties');
 // the seven tabs fit on one line, no scroll bar and no tab cut short (QA 0.5.13 F193)
@@ -66,21 +67,21 @@ const tabs = await page.evaluate(() => {
 });
 check('Material tabs: all seven on one line without a scroll bar, none cut short', tabs.n === 7 && tabs.rowFits && tabs.overflowX === 'visible' && tabs.cut.length === 0 && tabs.tops === 1, JSON.stringify(tabs));
 await page.locator('.k-material-tabs button:has-text("Favorites")').click();
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="mat-fav-add"]').click();
 await page.locator('.k-material-item:has-text("AISI 1020")').click();
 await page.locator('[data-testid="mat-fav-add"]').click();
-await page.waitForTimeout(200);
+await settle(page);
 check('Favorites lists Gray Cast Iron and AISI 1020', (await page.locator('[data-testid="mat-favorites"] .k-selbox-row').count()) === 2);
 await shot('gi1-material-favorites');
 await page.locator('.k-dialog-actions .k-btn:has-text("Close")').click();
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-tree-row[data-id="material"]').click({ button: 'right' });
-await page.waitForTimeout(200);
+await settle(page);
 check('the tree material menu lists the favorites and Edit Material…', (await page.locator('.k-menu-item:has-text("AISI 1020")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Gray Cast Iron")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Edit Material…")').count()) === 1);
 await shot('gi2-material-menu');
 await page.locator('.k-menu-item:has-text("AISI 1020")').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('a favorite applies the material', (await S(() => window.__phlippoStore.getState().doc.material?.name)) === 'AISI 1020');
 
 // ---- Product Dimensions tab
@@ -90,10 +91,10 @@ for (const l of ['Auto Dimension Scheme', 'Location Dimension', 'Size Dimension'
 await shot('gi3-mbd-tab');
 // Auto Dimension Scheme
 await page.click('.k-cm-big:has-text("Auto Dimension Scheme") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 check('Auto Dimension Scheme PM: Settings (Prismatic/Turned, Plus and Minus/Geometric), Datum Selection, Scope', (await page.locator('[data-testid="autoTolerance-pm"]').count()) === 1 && (await page.locator('[data-testid="dx-plusminus"]').isChecked()) && (await page.locator('.k-section-name:text-is("Datum Selection")').count()) === 1);
 await page.locator('[data-testid="dx-ok"]').click();
-await page.waitForTimeout(500);
+await settle(page);
 const d1 = await dx();
 check('the scheme has datums A B C and size dimensions 60 / 40 / 20', d1 && d1.datums.length === 3 && d1.dims.filter((x) => x.kind === 'size').map((x) => x.value).sort((a, b) => a - b).join(',') === '20,40,60', JSON.stringify(d1?.dims.map((x) => x.value)));
 check('Tolerance Tree shows the datums and dimensions', (await page.locator('[data-testid="dx-datum"]').count()) === 3 && (await page.locator('[data-testid="dx-size"]').count()) === 3);
@@ -101,48 +102,48 @@ check('callouts in the graphics area: 3 datums and 3 dimensions with ± toleranc
 await shot('gi4-auto-scheme');
 // Show Tolerance Status
 await page.click('.k-cm-big:has-text("Show Tolerance Status") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 check('Show Tolerance Status: 6 faces fully constrained', /6 fully constrained/.test(await page.locator('[data-testid="dx-status-legend"]').innerText()));
 await shot('gi5-tolerance-status');
 await page.click('.k-cm-big:has-text("Show Tolerance Status") .k-cm-main');
 // Datum D on the top face
 await page.click('.k-cm-big:has-text("Datum") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await pickFace('f.normal[1] > 0.99');
 await page.locator('[data-testid="dx-label"]').fill('D');
 await page.locator('[data-testid="dx-ok"]').click();
-await page.waitForTimeout(400);
+await settle(page);
 check('Datum D added', (await dx()).datums.map((x) => x.label).join('') === 'ABCD');
 // Size Dimension between the two X faces, basic
 await page.click('.k-cm-big:has-text("Size Dimension") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await pickFace('f.normal[0] > 0.99');
 await pickFace('f.normal[0] < -0.99', true);
-await page.waitForTimeout(200);
+await settle(page);
 check('two faces picked for the size dimension', (await page.locator('[data-testid="dx-faces"] .k-selbox-row').count()) === 2);
 await page.locator('[data-testid="dx-ok"]').click();
-await page.waitForTimeout(400);
+await settle(page);
 const d2 = await dx();
 check('Size Dimension 60 added (4 size dimensions)', d2.dims.filter((x) => x.kind === 'size').length === 4 && d2.dims[d2.dims.length - 1].value === 60);
 // Geometric Tolerance: flatness on the top face with datum A
 await page.click('.k-cm-big:has-text("Geometric Tolerance") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await pickFace('f.normal[1] > 0.99');
 await page.locator('[data-testid="dx-sym-flatness"]').click();
 await page.locator('[data-testid="dx-datum-A"]').click();
 await page.locator('[data-testid="dx-ok"]').click();
-await page.waitForTimeout(400);
+await settle(page);
 const d3 = await dx();
 check('Geometric Tolerance ⏥ with datum A added', d3.gtols.length === 1 && d3.gtols[0].symbol === 'flatness' && d3.gtols[0].datums.join('') === 'A' && (await page.locator('[data-testid="dx-callout-gtol"]').count()) === 1, JSON.stringify(d3.gtols));
 await shot('gi6-autoTolerance');
 // Tolerance Stack-up Study message and Delete All Tolerances
 await page.click('.k-cm-small:has-text("Tolerance Sum")');
-await page.waitForTimeout(300);
+await settle(page);
 check('Tolerance Sum: worst case and RSS over all dimensions, said so (F90)', /not the stack-up of one dimension chain/.test(await page.locator('[data-testid="ask"]').innerText()) && /worst case/.test(await page.locator('[data-testid="ask"]').innerText()) && /RSS/.test(await page.locator('[data-testid="ask"]').innerText()));
 await page.locator('[data-testid="ask"] .k-btn.primary').click();
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-cm-small:has-text("Delete All Tolerances")');
-await page.waitForTimeout(400);
+await settle(page);
 check('Delete All Tolerances clears the scheme and the callouts', (await dx()) === null && (await page.locator('[data-testid="dx-callout-dim"]').count()) === 0);
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');

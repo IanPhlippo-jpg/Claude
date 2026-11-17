@@ -19,14 +19,14 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 tek.sheets[0].views = tek.sheets[0].views.filter((v) => !v.section && !v.detail);
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
 await settle(page);
 const toPx = (p) => page.evaluate((q) => window.__phlippoSheet.toPx(q), p);
-const click = async (p) => { const q = await toPx(p); await page.mouse.click(q.x, q.y); await page.waitForTimeout(200); };
+const click = async (p) => { const q = await toPx(p); await page.mouse.click(q.x, q.y); await settle(page); };
 const v2s = (id, p) => page.evaluate(([vid, q]) => window.__phlippoSheet.viewToSheet(vid, q), [id, p]);
 
 // Removed Section through the lever (vertical cut in the front view at the middle of the lever), placed in free space
@@ -34,11 +34,11 @@ const front = await page.evaluate(() => { const st = window.__phlippoStore.getSt
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView('v1'));
 await page.click('.k-cm-tab:has-text("Drawing")');
 await page.click('.k-cm-big:has-text("Removed Section") .k-cm-main');
-await page.waitForTimeout(200);
+await settle(page);
 const xCut = front.min[0] + (front.max[0] - front.min[0]) * 0.55;
 await click(await v2s('v1', [xCut, (front.min[1] + front.max[1]) / 2]));
 await click([300, 230]);
-await page.waitForTimeout(1500);
+await settle(page);
 const rs = await page.evaluate(() => { const v = window.__phlippoStore.getState().doc.sheets[0].views.find((x) => x.section?.removed); return v && { name: v.name, pos: v.position, removed: v.section.removed }; });
 check('Removed Section: the cut face only, placed where clicked', rs && rs.removed && Math.abs(rs.pos[0] - 300) < 0.5 && Math.abs(rs.pos[1] - 230) < 0.5 && /Section View/.test(rs.name), JSON.stringify(rs));
 const hatchCount = await page.evaluate(() => document.querySelectorAll('path[fill="url(#k-hatch)"]').length);

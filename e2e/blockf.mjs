@@ -47,7 +47,7 @@ await S(() => {
 await settle(page);
 const vol = async () => { await waitSettled(page); return S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0); }); };
 await page.click('.k-tree-row[data-id="e1"] .caret');
-await page.waitForTimeout(200);
+await settle(page);
 check('shared sketch shows the hand icon', await S(() => !!document.querySelector('.k-tree-row svg path[stroke="#8a5a2b"]')));
 const v0 = await vol();
 
@@ -86,7 +86,7 @@ await S((pid) => window.__phlippoStore.setState({ selection: [{ kind: 'point', i
 await settle(page);
 check('Pierce offered for one point', (await page.locator('[data-testid="rel-pierce"]').count()) === 1);
 await page.click('[data-testid="rel-pierce"]');
-await page.waitForTimeout(300);
+await settle(page);
 const px = await S(({ sid, pid }) => window.__phlippoStore.getState().doc.sketches[sid].points[pid], { sid, pid });
 check('Pierce moves the point onto the path (x = 12)', Math.abs(px.x - 12) < 1e-3, JSON.stringify(px));
 await S(() => window.__phlippoStore.getState().exitSketch());

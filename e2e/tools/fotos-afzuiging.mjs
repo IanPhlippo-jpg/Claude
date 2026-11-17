@@ -5,6 +5,7 @@
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { settle } from '../lib/wait.mjs';
 
 const UIT = process.argv[2] ?? 'e2e-out/fotos-afzuiging';
 const OUD = process.argv[3];
@@ -19,14 +20,14 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const lees = (f) => { const d = JSON.parse(readFileSync(f, 'utf8')); delete d.format; return d; };
-const open = async (d) => { await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(3500); };
-const snede = async (sv) => { await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), sv); await page.waitForTimeout(1500); };
+const open = async (d) => { await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(3500); }; // fixed: shot tool, time for the light and the exact bodies before the photo
+const snede = async (sv) => { await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), sv); await page.waitForTimeout(1500); }; // fixed: shot tool, time for the light and the exact bodies before the photo
 const foto = async (toets, naam) => {
   await page.keyboard.press(toets);
-  await page.waitForTimeout(700);
+  await settle(page);
   await page.keyboard.press('f');
   await page.mouse.move(5, 5); // na het zoomen de muis naar een lege hoek (geen highlight)
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(1800); // fixed: shot tool, time for the light and the exact bodies before the photo
   const vb = await page.locator('.k-viewport').boundingBox();
   await page.screenshot({ path: join(UIT, `${naam}.png`), clip: { x: vb.x + 2, y: vb.y + 44, width: vb.width - 4, height: vb.height - 104 } });
   console.log('foto', naam);

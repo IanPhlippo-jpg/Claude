@@ -14,6 +14,9 @@ const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFin
 export const MAX_INSTANCES = 10_000;
 /** the most triangles one imported mesh may hold (a 64 MB file holds about 1.3 million in the compact form) */
 export const MAX_IMPORT_TRIANGLES = 4_000_000;
+/** the longest STEP text an imported body may keep for the B-rep kernel: the 16 MB every text of a file stays under
+ * (checkStructure), so older builds open the file too; a larger solid is imported as a mesh only */
+export const MAX_STEP_CHARS = 16 * 1024 * 1024;
 
 const PATTERNS = new Set(['linearPattern', 'circularPattern', 'sketchPattern', 'curvePattern', 'tablePattern', 'fillPattern',
   'variablePattern']);
@@ -72,5 +75,8 @@ function importedProblem(f: Raw): string | null {
   if (p.length % 9) return 'the mesh positions are not whole triangles';
   if (p.length > MAX_IMPORT_TRIANGLES * 9) return `the mesh has more than ${MAX_IMPORT_TRIANGLES} triangles`;
   for (let i = 0; i < p.length; i++) if (!isNum(p[i]) || Math.abs(p[i]) > 1e12) return 'the mesh holds a number out of range';
+  // the exact solid of a STEP import (optional, docs/32 item 5): a STEP text; the mesh above stays the fallback
+  const s = f.step;
+  if (s !== undefined && (typeof s !== 'string' || !s.startsWith('ISO-10303-21;') || s.length > MAX_STEP_CHARS)) return 'the stored STEP source is damaged';
   return null;
 }

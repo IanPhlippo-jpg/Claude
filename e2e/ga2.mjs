@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -45,7 +45,7 @@ const block = () => S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await block();
-await page.waitForTimeout(700);
+await settle(page);
 const v0 = await vol();
 check('block volume 24000', Math.abs(v0 - 24000) < 1, String(v0));
 
@@ -54,7 +54,7 @@ await S(() => window.__phlippoStore.getState().startRound('chamfer'));
 await settle(page);
 check('Chamfer Type shows five types', (await page.locator('[data-testid="chamfer-vertex"]').count()) === 1 && (await page.locator('[data-testid="chamfer-offsetface"]').count()) === 1 && (await page.locator('[data-testid="chamfer-faceface"]').count()) === 1);
 await page.click('[data-testid="chamfer-vertex"]');
-await page.waitForTimeout(150);
+await settle(page);
 check('Vertex type shows the vertex box and D1/D2/D3 with Equal distance', (await page.locator('[data-testid="chamfer-vertex-box"]').count()) === 1 && (await page.locator('[data-testid="chamfer-equal"]').isChecked()) === true);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ size: 6, vertex: { point: [20, 20, 15], label: 'Vertex<1>' } }));
 await S(() => window.__phlippoStore.getState().commitFeature());
@@ -92,7 +92,7 @@ await S(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k2' }); win
 await settle(page);
 check('Sweep PM offers Sketch Profile / Circular Profile', (await page.locator('[data-testid="sweep-profile"] label').count()) === 2);
 await page.locator('[data-testid="sweep-profile"] label:has-text("Circular Profile") input').check();
-await page.waitForTimeout(150);
+await settle(page);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ diameter: 6, pathSketchId: 's2', sketchId: 's2', merge: false }));
 check('Options list Profile orientation and Profile Twist', (await page.locator('[data-testid="sweep-orientation"]').count()) === 1 && (await page.locator('[data-testid="sweep-twist"]').count()) === 1);
 await S(() => window.__phlippoStore.getState().commitFeature());
@@ -149,10 +149,10 @@ const fillState = await S(() => { const d = window.__phlippoStore.getState().fea
 check('the top face becomes the fill boundary', fillState.hasFill, JSON.stringify(fillState));
 check('Pattern Layout offers Circular and Polygon', (await page.locator('[data-testid="fill-circular"]').count()) === 1 && (await page.locator('[data-testid="fill-polygon"]').count()) === 1);
 await page.click('[data-testid="fill-circular"]');
-await page.waitForTimeout(100);
+await frames(page);
 check('Validate Count and Create seed cut are there', (await page.locator('[data-testid="fill-validate"]').count()) === 1 && (await page.locator('[data-testid="fill-seedcut"]').count()) === 1);
 await page.click('[data-testid="fill-polygon"]');
-await page.waitForTimeout(100);
+await frames(page);
 check('Polygon layout stores six sides', (await S(() => window.__phlippoStore.getState().featureEdit.draft.fill.sides)) === 6);
 await S(() => window.__phlippoStore.getState().cancelFeature());
 

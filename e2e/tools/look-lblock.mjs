@@ -2,6 +2,7 @@
 // isometric, at 1280 x 720 like the calibration frames -> e2e-out/look-lblock.png, -sel.png (a face selected).
 // Prints the grey levels of the top, front and right faces and of the background.
 import { chromium } from 'playwright';
+import { settle, frames } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, colorScheme: process.env.DARK ? 'dark' : 'light' });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
@@ -22,25 +23,25 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(1500);
+await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(640, 700);
-await page.waitForTimeout(1200);
+await frames(page, 3);
 await page.screenshot({ path: (process.env.DARK ? 'e2e-out/look-dark-lblock' : 'e2e-out/look-lblock')+'.png' });
 // the same without ambient occlusion, for comparison
 await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
-await page.waitForTimeout(1200);
+await settle(page);
 await page.screenshot({ path: (process.env.DARK ? 'e2e-out/look-dark-lblock' : 'e2e-out/look-lblock')+'-noao.png' });
 await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
-await page.waitForTimeout(1200);
+await settle(page);
 // a face selected with a real click (the big front face), then the pointer away; and a face under the pointer (hover)
 await page.mouse.click(640, 420);
 await page.mouse.move(1100, 650);
-await page.waitForTimeout(600);
+await frames(page, 3);
 await page.screenshot({ path: (process.env.DARK ? 'e2e-out/look-dark-lblock' : 'e2e-out/look-lblock')+'-sel.png' });
 await page.mouse.move(830, 520);
-await page.waitForTimeout(600);
+await frames(page, 3);
 await page.screenshot({ path: (process.env.DARK ? 'e2e-out/look-dark-lblock' : 'e2e-out/look-lblock')+'-hover.png' });
 console.log(await page.evaluate(() => JSON.stringify(window.__phlippoStore.getState().selectedFace)));
 await browser.close();

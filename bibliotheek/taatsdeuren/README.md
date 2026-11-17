@@ -253,5 +253,5 @@ node bibliotheek/taatsdeuren/maak-deuren.mjs --koop
 
 Eén deur op maat: geef de stijl, de breedte, de hoogte en het profielsysteem mee.
 
-Testen: `npx cross-env VOORBEELDEN=1 vitest run src/qa/qaDeuren.test.ts` (100 stijlen x 3 maten, model en botsingen,
+Testen: `npx cross-env VOORBEELDEN=1 vitest run bibliotheek/tests/qaDeuren.test.ts` (100 stijlen x 3 maten, model en botsingen,
 ongeveer 10 minuten). Beelden: `node e2e/tools/look-deuren.mjs`. De 3D-kamer staat in `kamer.mjs` (three.js 0.160).

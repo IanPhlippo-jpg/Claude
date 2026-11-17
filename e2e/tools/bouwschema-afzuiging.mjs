@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REVISIE_TEKST } from '../../voorbeelden/afzuiging/revisie.mjs';
 import { ONDERHOUD } from '../../voorbeelden/afzuiging/onderhoud.mjs';
+import { settle } from '../lib/wait.mjs';
 
 const UIT = 'voorbeelden/afzuiging/tekeningen';
 const BEELD = 'e2e-out/bouwschema';
@@ -250,14 +251,14 @@ for (const [i, s] of STAPPEN.entries()) {
   s.foto = [];
   for (const b of s.beelden) {
     await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), samenstelling(b));
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
     await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), b.snede ?? null);
-    if (b.snede) await page.waitForTimeout(1500);
+    if (b.snede) await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
     await page.keyboard.press(b.toets ?? 'Control+7');
-    await page.waitForTimeout(600);
+    await settle(page);
     await page.keyboard.press('f');
     await page.mouse.move(5, 5);
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(1500); // fixed: shot tool, time for the light and the exact bodies before the photo
     const f = `${BEELD}/stap-${String(i + 1).padStart(2, '0')}-${++n}.jpg`;
     // zonder de werkbalk bovenaan en het assenkruis onderaan
     const vb = await page.locator('.k-viewport').boundingBox();

@@ -21,13 +21,13 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 // an open L profile on the Front plane: (0,0) -> (40,0) -> (40,30)
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 const p0 = await P(0, 0), p1 = await P(40, 0), p2 = await P(40, 30);
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
@@ -40,11 +40,11 @@ await page.keyboard.press('Escape');
 // Base Flange/Tab from the Sheet Metal tab
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-big:has-text("Base Flange/Tab") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 const pmTitle = await page.locator('.k-pm-title').innerText();
 check('Base Flange PM: Direction 1, Sheet Metal Parameters, Bend Allowance', /Base-Flange1/.test(pmTitle) && (await page.locator('.k-section:has-text("Sheet Metal Parameters")').count()) >= 1 && (await page.locator('.k-section:has-text("Bend Allowance")').count()) === 1 && (await page.locator('.k-section:has-text("Direction 1")').count()) === 1, pmTitle);
 await page.keyboard.press('Control+7');
-await page.waitForTimeout(400);
+await settle(page);
 await shot('sm1-base-flange-pm');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -62,7 +62,7 @@ await shot('sm2-base-flange');
 // Edge Flange on the top edge of the vertical leg (the straight edge at y = 30 on the outer face)
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-big:has-text("Edge Flange") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 check('Edge Flange PM asks for an edge', (await page.locator('.k-selbox:has-text("Select a straight edge")').count()) === 1);
 const picked = await page.evaluate(() => {
   const s = window.__phlippoStore.getState();
@@ -78,7 +78,7 @@ const picked = await page.evaluate(() => {
 check('picked edge goes into Flange Parameters', !!picked && picked.edge && (await page.locator('.k-selbox-row:has-text("Edge<1>")').count()) === 1, JSON.stringify(picked));
 await page.locator('.k-section:has-text("Flange Length") input.k-num').first().fill('32');
 await page.locator('.k-section:has-text("Flange Length") input.k-num').first().press('Tab');
-await page.waitForTimeout(500);
+await settle(page);
 await shot('sm3-edge-flange-preview');
 await page.click('.k-pm-ok');
 await settle(page);
@@ -95,7 +95,7 @@ await shot('sm4-edge-flange');
 // Flatten: the sheet unfolds to a flat plate of the developed length
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Flatten")');
-await page.waitForTimeout(800);
+await settle(page);
 s = await S();
 const v3 = await volume();
 const ba = (Math.PI / 2) * (r + 0.5 * t), sb = (r + t) * Math.tan(Math.PI / 4);
@@ -106,12 +106,12 @@ await page.keyboard.press('f');
 await settle(page, { quiet: 300 });
 await shot('sm5-flat-pattern');
 await page.click('.k-cm-small:has-text("Flatten")');
-await page.waitForTimeout(800);
+await settle(page);
 check('Flatten again folds the sheet back', Math.abs((await volume()) - v2) < 1);
 
 // Sheet-Metal1: change the thickness to 2 -> the sheet rebuilds
 await page.locator('.k-tree-row:has-text("Sheet-Metal")').first().dblclick();
-await page.waitForTimeout(300);
+await settle(page);
 check('Sheet-Metal1 PM with Bend Parameters', (await page.locator('.k-pm-title:has-text("Sheet-Metal1")').count()) === 1 && (await page.locator('.k-section:has-text("Bend Parameters")').count()) === 1);
 await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().fill('2');
 await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().press('Tab');
@@ -123,7 +123,7 @@ check('thickness 2 gives a thinner sheet', (await volume()) < v2 * 0.8, String(a
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
-await page.waitForTimeout(800);
+await settle(page);
 s = await S();
 check('reload keeps Sheet-Metal1, the flanges and the flat pattern feature', s.sm && s.sm.thickness === 2 && s.features.includes('Edge-Flange1') && s.features.includes('Flat-Pattern1(s)'), JSON.stringify(s));
 

@@ -10,9 +10,10 @@
  *     N seconds.
  */
 import type { Document } from '../core/document/types';
-import { serializeDocument } from '../core/document/persistence';
+import { serializeDocument, setAutosaveTarget, writeAutosaveToStorage } from '../core/document/persistence';
 import { desktop, getDocumentHandle, type RecoverEntry } from './desktop';
 import { recoverSchedule } from './prefsEffects';
+import { getPref } from './prefs';
 import { useStore } from './store';
 import { TEST_HOOKS } from './testHooks';
 
@@ -28,24 +29,53 @@ export function unsavedDocuments(): { doc: Document; handle: string | null }[] {
   return out.filter((o) => !!o.doc.id);
 }
 
+/** the write in progress: removing a copy (Save, Don't Save) waits for it, so a late write never brings a copy back */
+let writing: Promise<unknown> = Promise.resolve();
+
 /** writes the auto-recover copies now (also used by the tests); false when nothing was written */
-export async function writeAutoRecover(): Promise<boolean> {
+export function writeAutoRecover(): Promise<boolean> {
+  const p = writing.then(writeNow, writeNow);
+  writing = p;
+  return p;
+}
+
+async function writeNow(): Promise<boolean> {
   const api = desktop();
   if (!api?.writeRecover) return false;
   let written = 0;
   for (const { doc, handle } of unsavedDocuments()) {
     const data = new TextEncoder().encode(serializeDocument(doc, false)).buffer as ArrayBuffer;
-    const r = await api.writeRecover({ id: doc.id!, name: doc.name, handle, data });
-    if (r?.error) useStore.getState().pushMessage(`The auto-recover copy of ${doc.name} could not be written: ${r.error}`, 'warn');
-    else if (r) written++;
+    const r = await api.writeRecover({ id: doc.id!, name: doc.name, handle, data }).catch((err: unknown) => ({ error: String((err as Error)?.message ?? err) }));
+    if (r?.error) {
+      useStore.getState().pushMessage(`The auto-recover copy of ${doc.name} could not be written: ${r.error}`, 'warn');
+      // the disk refused it (full, no access): the browser storage keeps a copy instead (P2-6)
+      writeAutosaveToStorage(doc);
+    } else if (r) written++;
   }
   return written > 0;
+}
+
+/**
+ * P2-6: in the desktop app the autosave after every change (≈2 s after the last one, persistence.ts) goes to the
+ * auto-recover folder on disk instead of the browser storage: no
+ * storage quota for large documents and a copy that Document Recovery finds after a crash. With Options ▸
+ * Backup/Recover ▸ Auto-Recover off, or in the browser, the copy stays in the browser storage.
+ */
+export function diskAutosave(doc: Document): boolean {
+  if (getPref('backup.autoRecover') === false) return writeAutosaveToStorage(doc);
+  lastRecover = Date.now();
+  void writeAutoRecover();
+  return true;
 }
 
 /** the document was saved: its copies (without a file, and at the files it was or is saved to) are no longer needed */
 export function clearAutoRecover(doc: Document, handles: (string | null)[]): Promise<void> | null {
   const api = desktop();
-  return doc.id && api?.removeRecover ? api.removeRecover({ id: doc.id, handles }).catch(() => {}) : null;
+  if (!doc.id || !api?.removeRecover) return null;
+  const id = doc.id;
+  const p = writing.then(() => api.removeRecover!({ id, handles })).catch(() => {});
+  writing = p;
+  return p;
 }
 
 /** "Don't Save": the changes of the open documents are discarded, and so are their copies; null when there is nothing to remove */
@@ -95,6 +125,7 @@ async function announceRecovery(): Promise<void> {
 }
 
 if (typeof window !== 'undefined') {
+  if (desktop()?.writeRecover) setAutosaveTarget(diskAutosave);
   setInterval(() => tick(Date.now()), 15_000);
   setTimeout(() => void announceRecovery(), 0);
   if (TEST_HOOKS) (window as unknown as Record<string, unknown>).__phlippoAutoRecover = { write: writeAutoRecover, list: listDiskRecovery };

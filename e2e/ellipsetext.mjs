@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
-import { settle } from './lib/wait.mjs';
+import { settle, frames } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,12 +21,12 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.click('.k-tree-row:has-text("Front Plane")');
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 const kinds = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return sk ? sk.entityOrder.map((id) => sk.entities[id].kind) : []; });
 
@@ -37,29 +37,29 @@ await page.mouse.click(a.x, a.y);
 await page.mouse.click(b.x, b.y);
 await page.keyboard.press('Escape');
 await page.click('.k-cm-iconbtn[data-tip="Ellipse"]');
-await page.waitForTimeout(150);
+await settle(page);
 check('Ellipse tool active with its message', await page.evaluate(() => window.__phlippoStore.getState().tool === 'ellipse'));
 for (const [x, y] of [[-30, 0], [-5, 0], [-30, 12]]) {
   const q = await P(x, y);
   await page.mouse.move(q.x, q.y);
-  await page.waitForTimeout(60);
+  await frames(page, 3);
   await page.mouse.click(q.x, q.y);
 }
-await page.waitForTimeout(200);
+await settle(page);
 const el = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; const e = sk.entityOrder.map((id) => sk.entities[id]).find((x) => x.kind === 'ellipse'); if (!e) return null; const c = sk.points[e.center], m = sk.points[e.major]; return { c, a: Math.hypot(m.x - c.x, m.y - c.y), b: sk.scalars[e.r2] }; });
 check('ellipse: centre (-30, 0), a = 25, b = 12', el && Math.abs(el.c.x + 30) < 0.6 && Math.abs(el.a - 25) < 0.6 && Math.abs(el.b - 12) < 0.6, JSON.stringify(el));
 await page.keyboard.press('Escape');
 // Sketch Text "PHLIPPO" right of the ellipse
 await page.click('.k-cm-iconbtn[data-tip="Text"]');
-await page.waitForTimeout(150);
+await settle(page);
 check('Sketch Text Property Panel', (await page.locator('[data-testid="sketch-text-pm"]').count()) === 1);
 await page.fill('[data-testid="sketch-text-pm"] textarea', 'CAD');
 const tp = await P(8, -6);
 await page.mouse.move(tp.x, tp.y);
-await page.waitForTimeout(200);
+await frames(page, 3);
 await shot('et1-text-preview');
 await page.mouse.click(tp.x, tp.y);
-await page.waitForTimeout(200);
+await settle(page);
 await page.keyboard.press('Escape');
 const k = await kinds();
 check('sketch has 4 lines, an ellipse and a text', k.filter((x) => x === 'line').length === 4 && k.includes('ellipse') && k.includes('text'), k.join(','));

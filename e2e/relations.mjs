@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { checks, exitCode, skip } from './lib/check.mjs';
+import { settle, frames } from './lib/wait.mjs';
 const { results, check } = checks();
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -14,7 +15,7 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 // start a sketch by double-clicking the Front Plane in the Feature Tree
 await page.dblclick('.k-tree-row:has-text("Front Plane")');
-await page.waitForTimeout(500);
+await settle(page);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 const status = async () => (await page.locator('.k-statusbar .status').first().textContent()).trim();
@@ -38,28 +39,28 @@ await page.mouse.click(cx + 80, cy + 60);
 const input = page.locator('.k-modify input.k-num');
 await input.fill('50');
 await input.press('Enter');
-await page.waitForTimeout(100);
+await frames(page);
 check('a 50 mm length makes it fully defined', (await status()) === 'Fully Defined', await status());
 
 await page.keyboard.press('Escape');
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx + 200, cy - 100);
 await page.mouse.click(cx + 260, cy - 100);
-await page.waitForTimeout(150);
+await settle(page);
 await page.keyboard.press('Escape');
 check('a redundant dimension makes it over defined', (await status()) === 'Over Defined', await status());
 check('the status bar explains the over defined sketch', /over defined/.test((await page.locator('.k-status-msg').textContent().catch(skip('relations.mjs:51', ''))) ?? ''));
 await page.screenshot({ path: `${OUT}/05-overdefined.png` });
 await page.keyboard.press('Escape');
 await page.keyboard.press('Control+z');
-await page.waitForTimeout(100);
+await frames(page);
 check('undo makes it fully defined again', (await status()) === 'Fully Defined', await status());
 
 // polygon
 await page.click('.k-cm-iconbtn[data-tip="Polygon"]');
 await page.mouse.click(cx - 250, cy);
 await page.mouse.click(cx - 200, cy);
-await page.waitForTimeout(100);
+await frames(page);
 check('a polygon makes the sketch under defined', (await status()) === 'Under Defined');
 
 // circle + arc + tangent
@@ -78,7 +79,7 @@ await page.mouse.click(cx + 400, cy + 220);
 await page.keyboard.up('Control');
 check('the PM offers Tangent, Equal and Concentric', JSON.stringify(await page.locator('.k-pm-relbtn').allTextContents()) === JSON.stringify(['Tangent', 'Equal', 'Concentric']), JSON.stringify(await page.locator('.k-pm-relbtn').allTextContents()));
 await page.click('.k-pm-relbtn:has-text("Tangent")');
-await page.waitForTimeout(100);
+await frames(page);
 check('Tangent applied, still under defined', (await status()) === 'Under Defined', await status());
 
 // drag the circle centre
@@ -88,7 +89,7 @@ await page.mouse.down();
 await page.mouse.move(cx + 380, cy - 20, { steps: 5 });
 await page.mouse.move(cx + 360, cy - 40, { steps: 5 });
 await page.mouse.up();
-await page.waitForTimeout(100);
+await frames(page);
 check('a drag keeps the sketch under defined', (await status()) === 'Under Defined');
 
 // centerline + mirror: draw a circle and a vertical centerline, select both, Mirror
@@ -109,7 +110,7 @@ check('two items selected for Mirror', (await page.evaluate(() => window.__phlip
 const count = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.doc.sketches[s.activeSketchId].entityOrder.length; });
 const before = await count();
 await page.click('.k-cm-small:has-text("Mirror Entities")');
-await page.waitForTimeout(100);
+await frames(page);
 check('Mirror adds the mirrored entity', (await count()) > before, `${before} -> ${await count()}`);
 await page.screenshot({ path: `${OUT}/06-relations.png` });
 

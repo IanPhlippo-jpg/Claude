@@ -23,9 +23,9 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-viewport', { position: { x: 600, y: 500 } });
 await page.keyboard.press('Delete');
 if (!(await alive('nothing selected (empty part)'))) process.exit(1);
@@ -60,11 +60,11 @@ await page.keyboard.press('Escape');
 // the feature selected in the tree
 await page.evaluate(() => window.__phlippoStore.getState().setSelectedFeature('f1'));
 await page.keyboard.press('Delete');
-await page.waitForTimeout(400);
+await page.waitForTimeout(400); // fixed: freeze check, the wait must not run inside a page that may hang
 if (!(await alive('a feature selected'))) process.exit(1);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Enter');
-await page.waitForTimeout(300);
+await settle(page);
 
 // in the sketch: a line and the dimension
 await page.evaluate(() => window.__phlippoStore.getState().openDocument(window.__phlippoStore.getState().doc));
@@ -72,11 +72,11 @@ await page.evaluate(() => window.__phlippoStore.getState().editSketch('s1'));
 await settle(page);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const id = Object.keys(sk.entities)[1]; s.setSelection([{ kind: 'entity', id }]); });
 await page.keyboard.press('Delete');
-await page.waitForTimeout(300);
+await page.waitForTimeout(300); // fixed: freeze check, the wait must not run inside a page that may hang
 if (!(await alive('a sketch line selected'))) process.exit(1);
 await page.evaluate(() => window.__phlippoStore.getState().selectConstraint('d1'));
 await page.keyboard.press('Delete');
-await page.waitForTimeout(300);
+await page.waitForTimeout(300); // fixed: freeze check, the wait must not run inside a page that may hang
 if (!(await alive('a dimension selected'))) process.exit(1);
 await page.keyboard.press('Escape');
 await page.evaluate(() => window.__phlippoStore.getState().exitSketch());
@@ -87,7 +87,7 @@ await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm
 await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().setSelectedFeature('c7'));
 await page.keyboard.press('Delete');
-await page.waitForTimeout(500);
+await page.waitForTimeout(500); // fixed: freeze check, the wait must not run inside a page that may hang
 if (!(await alive('an assembly component selected'))) process.exit(1);
 await page.keyboard.press('Escape');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
@@ -95,7 +95,7 @@ await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek
 await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView('v4'));
 await page.keyboard.press('Delete');
-await page.waitForTimeout(500);
+await page.waitForTimeout(500); // fixed: freeze check, the wait must not run inside a page that may hang
 await alive('a drawing view selected');
 
 console.log(`

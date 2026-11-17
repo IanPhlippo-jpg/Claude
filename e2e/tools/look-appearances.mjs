@@ -1,5 +1,6 @@
 // look-dev: the Appearances, Scenes, and Decals task pane: Metal > Aluminum, right-click a swatch, apply
 import { chromium } from 'playwright';
+import { settle } from '../lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
@@ -20,16 +21,16 @@ await page.evaluate(() => {
     { id: 'f1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false },
   ] });
 });
-await page.waitForTimeout(800);
+await settle(page);
 await page.click('.k-taskpane-btn[data-pane="appearances"]');
-await page.waitForTimeout(400);
+await settle(page);
 const sw = page.locator('[data-testid="appearance-swatch"]').nth(7);
 await sw.click({ button: 'right' });
-await page.waitForTimeout(300);
+await settle(page);
 await page.screenshot({ path: 'e2e-out/look-appearances.png' });
 const menu = await page.locator('[data-testid="appearance-menu"]').count();
 await page.click('.k-ap-menu-item:has-text("Add Appearance to part")');
-await page.waitForTimeout(600);
+await settle(page);
 const ap = await page.evaluate(() => window.__phlippoStore.getState().doc.appearance);
 await page.screenshot({ path: 'e2e-out/look-appearances2.png' });
 console.log(JSON.stringify({ menu, ap }), errors);

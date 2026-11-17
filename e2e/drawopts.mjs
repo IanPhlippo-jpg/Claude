@@ -25,7 +25,7 @@ const drw = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', '
 // keep the four model views, drop the example's section/detail views
 drw.sheets[0].views = drw.sheets[0].views.filter((v) => !v.section && !v.detail);
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), drw);
-await page.waitForTimeout(2500);
+await settle(page);
 const sheet = () => page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0]);
 const front = (await sheet()).views.find((v) => v.type === 'front');
 const top = (await sheet()).views.find((v) => v.type === 'top');
@@ -69,7 +69,7 @@ await page.evaluate(() => window.__phlippoStore.getState().undo());
 // Partial section and Auto hatching on the door handle assembly
 const asmDrw = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk-tekening.kcad', 'utf8')); delete asmDrw.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asmDrw);
-await page.waitForTimeout(2500);
+await settle(page);
 const afront = (await sheet()).views.find((v) => v.type === 'front');
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDrawingSection('h'); }, afront.id);
 await settle(page);
@@ -78,7 +78,7 @@ await page.click('[data-testid="sv-autohatch"]');
 await page.click('[data-testid="sv-partial"]');
 await page.evaluate((id) => window.__phlippoStore.getState().setSectionLine(id, 0), afront.id);
 await page.evaluate((p) => window.__phlippoStore.getState().placeSectionView(p), [afront.position[0], 60]);
-await page.waitForTimeout(2500);
+await settle(page);
 s = await sheet();
 sv = s.views[s.views.length - 1];
 const variants = await page.evaluate(() => [...new Set([...document.querySelectorAll('path[data-hatch-variant]')].map((p) => p.getAttribute('data-hatch-variant')))]);
@@ -88,7 +88,7 @@ await page.screenshot({ path: `${OUT}/drawopts-autohatch.png` });
 
 // back to the handle part drawing for the detail view and dimensions
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), drw);
-await page.waitForTimeout(2000);
+await settle(page);
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDetailView(); }, front.id);
 await settle(page);
 await page.click('.k-section-title:has-text("Detail View")');
@@ -110,32 +110,32 @@ await page.screenshot({ path: `${OUT}/drawopts-detail.png` });
 const dim = (await sheet()).dimensions.find((d) => d.kind === 'linear' && d.orientation === 'h');
 const dimEl = page.locator(`[data-dim-id="${dim.id}"] text`).first();
 await dimEl.click();
-await page.waitForTimeout(200);
+await settle(page);
 check('clicking a dimension selects it and opens the Dimension PM', await page.evaluate((id) => window.__phlippoStore.getState().selectedDrawingDimensionId === id, dim.id) && (await page.locator('[data-testid="dim-tab-leaders"]').count()) === 1);
 await page.selectOption('[data-testid="dim-tol"]', 'bilateral');
-await page.waitForTimeout(150);
+await settle(page);
 check('Bilateral tolerance shown stacked (+0.10 / -0.10)', (await page.locator(`[data-dim-id="${dim.id}"] [data-testid="dim-tol-upper"]`).textContent()) === '+0.10' && (await page.locator(`[data-dim-id="${dim.id}"] [data-testid="dim-tol-lower"]`).textContent()) === '-0.10');
 await page.selectOption('[data-testid="dim-tol"]', 'symmetric');
 await page.selectOption('[data-testid="dim-precision"]', '1');
-await page.waitForTimeout(150);
+await settle(page);
 check('Symmetric tolerance and unit precision .1', (await page.locator(`[data-dim-id="${dim.id}"] text`).first().textContent()) === '138.0 ±0.10', await page.locator(`[data-dim-id="${dim.id}"] text`).first().textContent());
 await page.click('.k-section-title:has-text("Dual Dimension")');
 await page.click('[data-testid="dim-dual"]');
-await page.waitForTimeout(150);
+await settle(page);
 check('Dual dimension in inches', /\[5\.43\]/.test(await page.locator(`[data-dim-id="${dim.id}"] [data-testid="dim-dual-text"]`).textContent()));
 await page.click('[data-testid="dim-override"]');
 await page.fill('[data-testid="dim-override-text"]', '138 REF');
 await page.click('.k-section-title:has-text("Dimension Text")');
 await page.fill('[data-testid="dim-prefix"]', '2x ');
-await page.waitForTimeout(150);
+await settle(page);
 check('Override value and prefix', /^2x 138 REF/.test(await page.locator(`[data-dim-id="${dim.id}"] text`).first().textContent()), await page.locator(`[data-dim-id="${dim.id}"] text`).first().textContent());
 await page.click('[data-testid="dim-tab-leaders"]');
 await page.click('[data-testid="dim-arrows-outside"]');
-await page.waitForTimeout(150);
+await settle(page);
 check('Leaders ▸ arrows outside', (await page.locator(`[data-dim-id="${dim.id}"]`).getAttribute('data-arrows')) === 'outside');
 await page.click('[data-testid="dim-tab-other"]');
 await page.click('.k-pm label:has-text("Use document font") input');
-await page.waitForTimeout(150);
+await settle(page);
 check('Other ▸ text height 5 mm', (await sheet()).dimensions.find((d) => d.id === dim.id).fontSize === 5);
 // drag the text
 const bb = await page.locator(`[data-dim-id="${dim.id}"] text`).first().boundingBox();
@@ -143,13 +143,13 @@ await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2);
 await page.mouse.down();
 await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2 - 40, { steps: 4 });
 await page.mouse.up();
-await page.waitForTimeout(200);
+await settle(page);
 const dimAfter = (await sheet()).dimensions.find((d) => d.id === dim.id);
 check('dragging the dimension text moves it', dimAfter.label[1] > dim.label[1] + 2, JSON.stringify([dim.label, dimAfter.label]));
 await page.screenshot({ path: `${OUT}/drawopts-dimension.png` });
 await page.locator('.k-sheet-host').focus();
 await page.keyboard.press('Delete');
-await page.waitForTimeout(200);
+await settle(page);
 check('Delete removes the selected dimension', !(await sheet()).dimensions.some((d) => d.id === dim.id));
 
 
@@ -174,7 +174,7 @@ await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.addB
 await settle(page);
 const before = await page.locator('.k-bo-outline').count();
 await page.click('[data-testid="bo-preview"]');
-await page.waitForTimeout(1200);
+await settle(page);
 check('Broken-out Section ▸ Preview shows the cut before OK', before === 0 && (await page.locator('.k-bo-outline').count()) === 1 && !(await sheet()).views.find((v) => v.id === fv.id).brokenOut);
 await page.evaluate(() => window.__phlippoStore.getState().cancelDrawingEdit());
 
@@ -191,7 +191,7 @@ await page.click('[data-testid="balloon-edges"]');
 await page.click(`[data-testid="balloon-layout-top"]`);
 const ab = await page.evaluate((id) => window.__phlippoSheet.toPx((window.__phlippoStore.getState().doc.sheets[0].views.find((v) => v.id === id).position)), fv.id);
 await page.mouse.click(ab.x, ab.y);
-await page.waitForTimeout(400);
+await settle(page);
 const heads = await page.evaluate(() => (window.__phlippoStore.getState().doc.sheets[0].symbols ?? []).filter((s) => s.kind === 'balloon').map((s) => s.head));
 check('Auto Balloon ▸ Leader attachment Edges: arrow on an edge', heads.length >= 1 && heads.every((h) => h === 'arrow'), JSON.stringify(heads));
 
@@ -203,7 +203,7 @@ await page.evaluate((id) => window.__phlippoStore.getState().selectDrawingView(i
 await page.evaluate(() => window.__phlippoStore.getState().setManagerTab('properties'));
 await settle(page);
 await page.click('[data-testid="dv-parentscale"]');
-await page.waitForTimeout(300);
+await settle(page);
 const secScale = await page.evaluate((id) => window.__phlippoStore.getState().doc.sheets[0].views.find((v) => v.id === id).scale, secId);
 check('Drawing View PM ▸ Use parent scale', JSON.stringify(secScale) === JSON.stringify(fv.scale ?? (await sheet()).scale), JSON.stringify(secScale));
 await page.screenshot({ path: `${OUT}/drawopts-rest.png` });

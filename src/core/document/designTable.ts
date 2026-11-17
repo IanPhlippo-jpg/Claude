@@ -12,8 +12,8 @@ import { dimensionTable } from './equations';
  * Parameters are dimension names (D1@Sketch1), $STATE@<feature> (S / U, Suppressed / Unsuppressed),
  * $DESCRIPTION and $COMMENT. The table is read into the existing configurations (their per-configuration
  * dimension values and suppressed features); nothing else is stored. Text is CSV: ";", "," or tab between
- * cells, a decimal comma or point. A blank cell keeps the value the configuration already has (a new
- * configuration starts from the active one).
+ * cells, a decimal comma or point; an Excel workbook (.xlsx, designTableFile.ts) holds the same rows. A blank
+ * cell keeps the value the configuration already has (a new configuration starts from the active one).
  */
 export interface DesignTableExportOptions {
   /** ";" writes a decimal comma (spreadsheets with a comma as decimal sign), "," a decimal point (default ";") */
@@ -42,10 +42,12 @@ function quote(cell: string, sep: string): string {
   return /["\r\n]/.test(cell) || cell.includes(sep) ? `"${cell.replace(/"/g, '""')}"` : cell;
 }
 
-/** The configurations of a document as a design table (CSV text). */
-export function exportDesignTable(doc: Document, opts: DesignTableExportOptions = {}): string {
-  const sep = opts.separator ?? ';';
-  const comma = sep === ';';
+/**
+ * The configurations of a document as the rows of a design table: the title row, the parameter row, one row per
+ * configuration; dimension values as numbers (rounded to 6 decimals), the rest as text. The CSV and Excel exports
+ * write these rows.
+ */
+export function designTableRows(doc: Document, opts: Pick<DesignTableExportOptions, 'states'> = {}): (string | number)[][] {
   const list = configurations(doc);
   const active = activeConfiguration(doc);
   // every configuration as the document shows it: its own values, suppressed features and new-feature rules
@@ -60,13 +62,21 @@ export function exportDesignTable(doc: Document, opts: DesignTableExportOptions 
     const values = new Map(dimensionTable(d).map((x) => [x.name, x.value]));
     return [
       c.name,
-      ...dimNames.map((n) => (values.has(n) ? formatNumber(values.get(n)!, comma) : '')),
+      ...dimNames.map((n) => (values.has(n) ? Number(values.get(n)!.toFixed(6)) : '')),
       ...stateFeatures.map((f) => (d.features.find((g) => g.id === f.id)?.suppressed ? 'S' : 'U')),
       ...(withDesc ? [c.description ?? ''] : []),
       ...(withComment ? [c.comment ?? ''] : []),
     ];
   });
-  return [[`${TITLE} ${doc.name}`], header, ...rows].map((r) => r.map((cell) => quote(cell, sep)).join(sep)).join('\r\n') + '\r\n';
+  return [[`${TITLE} ${doc.name}`], header, ...rows];
+}
+
+/** The configurations of a document as a design table (CSV text). */
+export function exportDesignTable(doc: Document, opts: DesignTableExportOptions = {}): string {
+  const sep = opts.separator ?? ';';
+  const comma = sep === ';';
+  const text = (cell: string | number) => (typeof cell === 'number' ? formatNumber(cell, comma) : cell);
+  return designTableRows(doc, opts).map((r) => r.map((cell) => quote(text(cell), sep)).join(sep)).join('\r\n') + '\r\n';
 }
 
 /** CSV rows; quoted cells may hold the separator, quotes ("") and line breaks */
@@ -126,7 +136,12 @@ type Column =
 export function importDesignTable(doc: Document, text: string): DesignTableResult {
   const clean = text.replace(/^﻿/, '');
   const sep = detectSeparator(clean.split(/\r?\n/));
-  const all = parseCsv(clean, sep).filter((r) => r.some((c) => c.trim() !== ''));
+  return importDesignTableRows(doc, parseCsv(clean, sep));
+}
+
+/** Insert Design Table from rows of cells (a CSV text, or the first worksheet of a workbook read as text) */
+export function importDesignTableRows(doc: Document, cells: string[][]): DesignTableResult {
+  const all = cells.filter((r) => r.some((c) => c.trim() !== ''));
   // the title row ("Design Table for: Part1") and a spreadsheet "sep=;" hint are not part of the table
   const rows = all.filter((r, i) => !(i <= 1 && (r[0].trim().startsWith(TITLE) || /^sep=/i.test(r[0].trim())) && r.slice(1).every((c) => !c.trim())));
   const errors: string[] = [];

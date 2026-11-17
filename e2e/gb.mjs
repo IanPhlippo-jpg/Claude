@@ -42,7 +42,7 @@ await S(() => {
 });
 await settle(page);
 
-const rmb = async (id) => { await page.locator(`.k-tree-row[data-id="${id}"]`).first().click({ button: 'right' }); await page.waitForTimeout(200); };
+const rmb = async (id) => { await page.locator(`.k-tree-row[data-id="${id}"]`).first().click({ button: 'right' }); await settle(page); };
 const menuItem = (label) => menuPath(page, label);
 
 // ---- feature menu: the new items are there
@@ -50,15 +50,15 @@ await rmb('e1');
 for (const l of ['Comment ▸ Add Comment…', 'Parent/Child…', 'Feature Properties…', 'Go To…', 'Create New Folder', 'Add to Favorites', 'Hide/Show Tree Items…', 'Collapse Items']) check(`feature menu has ${l}`, (await menuItem(l).count()) === 1);
 // Comment
 await menuItem('Comment ▸ Add Comment…').click();
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="ask"] input').fill('Hoofdplaat');
 await page.locator('[data-testid="ask"] .k-btn.primary').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('the comment is stored on the feature', (await doc()).comments?.some((c) => c.featureId === 'e1' && c.text === 'Hoofdplaat'));
 // Parent/Child
 await rmb('e1');
 await menuItem('Parent/Child…').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Parent/Child lists Sketch1 as parent and shows the children box', (await page.locator('[data-testid="pc-parents"]').innerText()).includes('Sketch1') && (await page.locator('[data-testid="pc-children"]').count()) === 1, `${await page.locator('[data-testid="pc-parents"]').innerText()} / ${await page.locator('[data-testid="pc-children"]').innerText()}`);
 await page.screenshot({ path: `${OUT}/gb-parentchild.png` });
 await page.keyboard.press('Escape');
@@ -66,7 +66,7 @@ await S(() => window.__phlippoStore.getState().setDialog(null));
 // Feature Properties
 await rmb('e1');
 await menuItem('Feature Properties…').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Feature Properties shows name, description, suppressed', (await page.locator('[data-testid="fp-name"]').inputValue()) === 'Boss-Extrude1' && (await page.locator('[data-testid="fp-desc"]').count()) === 1);
 await page.locator('[data-testid="fp-desc"]').fill('Grondplaat 60 x 40');
 await page.locator('[data-testid="fp-name"]').fill('Grondplaat');
@@ -76,54 +76,54 @@ check('Feature Properties renames and stores the description', (await doc()).fea
 // Go To
 await rmb('e2');
 await menuItem('Go To…').click();
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="ask"] input').fill('grondpl');
 await page.locator('[data-testid="ask"] .k-btn.primary').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Go To selects the feature by (part of) its name', (await S(() => window.__phlippoStore.getState().selectedFeatureId)) === 'e1');
 // Favorites
 await rmb('e2');
 await menuItem('Add to Favorites').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Favorites folder appears at the top with the feature', (await page.locator('.k-tree-row[data-id="favorites"]').count()) === 1 && (await doc()).favorites?.includes('e2'));
 // Folder
 await rmb('e2');
 await menuItem('Create New Folder').click();
-await page.waitForTimeout(300);
+await settle(page);
 const folders = (await doc()).featureFolders ?? [];
 check('Create New Folder makes Folder1 holding the feature', folders.length === 1 && folders[0].featureIds.includes('e2') && (await page.locator('.k-tree-row[data-id^="folder:"]').count()) === 1, JSON.stringify(folders));
 await page.locator('.k-tree-row[data-id^="folder:"] .caret').click();
-await page.waitForTimeout(200);
+await settle(page);
 check('the feature sits under the folder', (await page.locator('.k-tree-row[data-depth="2"][data-id="e2"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/gb-tree.png` });
 
 // ---- body menu
 await page.locator('.k-tree-row[data-id="bodies"] .caret').click();
-await page.waitForTimeout(200);
+await settle(page);
 const bodyRow = page.locator('.k-tree-row[data-id^="body-"]').first();
 await bodyRow.click({ button: 'right' });
-await page.waitForTimeout(200);
+await settle(page);
 for (const l of ['Body Display ▸ Change Transparency', 'Show Feature History', 'Add to New Folder', 'Create Bounding Box', 'Insert into New Part…', 'Save Selection…', 'Save Bodies…', 'Delete/Keep Body…']) check(`body menu has ${l}`, (await menuItem(l).count()) === 1);
 await menuItem('Body Display ▸ Change Transparency').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Change Transparency marks the body transparent', ((await doc()).transparentBodies ?? []).length === 1);
 await bodyRow.click({ button: 'right' });
 await menuItem('Create Bounding Box').click();
-await page.waitForTimeout(500);
+await settle(page);
 check('Create Bounding Box adds the tree item and dashed box curves', (await page.locator('.k-tree-row[data-id="boundingbox"]').count()) === 1 && (await S(() => window.__phlippoStore.getState().rebuild.curves?.filter((c) => c.id.startsWith('bbox:')).length)) === 6);
 await page.locator('.k-tree-row[data-id^="body-"]').first().click({ button: 'right' });
 await menuItem('Add to New Folder').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Add to New Folder groups the body under a folder', (await page.locator('.k-tree-row[data-id^="bfolder:"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/gb-bodies.png` });
 
 // ---- Save As ▸ STL options page and the 3MF / AMF formats
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
-await page.waitForTimeout(150);
+await settle(page);
 check('File menu offers STL, 3MF and AMF', (await menuItem('Save As ▸ STL (*.stl)…').count()) === 1 && (await menuItem('Save As ▸ 3MF (*.3mf)…').count()) === 1 && (await menuItem('Save As ▸ AMF (*.amf)…').count()) === 1);
 await menuItem('Save As ▸ STL (*.stl)…').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Export Options page: Binary/ASCII, unit, resolution, show info, positive space, single file', (await page.locator('[data-testid="export-output"] label').count()) === 2 && (await page.locator('[data-testid="export-unit"]').count()) === 1 && (await page.locator('[data-testid="export-showinfo"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/gb-exportoptions.png` });
 await page.locator('[data-testid="export-output"] label:has-text("ASCII") input').check();
@@ -133,7 +133,7 @@ await page.locator('[data-testid="export-ok"]').click();
 const file = await dl;
 const text = await (await file.createReadStream()).toArray().then((b) => Buffer.concat(b).toString('utf8'));
 check('ASCII STL downloads with facets', file.suggestedFilename() === 'Plaat.stl' && text.startsWith('solid Plaat') && text.includes('facet normal'), file.suggestedFilename());
-await page.waitForTimeout(300);
+await settle(page);
 await S(() => { window.__phlippoStore.setState({ exportFormat: '3mf' }); window.__phlippoStore.getState().setDialog('exportOptions'); });
 await settle(page);
 await page.locator('[data-testid="export-showinfo"]').uncheck();

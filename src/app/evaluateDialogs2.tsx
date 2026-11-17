@@ -11,6 +11,7 @@ import { REFERENCE_PLANE_DEFS as PLANES } from '../core/features/planes';
 import type { Document } from '../core/document/types';
 import { frameCutList as cutList } from './prefsTables';
 import { saveDocumentWith } from './MenuBar';
+import { forceUnit } from './prefsUi';
 
 const fmt = (v: number, d = 2) => (Number.isFinite(v) ? round(v, d).toLocaleString('en-US', { maximumFractionDigits: d }) : '∞');
 
@@ -291,6 +292,9 @@ export function BeamEstimateDialog() {
   const [fixture, setFixture] = useState<{ normal: [number, number, number]; point: [number, number, number]; label: string } | null>(null);
   const [load, setLoad] = useState<{ normal: [number, number, number]; point: [number, number, number]; area: number; label: string } | null>(null);
   const [force, setForce] = useState(100);
+  // Document Properties ▸ Units ▸ Force: the force is shown and typed in that unit (newton inside)
+  const fu = forceUnit();
+  const forceText = `${round(force * fu.perNewton)} ${fu.label}`;
   const [materialName, setMaterialName] = useState(st.doc.material?.name ?? 'Plain Carbon Steel');
   const [ran, setRan] = useState(false);
   const mat: MaterialDef | undefined = findMaterial(materialName);
@@ -336,9 +340,9 @@ export function BeamEstimateDialog() {
       {step === 2 && (
         <fieldset className="k-fieldset"><legend>Loads</legend>
           <p className="k-muted">Select the face the force acts on, enter the force and click Add a force.</p>
-          <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 60 }}>Force</span><NumberField value={force} onChange={(v) => setForce(Math.max(0, v))} unit="N" step={10} min={0} /></div>
+          <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 60 }}>Force</span><NumberField value={force * fu.perNewton} onChange={(v) => setForce(Math.max(0, v / fu.perNewton))} unit={fu.label} step={10} min={0} /></div>
           <button className="k-btn" data-testid="beam-addforce" onClick={() => { const f = pickedFace(); if (f) setLoad(f); }}>Add a force</button>
-          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="beam-load">{load ? <div className="k-selbox-row"><Icon.Arrow size={12} /> Force-1: {force} N normal to {load.label}</div> : <span className="k-muted">No load yet.</span>}</div>
+          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="beam-load">{load ? <div className="k-selbox-row"><Icon.Arrow size={12} /> Force-1: {forceText} normal to {load.label}</div> : <span className="k-muted">No load yet.</span>}</div>
         </fieldset>
       )}
       {step === 3 && (
@@ -360,7 +364,7 @@ export function BeamEstimateDialog() {
       )}
       {step === 4 && (
         <fieldset className="k-fieldset"><legend>Run</legend>
-          <p className="k-muted">Fixed: {fixture?.label} · Force: {force} N on {load?.label} · Material: {materialName}</p>
+          <p className="k-muted">Fixed: {fixture?.label} · Force: {forceText} on {load?.label} · Material: {materialName}</p>
           <button className="k-btn primary" data-testid="beam-run" onClick={() => setRan(true)}>Run Simulation</button>
           {ran && <p className="k-pm-message" style={{ marginTop: 6 }}>The analysis is complete. Continue to the results.</p>}
         </fieldset>

@@ -4,7 +4,7 @@ import { sectionBody, sectionPlaneOf, type SectionPlane } from '../../core/featu
 import { assemblyDecals, rebuildAssembly } from '../../core/assembly/assembly';
 import { sketchDimensionName } from '../../core/document/equations';
 import { newId } from '../../core/sketch/model';
-import { getPref } from '../prefs';
+import { getPref } from '../prefs'; import { flyoutTransparent, hiddenEdgesPickable, viewportBackground } from '../prefsView'; import { singlePickCommit } from '../prefsSketch';
 import { envelopeTransparent, hoverHighlight, promptDimensionValue, shadedPreview, showRefTriad, sketchAutoRotate } from '../prefsEffects';
 import { curveEndNormal, referencePlane, resolvePlaneDef } from '../../core/features/planes';
 import { helixPath, sketch3DChains } from '../../core/features/sweep';
@@ -29,9 +29,6 @@ import { MATERIAL_LIBRARY } from '../../core/document/materials';
 
 const WOODS = new Set((MATERIAL_LIBRARY.find((c) => c.name === 'Woods')?.materials ?? []).map((m) => m.name));
 const isWood = (name?: string) => !!name && WOODS.has(name);
-/** Edit Scene: the CSS background of the graphics area (undefined = the default gradient of the theme) */
-const sceneBackground = (sc?: { background: string; color?: string }): string | undefined =>
-  !sc || sc.background === 'gradient' ? undefined : sc.background === 'white' ? '#ffffff' : sc.background === 'color' ? sc.color ?? '#ffffff' : 'linear-gradient(180deg, #5a5f66 0%, #c9ccd1 62%, #f2f2f2 100%)';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { registerPlanes } from './camera';
 import { patternInstancePoints } from '../../core/features/pattern';
@@ -554,11 +551,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       showOrigin: st.show.origin || !!sketch || !!profileSketch,
       planeSize: planeHalf(),
       shadedContours: st.shadedContours,
-      underPreview: !sketch && !!profileSketch && !!preview,
+      underPreview: !sketch && !!profileSketch && !!preview, displayStyle: st.displayStyle,
     });
     bodies.updateLight(camera.rotation);
     const faceColors = st.analysis?.kind === 'draft' ? draftAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle, st.analysis.classify !== false).colors : st.analysis?.kind === 'parting' ? partingLineAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle).colors : st.analysis?.kind === 'tolerance' ? toleranceStatus(st.rebuild.bodies, st.doc.autoTolerance).colors : st.analysis?.kind === 'thickness' ? thicknessAnalysis(st.rebuild.bodies, st.analysis.target, st.analysis.mode, st.analysis.resolution).colors : st.analysis?.kind === 'undercut' ? undercutAnalysis(st.rebuild.bodies, st.analysis.pull).colors : st.analysis?.kind === 'curvature' ? curvatureAnalysis(st.rebuild.bodies) : st.doc.faceAppearances?.length ? matchFaceAppearances({ faceAppearances: [...(st.doc.faceAppearances ?? []), ...(st.rebuild.extraAppearances ?? [])] }, st.rebuild.bodies) : undefined;
-    bodies.update({ zebra: st.show.zebra, faceColors, bodies: shownBodies, appearanceProps: st.doc.kind === 'assembly' ? undefined : st.doc.appearanceProps, displayStyle: st.displayStyle, hoverFace: hoverHighlight(st.hoverFace), selectedFace: st.selectedFace, selectedFaces: st.selectedFaces, preview: st.interferenceHighlight ?? (detailedBodies ? null : preview), previewOnTop: !!st.featureEdit && isRoundFeature(st.featureEdit.draft) && !detailedBodies, previewWire: st.handleDrag || !shadedPreview(), featureFaces, mateFaces, featureHot: !!st.hoverFeatureId && st.hoverFeatureId === st.selectedFeatureId, hoverFeatureFaces, transparentBodies: [...(st.doc.transparentBodies ?? []), ...(st.mateEdit && st.mateEdit.draft.refs.length && getPref('assembly.mateFirstTransparent') !== false ? [st.mateEdit.draft.refs[0].componentId] : st.interferenceHighlight && st.dialog === 'interference' && st.interferenceOpts.transparent ? st.rebuild.bodies.map((b) => b.id) : []), ...(st.doc.components ?? []).filter((c) => c.envelope && envelopeTransparent()).map((c) => c.id)], replaceBody: detailedBodies ? null : roundPreview, hoverEdge: hoverHighlight(st.hoverEdge), selectedEdges: st.selectedEdges, scale: camera.scale, bodyColor: activeConfiguration(st.doc).color ?? st.doc.appearance ?? st.doc.material?.color, bodyColors: { ...Object.fromEntries((st.doc.components ?? []).map((c) => [c.id, (configurationByName(c.part, c.configuration)?.color ?? c.part.appearance ?? c.part.material?.color) as string | undefined]).filter((x) => !!x[1])), ...Object.fromEntries(Object.entries(st.doc.bodyMaterials ?? {}).map(([k, m]) => [k, m.color])), ...(st.doc.bodyAppearances ?? {}), ...(section?.capColor ? Object.fromEntries(st.rebuild.bodies.map((b) => [b.id + '~cap', section.capColor!])) : {}) }, hiddenBodies: st.isolated ? [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? []), ...st.rebuild.bodies.map((b) => b.id).filter((id) => !st.isolated!.includes(id))] : [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? [])], decals: st.doc.decals?.length || st.decalEdit ? [...(st.doc.decals ?? []).filter((x) => x.id !== st.decalEdit?.id), ...(st.decalEdit?.face ? [{ ...st.decalEdit, id: 'draft', face: st.decalEdit.face }] : []), ...assemblyDecals(st.doc)] : assemblyDecals(st.doc), realisticShading: st.show.realisticShading, shadows: st.show.shadows, floor: { reflections: st.doc.scene?.floorReflections, align: st.doc.scene?.floorAlign, offset: st.doc.scene?.floorOffset }, woodBodies: (st.doc.components ?? []).filter((c) => isWood(c.part.material?.name)).map((c) => c.id), wooden: isWood(st.doc.material?.name), shinyBodies: (st.doc.components ?? []).filter((c) => (c.part.material?.density ?? 0) > 2500).map((c) => c.id), metallic: (st.doc.material?.density ?? 0) > 2500, curves: previewCurves, colors: { hover: colors.hover, selected: colors.selected } });
+    bodies.update({ surfaceBodies: (st.rebuild.surfaceBodies ?? []).map((b) => b.id), zebra: st.show.zebra, faceColors, bodies: shownBodies, appearanceProps: st.doc.kind === 'assembly' ? undefined : st.doc.appearanceProps, displayStyle: st.displayStyle, hoverFace: hoverHighlight(st.hoverFace), selectedFace: st.selectedFace, selectedFaces: st.selectedFaces, preview: st.interferenceHighlight ?? (detailedBodies ? null : preview), previewOnTop: !!st.featureEdit && isRoundFeature(st.featureEdit.draft) && !detailedBodies, previewWire: st.handleDrag || !shadedPreview(), featureFaces, mateFaces, featureHot: !!st.hoverFeatureId && st.hoverFeatureId === st.selectedFeatureId, hoverFeatureFaces, transparentBodies: [...(st.doc.transparentBodies ?? []), ...(st.mateEdit && st.mateEdit.draft.refs.length && getPref('assembly.mateFirstTransparent') !== false ? [st.mateEdit.draft.refs[0].componentId] : st.interferenceHighlight && st.dialog === 'interference' && st.interferenceOpts.transparent ? st.rebuild.bodies.map((b) => b.id) : []), ...(st.doc.components ?? []).filter((c) => c.envelope && envelopeTransparent()).map((c) => c.id)], replaceBody: detailedBodies ? null : roundPreview, hoverEdge: hoverHighlight(st.hoverEdge), selectedEdges: st.selectedEdges, scale: camera.scale, bodyColor: activeConfiguration(st.doc).color ?? st.doc.appearance ?? st.doc.material?.color, bodyColors: { ...Object.fromEntries((st.doc.components ?? []).map((c) => [c.id, (configurationByName(c.part, c.configuration)?.color ?? c.part.appearance ?? c.part.material?.color) as string | undefined]).filter((x) => !!x[1])), ...Object.fromEntries(Object.entries(st.doc.bodyMaterials ?? {}).map(([k, m]) => [k, m.color])), ...(st.doc.bodyAppearances ?? {}), ...(section?.capColor ? Object.fromEntries(st.rebuild.bodies.map((b) => [b.id + '~cap', section.capColor!])) : {}) }, hiddenBodies: st.isolated ? [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? []), ...st.rebuild.bodies.map((b) => b.id).filter((id) => !st.isolated!.includes(id))] : [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? [])], decals: st.doc.decals?.length || st.decalEdit ? [...(st.doc.decals ?? []).filter((x) => x.id !== st.decalEdit?.id), ...(st.decalEdit?.face ? [{ ...st.decalEdit, id: 'draft', face: st.decalEdit.face }] : []), ...assemblyDecals(st.doc)] : assemblyDecals(st.doc), realisticShading: st.show.realisticShading, shadows: st.show.shadows, floor: { reflections: st.doc.scene?.floorReflections, align: st.doc.scene?.floorAlign, offset: st.doc.scene?.floorOffset }, woodBodies: (st.doc.components ?? []).filter((c) => isWood(c.part.material?.name)).map((c) => c.id), wooden: isWood(st.doc.material?.name), shinyBodies: (st.doc.components ?? []).filter((c) => (c.part.material?.density ?? 0) > 2500).map((c) => c.id), metallic: (st.doc.material?.density ?? 0) > 2500, curves: previewCurves, colors: { hover: colors.hover, selected: colors.selected } });
     // Motion Study playback: the motors turn their components (display only)
     const ms = st.doc.motionStudy;
     bodies.setMotion(st.motionOpen && st.doc.kind === 'assembly' && ms && (ms.motors.length || ms.keys?.length || ms.wizard?.length || st.motionSim) ? motionTransforms(st.doc, (st.rebuild as { components?: import('../../core/document/types').Component[] }).components ?? st.doc.components ?? [], ms, st.motionTime, st.motionSim) : null);
@@ -740,7 +737,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       tolerance: 8 * camera.scale,
       snapGrid: st.snapGrid, gridShown: st.show.grid,
       gridSize: st.gridSize,
-      commit: st.commit,
+      commit: singlePickCommit(st.commit, st.tool, () => st.setTool('select')), // General ▸ Single command per pick
       select: st.setSelection,
       toggleSelect: st.toggleSelect,
       selectConstraint: st.selectConstraint,
@@ -801,7 +798,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const edgeAt = (px: number, py: number): string | null => {
     // only edges the viewer can see (by design): an edge behind a face is not picked through it
     const ray = camera.pixelToRay(px, py);
-    const hit = st.displayStyle === 'wireframe' || st.displayStyle === 'hiddenVisible' ? null : bodies.pick(ray);
+    const hit = hiddenEdgesPickable(st.displayStyle) ? null : bodies.pick(ray); // Selection ▸ Allow selection in wireframe and HLV / HLR and shaded modes
     const hitDepth = hit ? hit.point.clone().sub(ray.origin).dot(ray.direction) : Infinity;
     const tol = Math.max(0.05, camera.scale * 3);
     let best: string | null = null, bestD = 6;
@@ -1416,7 +1413,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     <div
       ref={hostRef}
       className={`k-viewport ${sketch ? 'sketching tool-' + st.tool : ''} ${st.planePick || zoomArea.active ? 'picking' : ''} ${feedback ? 'has-feedback' : ''}`}
-      style={sceneBackground(st.doc.scene) ? { background: sceneBackground(st.doc.scene) } : undefined}
+      style={viewportBackground(st.doc.scene) ? { background: viewportBackground(st.doc.scene) } : undefined}
       data-scene={st.doc.scene?.background ?? 'gradient'}
       tabIndex={0}
       onPointerDown={onPointerDown}
@@ -1666,7 +1663,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         <button className="k-tip tip-right" data-tip="Close" onClick={() => (st.dirty ? st.setAsk({ title: 'Phlippo CAD', text: 'Close the document? Unsaved changes are lost.', yes: () => st.newDocument() }) : st.newDocument())}><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" /></svg></button>
       </div>
       {st.commandActive && (
-        <div className={`k-flyout-tree ${flyout ? 'open' : ''}`}>
+        <div className={`k-flyout-tree ${flyout ? 'open' : ''} ${flyoutTransparent() ? 'transparent' : ''}`}>
           <button className="k-flyout-toggle" onClick={() => setFlyout((f) => !f)}>
             {flyout ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />} <Icon.Part size={14} /> <span>{st.doc.name} (Default) {'<<Def…'}</span>
           </button>

@@ -19,7 +19,7 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-doctype:has-text("Part")');
 await page.evaluate(() => {
   const K = window.__phlippoKit;
@@ -39,10 +39,10 @@ await page.keyboard.press('f');
 await settle(page);
 const top = await page.evaluate(() => window.__phlippoProjectWorld(30, 30, 30));
 await page.mouse.click(top.x, top.y);
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.move(5, 600);
 await page.click('.k-hud-btn[data-tip="Edit Appearance"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('Color dialog targets the face', (await page.locator('[data-testid="appearance-target"]').innerText()).includes('Face<'));
 await page.click('.k-swatch[title="#e60000"]');
 await page.click('[data-testid="appearance-ok"]');
@@ -50,7 +50,7 @@ await settle(page);
 // clear the selection highlight, then sample the top face and a side face
 await page.keyboard.press('Escape');
 await page.mouse.click(1800, 900);
-await page.waitForTimeout(400);
+await settle(page);
 await shot('fa1-face-appearance');
 const side = await page.evaluate(() => window.__phlippoProjectWorld(60, 15, 30));
 const px = await page.evaluate(async ([a, b]) => {

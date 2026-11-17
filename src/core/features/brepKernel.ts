@@ -40,6 +40,8 @@ export interface BrepKernel {
   cutKeepTouching(a: BrepShape, b: BrepShape, point: [number, number, number], normal: [number, number, number]): BrepShape | null;
   /** a closed mesh of planar faces as a B-rep solid (coplanar triangles merged into one face); null when it does not close */
   fromMesh(g: THREE.BufferGeometry): BrepShape | null;
+  /** the solid of a STEP text (mm), as an Imported STEP body keeps it (docs/32 item 5); null when it holds no solid */
+  fromStep?(text: string): BrepShape | null;
   /** a prism of a closed loop of lines and arcs (through m) in sketch coordinates of the plane */
   extrudeLoop(plane: PlaneDef, loop: { a: { x: number; y: number }; b: { x: number; y: number }; m?: { x: number; y: number } }[], zStart: number, total: number): BrepShape | null;
   /**

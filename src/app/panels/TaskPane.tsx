@@ -11,7 +11,7 @@ import { relationLabel } from '../../core/sketch/relations';
 import { round, Kbd } from '../../ui/components';
 import { SHORTCUTS } from '../shortcuts';
 import { openFileDialog, withUnsavedCheck } from '../MenuBar';
-import { listAutosaves, loadAutosaveEntry, readDocument } from '../../core/document/persistence';
+import { hasAutosaveTarget, listAutosaves, loadAutosaveEntry, readDocument } from '../../core/document/persistence';
 import { listDiskRecovery, readDiskRecovery } from '../autoRecover';
 import { setDocumentHandle, type RecoverEntry } from '../desktop';
 import { explorerRecent, recentDocuments } from '../prefsEffects';
@@ -325,6 +325,8 @@ function ViewPalette() {
  * Document Recovery: the recovery copies of earlier sessions. A recovered document opens with unsaved changes and
  * "(Recovered)" after its name, without a file: Save asks where it goes (QA F154).
  */
+const RECOVER_DISK_TEXT = 'Phlippo CAD writes an auto-recover copy of every document with unsaved changes to the auto-recover folder, a moment after each change.';
+const RECOVER_BROWSER_TEXT = 'Phlippo CAD keeps an auto-recover copy of every document after each change (the last 5).';
 function RecoveryPane() {
   const st = useStore(useShallow((s) => ({ hasDocument: s.hasDocument, doc: s.doc, dirty: s.dirty })));
   const list = listAutosaves();
@@ -355,8 +357,9 @@ function RecoveryPane() {
   });
   return (
     <div style={{ padding: 8 }}>
-      <p className="k-muted" style={{ margin: '0 0 6px' }}>Phlippo CAD keeps an auto-recover copy of every document after each change (the last {5}).</p>
-      {list.length ? (
+      {/* P2-6: the desktop app writes its copies to the auto-recover folder; the browser keeps them in its storage */}
+      <p className="k-muted" style={{ margin: '0 0 6px' }}>{hasAutosaveTarget() ? RECOVER_DISK_TEXT : RECOVER_BROWSER_TEXT}</p>
+      {hasAutosaveTarget() && !list.length && disk.length ? null : list.length ? (
         <ul className="k-list" data-testid="recovery-list">
           {list.map((r) => (
             <li key={r.key} onClick={() => open(r.key)} title="Open the recovered document"><Icon.TPRecovery size={14} /> <span>{r.name}.kcad</span> <span className="k-muted" style={{ marginLeft: 'auto' }}>{new Date(r.time).toLocaleString()}</span></li>

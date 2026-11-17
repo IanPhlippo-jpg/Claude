@@ -34,6 +34,11 @@ jobs:
       - id: unit
         continue-on-error: true
         run: npm test
+      # line coverage of src/core, reported in the log (P3-10; not a gate yet): V8's own coverage through the built-in
+      # inspector, mapped back with vite's source maps (tools/coverage), so no coverage package is needed
+      - name: coverage of src/core (report)
+        continue-on-error: true
+        run: npm run test:coverage
       # the QA tests catch a planted fault (F184): four mutations (a split edge gives one piece, the cross-check limit x 10,
       # the fillet radius x 1.01, the linear coupler ratio inverted) must each turn their tests red; the tree is not written
       - id: mutation
@@ -108,7 +113,7 @@ jobs:
       - run: npm run build
       # the release build without test hooks, in the desktop shell (F53, F97, F100): the functional checks without hooks,
       # then the self-test (app://, the OpenCascade WASM worker, extrude, fillet, STEP, an atomic save), then the
-      # autosave in a profile of its own that is still there after a restart. The runner has no GPU: the shell draws
+      # autosave on disk in a profile of its own that Document Recovery lists after a restart (P2-6). The runner has no GPU: the shell draws
       # with software OpenGL (SwiftShader, F115/F128).
       - id: nohooks
         continue-on-error: true
@@ -129,14 +134,18 @@ jobs:
       - id: editsave
         continue-on-error: true
         run: PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-editsave.mjs
+      # a crashed renderer (message, reload, Document Recovery) and a hung one (close offered) (docs/32 P2-3, P2-6)
+      - id: crash
+        continue-on-error: true
+        run: PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-crash.mjs
       - id: clean
         continue-on-error: true
         run: git diff --exit-code
       - name: desktop checks passed
         if: always()
         run: |
-          echo "nohooks=${{ steps.nohooks.outcome }} selftest=${{ steps.selftest.outcome }} autosave=${{ steps.autosave.outcome }} recover=${{ steps.recover.outcome }} editsave=${{ steps.editsave.outcome }} clean=${{ steps.clean.outcome }}"
-          test "${{ steps.nohooks.outcome }}" = success && test "${{ steps.selftest.outcome }}" = success && test "${{ steps.autosave.outcome }}" = success && test "${{ steps.recover.outcome }}" = success && test "${{ steps.editsave.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+          echo "nohooks=${{ steps.nohooks.outcome }} selftest=${{ steps.selftest.outcome }} autosave=${{ steps.autosave.outcome }} recover=${{ steps.recover.outcome }} editsave=${{ steps.editsave.outcome }} crash=${{ steps.crash.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.nohooks.outcome }}" = success && test "${{ steps.selftest.outcome }}" = success && test "${{ steps.autosave.outcome }}" = success && test "${{ steps.recover.outcome }}" = success && test "${{ steps.editsave.outcome }}" = success && test "${{ steps.crash.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
 
   # The passes (docs/28, CI/testinfra):
   #   release  every script on what a user gets: the B-rep kernel and the rebuild worker (?kernel=brep&rebuild=worker, F158)

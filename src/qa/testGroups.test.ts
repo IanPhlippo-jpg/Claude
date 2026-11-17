@@ -2,6 +2,8 @@
  * The heavy test groups have one list (QA 0.5.14 P2-11, P3-11): tools/test-groups.json. `npm test` (vite.config.ts)
  * leaves exactly those files out, `npm run test:voorbeelden` / `test:bibliotheek` run them through tools/run-tests.mjs,
  * CI has a job per group, and a test that imports from bibliotheek/ or voorbeelden/ cannot slip into `npm test`.
+ * The library tests (doors, balustrades, fitness) live with their libraries in bibliotheek/tests (0.5.16, P3-11), not in
+ * the source of the CAD program; all of them are in the group bibliotheek.
  */
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -23,9 +25,11 @@ describe('heavy test groups (tools/test-groups.json)', () => {
     expect(names.sort()).toEqual(['bibliotheek', 'voorbeelden']);
     expect(new Set(listed).size).toBe(listed.length);
     for (const f of listed) expect(existsSync(f), f).toBe(true);
-    for (const f of ['src/qa/qaFitness.test.ts', 'src/qa/qaBalustrades.test.ts', 'src/qa/montageDeuren.test.ts', 'src/qa/qaDeuren.test.ts']) {
-      expect(groups.bibliotheek, f).toContain(f);
-    }
+    const libraryTests = readdirSync('bibliotheek/tests').filter((f) => /\.test\.ts$/.test(f)).map((f) => `bibliotheek/tests/${f}`).sort();
+    expect(libraryTests).toEqual(['bibliotheek/tests/montageDeuren.test.ts', 'bibliotheek/tests/qaBalustrades.test.ts', 'bibliotheek/tests/qaDeuren.test.ts', 'bibliotheek/tests/qaFitness.test.ts']);
+    expect([...(groups.bibliotheek as string[])].sort()).toEqual(libraryTests);
+    // no library test is left in the source of the CAD program
+    expect(readdirSync('src', { recursive: true }).map(String).filter((f) => /(qaFitness|qaBalustrades|qaDeuren|montageDeuren)\.test\.ts$/.test(f))).toEqual([]);
   });
 
   it('holds every test that imports from bibliotheek/ or voorbeelden/', () => {
@@ -37,7 +41,8 @@ describe('heavy test groups (tools/test-groups.json)', () => {
   it('is the only list: vite.config.ts reads it, the scripts and the CI jobs run each group', () => {
     const cfg = readFileSync('vite.config.ts', 'utf8');
     expect(cfg).toContain('tools/test-groups.json');
-    expect(cfg).not.toMatch(/['"]src\/qa\/[^'"]+\.test\.ts['"]/);
+    expect(cfg).not.toMatch(/['"](src\/qa|bibliotheek\/tests)\/[^'"*]+\.test\.ts['"]/);
+    expect(cfg).toContain("'bibliotheek/tests/*.test.ts'");
     const ci = readFileSync('.github/workflows/ci.yml', 'utf8').replace(/\r\n/g, '\n');
     for (const g of names) {
       expect(pkg.scripts[`test:${g}`]).toBe(`node tools/run-tests.mjs ${g}`);
