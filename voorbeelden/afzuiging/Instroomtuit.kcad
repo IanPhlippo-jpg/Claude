@@ -1,0 +1,1452 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Instroomtuit",
+ "units": "mm",
+ "planes": {
+  "tuitprofiel": {
+   "id": "tuitprofiel",
+   "name": "Plane profiel tuit",
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    1
+   ],
+   "kind": "reference"
+  },
+  "ribben": {
+   "id": "ribben",
+   "name": "Plane ribben",
+   "origin": [
+    0,
+    -56.95,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "dwarsrib": {
+   "id": "dwarsrib",
+   "name": "Plane dwarsrib",
+   "origin": [
+    0,
+    -56.900000000000006,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "ringen": {
+   "id": "ringen",
+   "name": "Plane ringen",
+   "origin": [
+    0,
+    -56.85,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "tuitprofiel",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": 62.5,
+     "y": -57
+    },
+    "s1p1": {
+     "x": 62.5,
+     "y": -54
+    },
+    "s1p2": {
+     "x": 62.551331,
+     "y": -53.216843
+    },
+    "s1p3": {
+     "x": 62.704445,
+     "y": -52.447086
+    },
+    "s1p4": {
+     "x": 62.956723,
+     "y": -51.703899
+    },
+    "s1p5": {
+     "x": 63.303848,
+     "y": -51
+    },
+    "s1p6": {
+     "x": 63.73988,
+     "y": -50.347431
+    },
+    "s1p7": {
+     "x": 64.257359,
+     "y": -49.757359
+    },
+    "s1p8": {
+     "x": 64.847431,
+     "y": -49.23988
+    },
+    "s1p9": {
+     "x": 65.5,
+     "y": -48.803848
+    },
+    "s1p10": {
+     "x": 66.203899,
+     "y": -48.456723
+    },
+    "s1p11": {
+     "x": 66.947086,
+     "y": -48.204445
+    },
+    "s1p12": {
+     "x": 67.716843,
+     "y": -48.051331
+    },
+    "s1p13": {
+     "x": 68.5,
+     "y": -48
+    },
+    "s1p14": {
+     "x": 71.2,
+     "y": -48
+    },
+    "s1p15": {
+     "x": 63.7,
+     "y": -55.5
+    },
+    "s1p16": {
+     "x": 63.7,
+     "y": -57
+    },
+    "s1p34": {
+     "x": 0,
+     "y": -67
+    },
+    "s1p35": {
+     "x": 0,
+     "y": -38
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s1e17": {
+     "id": "s1e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e18": {
+     "id": "s1e18",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e20": {
+     "id": "s1e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p4"
+    },
+    "s1e21": {
+     "id": "s1e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e22": {
+     "id": "s1e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p5",
+     "p2": "s1p6"
+    },
+    "s1e23": {
+     "id": "s1e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e24": {
+     "id": "s1e24",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p7",
+     "p2": "s1p8"
+    },
+    "s1e25": {
+     "id": "s1e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p8",
+     "p2": "s1p9"
+    },
+    "s1e26": {
+     "id": "s1e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p9",
+     "p2": "s1p10"
+    },
+    "s1e27": {
+     "id": "s1e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p10",
+     "p2": "s1p11"
+    },
+    "s1e28": {
+     "id": "s1e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p11",
+     "p2": "s1p12"
+    },
+    "s1e29": {
+     "id": "s1e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p12",
+     "p2": "s1p13"
+    },
+    "s1e30": {
+     "id": "s1e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p13",
+     "p2": "s1p14"
+    },
+    "s1e31": {
+     "id": "s1e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p14",
+     "p2": "s1p15"
+    },
+    "s1e32": {
+     "id": "s1e32",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p15",
+     "p2": "s1p16"
+    },
+    "s1e33": {
+     "id": "s1e33",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p16",
+     "p2": "s1p0"
+    },
+    "s1e36": {
+     "id": "s1e36",
+     "construction": true,
+     "kind": "line",
+     "p1": "s1p34",
+     "p2": "s1p35"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e17",
+    "s1e18",
+    "s1e19",
+    "s1e20",
+    "s1e21",
+    "s1e22",
+    "s1e23",
+    "s1e24",
+    "s1e25",
+    "s1e26",
+    "s1e27",
+    "s1e28",
+    "s1e29",
+    "s1e30",
+    "s1e31",
+    "s1e32",
+    "s1e33",
+    "s1e36"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "ribben",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": -62,
+     "y": -11.18034
+    },
+    "s2p1": {
+     "x": -60.4,
+     "y": -11.18034
+    },
+    "s2p2": {
+     "x": -60.4,
+     "y": 11.18034
+    },
+    "s2p3": {
+     "x": -62,
+     "y": 11.18034
+    },
+    "s2p8": {
+     "x": -54.8,
+     "y": -31.079897
+    },
+    "s2p9": {
+     "x": -53.2,
+     "y": -31.079897
+    },
+    "s2p10": {
+     "x": -53.2,
+     "y": 31.079897
+    },
+    "s2p11": {
+     "x": -54.8,
+     "y": 31.079897
+    },
+    "s2p16": {
+     "x": -47.6,
+     "y": -41.270328
+    },
+    "s2p17": {
+     "x": -46,
+     "y": -41.270328
+    },
+    "s2p18": {
+     "x": -46,
+     "y": 41.270328
+    },
+    "s2p19": {
+     "x": -47.6,
+     "y": 41.270328
+    },
+    "s2p24": {
+     "x": -40.4,
+     "y": -48.340873
+    },
+    "s2p25": {
+     "x": -38.8,
+     "y": -48.340873
+    },
+    "s2p26": {
+     "x": -38.8,
+     "y": 48.340873
+    },
+    "s2p27": {
+     "x": -40.4,
+     "y": 48.340873
+    },
+    "s2p32": {
+     "x": -33.2,
+     "y": -53.542133
+    },
+    "s2p33": {
+     "x": -31.6,
+     "y": -53.542133
+    },
+    "s2p34": {
+     "x": -31.6,
+     "y": 53.542133
+    },
+    "s2p35": {
+     "x": -33.2,
+     "y": 53.542133
+    },
+    "s2p40": {
+     "x": -26,
+     "y": -57.384667
+    },
+    "s2p41": {
+     "x": -24.4,
+     "y": -57.384667
+    },
+    "s2p42": {
+     "x": -24.4,
+     "y": 57.384667
+    },
+    "s2p43": {
+     "x": -26,
+     "y": 57.384667
+    },
+    "s2p48": {
+     "x": -18.8,
+     "y": -60.129527
+    },
+    "s2p49": {
+     "x": -17.2,
+     "y": -60.129527
+    },
+    "s2p50": {
+     "x": -17.2,
+     "y": 60.129527
+    },
+    "s2p51": {
+     "x": -18.8,
+     "y": 60.129527
+    },
+    "s2p56": {
+     "x": -11.6,
+     "y": -61.922855
+    },
+    "s2p57": {
+     "x": -10,
+     "y": -61.922855
+    },
+    "s2p58": {
+     "x": -10,
+     "y": 61.922855
+    },
+    "s2p59": {
+     "x": -11.6,
+     "y": 61.922855
+    },
+    "s2p64": {
+     "x": -4.4,
+     "y": -62.846161
+    },
+    "s2p65": {
+     "x": -2.8,
+     "y": -62.846161
+    },
+    "s2p66": {
+     "x": -2.8,
+     "y": 62.846161
+    },
+    "s2p67": {
+     "x": -4.4,
+     "y": 62.846161
+    },
+    "s2p72": {
+     "x": 2.8,
+     "y": -62.846161
+    },
+    "s2p73": {
+     "x": 4.4,
+     "y": -62.846161
+    },
+    "s2p74": {
+     "x": 4.4,
+     "y": 62.846161
+    },
+    "s2p75": {
+     "x": 2.8,
+     "y": 62.846161
+    },
+    "s2p80": {
+     "x": 10,
+     "y": -61.922855
+    },
+    "s2p81": {
+     "x": 11.6,
+     "y": -61.922855
+    },
+    "s2p82": {
+     "x": 11.6,
+     "y": 61.922855
+    },
+    "s2p83": {
+     "x": 10,
+     "y": 61.922855
+    },
+    "s2p88": {
+     "x": 17.2,
+     "y": -60.129527
+    },
+    "s2p89": {
+     "x": 18.8,
+     "y": -60.129527
+    },
+    "s2p90": {
+     "x": 18.8,
+     "y": 60.129527
+    },
+    "s2p91": {
+     "x": 17.2,
+     "y": 60.129527
+    },
+    "s2p96": {
+     "x": 24.4,
+     "y": -57.384667
+    },
+    "s2p97": {
+     "x": 26,
+     "y": -57.384667
+    },
+    "s2p98": {
+     "x": 26,
+     "y": 57.384667
+    },
+    "s2p99": {
+     "x": 24.4,
+     "y": 57.384667
+    },
+    "s2p104": {
+     "x": 31.6,
+     "y": -53.542133
+    },
+    "s2p105": {
+     "x": 33.2,
+     "y": -53.542133
+    },
+    "s2p106": {
+     "x": 33.2,
+     "y": 53.542133
+    },
+    "s2p107": {
+     "x": 31.6,
+     "y": 53.542133
+    },
+    "s2p112": {
+     "x": 38.8,
+     "y": -48.340873
+    },
+    "s2p113": {
+     "x": 40.4,
+     "y": -48.340873
+    },
+    "s2p114": {
+     "x": 40.4,
+     "y": 48.340873
+    },
+    "s2p115": {
+     "x": 38.8,
+     "y": 48.340873
+    },
+    "s2p120": {
+     "x": 46,
+     "y": -41.270328
+    },
+    "s2p121": {
+     "x": 47.6,
+     "y": -41.270328
+    },
+    "s2p122": {
+     "x": 47.6,
+     "y": 41.270328
+    },
+    "s2p123": {
+     "x": 46,
+     "y": 41.270328
+    },
+    "s2p128": {
+     "x": 53.2,
+     "y": -31.079897
+    },
+    "s2p129": {
+     "x": 54.8,
+     "y": -31.079897
+    },
+    "s2p130": {
+     "x": 54.8,
+     "y": 31.079897
+    },
+    "s2p131": {
+     "x": 53.2,
+     "y": 31.079897
+    },
+    "s2p136": {
+     "x": 60.4,
+     "y": -11.18034
+    },
+    "s2p137": {
+     "x": 62,
+     "y": -11.18034
+    },
+    "s2p138": {
+     "x": 62,
+     "y": 11.18034
+    },
+    "s2p139": {
+     "x": 60.4,
+     "y": 11.18034
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s2e4": {
+     "id": "s2e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p0",
+     "p2": "s2p1"
+    },
+    "s2e5": {
+     "id": "s2e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p1",
+     "p2": "s2p2"
+    },
+    "s2e6": {
+     "id": "s2e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p2",
+     "p2": "s2p3"
+    },
+    "s2e7": {
+     "id": "s2e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p3",
+     "p2": "s2p0"
+    },
+    "s2e12": {
+     "id": "s2e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p8",
+     "p2": "s2p9"
+    },
+    "s2e13": {
+     "id": "s2e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p9",
+     "p2": "s2p10"
+    },
+    "s2e14": {
+     "id": "s2e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p10",
+     "p2": "s2p11"
+    },
+    "s2e15": {
+     "id": "s2e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p11",
+     "p2": "s2p8"
+    },
+    "s2e20": {
+     "id": "s2e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p16",
+     "p2": "s2p17"
+    },
+    "s2e21": {
+     "id": "s2e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p17",
+     "p2": "s2p18"
+    },
+    "s2e22": {
+     "id": "s2e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p18",
+     "p2": "s2p19"
+    },
+    "s2e23": {
+     "id": "s2e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p19",
+     "p2": "s2p16"
+    },
+    "s2e28": {
+     "id": "s2e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p24",
+     "p2": "s2p25"
+    },
+    "s2e29": {
+     "id": "s2e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p25",
+     "p2": "s2p26"
+    },
+    "s2e30": {
+     "id": "s2e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p26",
+     "p2": "s2p27"
+    },
+    "s2e31": {
+     "id": "s2e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p27",
+     "p2": "s2p24"
+    },
+    "s2e36": {
+     "id": "s2e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p32",
+     "p2": "s2p33"
+    },
+    "s2e37": {
+     "id": "s2e37",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p33",
+     "p2": "s2p34"
+    },
+    "s2e38": {
+     "id": "s2e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p34",
+     "p2": "s2p35"
+    },
+    "s2e39": {
+     "id": "s2e39",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p35",
+     "p2": "s2p32"
+    },
+    "s2e44": {
+     "id": "s2e44",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p40",
+     "p2": "s2p41"
+    },
+    "s2e45": {
+     "id": "s2e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p41",
+     "p2": "s2p42"
+    },
+    "s2e46": {
+     "id": "s2e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p42",
+     "p2": "s2p43"
+    },
+    "s2e47": {
+     "id": "s2e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p43",
+     "p2": "s2p40"
+    },
+    "s2e52": {
+     "id": "s2e52",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p48",
+     "p2": "s2p49"
+    },
+    "s2e53": {
+     "id": "s2e53",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p49",
+     "p2": "s2p50"
+    },
+    "s2e54": {
+     "id": "s2e54",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p50",
+     "p2": "s2p51"
+    },
+    "s2e55": {
+     "id": "s2e55",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p51",
+     "p2": "s2p48"
+    },
+    "s2e60": {
+     "id": "s2e60",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p56",
+     "p2": "s2p57"
+    },
+    "s2e61": {
+     "id": "s2e61",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p57",
+     "p2": "s2p58"
+    },
+    "s2e62": {
+     "id": "s2e62",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p58",
+     "p2": "s2p59"
+    },
+    "s2e63": {
+     "id": "s2e63",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p59",
+     "p2": "s2p56"
+    },
+    "s2e68": {
+     "id": "s2e68",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p64",
+     "p2": "s2p65"
+    },
+    "s2e69": {
+     "id": "s2e69",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p65",
+     "p2": "s2p66"
+    },
+    "s2e70": {
+     "id": "s2e70",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p66",
+     "p2": "s2p67"
+    },
+    "s2e71": {
+     "id": "s2e71",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p67",
+     "p2": "s2p64"
+    },
+    "s2e76": {
+     "id": "s2e76",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p72",
+     "p2": "s2p73"
+    },
+    "s2e77": {
+     "id": "s2e77",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p73",
+     "p2": "s2p74"
+    },
+    "s2e78": {
+     "id": "s2e78",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p74",
+     "p2": "s2p75"
+    },
+    "s2e79": {
+     "id": "s2e79",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p75",
+     "p2": "s2p72"
+    },
+    "s2e84": {
+     "id": "s2e84",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p80",
+     "p2": "s2p81"
+    },
+    "s2e85": {
+     "id": "s2e85",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p81",
+     "p2": "s2p82"
+    },
+    "s2e86": {
+     "id": "s2e86",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p82",
+     "p2": "s2p83"
+    },
+    "s2e87": {
+     "id": "s2e87",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p83",
+     "p2": "s2p80"
+    },
+    "s2e92": {
+     "id": "s2e92",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p88",
+     "p2": "s2p89"
+    },
+    "s2e93": {
+     "id": "s2e93",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p89",
+     "p2": "s2p90"
+    },
+    "s2e94": {
+     "id": "s2e94",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p90",
+     "p2": "s2p91"
+    },
+    "s2e95": {
+     "id": "s2e95",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p91",
+     "p2": "s2p88"
+    },
+    "s2e100": {
+     "id": "s2e100",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p96",
+     "p2": "s2p97"
+    },
+    "s2e101": {
+     "id": "s2e101",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p97",
+     "p2": "s2p98"
+    },
+    "s2e102": {
+     "id": "s2e102",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p98",
+     "p2": "s2p99"
+    },
+    "s2e103": {
+     "id": "s2e103",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p99",
+     "p2": "s2p96"
+    },
+    "s2e108": {
+     "id": "s2e108",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p104",
+     "p2": "s2p105"
+    },
+    "s2e109": {
+     "id": "s2e109",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p105",
+     "p2": "s2p106"
+    },
+    "s2e110": {
+     "id": "s2e110",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p106",
+     "p2": "s2p107"
+    },
+    "s2e111": {
+     "id": "s2e111",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p107",
+     "p2": "s2p104"
+    },
+    "s2e116": {
+     "id": "s2e116",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p112",
+     "p2": "s2p113"
+    },
+    "s2e117": {
+     "id": "s2e117",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p113",
+     "p2": "s2p114"
+    },
+    "s2e118": {
+     "id": "s2e118",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p114",
+     "p2": "s2p115"
+    },
+    "s2e119": {
+     "id": "s2e119",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p115",
+     "p2": "s2p112"
+    },
+    "s2e124": {
+     "id": "s2e124",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p120",
+     "p2": "s2p121"
+    },
+    "s2e125": {
+     "id": "s2e125",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p121",
+     "p2": "s2p122"
+    },
+    "s2e126": {
+     "id": "s2e126",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p122",
+     "p2": "s2p123"
+    },
+    "s2e127": {
+     "id": "s2e127",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p123",
+     "p2": "s2p120"
+    },
+    "s2e132": {
+     "id": "s2e132",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p128",
+     "p2": "s2p129"
+    },
+    "s2e133": {
+     "id": "s2e133",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p129",
+     "p2": "s2p130"
+    },
+    "s2e134": {
+     "id": "s2e134",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p130",
+     "p2": "s2p131"
+    },
+    "s2e135": {
+     "id": "s2e135",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p131",
+     "p2": "s2p128"
+    },
+    "s2e140": {
+     "id": "s2e140",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p136",
+     "p2": "s2p137"
+    },
+    "s2e141": {
+     "id": "s2e141",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p137",
+     "p2": "s2p138"
+    },
+    "s2e142": {
+     "id": "s2e142",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p138",
+     "p2": "s2p139"
+    },
+    "s2e143": {
+     "id": "s2e143",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p139",
+     "p2": "s2p136"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e4",
+    "s2e5",
+    "s2e6",
+    "s2e7",
+    "s2e12",
+    "s2e13",
+    "s2e14",
+    "s2e15",
+    "s2e20",
+    "s2e21",
+    "s2e22",
+    "s2e23",
+    "s2e28",
+    "s2e29",
+    "s2e30",
+    "s2e31",
+    "s2e36",
+    "s2e37",
+    "s2e38",
+    "s2e39",
+    "s2e44",
+    "s2e45",
+    "s2e46",
+    "s2e47",
+    "s2e52",
+    "s2e53",
+    "s2e54",
+    "s2e55",
+    "s2e60",
+    "s2e61",
+    "s2e62",
+    "s2e63",
+    "s2e68",
+    "s2e69",
+    "s2e70",
+    "s2e71",
+    "s2e76",
+    "s2e77",
+    "s2e78",
+    "s2e79",
+    "s2e84",
+    "s2e85",
+    "s2e86",
+    "s2e87",
+    "s2e92",
+    "s2e93",
+    "s2e94",
+    "s2e95",
+    "s2e100",
+    "s2e101",
+    "s2e102",
+    "s2e103",
+    "s2e108",
+    "s2e109",
+    "s2e110",
+    "s2e111",
+    "s2e116",
+    "s2e117",
+    "s2e118",
+    "s2e119",
+    "s2e124",
+    "s2e125",
+    "s2e126",
+    "s2e127",
+    "s2e132",
+    "s2e133",
+    "s2e134",
+    "s2e135",
+    "s2e140",
+    "s2e141",
+    "s2e142",
+    "s2e143"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "dwarsrib",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": -63,
+     "y": -0.8
+    },
+    "s3p1": {
+     "x": 63,
+     "y": -0.8
+    },
+    "s3p2": {
+     "x": 63,
+     "y": 0.8
+    },
+    "s3p3": {
+     "x": -63,
+     "y": 0.8
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s3e4": {
+     "id": "s3e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p0",
+     "p2": "s3p1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p1",
+     "p2": "s3p2"
+    },
+    "s3e6": {
+     "id": "s3e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p2",
+     "p2": "s3p3"
+    },
+    "s3e7": {
+     "id": "s3e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p3",
+     "p2": "s3p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e4",
+    "s3e5",
+    "s3e6",
+    "s3e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
+  },
+  "s4": {
+   "id": "s4",
+   "name": "Sketch4",
+   "plane": "ringen",
+   "points": {
+    "origin_s4": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p0": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p3": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p6": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p9": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s4s1": 24.8,
+    "s4s4": 23.2,
+    "s4s7": 44.8,
+    "s4s10": 43.2
+   },
+   "entities": {
+    "s4e2": {
+     "id": "s4e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s4p0",
+     "r": "s4s1"
+    },
+    "s4e5": {
+     "id": "s4e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s4p3",
+     "r": "s4s4"
+    },
+    "s4e8": {
+     "id": "s4e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s4p6",
+     "r": "s4s7"
+    },
+    "s4e11": {
+     "id": "s4e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s4p9",
+     "r": "s4s10"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s4e2",
+    "s4e5",
+    "s4e8",
+    "s4e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s4"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "revolve",
+   "name": "Tuit",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "axisEntityId": "s1e36",
+   "angle": 360,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Vingerrooster ribben",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 22.950000000000003,
+   "reverse": false
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Vingerrooster dwarsrib",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 22.85,
+   "reverse": false
+  },
+  {
+   "id": "ks4",
+   "type": "sketch",
+   "name": "Sketch4",
+   "sketchId": "s4",
+   "suppressed": false
+  },
+  {
+   "id": "f8",
+   "type": "extrude",
+   "name": "Vingerrooster ringen",
+   "sketchId": "s4",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 22.750000000000004,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "PETG, wit",
+  "density": 1270,
+  "color": "#f4f4f1"
+ }
+}

@@ -6,43 +6,44 @@
 5;1;Foamband 6 x 4;EPDM-cel, zwart;koop
 6;1;Afdichtlip;Siliconenrubber Shore A 60;koop
 7;1;Instroomplaat;PETG, wit;AFZ-04
-8;1;Ventilatorkuip;PETG, wit;AFZ-05
-9;1;Kuipdichting;EPDM-cel, zwart;koop
-10;1;San Ace C175 9TG24P0S01;PBT, zwart;koop
-11;1;M8-inbouwbus 4-polig;Messing vernikkeld;koop
-12;4;Rubberbuffer Ø15 x 10 M4;NR 55 Shore A;koop
-13;4;Persbout PEM FH4-M3-6;RVS 400-reeks;koop
-14;4;Klauw;PETG, wit;AFZ-09
-15;4;Klauwrubber;Neopreen (CR) Shore A 40;koop
-16;4;M5 zeskantmoer DIN 934;Staal verzinkt;norm
-17;1;Knophouder;PETG, zwart;AFZ-07
-18;1;Knopdeksel;PETG, zwart;AFZ-08
-19;1;"VIEWE-knop 1,5""";Aluminium, zwart;koop
-20;1;Adapterprint knop;FR4;koop
-21;1;USB-C-bus knophouder;FR4;koop
-22;2;Knopklauw;PETG, zwart;AFZ-10
-23;2;Knopklauwrubber;Neopreen (CR) Shore A 40;koop
-24;2;M4 zeskantmoer DIN 934;Staal verzinkt;norm
-25;4;M5 x 70 DIN 7991;Staal A2;norm
-26;4;M3 x 12 DIN 912;Staal verzinkt;norm
-27;4;M4 x 8 DIN 7991;Staal A2;norm
-28;4;Draadeind M4 x 8 DIN 913;Staal A2;norm
-29;2;M4 x 65 DIN 7991;Staal A2;norm
-30;2;M2,5 x 6 DIN 7991;Staal A2;norm
-31;2;M2,5 x 8 DIN 7991;Staal A2;norm
-32;2;Messingbuisje Ø3 x 12;Messing;koop
-33;1;Voedingsbox;PETG, wit;AFZ-06
-34;1;Deksel voedingsbox;PETG, wit;AFZ-12
-35;4;M3 x 8 DIN 7991;Staal A2;norm
-36;4;Spaanplaatschroef 4 x 16 verzonken;Staal A2;koop
-37;1;Mean Well GST90A24-P1M;PC, zwart;koop
-38;1;Voedingsprint;FR4;koop
-39;1;Elco 470 µF;Aluminium, blauw;koop
-40;1;Schottky SB560;Epoxy, zwart;koop
-41;1;USB-C-bus knop;FR4;koop
-42;1;Wipschakelaar C&K D502;PBT, zwart;koop
-43;1;M8-inbouwstekker 4-polig;Messing vernikkeld;koop
-44;2;Adapterklem;PETG, wit;AFZ-11
-45;2;M3 x 10 DIN 7991;Staal A2;norm
-46;4;M2,5 x 6 zelftappend;Staal verzinkt;norm
-47;2;M2 x 5 zelftappend;Staal verzinkt;norm
+8;1;Instroomtuit;PETG, wit;AFZ-13
+9;1;Ventilatorkuip;PETG, wit;AFZ-05
+10;1;Kuipdichting;EPDM-cel, zwart;koop
+11;1;San Ace C175 9TG24P0S01;Alu-motor, waaier UL94 V-0;koop
+12;1;M8-inbouwbus 4-polig;Messing vernikkeld;koop
+13;1;M8-kabel haaks 0,3 m;PUR, zwart (stekkers PA);koop
+14;4;Neodymiummagneet Ø8 x 1,5;NdFeB N42, vernikkeld;koop
+15;4;Inzetmoer M3 x 5,7 messing;Messing;koop
+16;4;Persbout PEM FH4-M3-6;RVS 400-reeks;koop
+17;4;Klauw;PETG, wit;AFZ-09
+18;4;Klauwrubber;Neopreen (CR) Shore A 40;koop
+19;4;M5 zeskantmoer DIN 934;Staal verzinkt;norm
+20;1;Knophouder;PETG, zwart;AFZ-07
+21;1;Knopdeksel;PETG, zwart;AFZ-08
+22;1;"VIEWE-knop 1,5""";Aluminium, zwart;koop
+23;1;Adapterprint knop;FR4;koop
+24;1;USB-C-bus knophouder;FR4;koop
+25;2;Knopklauw;PETG, zwart;AFZ-10
+26;2;Knopklauwrubber;Neopreen (CR) Shore A 40;koop
+27;2;M4 zeskantmoer DIN 934;Staal verzinkt;norm
+28;4;M5 x 70 DIN 7991;Staal A2;norm
+29;4;M3 x 12 DIN 912;Staal verzinkt;norm
+30;4;M4 x 16 DIN 7991;Staal A2;norm
+31;2;M4 x 65 DIN 7991;Staal A2;norm
+32;2;M2,5 x 6 DIN 7991;Staal A2;norm
+33;2;M2,5 x 8 DIN 7991;Staal A2;norm
+34;2;Messingbuisje Ø3 x 12;Messing;koop
+35;1;Voedingsbox;PETG, wit;AFZ-06
+36;1;Deksel voedingsbox;PETG, wit;AFZ-12
+37;4;M3 x 8 DIN 7991;Staal A2;norm
+38;4;Spaanplaatschroef 4 x 16 verzonken;Staal A2;koop
+39;1;Mean Well GST90A24-P1M;PC, zwart;koop
+40;1;Voedingsprint;FR4;koop
+41;1;Schottky SB560;Epoxy, zwart;koop
+42;1;USB-C-bus knop;FR4;koop
+43;1;Wipschakelaar C&K D502;PBT, zwart;koop
+44;1;M8-inbouwstekker 4-polig;Messing vernikkeld;koop
+45;2;Adapterklem;PA12-CF, zwart;AFZ-11
+46;2;M3 x 10 DIN 7991;Staal A2;norm
+47;4;M2,5 x 6 zelftappend;Staal verzinkt;norm
+48;2;M2 x 5 zelftappend;Staal verzinkt;norm

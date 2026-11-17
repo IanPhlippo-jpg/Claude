@@ -365,3 +365,70 @@ klein oppervlak", opbouw: lijst van spaanplaat of vezelplaat, vulling van papier
 - Richtlijn 2006/42/EG (art. 2 i, bijlage I: 1.2.4.3, 1.6.3, 1.7.3, 1.7.4.2), verordening (EU) 2023/1230.
 - EN ISO 12100, EN ISO 13857 (tabellen 4 en 5), EN 60204-1, ISO 5456-2, ISO 7200, ISO 13715, ISO 2768-1.
 - ACGIH, Industrial Ventilation (vangsnelheden); HSE HSG258.
+
+---
+
+## Stand van de verwerking (versie 7.4, 2026-11-17)
+
+Verwerkt in versie 7.4 (`revisie.mjs`). **Gedaan** = volledig opgelost in de bestanden, met een test of berekening waar
+dat kan; **deels** = verbeterd, maar een deel ontbreekt of hangt af van een meting of een keuze van Ian; **niet** = niet
+aangepakt. Een meting (poorten van het meetplan) maakt van geen enkel punt "gemeten": alles hieronder is ontwerp.
+
+| # | Stand | Wat er gebeurde |
+|---|---|---|
+| P1-1 | gedaan | M8-bus verticaal in een console onderaan de romp, stekker in de linkerwand van de box; haakse kabel 0,3 m met beide stekkers als onderdeel in de assemblage (botstest); lengte van de stekkers AANNAME 20 tot 32 mm (gekochte maat nameten). Test `P1-1` (ruimte 66 en 235 mm) met tegenproef op 7.3 (17,8 mm). De sleuf werd niet uitgelijnd maar geschrapt: de connectoren zitten 21 tot 47 mm onder het blad, een sleuf helpt daar niet en verzwakt de strook van 38 mm (B-6) |
+| P1-2 | gedaan | de bus zit binnen 210 x 210; test `P1-2` op alle delen die door de uitsparing gaan, met tegenproef op de bus van 7.3 |
+| P1-3 | deels | instroomtuit naar de vorm van de nozzle 109-1073 (los geprint, R6, keel Ø125, 2 mm in het oog), rekenblad 3g met inbouwverlies 0 / 10 / 20 % (bij 20 % haalt geen stand het minimum), "zeker" overal weg, proefkast met de echte kuip in het meetplan. Niet: de kuip ruimer rond de waaier (Ø215 past niet door de uitsparing; tweedelige kuip of korf is een keuze voor Ian) |
+| P1-4 | gedaan | waaier 4 mm onder de plaat, maatketen 69 ± 1 + printtoleranties (ongunstig 1,9 mm, statistisch 2,8 mm), ventilator star, M2 met voelermaat (≥ 1,5 mm), vulring als bijstelling |
+| P2-1 | gedaan | geluid eerlijk (70 tot 76 dB(A) met marge), "stil" geschrapt (test), 1.7.4.2 u in rekenblad en meetplan, G1 in tertsbanden |
+| P2-2 | gedaan | eigenfrequenties axiaal, dwars en kantelend voor drie M4-buffers (alle in of vlak bij 13 tot 65 Hz); gekozen: star op een geribde naaf, laagste mode 147 Hz (> 92 Hz, assert in het rekenblad); G1 met versnellingsmeter |
+| P2-3 | deels | doel 1,0 m/s op 5 cm (ACGIH, actieve bron) naast 0,5 m/s op 10 cm, L2 met draaiende frees en deeltjesteller; de polssteun of zijschotjes zijn niet ontworpen (keuze na W1) |
+| P2-4 | gedaan | schakelaar in de achterwand van de box, 55 mm van de achterrand, zonder bukken bereikbaar |
+| P2-5 | gedaan | aders in een goot in de wand van de kuip naar de dode ruimte van de romp, tussenstekker Molex Micro-Fit 3.0 (JST VH neemt geen AWG 24), trekontlasting, kit; luchtdichttest en tegenproef op de goot |
+| P2-6 | deels | IEC-lock-snoer, kabelgoot langs de ALEX, vrije hoogte onder de box 664 mm; de box is niet naar een zijkant verplaatst (keuze voor Ian) |
+| P2-7 | gedaan | oppervlak van de adapter in het rekenblad (52 tot 70 °C dagstand, foutgeval tot ongeveer 110 °C), klemmen in PA12-CF, E1 met thermokoppels; de ribben blijven PETG (< 0,01 MPa, onderbouwd) |
+| P2-8 | gedaan | bovenframe uit 4 latten (de zijlat schuin op het bed), box 220 breed (de adapter 10 mm naar rechts), test op een bed van 230 met 5 mm marge rondom, met tegenproef op het frame uit één stuk en de box van 7.3 |
+| P2-9 | deels | kracht na een halve slag 9 tot 16 N (tabel rechtgezet), kwart tot driekwart slag 5 tot 24 N tegen 24 N, commentaren rechtgezet; vaste aanslag of klauw in PA-CF niet gedaan (keuze voor Ian) |
+| P2-10 | gedaan | randtoestand ISO 13715 op AFZ-03 en in de bestelregel |
+| P2-11 | gedaan | lamellen 2,5 mm, stootproef 2 J (IK07) in W1 met "geen breuk" |
+| P2-12 | deels | tabel 5 toegepast: 21 mm tegen 20 mm nodig; de waarden van tabel 5 komen uit dit advies en zijn niet in de norm zelf nagekeken (AANNAME) |
+| P2-13 | gedaan | grenzen van de machine en de ontbrekende gevaren in de risicoanalyse |
+| P2-14 | deels | art. 2 i), RoHS en de ontbrekende stukken staan in het dossier; de handleiding, de EU-conformiteitsverklaring en de RED-keuze zijn nog niet gemaakt |
+| P2-15 | gedaan | typeplaatje 90 x 45 uit `revisie.mjs` met 50 Hz, 0,6 A, adres, WEEE en handleidingsymbool; test meet de tekstbreedte, met tegenproef op het oude label |
+| P2-16 | gedaan | alles op 7.4 opnieuw gemaakt; test eist de revisie in README, docs, rekenblad, schema, typeplaatje en tekeningen; bouwschema neemt M5 x 70 uit het model, AFZ-01 Ø5,4 x 69 |
+| P2-17 | gedaan | symbool rechtgezet door Ian in `werktekening.ts` (niet aangeraakt); tekeningen opnieuw gemaakt |
+| P2-18 | gedaan | netzijde L, N, PE, SELV-opmerking, doorsneden en kleuren op de verbindingen, geen overlappende tekst |
+| P2-19 | deels | per geprint deel "vorm volgens STL, revisie 7.4" en passingen met tolerantie, snede B-B naast de dwarsrib, geen "Goedgekeurd: Ian" meer; volledige maatvoering per onderdeel niet toegevoegd |
+| P2-20 | gedaan | ventilator € 205 (band 180 tot 230), SDP810 € 43, offerte voor het RVS, groep "vrijgave en gereedschap" (verzending, meetgerief, L4), bandbreedte ± 15 % |
+| P3-1 | gedaan | M4 x 16 star, indraaiing 4 mm |
+| P3-2 | gedaan | labels uit `FW` |
+| P3-3 | gedaan | open fractie uit het laserrapport, dode uitdrukking weg |
+| P3-4 | gedaan | scenario n = 1,3 |
+| P3-5 | deels | tekst rechtgezet (hiccup tot de stekker eruit, -F1 smelt niet), -R13 op -X1; paneelbus of P-FET niet gedaan (keuze voor Ian) |
+| P3-6 | gedaan | -C1 geschrapt |
+| P3-7 | gedaan | tachoklem 2 x BAT85, -R14 0,6 W |
+| P3-8 | niet | het datablad van Bel 0697W ligt nog niet bij het dossier (Ian: downloaden) |
+| P3-9 | gedaan | messing inzetmoeren M3 |
+| P3-10 | gedaan | klauwen met het dak op het bed (STL en README) |
+| P3-11 | gedaan | MMA in plaats van epoxy, proef in M3 |
+| P3-12 | gedaan | tussenstekker Micro-Fit 3.0 |
+| P3-13 | gedaan | slangetje in "Na morsen" (`onderhoud.mjs` en README) |
+| P3-14 | gedaan | USB-C 52 tot 56 mm onder het bovenvlak |
+| P3-15 | gedaan | geen sleuf Ø10 meer, commentaren gelijkgetrokken |
+| P3-16 | gedaan | verouderde commentaren in de generator opgeruimd |
+| P3-17 | gedaan | magneten in de assemblage, materiaal van de ventilator, bredere materiaalkolom |
+| P3-18 | gedaan | voorblad noemt de A3-bladen en dat hun schaal op A4 vervalt |
+| P3-19 | deels | PA12-CF en PET-CF in de materiaalstaat en de proef M3; bovenframe en instroomplaat blijven PETG tot M3 |
+| P3-20 | gedaan | vermeld in 3c |
+| P3-21 | gedaan | zin over 404 en 283 cm² in hoofdstuk 1 |
+| P3-22 | deels | in W1 en de risicoanalyse; de sleuven zelf niet veranderd |
+| B-1 | deels | knieruimte nagerekend: 598 mm onder de kuip tegen ≥ 620 mm (AANNAME EN 527-1, niet nagekeken): voldoet niet. Kartonproef als poort vóór het frezen, test bewaakt dat het niet slechter wordt; de ventilator naast het filter (60 mm winst) is een keuze voor Ian |
+| B-2 | deels | proefgat Ø3 en voelen als stap 0 (README, AFZ-20, meetplan), massief blad als eerste keuze; de binnenkant blijft onbekend tot het proefgat |
+| B-3 | gedaan | 4 spaanplaatschroeven 4 x 30 door de bovenplaat van de ALEX in de rand van het blad (model, voorboorgaten, test met tegenproef) |
+| B-4 | deels | AANNAME vermeld en nameten op de echte kast; de fronten in het model zijn niet veranderd |
+| B-5 | gedaan | commentaar Ø12 |
+| B-6 | gedaan | geen sleuf meer in de strook; meetklok in M1 |
+| B-7 | gedaan | kabelgoot langs de zijwand van een ALEX |
+| B-8 | gedaan | tests op de module in het blad, de knieruimte en de bevestiging |
+
+**Telling:** P1: 3 gedaan, 1 deels. P2: 13 gedaan, 7 deels. P3: 16 gedaan, 5 deels, 1 niet. Bureau: 5 gedaan, 3 deels.

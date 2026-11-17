@@ -1479,7 +1479,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable 5.2 leest de fitnesscatalogus v6b na (Advies-Fable-5.2-v6.md: 26 echt opgelost, 19 deels, 5 niet; nieuw 7 x P1, 14 x P2, 8 x P3)
 - [x] Fable 5.2 leest treindoos v6 / firmware 2.1.0 / situatieplan en tv na (Advies-Fable-5.2-v7.md: 48 echt opgelost, 14 deels; nieuw 1 x P1, 8 x P2, 14 x P3)
 - [x] Rapporten in docs/ zetten, committen en aan Ian samenvatten
-- [~] Alle adviezen verwerken, met tests op de oude fouten (trein en fitness bezig)
+- [x] Alle adviezen verwerken, met tests op de oude fouten (fitness v7/v8, trein v7)
 - [ ] Web/app/artifacts bijwerken, foto's, commit en push
 
 ## Adviesrondje van Fable 5.2 op balustrades, Phlippo CAD (0.5.14) en afzuiging + bureau, daarna verwerken (2026-11-17)
@@ -1487,7 +1487,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable 5.2 leest het CAD-programma Phlippo CAD 0.5.14 na (docs/32: 3 x P1, 15 x P2, 13 x P3, 12 pariteitspunten)
 - [x] Fable 5.2 leest de inbouwafzuiging en het bureau na (Advies-Fable-5.2-v1.md: 4 x P1, 20 x P2, 22 x P3; bureau 3 x P2, 5 x P3)
 - [ ] Rapporten in docs/ zetten, committen en aan Ian samenvatten
-- [~] Alle adviezen verwerken, met tests op de oude fouten (balustrades klaar e119ed0, artifact v3; fitness v7 502cacc; CAD, trein en afzuiging bezig; projectiesymbool werktekening.ts rechtgezet)
+- [x] Alle adviezen verwerken, met tests op de oude fouten (balustrades e119ed0; fitness v7/v8 502cacc/6ff5261; trein v7 95dc2f4; CAD 0.5.15 565f190; afzuiging 7.4; projectiesymbool werktekening.ts rechtgezet)
 - [ ] Artifacts bijwerken, foto's, commit en push
 
 ## Phlippo CAD 0.5.15: advies Fable 5.2 verwerken (2026-11-17)
@@ -1507,7 +1507,7 @@ elease; README en docs/04 bijgewerkt
 - [x] P1-3/P1-4/P2-2: instroom met nozzle-vorm 109-1073 (overlap in het oog), installatieverlies in het rekenblad, maatketen 69 ± 1 + printtolerantie, buffers dwars/kantelen buiten 13-65 Hz; "zeker" weg
 - [x] Overige P2: geluid eerlijk, EN ISO 13857 tabel 5, typeplaatje past, één revisie 7.4 overal, M5 x 70 en Ø5,4 x 69 uit het model, schakelaar en box bereikbaar, aders in de kuip, risicoanalyse, CE, prijzen
 - [x] Alle P3 en bureau (B-1 knieruimte, B-2 LAGKAPTEN onbekend + controlestap, B-3 blad vast aan de ALEX, B-4..B-8)
-- [~] Negatieve tests per P1/P2; typecheck; vitest (QA in de achtergrond, met AFZUIGING_STL/TEKENINGEN)
-- [~] Alles opnieuw genereren: .kcad, STL, tekeningen, schema, bouwschema, alles-PDF; graphify update
-- [ ] Foto's voor/na (M8, uitsparing, inlaat, projectiesymbool, beenruimte) in de scratchpad en zelf bekijken
+- [x] Negatieve tests per P1/P2; typecheck; vitest (QA in de achtergrond, met AFZUIGING_STL/TEKENINGEN)
+- [x] Alles opnieuw genereren: .kcad, STL, tekeningen, schema, bouwschema, alles-PDF; graphify update
+- [x] Foto's voor/na (M8, uitsparing, inlaat, projectiesymbool, beenruimte) in de scratchpad en zelf bekijken
 - [x] Statustabel onderaan Advies-Fable-5.2-v1.md (gedaan / deels / niet)

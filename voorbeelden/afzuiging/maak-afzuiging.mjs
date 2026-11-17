@@ -1,7 +1,10 @@
-// Ingebouwde nagelstofafzuiging voor het bureau (versie 7.2, 2026-11-12), als Phlippo CAD-documenten.
+// Ingebouwde nagelstofafzuiging voor het bureau (versie 7.4, 2026-11-17; zie revisie.mjs), als Phlippo CAD-documenten.
+// Versie 7.4 (advies Fable 5.2 v1): M8-bus verticaal in een console onderaan de romp, M8-stekker in de linkerwand van de
+// box, instroomtuit naar de vorm van de Sanyo-nozzle 109-1073, ventilator star op bussen in een geribde kuip, aders in een
+// goot in de wand van de kuip, schakelaar in de achterwand van de box, bovenframe uit 4 latten (printbed 230 x 230).
 // Versie 7.2 (advies Fable 5.2 en wens Ian): onder het blad ronde vormen. De vierkante romp stopt 70 mm onder het
 // bovenvlak (filter, verdeelruimte, instroomplaat en de klauwtorens); de ventilator hangt eronder in een ronde, bolle kuip
-// (Ø189) op 4 rubberbuffers, met schuine lamellen opzij en ringsleuven in de bodem. De kuip hangt met 4 oren aan de romp.
+// (Ø189) (7.2 op 4 rubberbuffers; 7.4 star op een geribde naaf), met schuine lamellen opzij en ringsleuven in de bodem. De kuip hangt met 4 oren aan de romp.
 //
 // Opbouw (van boven naar onder):
 // - RVS-plaat (AISI 430, magnetisch, lasergesneden, LB-monogram) ligt op het bovenframe en is er even groot als het:
@@ -10,23 +13,24 @@
 // - een gewoon interieurfilter van een auto (pollenfilter MANN CU 20 013, 195 x 145 x 30, ook Bosch, Valeo, Purflux):
 //   plaat eraf, filter eruit tillen, nieuw erin (niets te knippen). Het ligt op een zachte foamband op een steunrand van
 //   de instroomplaat; de onderdruk trekt het erop (geen lucht langs het filter);
-// - romp (PETG, rechtop geprint, vierkant 210 x 210) met de instroomplaat en de radiale ventilator San Ace C175
-//   (24 V, PWM, tacho) direct onder het filter; onderaan één bodemplaat met schuine lamellen (lucht naar achteren).
+// - romp (PETG, rechtop geprint, vierkant 210 x 210) met de instroomplaat; de radiale ventilator San Ace C175
+//   (24 V, PWM, tacho) hangt eronder in de ronde kuip (lamellen opzij, ringsleuven in de bodem).
 // Bevestiging: vier klauwen in PETG (6 mm, 100 % vulling) met een M5-moer in een zeskantkamer, in gesloten torens. De
 // kop van de M5-schroef zit in een lip van het bovenframe (onder de RVS-plaat) en drukt het hele frame op het blad;
 // draai hem aan, de klauw zwaait door het venster naar buiten en schuift in een lange sleuf omhoog tot het rubberkussen
-// op de arm het blad raakt; daarna nog precies één slag (het rubber begrenst de kracht). Bladdikte 10 tot 50 mm
+// op de arm het blad raakt; daarna nog een halve slag (het rubber begrenst de kracht, docs/Berekeningen.md 6). Bladdikte 10 tot 50 mm
 // (LAGKAPTEN: 34 mm). Alle schroefkoppen zitten in een conische zitting.
 // Luchtdicht: de torens zijn alleen naar buiten open, de naad frame/romp is gelijmd; lucht kan er alleen in langs het
 // rooster en uit langs de bodemplaat.
-// De VIEWE-knop 1,5" staat op een houder die niet breder is dan de knop, met twee kleine klauwen in PETG (M3-moer):
+// De VIEWE-knop 1,5" staat op een houder die niet breder is dan de knop, met twee kleine klauwen in PETG (M4-moer):
 // geen enkele schroef in het blad. Alle schroeven, bouten en moeren staan als onderdelen in de assemblage.
 // Elektronica: in een aparte voedingsbox die onder het blad is ingefreesd (netadapter 24 V, ESP32-C3, drukmeter,
-// schakelaar); een M8-kabel en een slangetje naar de module, een USB-C-kabel naar de knop, allemaal in sleuven onder
-// het blad en met een koppeling aan beide kanten (elke lengte, niets knippen). De knop praat draadloos met de box (ESP-NOW).
+// schakelaar); een haakse M8-kabel en een slangetje naar de module (vrij onder het blad, 7.4), een USB-C-kabel in een
+// sleuf naar de knop, met een koppeling aan beide kanten. De knop praat draadloos met de box (ESP-NOW).
 //
 // Assenstelsel van de module: oorsprong in het midden van de uitsparing op het bovenvlak van het blad, Y omhoog,
 // +Z naar de voorkant van het bureau. Alle PETG-delen passen op het bed van de Elegoo Centauri Carbon (256 x 256) en printen zonder support.
+// Alle PETG-delen passen op een printbed van 230 x 230 (opdracht; de Centauri Carbon heeft 256 x 256).
 // Gebruik: node voorbeelden/afzuiging/maak-afzuiging.mjs   (eerst logo/trace.py en logo/rooster.py)
 import { readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -46,7 +50,7 @@ export const M = {
   uitsparing: { b: 212, d: 212, r: 6 }, // te frezen in het blad
   // klauwen in de hoeken (daar is ruimte naast de ronde waaier); geprint in PETG (100 % vulling), 6 mm dik, met een
   // M5-moer (DIN 934) die van onderen in een zeskantkamer gaat: de moer draait niet, dus de klauw draait mee
-  // rubber: neopreen (CR) Shore A 40, 4 mm, 7,5 x 8 op de arm buiten de romp (tot contact + 1 slag: zie docs/Berekeningen.md)
+  // rubber: neopreen (CR) Shore A 40, 4 mm, 7,5 x 8 op de arm buiten de romp (tot het rubber het blad raakt, dan een halve slag)
   klauw: { x: 96.5, z: 72, naaf: 6.5, arm: 18, breed: 8, dik: 6, moer: { s: 8, m: 4, speling: 0.3 }, rubber: { x: [9.5, 17], h: 4 } }, // ingetrokken blijft de naaf 2 mm binnen de romp
   toren: { binnen: 87.5, top: -9, zwaai: -49, bodem: -61 }, // sleuf van top tot bodem, zwaaivenster onderaan (klauw + rubber)
   lip: { x: 91, z: 6 }, // lippen van het bovenframe boven de torens, voor de kop van de M5-schroef
@@ -64,33 +68,46 @@ export const M = {
   // radiale ventilator met achterwaarts gebogen schoepen: San Ace C175 9TG24P0S01 (Ø175 x 69, 24 V, 56 W, PWM 25 kHz);
   // waaier 60,5 hoog, instroomoog Ø131, motor 4 x M4 op Ø58 (schroefdiepte 4 tot 6 mm)
   // datasheet (Sanyo Denki-catalogus C1111B002, Farnell 2003019): 3900 min-1 bij 100 %, 0 % PWM = stilstand, 750 g, tacho 2 pulsen/omw
-  fan: { d: 175, waaier: 60.5, h: 69, oog: 131, naaf: 36, gat: 29, top: -53 },
-  // instroomplaat (los geprint, op een richel gelijmd) met een trechter boven het oog van de waaier, 2 mm erboven
-  // 7.2: 12 mm lager (top -48): verdeelruimte 12,5 + 3 = 15,5 mm onder het filter (was 6,5). Vingerrooster: 18 ribben 1,6
-  // op steek 7,2 (spleten 5,6, met de printtolerantie hoogstens 5,9), 12 hoog: de bovenkant ligt 14 mm boven de waaier
-  // (EN ISO 13857 tabel 4: sleuf 4 < e <= 6 mm vraagt 10 mm; docs/Berekeningen.md 6b)
-  inlaat: { top: -48, dikte: 3, gat: 63.5, kraag: 66.5, vinger: { rib: 1.6, steek: 7.2, n: 9, h: 12, ringen: [24, 44] } },
+  // 7.4 (P1-4): de waaier hangt 4 mm onder de instroomplaat (was 2): hoogte 69 ± 1 mm (datasheet) plus printtoleranties,
+  // maatketen in docs/Berekeningen.md 6b
+  fan: { d: 175, waaier: 60.5, h: 69, oog: 131, naaf: 36, gat: 29, top: -55 },
+  // instroomplaat (los geprint, op een richel gelijmd); verdeelruimte 12,5 + 3 = 15,5 mm onder het filter.
+  // 7.4 (P1-3): een losse instroomtuit (instroomtuit()) naar de vorm van de Sanyo-nozzle 109-1073 (waarmee de curve gemeten
+  // is): keel Ø125, afronding R6, wand 1,2 mm, 2 mm in het oog (Ø131) van de waaier; radiaal 1,8 mm speling; ze ligt met een
+  // kraag van 45° in een verzonken zitting van de plaat. Vingerrooster in de tuit: 18 ribben 1,6 op steek 7,2 (spleten 5,6,
+  // met de printtolerantie hoogstens 5,9), tot 21 mm boven de waaier: de
+  // bovenkant ligt 21 mm boven de waaier (EN ISO 13857 tabel 5, vanaf 3 jaar, sleuf 4 < e <= 6 mm: 20 mm, AANNAME na te
+  // kijken in de norm; docs/Berekeningen.md 6b)
+  inlaat: { top: -48, dikte: 3, gat: 63.5, tuit: { keel: 62.5, wand: 1.2, R: 6 }, vinger: { rib: 1.6, steek: 7.2, n: 9, h: 23, ringen: [24, 44] } }, // h: van 2 mm in het oog tot 21 mm erboven
   // de ronde kuip onder de romp (PETG, rechtop geprint, de bodem op het bed): binnen Ø183, wand 3; rand tegen de onderkant
   // van de instroomplaat (een celband 6 x 2 dicht af, getekend 1,5 ingedrukt), wand recht tot -110, dan een bolle rand
   // (boog R30 tot 45°, dan 45° naar de bodem: print zonder support), bodem 4 dik op -136. 4 oren op de wandbussen van de
   // romp (M3 x 12 cilinderkop van onderen). Uitblaas: lamellen onder 45° naar onder in 12 sectoren opzij (+-15, 37,5 en 60
   // graden rond de X-as: vooral naar de ladekasten; de buitenste sectoren wijzen schuin naar voor en achter, alles 45°
   // naar onder, zodat de lucht onder de voedingsbox door gaat) en 4 ringsleuven in de bodem.
+  // 7.4: lamellen 2,5 mm dik (sleuf 3,5 op steek 6, P2-11); 8 spaken met daarop 8 ribben (stijve bodem, P2-2); de
+  // ventilator staat star op 4 bussen Ø12 x 8 op de ribben (M4 x 16 verzonken van onderen, 4 mm in de motor); de aders
+  // lopen in een goot in de wand achteraan (hoek -100°) naar de dode ruimte van de romp (P2-5)
   kuip: { binnen: 91.5, wand: 3, rand: -52.5, recht: -110, boog: 30, bodem: -136, vloer: 4,
     oor: { r: [92, 103], b: 10, top: -70, schroef: 98.25, kom: 6.5 },
-    lamel: { hoeken: [15, 37.5, 60], breed: 32, rijen: 10, steek: 6, sleuf: 4, boven: -57.5 },
-    ringen: [[46, 50], [54, 58], [62, 66], [70, 74]], spaken: 6, spaak: 4, draad: [0, -38] },
-  // rubberbuffers onder de motor (Erwin Halder EH 25150.0008: Ø15 x 10, M4 binnendraad 4 mm aan beide kanten, NR 55 Shore A,
-  // max. 200 N, veer ca. 80 N/mm): ontkoppelen de ventilator (750 g) van de kuip
+    lamel: { hoeken: [15, 37.5, 60], breed: 32, rijen: 10, steek: 6, sleuf: 3.5, boven: -57.5 },
+    ringen: [[46, 50], [54, 58], [62, 66], [70, 74]], spaken: 8, spaak: 6,
+    rib: { r: 84, naaf: 37.5, laag: 7.5, hoog: 15 }, bus: { d: 12, h: 8 },
+    goot: { hoek: -100, r: [88, 97.5], b: 10, kanaal: { r: [92.5, 95.5], b: 5 }, onder: -127, boven: -53, uit: [-62, -57], in: [-127, -121] } },
+  // rubberbuffer Ø15 x 10 M4 (7.2 en de ronde variant): in 7.4 niet meer gebruikt (dwars en kantelend eigenfrequenties in het
+  // werkgebied 13 tot 65 Hz, docs/Berekeningen.md 3d)
   buffer: { d: 15, h: 10, draad: 4 },
   // RVS-persbouten PEM FH4-M3-6 in de plaat (zie logo/rooster.py): wereldcoordinaten [x, z]
   persbouten: [[98.7, 0], [-98.7, 0], [85, 98.7], [-85, -98.7]],
   // Ø8 x 1,5 in een gat van 1,6 diep: 0,9 mm bodem onder de magneet (4 lagen van 0,2 plus marge); gat Ø8,2 voor de lijm
   magneten: { d: 8, h: 1.5, plaats: [[105.75, 30], [105.75, -30], [-105.75, 30], [-105.75, -30]] }, // verzonken in het frame, onder de plaat
-  // 7.2: in de achterwand van de romp, onder de instroomplaat (de ruimte daar staat op kamerdruk: buiten de luchtweg) de
-  // M8-bus voor de ventilator en een gat Ø6 voor het slangetje naar de drukmeter; het meetpunt is een messingbuisje in de
-  // instroomplaat onder het filter, dat onderaan in die ruimte uitkomt (geen doorvoer meer nodig)
-  achter: { m8: { x: -60, y: -62 }, slang: { x: -78, y: -62, r: 3 }, meet: [-55, -85] },
+  // onder de instroomplaat staat de ruimte op kamerdruk (buiten de luchtweg). 7.4 (P1-1, P1-2): de M8-bus zit verticaal
+  // naar onder in een console onderaan de romp, achter links (binnen 210 x 210: de module zakt door de uitsparing); het
+  // slangetje gaat door een gat Ø6 in de achterwand; het meetpunt is een messingbuisje in de instroomplaat
+  achter: { m8: { x: -60, z: -91.5, console: { x: [-70, -50], z: -82, dik: 3 } }, slang: { x: -78, y: -62, r: 3 }, meet: [-55, -85] },
+  // 7.4: haakse M8-kabelstekkers, AANNAME (de gekochte maat is niet gekend): lengte vanaf het paneel 20 tot 32 mm, doorsnede
+  // 12 x 12 mm, kabel Ø4,5, buigstraal statisch 5 x Ø; gemodelleerd met de bovengrens
+  m8kabel: { lengte: [20, 32], b: 12, kabel: 4.5, buig: 5, l: 300 },
   // wipschakelaar C&K D502J12S215PQA (10 A bij 30 V DC; rand 20,83 x 15; inbouwgat 19,41 x 12,90 voor een paneel van
   // 1,24 tot 2,01 mm) in een kom van 6 mm: de wip ligt 1 mm binnen de wand
   schakelaar: { diep: 6, paneel: 2 },
@@ -102,26 +119,29 @@ export const M = {
   // (145 x 60 x 32, C14-inlaat); de C13-stekker zit onder het blad.
   // 7.2: hoeken R10 en onderaan een afschuining van 3 mm (45°): ronder en print zonder support; uitsparing R6 (frees Ø12)
   box: { x: 0, z: -195, b: 210, d: 100, wand: 3, boven: 14, onder: -36, frees: { b: 212, d: 102, diep: 15, r: 6 }, hoek: 10, schuin: 3,
-    // rand onder het blad: opzij 7,5 (de box past zo op een printbed van 225), voor en achter 12 met de 4 schroeven;
+    // rand onder het blad: opzij 5 (7.4: de box is 220 breed op een printbed van 230), voor en achter 12 met de 4 schroeven;
     // 4 spaanplaatschroeven 4 x 16 verzonken in de onderhuid van het blad (voorboren Ø2,5 x 14, 2 mm naast de
     // uitsparing); geen pluggen: de box weegt 0,7 kg (docs/Berekeningen.md, hoofdstuk 6)
-    flens: { x: 7.5, z: 12 }, flensDik: 3, plug: { gat: 2.5, diep: 14, x: 85, z: 57 },
+    flens: { x: 5, z: 12 }, flensDik: 3, plug: { gat: 2.5, diep: 14, x: 85, z: 57 },
     buis_r: 5.2, deksel: 2, // paaltjes in de hoeken voor het deksel
-    adapter: { x: [-101, 44], z: [-36, 24], h: 32, voet: 2, inlaat: { z: -6, y: -15 } },
+    // 7.4: de adapter 10 mm naar rechts, zodat de M8-stekker in de linkerwand ernaast past (de C13-stekker gaat 14 mm de box in)
+    adapter: { x: [-91, 54], z: [-36, 24], h: 32, voet: 2, inlaat: { z: -6, y: -15 } },
     print: { x: [60, 100], z: [-13.5, 36.5], y: -28 }, // 0,3 mm vrij van het paaltje van het deksel (R5,2 rond [97, 42])
     klem: { x: [-60, -5], b: 9, d: 8 }, // paaltjes en klemmen voor de adapter
-    m8: { x: -60, y: -20 }, buis: { x: -75, y: -27 }, usb: { z: -29, y: -24.7, b: 20.3, d: 12.7, over: 1.3 }, c3: { z: 10, hoog: 3.5 },
-    schakelaar: { x: 40, y: -17 } }, // de aan/uit-schakelaar in de voorwand (naar de gebruiker)
+    // 7.4: de M8-stekker in de linkerwand (kopse wand)
+    m8: { z: 29, y: -21 }, buis: { x: -75, y: -27 }, usb: { z: -29, y: -24.7, b: 20.3, d: 12.7, over: 1.3 }, c3: { z: 10, hoog: 3.5 },
+    schakelaar: { x: 70, y: -17 } }, // 7.4: de aan/uit-schakelaar in de achterwand (de achterrand van het bureau, 55 mm)
   // 7.2: freesmal uit MDF 12 mm (laser) voor een bovenfrees met kopieerring Ø17 (Bosch 2 609 200 139) en een frees Ø12:
   // de opening is (17 - 12) / 2 = 2,5 mm groter rondom (schema/maak-mallen.mjs, laser/freesmal-mdf.dxf, tekening AFZ-21)
   mdf: { dikte: 12, ring: 17, frees: 12, plaat: { afzuiging: [400, 400], voedingsbox: [400, 260] } },
   // 7.2: houten latten tussen de huiden van LAGKAPTEN (AANNAME huiden 3 mm, kern 28 mm): rond de uitsparing van de module
   // 4 x 28 x 44 x 212 (vuren, geschaafd), rond die van de box 2 x 10 x 30 x 200 (multiplex of beuken) tegen de onderhuid
   latten: { huid: 3, module: { h: 28, b: 44, l: 212 }, box: { h: 10, b: 30, l: 200 } },
-  // sleuven onderaan het blad: box -> module (M8-kabel en slangetje, 29 x 7) en box -> knop (USB-C, 5 x 5)
-  sleuven: { module: { x: [-82, -53], diep: 7 }, knop: { z: -30, breed: 5, diep: 5 } },
+  // sleuf onderaan het blad: box -> knop (USB-C, 5 x 5). 7.4: de sleuf naar de module (29 x 7) vervalt: de M8-kabel en het
+  // slangetje lopen vrij onder het blad (de connectoren zitten 21 tot 47 mm onder het blad)
+  sleuven: { knop: { z: -30, breed: 5, diep: 5 } },
   // VIEWE-knop 1,5" (UEDX46460015-MD50E, Ø51,6 x 14, naaf achteraan, FPC 10-polig) op een houder die niet breder is
-  // dan de knop: plaat Ø51,6 x 2 op het blad, buis Ø43 in een gat van Ø44 (gatzaag), 2 stalen klauwen (M3) en een
+  // dan de knop: plaat Ø51,6 x 2 op het blad, buis Ø43 in een gat van Ø44 (gatzaag), 2 klauwen in PETG (M4) en een
   // dicht deksel onderaan. De USB-C zit in de achterwand van de buis (de kant waar de sleuf van de box aankomt), op een
   // printje (-X7) op 2 palen net boven het deksel. Maten van de knop uit de maattekening van VIEWE.
   dial: { x: 250, z: 200, d: 51.6, hoogte: 14, voet: 2.5, gat: 44, plaat: 2, buis: 21.5, wand: 2, onder: -60, deksel: 2,
@@ -138,6 +158,9 @@ const PETG_ZWART = { name: 'PETG, zwart', density: 1270, color: '#232325' };
 const RVS430 = { name: 'AISI 430', density: 7700, color: '#c9ccd1' };
 const RVS304 = { name: 'AISI 304', density: 8000, color: '#b8bcc2' };
 const ZWART = { name: 'PBT, zwart', density: 1300, color: '#2c2c2e' };
+// de ventilator: motorhuis aluminium, waaier kunststof UL94 V-0 (datasheet San Ace C175)
+const FAN_MAT = { name: 'Alu-motor, waaier UL94 V-0', density: 1300, color: '#2c2c2e' };
+const PA_CF = { name: 'PA12-CF, zwart', density: 1100, color: '#2b2b2d' };
 const DIAL = { name: 'ABS, grijs', density: 1050, color: '#5a5e66' };
 const PCB = { name: 'FR4', density: 1850, color: '#2f7d4a' };
 
@@ -214,23 +237,36 @@ export function romp() {
     }));
     o.extrude('cut', R.wand + 1, { omkeren: true, naam: kant > 0 ? 'Sleuven rechts' : 'Sleuven links' });
   }
-  // gaten voor de schroeven van de kuip (M3, Ø2,5 x 12), van onderen in de bussen
-  o.schets(vlak('onder', 'Face onderkant', [0, R.onder, 0], [0, -1, 0]), (s) => kuipSchroeven().forEach(([x, z]) => s.cirkelW([x, R.onder, z], 1.25)));
+  // gaten voor de schroeven van de kuip: 7.4 (P3-9) een messing inzetmoer M3 (Ø4,0 x 7, met de soldeerbout ingeperst) en
+  // daarboven Ø3,2 voor de punt van de M3 x 12
+  o.schets(vlak('onder', 'Face onderkant', [0, R.onder, 0], [0, -1, 0]), (s) => kuipSchroeven().forEach(([x, z]) => s.cirkelW([x, R.onder, z], 1.6)));
   o.extrude('cut', 12, { omkeren: true, naam: 'Gaten kuip' });
-  // achterwand, onder de instroomplaat: gat voor de M8-bus van de ventilator en voor het slangetje van de drukmeting
-  o.schets(vlak('achterwand', 'Face achterwand', [0, 0, -R.d / 2], [0, 0, -1]), (s) => {
-    s.cirkelW([A.m8.x, A.m8.y, -R.d / 2], 5.1); // binder 718: M10 x 0,75
-    s.cirkelW([A.slang.x, A.slang.y, -R.d / 2], A.slang.r);
-  });
-  o.extrude('cut', R.wand + 1, { omkeren: true, naam: 'Gaten achterwand' });
+  o.schets(vlak('onder', 'Face onderkant', [0, R.onder, 0], [0, -1, 0]), (s) => kuipSchroeven().forEach(([x, z]) => s.cirkelW([x, R.onder, z], 2)));
+  o.extrude('cut', 7, { omkeren: true, naam: 'Gaten inzetmoeren' });
+  // achterwand, onder de instroomplaat: het gat voor het slangetje van de drukmeting
+  o.schets(vlak('achterwand', 'Face achterwand', [0, 0, -R.d / 2], [0, 0, -1]), (s) => s.cirkelW([A.slang.x, A.slang.y, -R.d / 2], A.slang.r));
+  o.extrude('cut', R.wand + 1, { omkeren: true, naam: 'Gat slangetje' });
+  // 7.4: console onderaan tegen de achterwand (op het bed: geen overhang) met het gat Ø10,2 voor de M8-bus (binder 718,
+  // M10 x 0,75), verticaal naar onder; binnen de omtrek van de romp
+  const Cn = A.m8.console;
+  o.schets(yv('console', R.onder, 'reference', 'Plane onderkant console'), (s) => s.rrectW([Cn.x[0], 0, -(R.d / 2 - R.wand + 0.5)], [Cn.x[1], 0, Cn.z], 1));
+  o.extrude('boss', Cn.dik, { naam: 'Console M8' });
+  o.schets(yv('consolegat', R.onder + Cn.dik, 'reference', 'Plane bovenkant console'), (s) => s.cirkelW([A.m8.x, 0, A.m8.z], 5.1));
+  o.extrude('cut', Cn.dik + 1, { omkeren: true, naam: 'Gat M8' });
   return o.doc();
 }
 
 /** het bovenframe: een smalle omranding van 2,5 mm (plat geprint, op de romp gelijmd); de RVS-plaat ligt erop en is
  *  even groot, de magneten zitten verzonken onder de plaat */
 export function bovenframe() {
-  const { frame: F } = M;
   const o = new Onderdeel('Bovenframe', PETG);
+  bovenframeBouw(o);
+  return o.doc();
+}
+
+/** de features van het bovenframe op onderdeel o */
+function bovenframeBouw(o) {
+  const { frame: F } = M;
   o.schets(TOP, (s) => { s.rrect(-F.b / 2, -F.d / 2, F.b / 2, F.d / 2, F.r); s.rrect(-F.opening.x, -F.opening.z, F.opening.x, F.opening.z, F.opening.r); });
   o.extrude('boss', F.dikte, { naam: 'Omranding' });
   // lippen boven de vier torens: daarin zit de kop van de M5-schroef (conische zitting, 90°), zodat de schroef het frame
@@ -248,7 +284,32 @@ export function bovenframe() {
   o.extrude('cut', F.dikte + 1, { omkeren: true, naam: 'Gaten M5' });
   o.schets(yv('bovenvlak', F.dikte, 'reference', 'Plane bovenkant frame'), (s) => M.magneten.plaats.forEach(([x, z]) => s.cirkelW([x, 0, z], M.magneten.d / 2 + 0.1)));
   o.extrude('cut', M.magneten.h + 0.1, { omkeren: true, naam: 'Magneten' });
-  return o.doc();
+}
+
+/** 7.4 (P2-8, printbed 230 x 230): het bovenframe wordt geprint als 4 latten en op de romp gelijmd (rondom, luchtdicht).
+ *  'zij' = de rechterlat (x > 100,4, over de hele diepte, met de lippen van de M5 en de magneten; links is dezelfde lat 180°
+ *  gedraaid), 'dwars' = de voorste lat (z > 100,4, tussen de zijlatten; achter is dezelfde lat 180° gedraaid). De sneden
+ *  beginnen 0,1 mm in de opening (geen samenvallende vlakken, geen verloren strook). */
+export function bovenframeLat(soort = 'zij') {
+  const F = M.frame, X = F.opening.x - 0.1, Zd = F.opening.z - 0.1, G = 115, H = F.opening.x - F.opening.r - 0.1; // H: de hoeken (met de afronding van de opening) gaan mee met de zijlat
+  const naam = soort === 'zij' ? 'Bovenframe zijlat' : 'Bovenframe dwarslat';
+  const b = new Onderdeel(naam, PETG);
+  bovenframeBouw(b);
+  b.schets(yv('latsnede', F.dikte * 2 + 1, 'reference', 'Plane boven het frame'), (sk) => {
+    if (soort === 'zij') {
+      const l = M.lip, lx = l.x - 0.1;
+      const n = [...assen()].filter(([x]) => x > 0).map(([, z]) => z).sort((p, q) => p - q);
+      const pts = [[-G, -G], [H, -G], [H, -H], [X, -H]];
+      for (const z of n) pts.push([X, z - l.z - 0.1], [lx, z - l.z - 0.1], [lx, z + l.z + 0.1], [X, z + l.z + 0.1]);
+      pts.push([X, H], [H, H], [H, G], [-G, G]);
+      sk.lusW(pts.map(([x, z]) => [x, 0, z]));
+    } else {
+      sk.rrectW([-G, 0, -G], [G, 0, G]);
+      sk.rrectW([-H, 0, Zd], [H, 0, G - 1]);
+    }
+  });
+  b.extrude('cut', F.dikte * 2 + 2, { omkeren: true, naam: 'Andere latten weg' });
+  return b.doc();
 }
 
 /** het lasergesneden rooster, uit laser/rooster.loops (geschreven door logo/rooster.py); ligt op het frame */
@@ -317,7 +378,7 @@ export function kuipProfiel() {
 
 /** de ronde kuip onder de romp (rechtop geprint, de bodem op het bed): een omwenteling van het profiel, 4 oren op de
  *  wandbussen van de romp, lamellen onder 45° opzij (12 sectoren) en 4 ringsleuven in de bodem; in het midden zitten de
- *  rubberbuffers van de ventilator (4 x M4 x 8 verzonken van onderen) en een gat Ø5 voor de 4 aders (dichtgezet met kit) */
+ *  de naaf met 8 ribben en 4 bussen voor de ventilator (4 x M4 x 16 verzonken van onderen) en achteraan de goot voor de aders */
 export function kuip() {
   const K = M.kuip, O = K.oor, L = K.lamel, Ri = K.binnen;
   const { Ro, C, pO, bO, pI, bI, yv0 } = kuipProfiel();
@@ -368,14 +429,48 @@ export function kuip() {
         s.lusW([...boog(r2, t0 + d(r2), t1 - d(r2)), ...boog(r1, t1 - d(r1), t0 + d(r1))].map(([x, z]) => [x, 0, z]));
       }
     }
-    s.cirkelW([K.draad[0], 0, K.draad[1]], 2.5);
   });
   o.extrude('cut', K.vloer + 1, { naam: 'Ringsleuven' });
+  // 7.4 (P2-2): een massieve naaf onder de motor (r 37,5, tot 0,5 mm onder de motor) en 8 ribben op de spaken onder de
+  // waaier (1,5 mm vrij), tot in de bolle rand: een stijve bodem, de ventilator staat er star op (4 bussen Ø12 op de naaf).
+  // In de naaf een groef 6 x 4 voor de aders, naar de goot achteraan
+  const Rb = K.rib, ribLus = (r0, r1, k) => {
+    const a = (k * 2 * Math.PI) / K.spaken, c = Math.cos(a), sn = Math.sin(a), w = K.spaak / 2 - 0.1; // 0,1 mm smaller dan de spaak
+    return [[r0, -w], [r1, -w], [r1, w], [r0, w]].map(([r, t]) => [r * c - t * sn, 0, r * sn + t * c]);
+  };
+  o.schets(yv('naaf', yv0 - 0.05, 'reference', 'Plane naaf'), (s) => s.cirkel(0, 0, Rb.naaf));
+  o.extrude('boss', Rb.laag + 0.05, { naam: 'Naaf' });
+  o.schets(yv('ribben', yv0 - 0.05, 'reference', 'Plane ribben'), (s) => { for (let k = 0; k < K.spaken; k++) s.lusW(ribLus(Rb.naaf - 0.5, Rb.r, k)); });
+  o.extrude('boss', Rb.hoog + 0.05, { naam: 'Ribben' });
+  o.schets(yv('bussen', yv0 - 0.05, 'reference', 'Plane bussen'), (s) => fanGaten().forEach(([x, z]) => s.cirkelW([x, 0, z], K.bus.d / 2)));
+  o.extrude('boss', K.bus.h + 0.05, { naam: 'Bussen ventilator' });
   const onderR = vlak('kuiponderR', 'Plane onderkant kuip', [0, K.bodem, 0], [0, -1, 0], 'reference');
   o.schets(onderR, (s) => fanGaten().forEach(([x, z]) => s.cirkelW([x, K.bodem, z], 4.1)));
   o.extrude('cut', 2, { omkeren: true, naam: 'Verzinking M4', draft: 45 });
-  o.schets(yv('kuipgat', yv0 + 0.5, 'reference', 'Plane gaten M4'), (s) => fanGaten().forEach(([x, z]) => s.cirkelW([x, 0, z], 2.2)));
-  o.extrude('cut', K.vloer + 1, { omkeren: true, naam: 'Gaten M4' });
+  o.schets(yv('kuipgat', yv0 + K.bus.h + 0.5, 'reference', 'Plane gaten M4'), (s) => fanGaten().forEach(([x, z]) => s.cirkelW([x, 0, z], 2.2)));
+  o.extrude('cut', K.bus.h + K.vloer + 1, { omkeren: true, naam: 'Gaten M4' });
+  {
+    const ga0 = (K.goot.hoek * Math.PI) / 180, c0 = Math.cos(ga0), s0 = Math.sin(ga0), q = (r, t) => [r * c0 - t * s0, 0, r * s0 + t * c0];
+    o.schets(yv('groef', yv0 + Rb.laag + 0.5, 'reference', 'Plane groef naaf'), (s) => s.lusW([q(-2, -3), q(Rb.naaf + 1, -3), q(Rb.naaf + 1, 3), q(-2, 3)]));
+    o.extrude('cut', 4.5, { omkeren: true, naam: 'Groef aders' });
+  }
+  // 7.4 (P2-5): goot voor de aders in de wand achteraan (hoek -100°, de dichte wand tussen de lamellen): een kolom van het
+  // bed tot onder de rand, met binnenin een kanaal 5 x 3; onderaan (onder de waaier) een opening naar binnen, bovenaan (in de
+  // dode ruimte van de romp) een opening naar buiten, dicht te zetten met kit
+  const Gt = K.goot, ga = (Gt.hoek * Math.PI) / 180, gc = Math.cos(ga), gs = Math.sin(ga);
+  const gp = (r, t) => [r * gc - t * gs, 0, r * gs + t * gc];
+  const blok = (r0, r1, b) => [gp(r0, -b / 2), gp(r1, -b / 2), gp(r1, b / 2), gp(r0, b / 2)];
+  o.schets(yv('gootvoet', K.bodem, 'reference', 'Plane voet goot'), (s) => s.lusW(blok(Gt.r[0], Gt.r[1], Gt.b)));
+  o.extrude('boss', Gt.boven - K.bodem, { naam: 'Goot aders' });
+  // het kanaal begint 1 mm onder de bovenkant van de kolom (dicht dak) en loopt tot onder de waaier
+  o.schets(yv('gootkanaal', Gt.boven - 1, 'reference', 'Plane kanaal goot'), (s) => s.lusW(blok(Gt.kanaal.r[0], Gt.kanaal.r[1], Gt.kanaal.b)));
+  o.extrude('cut', Gt.boven - 1 - Gt.onder, { omkeren: true, naam: 'Kanaal aders' });
+  const radiaal = (id, naam, r0, r1, y0, y1) => {
+    o.schets(yv(id, y1, 'reference', `Plane ${naam}`), (s) => s.lusW(blok(r0, r1, Gt.kanaal.b)));
+    o.extrude('cut', y1 - y0, { omkeren: true, naam });
+  };
+  radiaal('gootin', 'Opening goot binnen', Gt.r[0] - 4, Gt.kanaal.r[0] + 0.5, Gt.in[0], Gt.in[1]);
+  radiaal('gootuit', 'Opening goot buiten', Gt.kanaal.r[1] - 0.5, Gt.r[1] + 1, Gt.uit[0], Gt.uit[1]);
   return o.doc();
 }
 
@@ -414,7 +509,7 @@ export function persbout() {
 }
 
 /** de instroomplaat (plat geprint, 3 mm): ligt op de getrapte richel in de romp en tussen de torens, gelijmd; een
- *  trechter (45°) boven het oog van de waaier, het messingbuisje van de drukmeting, en bovenop de steunrand voor het
+ *  verzonken zitting voor de instroomtuit, het messingbuisje van de drukmeting, en bovenop de steunrand voor het
  *  filter (6 mm breed, de foamband erop) met daarbuiten een geleiderand (1 mm speling rond het filter) */
 export function instroomplaat() {
   const { inlaat: I, achter: A, filter: F } = M;
@@ -428,33 +523,57 @@ export function instroomplaat() {
   o.extrude('boss', F.steun - I.top, { terug: 0.5, naam: 'Steunrand filter' });
   o.schets(yv('plaattop', I.top), (s) => { s.rrect(-xg, -zg, xg, zg, 2 + F.gids.dik); s.rrect(-xo, -zo, xo, zo, 2); });
   o.extrude('boss', F.steun + F.foam.h + F.gids.h - I.top, { terug: 0.5, naam: 'Geleiderand filter' });
-  // trechter in drie treden van 1 mm (samen 45°)
-  // de snedes beginnen 0,5 mm boven de plaat (geen samenvallende vlakken)
-  // trechter in twee treden van 1 mm (samen 45°), als ringen rond het oog: het vingerrooster binnen Ø127 blijft 3 mm dik
-  // de snedes beginnen 0,5 mm boven de plaat (geen samenvallende vlakken)
-  [I.kraag, (I.kraag + I.gat) / 2].forEach((r, i) => {
-    o.schets(yv(`trechter${i}`, I.top + 0.5, 'reference', `Plane trechter ${i + 1}`), (s) => { s.cirkel(0, 0, r); s.cirkel(0, 0, I.gat); });
-    o.extrude('cut', i + 1.5, { omkeren: true, naam: `Trechter ${i + 1}` });
+  // 7.4 (P1-3): een verzonken gat (45°) waarin de losse instroomtuit zit (gelijmd, MMA); het messingbuisje
+  o.schets(yv('boven', I.top + 0.5, 'reference', 'Plane boven de plaat'), (s) => s.cirkelW([A.meet[0], 0, A.meet[1]], 1.55));
+  o.extrude('cut', I.dikte + 1.5, { omkeren: true, naam: 'Gat buisje' });
+  o.schets(yv('tuitzitting', I.top, 'reference', 'Plane bovenkant plaat'), (s) => s.cirkel(0, 0, tuitMaten().kraag));
+  o.extrude('cut', I.dikte + 0.5, { omkeren: true, naam: 'Zitting instroomtuit', draft: 45 });
+  return o.doc();
+}
+
+/** de maten van de instroomtuit (versie 7.4): keel, buitenkant van de wand, de kraag (45°) die in de verzonken zitting van
+ *  de instroomplaat ligt, en de afronding */
+export function tuitMaten() {
+  const I = M.inlaat, T = I.tuit, onder = M.fan.top - 2, buiten = T.keel + T.wand;
+  const kegel = onder + 1.5; // vanaf hier loopt de buitenkant onder 45° naar buiten (print zonder support)
+  return { onder, buiten, kegel, kraag: buiten + (I.top - kegel), R: T.R, keel: T.keel, top: I.top };
+}
+
+/** het profiel (r, y) van de instroomtuit: binnen recht vanaf de keel, dan een afronding R tot de bovenkant van de plaat;
+ *  buiten recht en dan 45° naar buiten tot de kraag (ligt in de verzonken zitting van de instroomplaat) */
+export function tuitProfiel() {
+  const t = tuitMaten(), c = [t.keel + t.R, t.top - t.R];
+  // de boog van (keel, top - R) tot (keel + R, top), middelpunt (keel + R, top - R)
+  const boog = Array.from({ length: 13 }, (_, k) => { const a = (Math.PI / 2) * (1 - k / 12); return [c[0] - t.R * Math.cos(Math.PI / 2 - a), c[1] + t.R * Math.sin(Math.PI / 2 - a)]; });
+  return [[t.keel, t.onder], ...boog.map(([r, y]) => [r, y]), [t.kraag, t.top], [t.buiten, t.kegel], [t.buiten, t.onder]];
+}
+
+/** 7.4 (P1-3): de instroomtuit, los geprint (de keel op het bed: de afronding en de kraag van 45° printen zonder support)
+ *  en in de verzonken zitting van de instroomplaat gelijmd. Vorm van de Sanyo-nozzle 109-1073 (waarmee de curve gemeten
+ *  is): keel Ø125, afronding R6 (plaats: 9 mm van de plaat tot 2 mm in het oog), 2 mm in het oog Ø131. Binnenin het
+ *  vingerrooster: 18 ribben 1,6 mm (steek 7,2, spleten 5,6) langs Z, één dwarsrib langs X en twee ringen (r 24 en 44),
+ *  van de onderkant van de keel tot 21 mm boven de waaier (EN ISO 13857 tabel 5, AANNAME). Oorsprong zoals de module. */
+export function instroomtuit() {
+  const { inlaat: I } = M, t = tuitMaten();
+  const o = new Onderdeel('Instroomtuit', PETG);
+  let as;
+  o.schets(vlak('tuitprofiel', 'Plane profiel tuit', [0, 0, 0], [0, 0, 1], 'reference'), (s) => {
+    s.lus(tuitProfiel());
+    as = s.as(0, t.onder - 10, 0, t.top + 10);
   });
-  o.schets(yv('boven', I.top + 0.5, 'reference', 'Plane boven de plaat'), (s) => { s.cirkel(0, 0, I.gat); s.cirkelW([A.meet[0], 0, A.meet[1]], 1.55); });
-  o.extrude('cut', I.dikte + 1.5, { omkeren: true, naam: 'Gaten' });
-  // vingerrooster in het oog Ø127: ribben van 1,6 mm (steek 12, spleten 10,4) langs Z, één dwarsrib langs X en twee
-  // ringen (r 24 en 44), 7 mm hoog: van 2 mm boven de waaier tot 4 mm boven de plaat (onder het filter blijft 3,5 mm).
-  // Onder 10 N buigt het hoogstens 0,73 mm door (balkrooster, docs/Berekeningen.md 6b). De ribben lopen tot in de rand
-  // van het oog en blijven staan als het filter eruit is (de plaat is gelijmd). 0,05 tot 0,15 mm verschoven: geen
-  // samenvallende vlakken
-  const V = I.vinger, R0 = I.gat;
-  o.schets(yv('ribben', yb + 0.05, 'reference', 'Plane ribben'), (s) => {
+  o.revolve('boss', as, 360, { naam: 'Tuit' });
+  const V = I.vinger, R0 = t.keel + 0.5, y0 = t.onder + 0.05, h = M.fan.top + 21 - y0;
+  o.schets(yv('ribben', y0, 'reference', 'Plane ribben'), (s) => {
     for (let k = -V.n; k < V.n; k++) {
-      const x = (k + 0.5) * V.steek, zl = Math.sqrt(R0 * R0 - (Math.abs(x) - V.rib / 2) ** 2) + 1.5;
+      const x = (k + 0.5) * V.steek, zl = Math.sqrt(R0 * R0 - (Math.abs(x) + V.rib / 2) ** 2);
       s.rrectW([x - V.rib / 2, 0, -zl], [x + V.rib / 2, 0, zl]);
     }
   });
-  o.extrude('boss', V.h, { naam: 'Vingerrooster ribben' });
-  o.schets(yv('dwarsrib', yb + 0.1, 'reference', 'Plane dwarsrib'), (s) => s.rrectW([-(R0 + 1.5), 0, -V.rib / 2], [R0 + 1.5, 0, V.rib / 2]));
-  o.extrude('boss', V.h - 0.1, { naam: 'Vingerrooster dwarsrib' });
-  o.schets(yv('ringen', yb + 0.15, 'reference', 'Plane ringen'), (s) => V.ringen.forEach((r) => { s.cirkel(0, 0, r + V.rib / 2); s.cirkel(0, 0, r - V.rib / 2); }));
-  o.extrude('boss', V.h - 0.2, { naam: 'Vingerrooster ringen' });
+  o.extrude('boss', h, { naam: 'Vingerrooster ribben' });
+  o.schets(yv('dwarsrib', y0 + 0.05, 'reference', 'Plane dwarsrib'), (s) => s.rrectW([-R0, 0, -V.rib / 2], [R0, 0, V.rib / 2]));
+  o.extrude('boss', h - 0.1, { naam: 'Vingerrooster dwarsrib' });
+  o.schets(yv('ringen', y0 + 0.1, 'reference', 'Plane ringen'), (s) => V.ringen.forEach((r) => { s.cirkel(0, 0, r + V.rib / 2); s.cirkel(0, 0, r - V.rib / 2); }));
+  o.extrude('boss', h - 0.2, { naam: 'Vingerrooster ringen' });
   return o.doc();
 }
 
@@ -462,7 +581,7 @@ export function instroomplaat() {
  *  (Ø72) met 4 draadgaten M4 op Ø58 */
 export function ventilator() {
   const { fan: V } = M;
-  const o = new Onderdeel('San Ace C175 9TG24P0S01', ZWART);
+  const o = new Onderdeel('San Ace C175 9TG24P0S01', FAN_MAT);
   const y2 = V.top - V.waaier, y3 = V.top - V.h;
   o.schets(yv('waaier', y2, 'reference', 'Plane waaier'), (s) => s.cirkel(0, 0, V.d / 2));
   o.extrude('boss', V.waaier, { naam: 'Waaier' });
@@ -483,48 +602,110 @@ export function ventilator() {
   return o.doc();
 }
 
+/** een vlak door `origin` met normaal `n` en u loodrecht erop (voor vlakken langs een willekeurige as) */
+function vlakN(id, name, origin, n, u) {
+  const v = [n[1] * u[2] - n[2] * u[1], n[2] * u[0] - n[0] * u[2], n[0] * u[1] - n[1] * u[0]];
+  return { id, name, origin, u, v, n, kind: 'reference' };
+}
+/** twee eenheidsvectoren loodrecht op een as langs X, Y of Z: [e1, e2] (bij een as langs X: e1 = Y, e2 = Z) */
+const loodrecht = (a) => (Math.abs(a[0]) > 0.5 ? [[0, 1, 0], [0, 0, 1]] : Math.abs(a[1]) > 0.5 ? [[1, 0, 0], [0, 0, 1]] : [[1, 0, 0], [0, 1, 0]]);
+
 /** M8-inbouwconnector 4-polig, binder 718 voor achterwandmontage: binnen een zeskantflens SW12 en het huis met 4
  *  soldeerbekers, door de wand de schroefdraad M10 x 0,75, buiten de moer SW10 en de koppeling M8 x 1.
- *  c = [x, y] van de as, zi = binnenkant van de wand, d = richting naar buiten (-1: naar -Z), wand = dikte,
+ *  c = punt op de as aan de binnenkant van de wand, a = richting naar buiten (langs X, Y of Z), wand = dikte,
  *  bus = true: bus (koppeling met gaatjes), anders stekker (koppeling met pennen in een kraag) */
-function m8connector(naam, c, zi, d, wand, bus) {
+export function m8connector(naam, c, a, wand, bus) {
   const o = new Onderdeel(naam, { name: 'Messing vernikkeld', density: 8500, color: '#b9bcc0' });
-  const [cx, cy] = c, zk = (z) => [cx, cy, z];
-  const pz = (z, n) => vlak(`m8${n}`, `Plane ${n}`, [0, 0, z], [0, 0, d], 'reference');
-  const pzi = (z, n) => vlak(`m8${n}`, `Plane ${n}`, [0, 0, z], [0, 0, -d], 'reference');
-  const zeskantW = (sw, z) => zeskant(sw).map(([a, b]) => [cx + a, cy + b, z]);
+  const [e1, e2] = loodrecht(a);
+  const at = (t, p = 0, q = 0) => [0, 1, 2].map((i) => c[i] + a[i] * t + e1[i] * p + e2[i] * q);
+  const vl = (t, id, inw) => vlakN(`m8${id}`, `Plane ${id}`, at(t), inw ? a.map((x) => -x || 0) : a, e1);
+  const zesW = (sw, t) => zeskant(sw).map(([p, q]) => at(t, p, q));
+  const bekers = [[-1.7, -0.98], [1.7, -0.98], [-1.7, 0.98], [1.7, 0.98]];
   // binnen: flens SW12 (2 mm) en het huis Ø9 x 5 met 4 soldeerbekers
-  o.schets(pzi(zi - d * 0.1, 'flens'), (s) => s.lusW(zeskantW(12, 0)));
+  o.schets(vl(-0.1, 'flens', true), (s) => s.lusW(zesW(12, -0.1)));
   o.extrude('boss', 2, { naam: 'Flens SW12' });
-  o.schets(pzi(zi - d * 2, 'huis'), (s) => s.cirkelW(zk(0), 4.5));
+  o.schets(vl(-2, 'huis', true), (s) => s.cirkelW(at(-2), 4.5));
   o.extrude('boss', 5, { terug: 0.2, naam: 'Huis' });
-  o.schets(pzi(zi - d * 7, 'bekers'), (s) => [[-1.7, -0.98], [1.7, -0.98], [-1.7, 0.98], [1.7, 0.98]].forEach(([a, b]) => s.cirkelW([cx + a, cy + b, 0], 0.65)));
+  o.schets(vl(-7, 'bekers', true), (s) => bekers.forEach(([p, q]) => s.cirkelW(at(-7, p, q), 0.65)));
   o.extrude('boss', 3, { terug: 0.2, naam: 'Soldeerbekers' });
   // door de wand: M10 x 0,75 (kern Ø9,9)
-  o.schets(pz(zi - d * 0.2, 'draad'), (s) => s.cirkelW(zk(0), 4.95));
+  o.schets(vl(-0.2, 'draad'), (s) => s.cirkelW(at(-0.2), 4.95));
   o.extrude('boss', wand + 0.3, { naam: 'Schroefdraad M10' });
   // buiten: moer SW10 (3 mm) en de koppeling M8 x 1 (8 mm)
-  const zb = zi + d * (wand + 0.1);
-  o.schets(pz(zb, 'moer'), (s) => { s.lusW(zeskantW(10, 0)); });
+  const tb = wand + 0.1;
+  o.schets(vl(tb, 'moer'), (s) => s.lusW(zesW(10, tb)));
   o.extrude('boss', 3, { naam: 'Moer SW10' });
-  o.schets(pz(zb + d * 3, 'koppeling'), (s) => s.cirkelW(zk(0), 4));
+  o.schets(vl(tb + 3, 'koppeling'), (s) => s.cirkelW(at(tb + 3), 4));
   o.extrude('boss', 8, { terug: 0.2, naam: 'Koppeling M8' });
-  o.schets(pz(zb + d * 11, 'front'), (s) => {
-    if (bus) [[-1.7, -0.98], [1.7, -0.98], [-1.7, 0.98], [1.7, 0.98]].forEach(([a, b]) => s.cirkelW([cx + a, cy + b, 0], 0.45));
-    else s.cirkelW(zk(0), 3);
+  o.schets(vl(tb + 11, 'front'), (s) => {
+    if (bus) bekers.forEach(([p, q]) => s.cirkelW(at(tb + 11, p, q), 0.45));
+    else s.cirkelW(at(tb + 11), 3);
   });
   o.extrude('cut', bus ? 4 : 5, { omkeren: true, naam: bus ? 'Contactgaten' : 'Kraag' });
   if (!bus) {
-    o.schets(pz(zb + d * 6, 'pennen'), (s) => [[-1.7, -0.98], [1.7, -0.98], [-1.7, 0.98], [1.7, 0.98]].forEach(([a, b]) => s.cirkelW([cx + a, cy + b, 0], 0.5)));
+    o.schets(vl(tb + 6, 'pennen'), (s) => bekers.forEach(([p, q]) => s.cirkelW(at(tb + 6, p, q), 0.5)));
     o.extrude('boss', 4.5, { terug: 0.2, naam: 'Pennen' });
   }
   return o.doc();
 }
 
-/** M8-inbouwbus 4-polig in de achterwand van de module (binder 718, M10 x 0,75): naar de ventilator */
+/** 7.4: M8-inbouwbus 4-polig van de module (binder 718, M10 x 0,75), verticaal naar onder in de console onderaan de romp */
 export function m8bus() {
-  const { romp: R, achter: A } = M;
-  return m8connector('M8-inbouwbus 4-polig', [A.m8.x, A.m8.y], -R.d / 2 + R.wand, -1, R.wand, true);
+  return m8connector('M8-inbouwbus 4-polig', m8busAs(), [0, -1, 0], M.achter.m8.console.dik, true);
+}
+/** de as van de M8-bus aan de bovenkant van de console */
+export const m8busAs = () => [M.achter.m8.x, M.romp.onder + M.achter.m8.console.dik, M.achter.m8.z];
+
+/** 7.4 (P1-1): de haakse M8-kabel (stekker - bus, 0,3 m) tussen de box en de module, met beide kabelstekkers, in het
+ *  assenstelsel van de module (blad = dikte; de box hangt onder het blad). Gemodelleerd met de grootste AANNAME van
+ *  M.m8kabel (32 mm vanaf het paneel, 12 x 12): elke stekker is een moerbus rond de koppeling en een blok; de kabel (Ø4,5)
+ *  loopt van de stekker van de box naar onder en dan schuin naar de stekker van de module (de rest van de 0,3 m als lus
+ *  onder het blad, met een kabelbinder). Eén body: de stukken overlappen. */
+export function m8kabel(blad = M.blad) {
+  const K = M.m8kabel, L = K.lengte[1], h = K.b / 2, rk = K.kabel / 2;
+  const o = new Onderdeel('M8-kabel haaks 0,3 m', { name: 'PUR, zwart (stekkers PA)', density: 1300, color: '#26282b' });
+  const stekker = (id, c, a, wand, paneel) => {
+    // c = as aan de binnenkant van de wand, a = naar buiten; paneel = afstand van c tot de buitenkant van het paneel
+    const [e1, e2] = loodrecht(a);
+    const at = (t, p = 0, q = 0) => [0, 1, 2].map((i) => c[i] + a[i] * t + e1[i] * p + e2[i] * q);
+    const tb = wand + 0.1;
+    o.schets(vlakN(`${id}buis`, `Plane moerbus ${id}`, at(tb + 3), a, e1), (s) => { s.cirkelW(at(tb + 3), 5.5); s.cirkelW(at(tb + 3), 4.05); });
+    o.extrude('boss', 8.5, { naam: `Moerbus ${id}` });
+    o.schets(vlakN(`${id}blok`, `Plane blok ${id}`, at(tb + 11), a, e1), (s) => s.lusW([[-h, -h], [h, -h], [h, h], [-h, h]].map(([p, q]) => at(tb + 11, p, q))));
+    o.extrude('boss', paneel + L - (tb + 11), { naam: `Stekker ${id}` });
+  };
+  const B = M.box, bo = [B.x, -blad, B.z];
+  const cm = m8busAs(), cb = m8stekkerAs().map((v, i) => v + bo[i]);
+  stekker('module', cm, [0, -1, 0], M.achter.m8.console.dik, M.achter.m8.console.dik);
+  stekker('box', cb, [-1, 0, 0], B.wand, B.wand);
+  // kabel: uit de onderkant van de stekker van de box naar onder, dan schuin naar de achterkant van de stekker van de module
+  const xb = cb[0] - B.wand - L + h, A0 = [xb, cb[1] - h + 3, cb[2]], A1 = [xb, cm[1] - 29, cb[2]], A2 = [cm[0], cm[1] - 29, cm[2] - h + 3];
+  const stuk = (id, p, q) => {
+    const d = [q[0] - p[0], q[1] - p[1], q[2] - p[2]], l = Math.hypot(...d), n = d.map((x) => x / l);
+    const u = Math.abs(n[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0];
+    const uu = (() => { const k = u[0] * n[0] + u[1] * n[1] + u[2] * n[2]; const w = u.map((x, i) => x - k * n[i]); const m = Math.hypot(...w); return w.map((x) => x / m); })();
+    o.schets(vlakN(`kabel${id}`, `Plane kabel ${id}`, p, n, uu), (s) => s.cirkelW(p, rk));
+    o.extrude('boss', l + rk, { terug: rk, naam: `Kabel ${id}` });
+  };
+  stuk('1', A0, A1);
+  stuk('2', A1, A2);
+  return o.doc();
+}
+
+/** 7.4 (P1-1): de ruimte (mm) die elke haakse kabelstekker heeft, vanaf het paneel langs de as tot het eerste obstakel,
+ *  en de vrije afstand tussen de twee koppelingen als ze recht tegenover elkaar staan (7.3). De test vergelijkt dat met
+ *  de lengte van de stekker (AANNAME 20 tot 32 mm). */
+export function m8Ruimte() {
+  const R = M.romp, Kp = M.kuip, B = M.box;
+  return {
+    // module: van de onderkant van de console naar onder, tot de bodem van de kuip (laagste punt van de module)
+    module: (R.onder) - Kp.bodem,
+    // box: van de linkerwand naar links, tot de ALEX-kast (bureau: x = -340; de box staat in het midden)
+    box: 340 - (B.x + B.b / 2),
+    // 7.3: de bus in de achterwand van de romp (z = -105) en de stekker in de voorwand van de box (z = -145), op één lijn;
+    // beide koppelingen steken 11 mm uit: dit bleef er over voor twee stekkers
+    oud: (-R.d / 2) - (B.z + B.d / 2) - 2 * 11.1,
+  };
 }
 
 /** ring tegen de binnenkant van een wand op z = zw (d = +1: de wand ligt aan de -Z-kant): een blok van 9 x 9 met een
@@ -585,7 +766,7 @@ export function klauwrubber(C = M.klauw, naam = 'Klauwrubber') {
 
 /** houder voor de VIEWE-knop (zwart PETG, ondersteboven geprint, de plaat op het bed): plaat Ø51,6 onder de knop
  *  (even groot, van boven zie je alleen de knop), buis door het gat van Ø44, kom voor de naaf met de 2 schroefgaten
- *  M2,5 en de 2 pennen, een sleuf voor de FPC; twee stalen klauwen (M3 x 60 verzonken van bovenaf, de koppen onder de
+ *  M2,5 en de 2 pennen, een sleuf voor de FPC; twee klauwen in PETG (M4 x 65 verzonken van bovenaf, de koppen onder de
  *  knop) die door een venster uitzwaaien en tegen de onderkant van het blad trekken (blad 10 tot 50 mm); binnenin
  *  geleiders voor de adapterprint. Onderaan het deksel. Oorsprong: midden van het gat, bovenvlak van het blad. */
 export function knophouder() {
@@ -829,6 +1010,22 @@ export function usbBusKnop() {
   return o.doc();
 }
 
+/** 7.4 (P3-17): neodymiummagneet Ø8 x 1,5 (N42); oorsprong onder in het midden */
+export function magneet() {
+  const o = new Onderdeel('Neodymiummagneet Ø8 x 1,5', { name: 'NdFeB N42, vernikkeld', density: 7500, color: '#b0b3b8' });
+  o.schets(TOP, (s) => s.cirkel(0, 0, M.magneten.d / 2));
+  o.extrude('boss', M.magneten.h, { naam: 'Magneet' });
+  return o.doc();
+}
+
+/** 7.4 (P3-9): messing inzetmoer M3 (warm ingeperst, Ø4,0 x 5,7, bv. Ruthex RX-M3x5.7); oorsprong onder, langs +Y */
+export function inzetmoer() {
+  const o = new Onderdeel('Inzetmoer M3 x 5,7 messing', { name: 'Messing', density: 8500, color: '#c9a64b' });
+  o.schets(TOP, (s) => { s.cirkel(0, 0, 2); s.cirkel(0, 0, 1.25); });
+  o.extrude('boss', 5.7, { naam: 'Inzetmoer' });
+  return o.doc();
+}
+
 /** stift (draadeind, vereenvoudigd tot de kerndiameter); oorsprong bovenaan, langs -Y */
 export function stift(naam, d, L) {
   const o = new Onderdeel(naam, { name: 'Staal A2', density: 7900, color: '#8d939a' });
@@ -868,14 +1065,14 @@ export function voedingsbox() {
   o.extrude('boss', B.flensDik, { omkeren: true, naam: 'Rand' });
   o.schets(yv('schuin', -B.flensDik + 0.1, 'reference', 'Plane onder de rand'), (s) => s.rrect(-fx, -fz, fx, fz, 12.5));
   o.extrude('boss', B.flens.z - 0.1, { omkeren: true, naam: 'Schuine kant', draft: 45 });
-  // uitsparingen in de schuine kant voor de C13 (links), de M8 en de schakelaar (voor): de rand loopt daar als korte
-  // brug (hooguit 38 mm); 0,5 mm schuine kant blijft tegen de wand, de openingen snijden er van buiten doorheen
+  // uitsparingen in de schuine kant voor de C13 (links) en de schakelaar (achter, 7.4): de rand loopt daar als korte
+  // brug (hooguit 38 mm); 0,5 mm schuine kant blijft tegen de wand, de openingen snijden er van buiten doorheen. De M8 in
+  // de linkerwand zit onder de schuine kant (die stopt 8 mm onder het blad)
   {
     const Ai = B.adapter.inlaat, Sw = B.schakelaar, yo = -B.flensDik;
     o.schets(yv('uitsparing', yo, 'reference', 'Plane onder de rand'), (s) => {
       s.rrectW([-fx - 1, 0, Ai.z - 19], [-bx - 0.5, 0, Ai.z + 19]);
-      s.rrectW([B.m8.x - 9, 0, bz + 0.5], [B.m8.x + 9, 0, fz + 1]);
-      s.rrectW([Sw.x - 15, 0, bz + 0.5], [Sw.x + 15, 0, fz + 1]);
+      s.rrectW([Sw.x - 15, 0, -fz - 1], [Sw.x + 15, 0, -bz - 0.5]);
     });
     o.extrude('cut', B.flens.z + 1, { omkeren: true, naam: 'Uitsparingen schuine kant' });
   }
@@ -908,9 +1105,12 @@ export function voedingsbox() {
   // C13-opening voor het netsnoer (linkerkant), onder het blad
   o.schets(vlak('boxlinks', 'Face linkerwand box', [-bx, 0, 0], [-1, 0, 0]), (s) => s.rrectW([-bx, A.inlaat.y - 12, A.inlaat.z - 16], [-bx, A.inlaat.y + 12, A.inlaat.z + 16], 3));
   o.extrude('cut', B.wand + 1, { omkeren: true, terug: 1, naam: 'Opening C13' });
-  // voorkant (naar de module en de gebruiker): M8-stekker van de ventilator en het slangetje van de drukmeter
-  o.schets(vlak('boxvoor', 'Face voorkant box', [0, 0, bz], [0, 0, 1]), (s) => { s.cirkelW([B.m8.x, B.m8.y, bz], 5.1); s.cirkelW([B.buis.x, B.buis.y, bz], 1.55); });
-  o.extrude('cut', B.wand + 1, { omkeren: true, terug: 1, naam: 'Gaten voorkant' });
+  // voorkant (naar de module): het buisje van het slangetje van de drukmeter
+  o.schets(vlak('boxvoor', 'Face voorkant box', [0, 0, bz], [0, 0, 1]), (s) => s.cirkelW([B.buis.x, B.buis.y, bz], 1.55));
+  o.extrude('cut', B.wand + 1, { omkeren: true, terug: 1, naam: 'Gat voorkant' });
+  // 7.4 (P1-1): linkerwand (kopse wand): de M8-stekker naar de module (binder 718, M10 x 0,75)
+  o.schets(vlak('boxm8', 'Face linkerwand M8', [-bx, 0, 0], [-1, 0, 0]), (s) => s.cirkelW([-bx, B.m8.y, B.m8.z], 5.1));
+  o.extrude('cut', B.wand + 1, { omkeren: true, terug: 1, naam: 'Gat M8' });
   // rechterkant: USB-C naar de knop en de USB-C van de ESP32-C3 (flashen), buiten met een zak voor de stekker
   o.schets(vlak('boxrechts', 'Face rechterwand box', [bx, 0, 0], [1, 0, 0]), (s) => {
     s.rrectW([bx, B.usb.y - 2, B.usb.z - 4.9], [bx, B.usb.y + 2, B.usb.z + 4.9], 1.2);
@@ -923,13 +1123,14 @@ export function voedingsbox() {
     s.rrectW([bx, c3y + 1.63 - 4, B.c3.z - 6.5], [bx, c3y + 1.63 + 4, B.c3.z + 6.5], 1.5);
   });
   o.extrude('cut', 1.5, { omkeren: true, naam: 'Zakken USB-C-stekkers' });
-  // voorkant: verzonken wipschakelaar (verdikking binnen, kom van 6 mm buiten, paneel 2 mm)
-  const S = B.schakelaar, zk = bz - M.schakelaar.diep;
-  o.schets(vlak('schakelbinnen', 'Plane verdikking schakelaar', [0, 0, iz], [0, 0, -1], 'reference'), (s) => s.rrectW([S.x - 12.5, vloer, iz], [S.x + 12.5, -4, iz]));
+  // 7.4 (P2-4): achterwand (de achterrand van het bureau, aan de kant van de klant): verzonken wipschakelaar (verdikking
+  // binnen, kom van 6 mm buiten, paneel 2 mm)
+  const S = B.schakelaar, zk = -(bz - M.schakelaar.diep);
+  o.schets(vlak('schakelbinnen', 'Plane verdikking schakelaar', [0, 0, -iz], [0, 0, 1], 'reference'), (s) => s.rrectW([S.x - 12.5, vloer, -iz], [S.x + 12.5, -4, -iz]));
   o.extrude('boss', M.schakelaar.diep + M.schakelaar.paneel - B.wand, { terug: 0.5, naam: 'Verdikking schakelaar' });
-  o.schets(vlak('schakelkom', 'Face kom schakelaar', [0, 0, bz], [0, 0, 1]), (s) => s.rrectW([S.x - 12.5, S.y - 9.5, bz], [S.x + 12.5, S.y + 9.5, bz], 3));
+  o.schets(vlak('schakelkom', 'Face kom schakelaar', [0, 0, -bz], [0, 0, -1]), (s) => s.rrectW([S.x - 12.5, S.y - 9.5, -bz], [S.x + 12.5, S.y + 9.5, -bz], 3));
   o.extrude('cut', M.schakelaar.diep, { omkeren: true, terug: 1, naam: 'Kom schakelaar' });
-  o.schets(vlak('schakelpaneel', 'Face paneel schakelaar', [0, 0, zk], [0, 0, 1]), (s) => s.rrectW([S.x - 9.705, S.y - 6.45, zk], [S.x + 9.705, S.y + 6.45, zk]));
+  o.schets(vlak('schakelpaneel', 'Face paneel schakelaar', [0, 0, zk], [0, 0, -1]), (s) => s.rrectW([S.x - 9.705, S.y - 6.45, zk], [S.x + 9.705, S.y + 6.45, zk]));
   o.extrude('cut', M.schakelaar.paneel + 1, { omkeren: true, naam: 'Inbouwgat schakelaar' });
   // bussen voor de print (M2,5) en de USB-C-breakout, aanslagen voor de adapter
   const pb = [[P.x[0] + 3, P.z[0] + 3], [P.x[1] - 3, P.z[0] + 3], [P.x[0] + 3, P.z[1] - 3], [P.x[1] - 3, P.z[1] - 3]];
@@ -973,7 +1174,7 @@ export function boxdeksel() {
  *  zoals de box; i = 0 of 1 (het paaltje) */
 export function adapterklem(i = 0) {
   const { box: B } = M, A = B.adapter, K = { ...B.klem, y: klemY() }, x = K.x[i], zc = A.z[1] + 0.5 + K.d / 2;
-  const o = new Onderdeel('Adapterklem', PETG);
+  const o = new Onderdeel('Adapterklem', PA_CF); // 7.4 (P2-7): PA12-CF, de adapter wordt 55 tot 70 °C aan het oppervlak
   o.schets(yv('klem', K.y, 'reference', 'Plane klem'), (s) => s.rrectW([x - K.b / 2, 0, A.z[1] - 8], [x + K.b / 2, 0, A.z[1] + 0.5 + K.d], 1.5));
   o.extrude('boss', 3, { naam: 'Klem' });
   o.schets(yv('klemtop', K.y + 3, 'reference', 'Plane klemtop'), (s) => s.cirkelW([x, 0, zc], 3.2));
@@ -995,7 +1196,7 @@ export function netadapter() {
   o.schets(vlak('inlaatbodem', 'Plane bodem inlaat', [A.x[0] + 10, 0, 0], [-1, 0, 0], 'reference'), (s) => [[-4, -3], [0, 3], [4, -3]].forEach(([dz, dy]) => s.rrectW([A.x[0] + 10, A.inlaat.y + dy - 2, A.inlaat.z + dz - 1], [A.x[0] + 10, A.inlaat.y + dy + 2, A.inlaat.z + dz + 1])));
   o.extrude('boss', 7, { terug: 0.2, naam: 'Pennen C14' });
   // trekontlasting van de DC-kabel aan de andere kant, en het label bovenop
-  o.schets(vlak('dcuit', 'Plane DC-kabel', [A.x[1] - 0.2, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([A.x[1], y0 + A.h / 2, 12], 3.5));
+  o.schets(vlak('dcuit', 'Plane DC-kabel', [A.x[1] - 0.2, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([A.x[1], y0 + A.h / 2, A.z[1] - 12], 3.5));
   o.extrude('boss', 3.5, { naam: 'Trekontlasting' });
   o.schets(yv('label', y0 + A.h, 'reference', 'Plane label'), (s) => s.rrectW([A.x[0] + 25, 0, A.z[0] + 10], [A.x[1] - 25, 0, A.z[1] - 10], 2));
   o.extrude('cut', 0.3, { omkeren: true, naam: 'Label' });
@@ -1050,7 +1251,7 @@ export function voedingsprint() {
   blok('te5', 'Zekering Bel 0697W', ox + 25.3, oz + 4, ox + 33.65, oz + 8, y0, 7.8, 0.5);
   o.schets(vlak('diode', 'Plane diode', [ox + 34.2, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([ox + 34.2, y0 + 1.15, oz + 6.5], 1.35)); // 0,2 mm in de print: geen raaklijn (anders een los lichaam)
   o.extrude('boss', 5.2, { naam: 'Schottky 1N5819' });
-  // versie 7.2: -C1 (470 µF) staat naast de print op de bodem van de box (elco470()): op de print past hij niet meer
+  // -C1 (470 µF) is in 7.4 geschrapt (P3-6)
   blok('klem', 'Schroefklem', ox + 30, oz + 34, ox + 39.5, oz + 41.5, y0, 10);
   o.schets(yv('klemtop', y0 + 10, 'reference', 'Plane klemtop'), (s) => [ox + 32.5, ox + 37].forEach((x) => s.cirkelW([x, 0, oz + 37.75], 1.4)));
   o.extrude('cut', 2, { omkeren: true, naam: 'Schroefjes klem' });
@@ -1062,25 +1263,24 @@ export function voedingsprint() {
   blok('q3', 'Transistor -Q3', ox + 12, oz + 45.5, ox + 16.6, oz + 49.1, y0, 4.6);
   cil('c2', 'Elco 47 µF', ox + 3.5, oz + 9, 3.15, y0, 11);
   // versie 7.2: RC-filter van de tacho: -R14 1 kΩ (staand) en -C3 10 nF (keramisch, steek 5) bij GPIO4. De
-  // ompolingsdiode -R13 en de elco -C1 staan naast de print (diodeSB560(), elco470())
+  // ompolingsdiode -R13 staat naast de print (diodeSB560()); 7.4: de tachoklem -R15/-R16 (2 x BAT85) zit op de print (schema)
   cil('rtacho', 'Weerstand 1 kΩ', ox + 35.5, oz + 11.5, 1.25, y0, 6.5);
   blok('ctacho', 'Condensator 10 nF', ox + 37.5, oz + 10.2, ox + 39.5, oz + 13.2, y0, 5, 0.3);
   return o.doc();
 }
 
-/** versie 7.2: ompolingsbeveiliging -R13 (Schottky SB560, 5 A / 60 V, DO-201AD Ø5,3 x 9,5) liggend op de bodem van de
- *  box naast -C1, in sperrichting over L+ en M (de ring aan +): verkeerd om aangesloten geleidt ze en gaat de adapter in
- *  hiccup (of smelt -F1); op de print paste ze niet meer. Oorsprong zoals de box */
+/** ompolingsbeveiliging -R13 (Schottky SB560, 5 A / 60 V, DO-201AD Ø5,3 x 9,5) liggend op de bodem van de box naast de
+ *  print, met twee korte draden op -X1 (7.4: elektrisch vóór -Q4 en -F1), in sperrichting (de ring aan +): verkeerd om
+ *  aangesloten geleidt ze en blijft de adapter in hiccup tot de stekker eruit gaat. Oorsprong zoals de box */
 export function diodeSB560() {
   const B = M.box, o = new Onderdeel('Schottky SB560', { name: 'Epoxy, zwart', density: 1800, color: '#1e1e20' });
   const y = B.onder + B.wand + 2.65;
-  o.schets(vlak('sb560', 'Plane diode', [45.25, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([45.25, y, 8], 2.65));
+  o.schets(vlak('sb560', 'Plane diode', [57.5, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([57.5, y, -20], 2.65));
   o.extrude('boss', 9.5, { naam: 'Diode' });
   return o.doc();
 }
 
-/** versie 7.2: elco -C1 470 µF / 50 V (Ø10 x 20) staand op de bodem van de box, naast de print (2 draden 0,5 mm²);
- *  oorsprong zoals de box */
+/** elco -C1 470 µF (7.2 en 7.3): in 7.4 geschrapt (P3-6, laadpiek over de schakelaar); blijft voor de oude bestanden */
 export function elco470() {
   const B = M.box, o = new Onderdeel('Elco 470 µF', { name: 'Aluminium, blauw', density: 1500, color: '#2d4f8f' });
   o.schets(yv('elcobodem', B.onder + B.wand, 'reference', 'Plane bodem box'), (s) => s.cirkelW([50, 0, 20], 5));
@@ -1118,29 +1318,33 @@ export function usbBusBox() {
 /** wipschakelaar C&K D502J12S215PQA in de kom van de voorwand van de box: huis met twee vlakstekers 4,75, rand en wip */
 export function schakelaar() {
   const { box: B, schakelaar: S0 } = M;
-  const S = B.schakelaar, zk = B.d / 2 - S0.diep;
+  // 7.4: in de achterwand: alles gespiegeld in z (k = -1, buiten is -Z)
+  const S = B.schakelaar, k = -1, zk = k * (B.d / 2 - S0.diep);
+  const Z = (z) => [0, 0, z], nz = (d) => [0, 0, d * k];
   const o = new Onderdeel('Wipschakelaar C&K D502', ZWART);
-  o.schets(vlak('huis', 'Plane huis', [0, 0, zk + 0.1], [0, 0, -1], 'reference'), (s) => s.rrectW([S.x - 9.3, S.y - 6.3, 0], [S.x + 9.3, S.y + 6.3, 0]));
+  o.schets(vlak('huis', 'Plane huis', Z(zk + k * 0.1), nz(-1), 'reference'), (s) => s.rrectW([S.x - 9.3, S.y - 6.3, zk], [S.x + 9.3, S.y + 6.3, zk]));
   o.extrude('boss', 12.5, { naam: 'Huis' });
-  o.schets(vlak('stekers', 'Plane stekers', [0, 0, zk - 12.3], [0, 0, -1], 'reference'), (s) => [-4, 4].forEach((dx) => s.rrectW([S.x + dx - 2.4, S.y - 0.4, 0], [S.x + dx + 2.4, S.y + 0.4, 0])));
+  o.schets(vlak('stekers', 'Plane stekers', Z(zk - k * 12.3), nz(-1), 'reference'), (s) => [-4, 4].forEach((dx) => s.rrectW([S.x + dx - 2.4, S.y - 0.4, zk], [S.x + dx + 2.4, S.y + 0.4, zk])));
   o.extrude('boss', 6.8, { naam: 'Vlakstekers 4,75' });
-  o.schets(vlak('rand', 'Plane rand', [0, 0, zk + 0.1], [0, 0, 1], 'reference'), (s) => s.rrectW([S.x - 10.415, S.y - 7.5, 0], [S.x + 10.415, S.y + 7.5, 0], 1));
+  o.schets(vlak('rand', 'Plane rand', Z(zk + k * 0.1), nz(1), 'reference'), (s) => s.rrectW([S.x - 10.415, S.y - 7.5, zk], [S.x + 10.415, S.y + 7.5, zk], 1));
   o.extrude('boss', 2, { terug: 0.05, naam: 'Rand' });
-  o.schets(vlak('wip', 'Plane wip', [0, 0, zk + 2.1], [0, 0, 1], 'reference'), (s) => s.rrectW([S.x - 9, S.y - 6, 0], [S.x + 9, S.y + 6, 0], 1));
+  o.schets(vlak('wip', 'Plane wip', Z(zk + k * 2.1), nz(1), 'reference'), (s) => s.rrectW([S.x - 9, S.y - 6, zk], [S.x + 9, S.y + 6, zk], 1));
   o.extrude('boss', S0.diep - 3.1, { terug: 0.3, naam: 'Wip' });
-  const top = zk + 2.1 + (S0.diep - 3.1);
-  o.schets(vlak('wiptop', 'Plane bovenkant wip', [0, 0, top], [0, 0, 1], 'reference'), (s) => s.rrectW([S.x - 9, S.y - 6, 0], [S.x, S.y + 6, 0]));
+  const top = zk + k * (2.1 + (S0.diep - 3.1));
+  o.schets(vlak('wiptop', 'Plane bovenkant wip', Z(top), nz(1), 'reference'), (s) => s.rrectW([S.x - 9, S.y - 6, top], [S.x, S.y + 6, top]));
   o.extrude('cut', 0.8, { omkeren: true, naam: 'Helling wip' });
-  o.schets(vlak('wiptop', 'Plane bovenkant wip', [0, 0, top], [0, 0, 1], 'reference'), (s) => s.rrectW([S.x + 4, S.y - 2.5, 0], [S.x + 4.6, S.y + 2.5, 0]));
+  o.schets(vlak('wiptop', 'Plane bovenkant wip', Z(top), nz(1), 'reference'), (s) => s.rrectW([S.x + 4, S.y - 2.5, top], [S.x + 4.6, S.y + 2.5, top]));
   o.extrude('cut', 0.3, { omkeren: true, naam: 'Teken I' });
   return o.doc();
 }
 
-/** M8-inbouwstekker 4-polig in de voorkant van de box (binder 718, M10 x 0,75): naar de M8-kabel */
+/** 7.4: M8-inbouwstekker 4-polig in de linkerwand (kopse wand) van de box (binder 718, M10 x 0,75): naar de M8-kabel.
+ *  Oorsprong zoals de box */
 export function m8stekker() {
-  const { box: B } = M;
-  return m8connector('M8-inbouwstekker 4-polig', [B.m8.x, B.m8.y], B.d / 2 - B.wand, 1, B.wand, false);
+  return m8connector('M8-inbouwstekker 4-polig', m8stekkerAs(), [-1, 0, 0], M.box.wand, false);
 }
+/** de as van de M8-stekker aan de binnenkant van de linkerwand (assenstelsel van de box) */
+export const m8stekkerAs = () => [-(M.box.b / 2 - M.box.wand), M.box.m8.y, M.box.m8.z];
 
 /** alle componenten van de afzuiging, verschoven met `o` (de oorsprong van de module in de assemblage); blad = dikte */
 export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad) {
@@ -1154,14 +1358,18 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
     component(`${prefix}3f`, 'Foamband 6 x 4<1>', foamband(), at([0, 0, 0])),
     component(`${prefix}3l`, 'Afdichtlip<1>', afdichtlip(), at([0, 0, 0])),
     component(`${prefix}9`, 'Instroomplaat<1>', instroomplaat(), at([0, 0, 0])),
+    component(`${prefix}9t`, 'Instroomtuit<1>', instroomtuit(), at([0, 0, 0])),
     component(`${prefix}4`, 'Ventilatorkuip<1>', kuip(), at([0, 0, 0])),
     component(`${prefix}4d`, 'Kuipdichting<1>', kuipdichting(), at([0, 0, 0])),
     component(`${prefix}5`, 'San Ace C175 9TG24P0S01<1>', ventilator(), at([0, 0, 0])),
     component(`${prefix}10`, 'M8-inbouwbus 4-polig<1>', m8bus(), at([0, 0, 0])),
+    component(`${prefix}11`, 'M8-kabel haaks 0,3 m<1>', m8kabel(blad), at([0, 0, 0])),
   ];
-  // de ventilator op 4 rubberbuffers op de bodem van de kuip
-  const rb = rubberbuffer(), yBuf = M.fan.top - M.fan.h - M.buffer.h;
-  fanGaten().forEach(([x, z], i) => comps.push(component(`${prefix}4b${i + 1}`, `Rubberbuffer Ø15 x 10 M4<${i + 1}>`, rb, at([x, yBuf, z]))));
+  // 7.4: de magneten in het bovenframe (vlak met de bovenkant) en de inzetmoeren M3 in de bussen van de romp
+  const mg = magneet();
+  M.magneten.plaats.forEach(([x, z], i) => comps.push(component(`${prefix}6m${i + 1}`, `Neodymiummagneet Ø8 x 1,5<${i + 1}>`, mg, at([x, M.frame.dikte - M.magneten.h, z]))));
+  const im = inzetmoer();
+  kuipSchroeven().forEach(([x, z], i) => comps.push(component(`${prefix}1i${i + 1}`, `Inzetmoer M3 x 5,7 messing<${i + 1}>`, im, at([x, M.romp.onder, z]))));
   // de RVS-plaat met 4 persbouten (de kop vlak in de plaat)
   const pb = persbout();
   M.persbouten.forEach(([x, z], i) => comps.push(component(`${prefix}2p${i + 1}`, `Persbout PEM FH4-M3-6<${i + 1}>`, pb, at([x, M.frame.dikte, z]))));
@@ -1197,10 +1405,9 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   // de kuip: 4 x M3 x 12 cilinderkop van onderen door de oren in de bussen van de romp (de kop in een kom van Ø6,5)
   const m3p = schroefCilinder('M3 x 12 DIN 912', 5.5, 3, 2.5, 12);
   kuipSchroeven().forEach(([x, z], i) => comps.push(component(`${prefix}s3${i + 1}`, `M3 x 12 DIN 912<${i + 1}>`, m3p, at([x, M.kuip.oor.top - 4, z]), { rotation: omhoog })));
-  // de buffers: M4 x 8 verzonken van onderen door de bodem, en een draadeind M4 x 8 van de buffer in de motor (4 + 4 mm)
-  const m4 = schroefVerzonken('M4 x 8 DIN 7991', 4, 3.4, 8), de = stift('Draadeind M4 x 8 DIN 913', 3.4, 8);
-  fanGaten().forEach(([x, z], i) => comps.push(component(`${prefix}s4${i + 1}`, `M4 x 8 DIN 7991<${i + 1}>`, m4, at([x, M.kuip.bodem, z]), { rotation: omhoog })));
-  fanGaten().forEach(([x, z], i) => comps.push(component(`${prefix}s6${i + 1}`, `Draadeind M4 x 8 DIN 913<${i + 1}>`, de, at([x, yBuf + M.buffer.h + 4, z]))));
+  // 7.4: de ventilator star op de 4 bussen van de kuip: M4 x 16 verzonken van onderen door bodem en bus, 4 mm in de motor
+  const m4 = schroefVerzonken('M4 x 16 DIN 7991', 4, 3.4, 16);
+  fanGaten().forEach(([x, z], i) => comps.push(component(`${prefix}s4${i + 1}`, `M4 x 16 DIN 7991<${i + 1}>`, m4, at([x, M.kuip.bodem, z]), { rotation: omhoog })));
   const m4d = schroefVerzonken('M4 x 65 DIN 7991', 4, 3.4, 65);
   [DC.x, -DC.x].forEach((x, i) => comps.push(component(`${prefix}sd${i + 1}`, `M4 x 65 DIN 7991<${i + 1}>`, m4d, at([d.x + x, d.plaat, d.z]))));
   // de knop met 2 x M2,5 x 6 verzonken van onderen in de naaf; het deksel met 2 x M2,5 x 8 verzonken
@@ -1224,7 +1431,6 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   boxPluggen().forEach(([x, z], i) => comps.push(component(`${prefix}sb${i + 1}`, `Spaanplaatschroef 4 x 16 verzonken<${i + 1}>`, m4b, bat([x, -B.flensDik, z]), { rotation: omhoog })));
   comps.push(component(`${prefix}21`, 'Mean Well GST90A24-P1M<1>', netadapter(), bat([0, 0, 0])));
   comps.push(component(`${prefix}22`, 'Voedingsprint<1>', voedingsprint(), bat([0, 0, 0])));
-  comps.push(component(`${prefix}29`, 'Elco 470 µF<1>', elco470(), bat([0, 0, 0])));
   comps.push(component(`${prefix}29b`, 'Schottky SB560<1>', diodeSB560(), bat([0, 0, 0])));
   comps.push(component(`${prefix}23`, 'USB-C-bus knop<1>', usbBusBox(), bat([0, 0, 0])));
   comps.push(component(`${prefix}24`, 'Wipschakelaar C&K D502<1>', schakelaar(), bat([0, 0, 0])));
@@ -1250,7 +1456,8 @@ export function afzuiging() {
   return { format: 'phlippo-cad', version: 1, name: 'Afzuiging', units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [], kind: 'assembly', components, mates };
 }
 
-/** de uitsparingen in het tafelblad (assenstelsel van het blad: bovenvlak op Y = blad): frezen (Ø10) en gatzaag Ø44 */
+/** de uitsparingen in het tafelblad (assenstelsel van het blad: bovenvlak op Y = blad): frezen (MDF-mal, kopieerring Ø17,
+ *  frees Ø12; de sleuf naar de knop met een frees Ø5) en gatzaag Ø44 */
 export function bladUitsparingen(o, x0 = 0, z0 = 0, blad = M.blad) {
   const { uitsparing: U, dial: D, box: B, sleuven: K } = M;
   o.schets(vlak('bladtop', 'Face bovenvlak', [0, blad, 0], [0, 1, 0]), (s) => {
@@ -1258,7 +1465,7 @@ export function bladUitsparingen(o, x0 = 0, z0 = 0, blad = M.blad) {
     s.cirkelW([x0 + D.x, 0, z0 + D.z], D.gat / 2);
   });
   o.extrude('cut', blad + 1, { omkeren: true, naam: 'Uitsparingen afzuiging' });
-  // onderaan: de uitsparing voor de voedingsbox (15 mm) en de kabelsleuven naar de module en naar de knop
+  // onderaan: de uitsparing voor de voedingsbox (15 mm) en de kabelsleuf naar de knop (7.4: geen sleuf meer naar de module)
   const onder = vlak('bladonder', 'Face ondervlak', [0, 0, 0], [0, -1, 0]);
   const F = B.frees, bx = x0 + B.x, bz = z0 + B.z;
   o.schets(onder, (s) => s.rrectW([bx - F.b / 2, 0, bz - F.d / 2], [bx + F.b / 2, 0, bz + F.d / 2], F.r));
@@ -1266,8 +1473,6 @@ export function bladUitsparingen(o, x0 = 0, z0 = 0, blad = M.blad) {
   // 4 voorboorgaten Ø2,5 naast de uitsparing voor de schroeven van de rand van de box (door de onderhuid in de honingraat)
   o.schets(onder, (s) => boxPluggen().forEach(([x, z]) => s.cirkelW([bx + x, 0, bz + z], B.plug.gat / 2)));
   o.extrude('cut', B.plug.diep, { omkeren: true, naam: 'Voorboorgaten box' });
-  o.schets(onder, (s) => s.rrectW([x0 + K.module.x[0], 0, bz + F.d / 2 - 2], [x0 + K.module.x[1], 0, z0 - U.d / 2 + 2]));
-  o.extrude('cut', K.module.diep, { omkeren: true, naam: 'Sleuf naar de module' });
   // naar de knop: recht van de rechterkant van de box (bij de USB-C) naar het gat van de knop, rechts langs de module
   const [ax, az] = [bx + F.b / 2 - 2, bz + K.knop.z], [ex, ez] = [x0 + D.x, z0 + D.z];
   const l = Math.hypot(ex - ax, ez - az), nx = (-(ez - az) / l) * K.knop.breed / 2, nz = ((ex - ax) / l) * K.knop.breed / 2;
@@ -1279,7 +1484,7 @@ export function bladUitsparingen(o, x0 = 0, z0 = 0, blad = M.blad) {
  *  zonder de honingraat (zo zie je de latten); voor het bouwschema, de schermafdrukken en tekening AFZ-20.
  *  Assenstelsel zoals de module: bovenvlak van het blad op Y = 0. */
 export function tafelbladDetail(blad = M.blad) {
-  const { uitsparing: U, box: B, sleuven: K, latten: T } = M, F = B.frees, h = T.huid;
+  const { uitsparing: U, box: B, latten: T } = M, F = B.frees, h = T.huid;
   const X = 260, Z0 = -320, Z1 = 170, bz = B.z;
   const huid = (naam, y0, onder) => {
     const o = new Onderdeel(naam, { name: 'Vezelplaat (hardboard)', density: 900, color: '#f2f2ef' });
@@ -1289,10 +1494,6 @@ export function tafelbladDetail(blad = M.blad) {
       if (onder) sk.rrectW([B.x - F.b / 2, 0, bz - F.d / 2], [B.x + F.b / 2, 0, bz + F.d / 2], F.r);
     });
     o.extrude('boss', h, { naam });
-    if (onder) { // de sleuf naar de module (door de onderhuid)
-      o.schets(yv(`sleuf${y0}`, y0 - 0.5, 'reference', 'Plane sleuf'), (sk) => sk.rrectW([K.module.x[0], 0, bz + F.d / 2 - 2], [K.module.x[1], 0, -U.d / 2 + 2]));
-      o.extrude('cut', h + 1, { naam: 'Sleuf naar de module' });
-    }
     return o.doc();
   };
   const lat = (naam, x0, z0, x1, z1, y0, hh) => {
@@ -1327,16 +1528,20 @@ export const ONDERDELEN = {
   'Knopklauwrubber.kcad': () => klauwrubber(M.dial.klauw, 'Knopklauwrubber'),
   'Afdichtlip.kcad': afdichtlip,
   'Instroomplaat.kcad': instroomplaat,
+  'Instroomtuit.kcad': instroomtuit,
   'Ventilatorkuip.kcad': kuip,
   'Kuipdichting.kcad': kuipdichting,
-  'Rubberbuffer.kcad': rubberbuffer,
+  'M8-kabel-haaks.kcad': () => m8kabel(),
+  'Neodymiummagneet.kcad': magneet,
+  'Inzetmoer-M3.kcad': inzetmoer,
+  'Bovenframe-zijlat.kcad': () => bovenframeLat('zij'),
+  'Bovenframe-dwarslat.kcad': () => bovenframeLat('dwars'),
   'Persbout-FH4-M3-6.kcad': persbout,
   'Ventilator-San-Ace-C175.kcad': ventilator,
   'M8-inbouwbus.kcad': m8bus,
   'Voedingsbox.kcad': voedingsbox,
   'Netadapter-GST90A24.kcad': netadapter,
   'Voedingsprint.kcad': voedingsprint,
-  'Elco-470uF.kcad': elco470,
   'Diode-SB560.kcad': diodeSB560,
   'USB-C-bus-knop.kcad': usbBusBox,
   'USB-C-bus-knophouder.kcad': usbBusKnop,
@@ -1363,7 +1568,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     'Uitblaasplaat.kcad', 'print/Uitblaasplaat.stl', 'Deksel-elektronicavak.kcad', 'print/Deksel-elektronicavak.stl',
     'Dialkuip.kcad', 'Dialring.kcad', 'Dialklauw.kcad', 'M5Stack-Dial.kcad', 'print/Dialkuip.stl', 'print/Dialring.stl',
     'Ventilator-Delta-PFR1212UHE.kcad', 'Interfaceprint.kcad', 'ESP32-C3-SuperMini.kcad', 'USB-C-bus-module.kcad',
-    'Bodemplaat.kcad', 'print/Bodemplaat.stl'])
+    'Bodemplaat.kcad', 'print/Bodemplaat.stl', 'Rubberbuffer.kcad', 'Elco-470uF.kcad', 'print/Bovenframe.stl'])
     if (existsSync(join(HERE, oud))) rmSync(join(HERE, oud));
   console.log('geschreven:', [...Object.keys(ONDERDELEN), 'Afzuiging.kcad'].join(', '));
 }

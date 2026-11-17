@@ -53,6 +53,31 @@
         0
       ],
       "kind": "face"
+    },
+    "bladonderB": {
+      "id": "bladonderB",
+      "name": "Face ondervlak blad",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "u": [
+        1,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        0,
+        1
+      ],
+      "n": [
+        0,
+        -1,
+        0
+      ],
+      "kind": "face"
     }
   },
   "variables": {},
@@ -510,20 +535,20 @@
           "y": 0
         },
         "s5p0": {
-          "x": -82,
-          "y": -146
+          "x": 101.635623,
+          "y": -224.187767
         },
         "s5p1": {
-          "x": -53,
-          "y": -146
+          "x": 247.635623,
+          "y": 200.812233
         },
         "s5p2": {
-          "x": -53,
-          "y": -104
+          "x": 252.364377,
+          "y": 199.187767
         },
         "s5p3": {
-          "x": -82,
-          "y": -104
+          "x": 106.364377,
+          "y": -225.812233
         }
       },
       "scalars": {},
@@ -570,66 +595,71 @@
     "s6": {
       "id": "s6",
       "name": "Sketch6",
-      "plane": "bladonder",
+      "plane": "bladonderB",
       "points": {
         "origin_s6": {
           "x": 0,
           "y": 0
         },
         "s6p0": {
-          "x": 101.635623,
-          "y": -224.187767
-        },
-        "s6p1": {
-          "x": 247.635623,
-          "y": 200.812233
-        },
-        "s6p2": {
-          "x": 252.364377,
-          "y": 199.187767
+          "x": -678,
+          "y": -210
         },
         "s6p3": {
-          "x": 106.364377,
-          "y": -225.812233
+          "x": -678,
+          "y": 170
+        },
+        "s6p6": {
+          "x": 678,
+          "y": -210
+        },
+        "s6p9": {
+          "x": 678,
+          "y": 170
         }
       },
-      "scalars": {},
+      "scalars": {
+        "s6s1": 1.25,
+        "s6s4": 1.25,
+        "s6s7": 1.25,
+        "s6s10": 1.25
+      },
       "entities": {
-        "s6e4": {
-          "id": "s6e4",
+        "s6e2": {
+          "id": "s6e2",
           "construction": false,
-          "kind": "line",
-          "p1": "s6p0",
-          "p2": "s6p1"
+          "kind": "circle",
+          "center": "s6p0",
+          "r": "s6s1"
         },
         "s6e5": {
           "id": "s6e5",
           "construction": false,
-          "kind": "line",
-          "p1": "s6p1",
-          "p2": "s6p2"
+          "kind": "circle",
+          "center": "s6p3",
+          "r": "s6s4"
         },
-        "s6e6": {
-          "id": "s6e6",
+        "s6e8": {
+          "id": "s6e8",
           "construction": false,
-          "kind": "line",
-          "p1": "s6p2",
-          "p2": "s6p3"
+          "kind": "circle",
+          "center": "s6p6",
+          "r": "s6s7"
         },
-        "s6e7": {
-          "id": "s6e7",
+        "s6e11": {
+          "id": "s6e11",
           "construction": false,
-          "kind": "line",
-          "p1": "s6p3",
-          "p2": "s6p0"
+          "kind": "circle",
+          "center": "s6p9",
+          "r": "s6s10"
         }
       },
       "constraints": {},
       "entityOrder": [
-        "s6e4",
+        "s6e2",
         "s6e5",
-        "s6e6",
-        "s6e7"
+        "s6e8",
+        "s6e11"
       ],
       "constraintOrder": [],
       "origin": "origin_s6"
@@ -718,12 +748,12 @@
     {
       "id": "f10",
       "type": "extrude",
-      "name": "Sleuf naar de module",
+      "name": "Sleuf naar de knop",
       "sketchId": "s5",
       "suppressed": false,
       "op": "cut",
       "end": "blind",
-      "depth": 7,
+      "depth": 5,
       "reverse": true
     },
     {
@@ -736,12 +766,12 @@
     {
       "id": "f12",
       "type": "extrude",
-      "name": "Sleuf naar de knop",
+      "name": "Voorboorgaten kasten",
       "sketchId": "s6",
       "suppressed": false,
       "op": "cut",
       "end": "blind",
-      "depth": 5,
+      "depth": 14,
       "reverse": true
     }
   ],

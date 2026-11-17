@@ -103,7 +103,7 @@
 <text x="165.00" y="197.80" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">In 3 tot 4 gangen; de honingraat is papier. Daarna de honingraat 45 mm diep rond de uitsparing wegsnijden,</text>
 <text x="165.00" y="202.00" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">de latten met PU-lijm of houtlijm D3 op beide huiden schuiven, binnenkant gelijk met de uitsparing, klemmen (24 h).</text>
 <text x="165.00" y="206.20" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Box: mal van onderen, hartlijn 195 mm achter het midden; lat 10 x 30 achter de box tegen de onderhuid lijmen.</text>
-<text x="165.00" y="210.40" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Pas dan de sleuven frezen (ze gaan 4 mm in de achterste lat) en de voorboorgaten boren (door de gaatjes van de mal).</text>
+<text x="165.00" y="210.40" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Pas dan de sleuf naar de knop frezen en de voorboorgaten boren (door de gaatjes van de mal).</text>
 <text x="165.00" y="214.60" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Kern 28 mm volgt uit huiden van 3 mm (aanname): meet in de eerste uitsparing en schaaf de lat op de echte maat.</text>
 <rect x="20" y="10" width="390" height="277" fill="none" stroke="#111" stroke-width="0.7"/>
 <line x1="210.00" y1="297.00" x2="210.00" y2="282.00" stroke="#111" stroke-width="0.7" stroke-linecap="round" />
@@ -186,10 +186,10 @@
 <text x="231.20" y="277.40" font-size="3.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">AFZ-21</text>
 <line x1="290.00" y1="279.00" x2="290.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="291.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">7.3</text>
+<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">7.4</text>
 <line x1="305.00" y1="279.00" x2="305.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="306.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-13</text>
+<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-17</text>
 <line x1="335.00" y1="279.00" x2="335.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Taal</text>
 <text x="336.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">nl</text>
@@ -198,24 +198,25 @@
 <text x="351.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1:5 en 2:1</text>
 <line x1="380.00" y1="279.00" x2="380.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">16 / 16</text>
+<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">17 / 17</text>
 <text x="231.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="231.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="265.00" y1="287.00" x2="265.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="266.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Goedgekeurd</text>
-<text x="266.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Ian</text>
+<text x="266.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">— (prototype)</text>
 <line x1="290.00" y1="287.00" x2="290.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="291.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Massa</text>
 <text x="291.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">—</text>
 <line x1="335.00" y1="287.00" x2="335.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Maten en toleranties</text>
-<text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-m</text>
+<text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-c, passingen apart</text>
 <line x1="380.00" y1="287.00" x2="380.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="393.00" y2="284.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="279.60" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="384.00" y1="285.60" x2="384.00" y2="279.60" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="393.00" y1="284.10" x2="393.00" y2="281.10" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="382.50" y1="282.60" x2="394.50" y2="282.60" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
-<circle cx="401.00" cy="282.60" r="3.00" fill="none" stroke="#111" stroke-width="0.3"/>
-<circle cx="401.00" cy="282.60" r="1.50" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="381.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Projectie: 1e hoek</text>
+<line x1="387.00" y1="285.45" x2="393.30" y2="286.50" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="283.35" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="387.00" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="393.30" y1="286.50" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="385.95" y1="284.40" x2="394.35" y2="284.40" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
+<circle cx="398.90" cy="284.40" r="2.10" fill="none" stroke="#111" stroke-width="0.3"/>
+<circle cx="398.90" cy="284.40" r="1.05" fill="none" stroke="#111" stroke-width="0.3"/>
 </svg>

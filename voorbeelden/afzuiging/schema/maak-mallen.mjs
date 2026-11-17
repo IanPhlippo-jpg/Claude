@@ -3,7 +3,7 @@
 // Freesmal-<doos>-1op1-A4.pdf van. Alle maten komen uit maak-afzuiging.mjs (M).
 //   afzuiging (2 bladen): de uitsparing 212 x 212 (past niet op één A4): links en rechts, met lijmrand en paspunten
 //   knop (1 blad): het knopgat Ø44, uitgelijnd in de rechtervoorhoek van de uitsparing
-//   voedingsbox (1 blad): de onderkant (blad omgedraaid): de uitsparing van de box en de aanzet van de twee sleuven,
+//   voedingsbox (1 blad): de onderkant (blad omgedraaid): de uitsparing van de box en de aanzet van de sleuf naar de knop,
 //           uitgelijnd op de achterrand van de uitsparing
 // Versie 7.2 (advies Fable 5.2): de papieren mal is te slap om met 1 mm speling langs te frezen. Daarom ook een stijve
 // freesmal uit MDF 12 mm voor een bovenfrees met kopieerring Ø17 (Bosch 2 609 200 139 of gelijk) en een frees Ø12:
@@ -141,7 +141,7 @@ function knopgat() {
   return kader(1, `knopgat Ø${D.gat}`, uitleg) + '\n' + s.join('\n');
 }
 
-// ---- blad 4: de onderkant (blad omgedraaid over de lange rand): voedingsbox en de aanzet van de sleuven ----
+// ---- blad 4: de onderkant (blad omgedraaid over de lange rand): voedingsbox en de aanzet van de sleuf naar de knop ----
 function onderkant() {
   // onderaanzicht met de voorkant boven, een kwartslag gedraaid: de voorkant wijst naar rechts, links van het blad naar boven
   const zref = -258, X0 = 14, Y0 = 150;
@@ -164,10 +164,7 @@ function onderkant() {
   const gx = B.plug.x, gz = B.plug.z;
   [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([kx, kz]) => { const c = P(B.x + kx * gx, B.z + kz * gz); s.push(cirkel(c, B.plug.gat / 2, 0.4), kruis(c, 3)); });
   s.push(tekst([bc[0], bc[1] + 8], `4 voorboorgaten Ø${f(B.plug.gat)} x ${B.plug.diep} voor en achter de uitsparing (schroeven 4 x 16)`, 2.6, 'middle'));
-  // sleuf naar de afzuiging: 29 breed, 7 diep, van de box tot in de uitsparing
-  const m0 = P(K.module.x[0], B.z + F.d / 2), m1 = P(K.module.x[1], -U.d / 2);
-  s.push(pad(`M${m0[0]},${m0[1]} H${m1[0]} M${m0[0]},${m1[1]} H${m1[0]}`, 0.6));
-  s.push(tekst([(m0[0] + m1[0]) / 2, (m0[1] + m1[1]) / 2 + 1], `sleuf ${K.module.x[1] - K.module.x[0]} x ${K.module.diep}`, 2.6, 'middle'));
+  // 7.4: geen sleuf meer naar de afzuiging (de M8-kabel hangt vrij onder het blad)
   // sleuf naar de knop: 5 breed, 5 diep, van de box schuin naar het knopgat
   const s0 = [B.x + F.b / 2 - 2, B.z + K.knop.z], s1 = [D.x, D.z];
   const l = Math.hypot(s1[0] - s0[0], s1[1] - s0[1]), d = [(s1[0] - s0[0]) / l, (s1[1] - s0[1]) / l], n = [-d[1] * K.knop.breed / 2, d[0] * K.knop.breed / 2];
@@ -184,7 +181,7 @@ function onderkant() {
   const uitleg = ['Onderkant: leg het blad met de bovenkant op een deken. Links van het blad wijst naar boven, de voorkant naar rechts.',
     'Knip het grijze deel weg: leg de dikke lijn op de achterrand van de uitsparing en de hartlijn op het midden.',
     `Controle: het midden van de box ligt ${f(700 + B.x)} mm van de linkerrand en ${f(300 - B.z)} mm van de voorrand.`];
-  return kader(1, 'voedingsbox en sleuven (onderkant)', uitleg) + '\n' + s.join('\n');
+  return kader(1, 'voedingsbox en sleuf naar de knop (onderkant)', uitleg) + '\n' + s.join('\n');
 }
 
 // ---- snijmal voor de afdichtlip (siliconenrubber 0,5 mm): buitenmaat = buitenkant van de geleiderand, binnenmaat 2,5 mm

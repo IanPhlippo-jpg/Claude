@@ -8,7 +8,7 @@ import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Onderdeel, TOP } from '../lib/schets.mjs';
-import { afzuigingComponenten, bladUitsparingen } from '../afzuiging/maak-afzuiging.mjs';
+import { M as AFZ, afzuigingComponenten, bladUitsparingen, schroefVerzonken } from '../afzuiging/maak-afzuiging.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -16,12 +16,23 @@ export const MATEN = {
   blad: { breedte: 1400, diepte: 600, dikte: 34 },
   // korpus 564 diep + ladefront 16 = 580 (ALEX: 36 x 58 x 70 cm)
   kast: { breedte: 360, diepte: 580, hoogte: 700, front: 16, wand: 16, rug: 8 },
+  // AANNAME (B-4): vijf gelijke ladefronten van 136 mm. IKEA noemt bij ALEX een "kleine lade" met een eigen maximumlast:
+  // de fronten zijn misschien niet gelijk. Nameten op de echte kast (de lades raken de afzuiging niet: die hangt tussen de kasten)
   lade: { aantal: 5, fronthoogte: 136, voeg: 3, onder: 4, frontbreedte: 356, bakbreedte: 296, bakhoogte: 100, bakonder: 14, bakdiepte: 520, wand: 8 },
   // geleider in de kast (onder) en loopregel aan de lade (erop), hoogte gemeten vanaf de onderkant van het ladefront
   geleider: { binnen: 150, hoogte: 10, onder: 30, lengte: 510 },
   loopregel: { binnen: 146, buiten: 162, lengte: 490 },
   uitschuif: 450, // de lade gaat zo ver open (binnendiepte 52 cm bij IKEA)
   overstekVoor: 20, // blad steekt vooraan uit, kasten staan flush met de achterkant en de zijkanten
+  // B-3 (7.4): het blad vast op de kasten: per kast 2 spaanplaatschroeven 4 x 30 verzonken van onderen door de bovenplaat
+  // van de ALEX (16 mm) 14 mm in de rand van het blad. AANNAME: LAGKAPTEN heeft rondom een rand van spaanplaat of
+  // vezelplaat van minstens 30 mm (IKEA: "lijst"; breedte niet opgegeven, na te kijken met het proefgat): de schroeven
+  // zitten aan de buitenkant van het blad, 22 mm van de kopse rand, waar de rand zit (niet in de honingraat)
+  bevestiging: { schroef: { d: 4, l: 30 }, vanRand: 22, z: [-200, 180], rand: 30 },
+  // B-1 (7.4): knieruimte. AANNAME (EN 527-1:2011, waarden na te kijken in de norm, niet gratis): onder een vast bureau
+  // vrije hoogte >= 620 mm tot 450 mm diep vanaf de rand waar iemand zit; aan dit bureau zitten twee mensen tegenover
+  // elkaar (medewerker voor, klant achter), dus de hele diepte telt. P95-knie man zittend met schoenen: 600 tot 640 mm
+  knie: { hoogte: 620, diepte: 450, p95: [600, 640] },
 };
 
 const WIT = { name: 'Spaanplaat, wit gelakt', density: 650, color: '#f2f2ef' };
@@ -65,8 +76,13 @@ export function tafelblad() {
   const o = new Onderdeel('LAGKAPTEN tafelblad', WIT);
   o.schets(TOP, (s) => s.rrect(-b / 2, -d / 2, b / 2, d / 2));
   o.extrude('boss', t);
-  // de uitsparingen voor de ingebouwde afzuiging en de draaiknop (voorbeelden/afzuiging), te frezen met een frees Ø10
+  // de uitsparingen voor de ingebouwde afzuiging en de draaiknop (voorbeelden/afzuiging), te frezen met een MDF-mal,
+  // kopieerring Ø17 en frees Ø12 (hoeken R6); de sleuf naar de knop met een frees Ø5
   bladUitsparingen(o);
+  // B-3: 4 voorboorgaten Ø2,5 x 14 van onderen in de rand van het blad voor de schroeven naar de kasten
+  const onder = { id: 'bladonderB', name: 'Face ondervlak blad', origin: [0, 0, 0], u: [1, 0, 0], v: [0, 0, 1], n: [0, -1, 0], kind: 'face' };
+  o.schets(onder, (s) => bevestigingsSchroeven().forEach(([x, z]) => s.cirkelW([x, 0, z], 1.25)));
+  o.extrude('cut', 14, { omkeren: true, naam: 'Voorboorgaten kasten' });
   return o.doc();
 }
 
@@ -137,6 +153,22 @@ function ladeMates(kastId, kastNaam, ladeId, ladeNaam, i, folder) {
   ];
 }
 
+/** B-3: de plaatsen [x, z] van de 4 schroeven blad-kast (bureau-assenstelsel) */
+export function bevestigingsSchroeven() {
+  const { blad, bevestiging: Bv } = MATEN, x = blad.breedte / 2 - Bv.vanRand, z0 = -MATEN.overstekVoor / 2;
+  return [-x, x].flatMap((xx) => Bv.z.map((z) => [xx, z0 + z]));
+}
+
+/** B-1: vrije hoogte boven de vloer onder het blad in het midden (tussen de kasten): blad op de kasten, en het laagste
+ *  punt van de afzuiging (de bodem van de kuip) */
+export function knieruimte() {
+  const onderBlad = MATEN.kast.hoogte, onderKuip = MATEN.kast.hoogte + MATEN.blad.dikte + AFZ.kuip.bodem;
+  // de rand van de kuip (de bolle rand begint op M.kuip.recht): 205 mm van de voorrand en van de achterrand
+  const rand = MATEN.kast.hoogte + MATEN.blad.dikte + AFZ.kuip.recht;
+  const vanRand = MATEN.blad.diepte / 2 - (AFZ.kuip.binnen + AFZ.kuip.wand);
+  return { onderBlad, onderKuip, rand, vanRand, eis: MATEN.knie.hoogte, voldoet: onderKuip >= MATEN.knie.hoogte };
+}
+
 export function bureau() {
   const { blad, kast: k, overstekVoor } = MATEN;
   const x = blad.breedte / 2 - k.breedte / 2;
@@ -159,6 +191,11 @@ export function bureau() {
     }
   });
   components.push(comp('t1', 'LAGKAPTEN tafelblad<1>', tafelblad(), [0, k.hoogte, 0], true));
+  // B-3: het blad vast op de kasten (2 schroeven per kast, van onderen door de bovenplaat van de ALEX in de rand van het blad)
+  const Bv = MATEN.bevestiging, sv = schroefVerzonken('Spaanplaatschroef 4 x 30 verzonken', Bv.schroef.d, 2.4, Bv.schroef.l);
+  const omhoog = [1, 0, 0, 0];
+  bevestigingsSchroeven().forEach(([xs, zs], i) => components.push({ id: `bs${i + 1}`, name: `Spaanplaatschroef 4 x 30 verzonken<${i + 1}>`,
+    part: (({ format, ...p }) => ({ ...p, kind: 'part' }))(sv), position: [xs, k.hoogte - k.wand, zs], rotation: omhoog, fixed: true, suppressed: false }));
   // de ingebouwde afzuiging: oorsprong van de module op het bovenvlak van het blad, in het midden
   const afz = afzuigingComponenten([0, k.hoogte + blad.dikte, 0], 'a');
   components.push(...afz.components);

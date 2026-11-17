@@ -1,13 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="70mm" height="35mm" viewBox="0 0 70 35" font-family="Arial, Helvetica, sans-serif">
-  <rect x="0.3" y="0.3" width="69.4" height="34.4" rx="2" fill="#fff" stroke="#111" stroke-width="0.5"/>
-  <text x="3" y="5.6" font-size="3.4" font-weight="bold">Nagelstofafzuiging LB-AFZ</text>
-  <text x="67" y="5.6" font-size="2.6" text-anchor="end">versie 7.2</text>
-  <line x1="2" y1="7.4" x2="68" y2="7.4" stroke="#111" stroke-width="0.25"/>
-  <text x="3" y="11.2" font-size="2.4">Fabrikant: ............................................ (naam en adres van de zaak)</text>
-  <text x="3" y="15" font-size="2.4">Serienummer: ..........   Bouwjaar: 20..</text>
-  <text x="3" y="18.8" font-size="2.4">24 V DC, max. 2,6 A, 61 W (ventilator 56 W + besturing)</text>
-  <text x="3" y="22.6" font-size="2.4">Voeding: netadapter Mean Well GST90A24-P1M, 230 V AC, klasse I</text>
-  <text x="3" y="26.4" font-size="2.4">Radio 2,4 GHz (ESP-NOW). Binnen, droog. IP20.</text>
-  <text x="3" y="30.6" font-size="2.6" font-weight="bold">PROTOTYPE: niet met klanten gebruiken voor de vrijgave</text>
-  <text x="3" y="33.6" font-size="1.9">Stekker eruit voor het openen van de box. Nooit zonder filter.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="90mm" height="45mm" viewBox="0 0 90 45" font-family="Arial, Helvetica, sans-serif">
+  <rect x="0.3" y="0.3" width="89.4" height="44.4" rx="2" fill="#fff" stroke="#111" stroke-width="0.5"/>
+  <line x1="2" y1="8" x2="88" y2="8" stroke="#111" stroke-width="0.25"/>
+  <line x1="2" y1="34.8" x2="88" y2="34.8" stroke="#111" stroke-width="0.25"/>
+  <text x="3" y="6.2" font-size="3.4" font-weight="bold">Nagelstofafzuiging LB-AFZ</text>
+  <text x="87" y="6.2" font-size="2.6" text-anchor="end">versie 7.4</text>
+  <text x="3" y="11.8" font-size="2.3">Fabrikant: .................................</text>
+  <text x="3" y="15.3" font-size="2.3">Adres: .....................................</text>
+  <text x="3" y="18.8" font-size="2.3">Serienummer: ..........  Bouwjaar: 20..</text>
+  <text x="3" y="22.3" font-size="2.3">230 V AC, 50 Hz, 0,6 A (net)</text>
+  <text x="3" y="25.8" font-size="2.3">24 V DC, max. 2,6 A, 61 W (ventilator + besturing)</text>
+  <text x="3" y="29.3" font-size="2.3">Netadapter klasse I (Mean Well GST90A24-P1M)</text>
+  <text x="3" y="32.8" font-size="2.3">Radio 2,4 GHz (ESP-NOW). IP20. Alleen binnen, droog.</text>
+  <text x="3" y="38.2" font-size="2.3" font-weight="bold">PROTOTYPE: niet met klanten gebruiken voor de vrijgave</text>
+  <text x="3" y="42" font-size="2.1">Stekker eruit voor het openen van de box. Nooit zonder filter.</text>
+  <g data-vak="68 9.5 9 14">
+    <path d="M69.5,12.1 L75.5,12.1 L74.9,19.7 L70.1,19.7 Z" stroke="#111" stroke-width="0.4" fill="none"/>
+    <line x1="69" y1="11.4" x2="76" y2="11.4" stroke="#111" stroke-width="0.5"/>
+    <path d="M71.6,11.4 L71.6,10.6 L73.4,10.6 L73.4,11.4" stroke="#111" stroke-width="0.4" fill="none"/>
+    <circle cx="70.8" cy="20.4" r="0.65" stroke="#111" stroke-width="0.4" fill="none"/><circle cx="74.2" cy="20.4" r="0.65" stroke="#111" stroke-width="0.4" fill="none"/>
+    <line x1="68.5" y1="10.2" x2="76.5" y2="21.2" stroke="#111" stroke-width="0.5"/>
+    <line x1="76.5" y1="10.2" x2="68.5" y2="21.2" stroke="#111" stroke-width="0.5"/>
+    <rect x="68.9" y="21.9" width="7.2" height="1.3" fill="#111"/>
+  </g>
+  <g data-vak="78.5 9.5 9 14">
+    <path d="M83,12.9 L78.8,11.9 L78.8,21.1 L83,22.1 Z" stroke="#111" stroke-width="0.4" fill="none" stroke-linejoin="round"/>
+    <path d="M83,12.9 L87.2,11.9 L87.2,21.1 L83,22.1 Z" stroke="#111" stroke-width="0.4" fill="none" stroke-linejoin="round"/>
+    <line x1="79.7" y1="13.9" x2="82.1" y2="14.15" stroke="#111" stroke-width="0.25"/><line x1="83.9" y1="14.15" x2="86.3" y2="13.9" stroke="#111" stroke-width="0.25"/><line x1="79.7" y1="15.5" x2="82.1" y2="15.75" stroke="#111" stroke-width="0.25"/><line x1="83.9" y1="15.75" x2="86.3" y2="15.5" stroke="#111" stroke-width="0.25"/><line x1="79.7" y1="17.1" x2="82.1" y2="17.35" stroke="#111" stroke-width="0.25"/><line x1="83.9" y1="17.35" x2="86.3" y2="17.1" stroke="#111" stroke-width="0.25"/><line x1="79.7" y1="18.700000000000003" x2="82.1" y2="18.950000000000003" stroke="#111" stroke-width="0.25"/><line x1="83.9" y1="18.950000000000003" x2="86.3" y2="18.700000000000003" stroke="#111" stroke-width="0.25"/>
+  </g>
 </svg>

@@ -45,7 +45,9 @@ const voorblad = `<section class="voor">
   <p class="sub">Alles om af te drukken: bestellijst, bouwschema, werktekeningen, aansluitschema, freesmallen en documentatie</p>
   <img class="fig voorfoto" src="${dataUrl(`e2e-out/bouwschema/${readdirSync('e2e-out/bouwschema').filter((f) => /^stap-.*\.jpg$/.test(f)).sort().pop()}`)}">
   <h2>Inhoud</h2>
-  <ol>${delen.map(([t, p]) => `<li>${esc(t)} <span class="klein">(${p})</span></li>`).join('')}</ol>
+  <ol>${delen.map(([t, p]) => `<li>${esc(t)} <span class="klein">(${/A3/.test(p) ? `<b>${p}</b>` : p})</span></li>`).join('')}</ol>
+  <p class="klein"><b>A3-bladen (7.4, P3-18):</b> alleen de werktekeningen (${tekeningen.length} bladen) en het aansluitschema (${schema.length} bladen).
+  Op een A4-printer vervalt hun schaal (1:1, 1:5, 1:10): meet daar niet op, gebruik de maten. De freesmallen zijn A4 op ware grootte.</p>
   <p class="klein"><b>Afdrukken:</b> kies "werkelijke grootte" of "100 %" (niet "passend maken"), anders kloppen de freesmallen
   niet: meet op elke mal de controlemaat van 100 mm na. De printer kiest per blad het formaat (A4 staand, A4 liggend, A3 liggend);
   zonder A3-printer: druk de A3-bladen af op A4 (verkleind) en gebruik de maten in de tabellen, niet de lineaal.</p>

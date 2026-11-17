@@ -36,24 +36,44 @@ FW = lees_regel()
 
 # ---------------------------------------------------------------- invoer: ventilator
 # San Ace C175, 9TG24P0S01: 24 V, 2,35 A, 56,4 W, 69 dB(A) op 1 m (fabrikant). Curve bij 100 % PWM, afgelezen uit de
-# fabrieksgrafiek (met inlaatnozzle 109-1073), afleesonzekerheid ±15 tot 25 Pa.
+# fabrieksgrafiek, afleesonzekerheid ±15 tot 25 Pa. Bron: Sanyo Denki, catalogusblad San Ace C175 (9TG): debiet en druk
+# gelden "when inlet nozzle (option 109-1073) is mounted" (een instroomtuit met afronding R10 en keel Ø126 in het oog Ø131).
+# Versie 7.4: de instroomplaat heeft een tuit naar die vorm (R6, keel Ø125, 2 mm in het oog, los geprint). De rest van de inbouw (kuip
+# met 4 mm rond de waaier, lamellen) wijkt af van de proefopstelling van Sanyo: INBOUW = verlies van de ventilator door de
+# inbouw (Q x (1 - d), p x (1 - d)²), AANNAME 0 tot 20 % (geen bron; de proefkast van stap 0 en poort L1 meten het).
 FAN = [(0, 609), (240, 430), (360, 340), (480, 225), (540, 160), (600, 103), (696, 0)]  # (m³/h, Pa)
 FAN_W, FAN_A, FAN_DBA = 56.4, 2.35, 69.0
 
 
 FAN_ONZEKER = 20.0  # Pa: afleesonzekerheid van de curve (±), in elk scenario van hoofdstuk 3b
+INBOUW = (0.0, 0.10, 0.20)  # AANNAME: inbouwverlies van de ventilator (deel van Q; p met het kwadraat)
+_INB = [0.0]  # actief inbouwverlies (zie met_inbouw)
+
+
+class met_inbouw:
+    """with met_inbouw(0.1): alle werkpunten met 10 % inbouwverlies"""
+    def __init__(self, d):
+        self.d = d
+
+    def __enter__(self):
+        self.oud = _INB[0]
+        _INB[0] = self.d
+
+    def __exit__(self, *a):
+        _INB[0] = self.oud
 
 
 def fan_p(q, r=1.0, d=0.0):
     """statische druk bij debiet q (m³/h) en toerentalfractie r (wetten van de ventilator: Q ~ r, p ~ r²); d = verschuiving
     van de curve bij vol toerental (Pa), voor de afleesonzekerheid"""
-    qq = q / r
+    k = 1 - _INB[0]
+    qq = q / r / k
     if qq >= FAN[-1][0]:
         return 0.0
     for (q0, p0), (q1, p1) in zip(FAN, FAN[1:]):
         if q0 <= qq <= q1:
-            return max(0.0, r * r * (p0 + (p1 - p0) * (qq - q0) / (q1 - q0) + d))
-    return r * r * (FAN[0][1] + d)
+            return max(0.0, k * k * r * r * (p0 + (p1 - p0) * (qq - q0) / (q1 - q0) + d))
+    return k * k * r * r * (FAN[0][1] + d)
 
 
 # ---------------------------------------------------------------- invoer: luchtweg (maten uit maak-afzuiging.mjs)
@@ -69,10 +89,11 @@ A_ROOSTER_71 = 121.1e-4  # m², versie 7.1: alleen boven het filter (de plaat la
 # interieurfilter MANN CU 20 013, 195 x 145 x 30: de rand van 6 mm ligt op de foamband, de lucht gaat door 135 x 185
 A_FILTER_VOL = 0.145 * 0.195  # m², buitenmaat
 A_FILTER = 0.135 * 0.185  # m², vrij front binnen de steunrand
-A_INLAAT = math.pi * 0.0635 ** 2  # m², oog Ø127 in de instroomplaat
+A_INLAAT = math.pi * 0.0625 ** 2  # m², keel Ø125 van de instroomtuit (7.4)
 # versie 7.2: de ronde kuip (maak-afzuiging.mjs, M.kuip): lamellen onder 45° in 12 sectoren van 32 mm breed, 10 rijen,
 # banden van 4 mm verticaal (loodrecht op de lamel 4 cos 45° = 2,83 mm), en 4 ringsleuven in de bodem met 6 spaken van 4 mm
-KUIP = dict(sectoren=12, breed=0.032, rijen=10, sleuf=0.004, ringen=[(46, 50), (54, 58), (62, 66), (70, 74)], spaken=6, spaak=4)
+# versie 7.4: banden van 2,5 mm (sleuf 3,5 op steek 6, P2-11) en 8 spaken met ribben (stijve bodem, P2-2)
+KUIP = dict(sectoren=12, breed=0.032, rijen=10, sleuf=0.0035, ringen=[(46, 50), (54, 58), (62, 66), (70, 74)], spaken=8, spaak=6)
 A_KUIP_LAMELLEN = KUIP['sectoren'] * KUIP['rijen'] * KUIP['breed'] * KUIP['sleuf'] * math.cos(math.radians(45))
 A_KUIP_RINGEN = sum(math.pi * (b * b - a * a) - KUIP['spaken'] * KUIP['spaak'] * (b - a) for a, b in KUIP['ringen']) * 1e-6
 A_LAMELLEN = A_KUIP_LAMELLEN + A_KUIP_RINGEN  # m², vrije doorgang van de uitblaas
@@ -88,7 +109,10 @@ def zeta_plaat(f):
 # vingerrooster in het oog (maak-afzuiging.mjs, M.inlaat.vinger): 10 ribben 1,6 mm langs Z op x = ±6, ±18 .. ±54, een
 # dwarsrib langs X en twee ringen (r 24 en 44); de kruisingen tellen één keer
 # versie 7.2: 18 ribben op steek 7,2 (spleet 5,6), 12 mm hoog (EN ISO 13857 tabel 4); 7.1: 10 ribben op steek 12, 7 hoog
-VINGER = dict(rib=1.6, xs=[3.6 + 7.2 * k for k in range(9)], ringen=[24, 44], r=63.5, h=12.0, spleet=7.2 - 1.6, rotor=2.05)
+# versie 7.4: 17 hoog (EN ISO 13857 tabel 5), de waaier 4 mm onder de plaat: onderkant ribben 4,05 mm boven de waaier
+# 7.4: de ribben staan in de losse instroomtuit, van 2 mm in het oog tot 21 mm boven de waaier (23 mm hoog); onder de ribben
+# is het oog open tot de naaf van de waaier (vrij: AANNAME 40 mm, uit het model)
+VINGER = dict(rib=1.6, xs=[3.6 + 7.2 * k for k in range(9)], ringen=[24, 44], r=62.5, h=23.0, spleet=7.2 - 1.6, rotor=-2.0, vrij=40.0)
 
 
 def f_vinger():
@@ -113,8 +137,9 @@ F_ROOSTER, F_VINGER = A_ROOSTER / A_OPENING, f_vinger()
 VERLIEZEN = [
     (f'RVS-rooster (f = {F_ROOSTER:.2f})'.replace('.', ','), zeta_plaat(F_ROOSTER), A_OPENING),
     (f'vingerrooster in het oog (18 ribben 1,6 mm, een dwarsrib en twee ringen, f = {F_VINGER:.2f})'.replace('.', ','), zeta_plaat(F_VINGER), A_INLAAT),
-    ('instroom naar het oog Ø127 (trechter 45°)', 0.5, A_INLAAT),
-    ('uitblaas door de lamellen en ringsleuven van de kuip', 2.5, A_LAMELLEN),
+    # 7.4: de tuit zit in de proefopstelling van Sanyo (de curve is ermee gemeten); 0,1 voor het verschil met het origineel
+    ('instroomtuit (vorm Sanyo 109-1073, R6, keel Ø125; in de curve, rest)', 0.1, A_INLAAT),
+    ('uitblaas door de lamellen en ringsleuven van de kuip (schatting, geen bron)', 2.5, A_LAMELLEN),
 ]
 RUIM = (0.7, 1.5)
 
@@ -161,8 +186,14 @@ FILTERS = {
 }
 
 # ---------------------------------------------------------------- doelen
-X_HAND = 0.10  # m, nagel boven het rooster: de WERKHOOGTE (versie 7.2 eerlijk vastgelegd: 15 cm haalt alleen boost)
-V_VANG = 0.5  # m/s, gewenste luchtsnelheid op X_HAND (vangsnelheid voor licht stof dat zacht vrijkomt: 0,5 tot 1,0)
+# Versie 7.4 (P2-3): een nagelfrees (20 000 tot 35 000 min-1) werpt stof weg: een actieve bron. ACGIH (Industrial
+# Ventilation) en HSE HSG258 geven 0,5 tot 1,0 m/s voor stof dat zacht vrijkomt en 1,0 tot 2,5 m/s voor actieve bronnen.
+# Doel: 1,0 m/s op 5 cm (WERKHOOGTE, af te dwingen met een lage polssteun of zijschotjes), en daarnaast 0,5 m/s op 10 cm.
+# Het minimum is het grootste debiet van de twee. Dalla Valle geldt op de as en in stilstaande lucht: L2 meet met een
+# draaiende frees en een deeltjesteller.
+X_HAND = 0.05  # m, nagel boven het rooster: de werkhoogte (7.4)
+V_VANG = 1.0  # m/s op X_HAND (actieve bron, ondergrens)
+X_HAND2, V_VANG2 = 0.10, 0.5  # tweede eis (7.2)
 
 
 def v_vang(q, x=X_HAND):
@@ -170,7 +201,10 @@ def v_vang(q, x=X_HAND):
     return (q / 3600) / (0.75 * (10 * x * x + A_OPENING))
 
 
-def q_voor_vang(v=V_VANG, x=X_HAND):
+def q_voor_vang(v=None, x=None):
+    """debiet voor de vangst; zonder argumenten het grootste van de twee eisen (1,0 m/s op 5 cm en 0,5 m/s op 10 cm)"""
+    if v is None:
+        return max(q_voor_vang(V_VANG, X_HAND), q_voor_vang(V_VANG2, X_HAND2))
     return v * 0.75 * (10 * x * x + A_OPENING) * 3600
 
 
@@ -452,7 +486,8 @@ def vervangen_en_geluid():
     mut = re.sub(r'(vervangFactor\[3\]\s*=\s*)\{[^}]*\}', r'\g<1>{9.0f, 9.0f, 9.0f}', REGEL_H.read_text(encoding='utf-8'))
     assert controle(lees_regel(mut)), 'mutatieproef: factoren 9/9/9 in regel.h worden niet afgekeurd'
     L += ['', f'Onder {f0(FW["bescherm"] * 100)} % meldt de firmware "lage stand" (geen bescherming beloofd). '
-          f'**{f0(FW["bescherm"] * 100)} % is de laagste beschermende stand** (versie 7.1: 80 %; de opener plaat en de grotere verdeelruimte maken het verschil). '
+          f'**{f0(FW["bescherm"] * 100)} % is de laagste beschermende stand volgens het model, zonder inbouwverlies: berekend, nog niet gemeten** '
+          '(3g: met 20 % inbouwverlies haalt geen enkele stand het minimum tot de melding; `beschermVanaf` in regel.h wordt pas na poort L1 vastgelegd). '
           f'**Dagstand: {f0(FW["bescherm"] * 100)} tot 80 %**: op {f0(FW["bescherm"] * 100)} % is het {f1(-50 * math.log10(FW["bescherm"] / 0.8))} dB stiller, op 80 % gaat een filter langer mee. '
           f'{f0(FW["bescherm"] * 100 - 5)} % haalt het minimum schoon nog wel, maar met de volle band blijft er geen reserve met marge over (g dicht bij 1).', '',
           '**Koppeling met de firmware:** dit script leest `regel.h` zelf en stopt (exit ≠ 0) als een waarde daar niet meer '
@@ -482,48 +517,177 @@ def vervangen_en_geluid():
           'van het filter (boven het oog), waar de weg het kortst is: het filter wordt niet gelijk benut, en de dynamische druk in de '
           'ring is **geen** verlies dat zomaar bij de rest opgeteld mag worden. Daarom twee scenario\'s (geen bewezen grenzen): '
           f'verwaarloosbaar (gelijke benutting) en ζ = 0,5 op de ringsnelheid ({f0(boven)} Pa bij 250 m³/h, kwadratisch met het debiet). '
-          'Beide zitten in de 36 scenario\'s van 3b.', '',
-          rij('stand', 'debiet zonder (m³/h)', 'debiet met ζ = 0,5 (m³/h)', 'v op 10 cm met ζ = 0,5 (m/s)', 'boven het minimum?'),
+          'Beide zitten in de 36 scenario\'s van 3b. Binnen het oog staan de ribben van het vingerrooster (7.4: 17 mm hoog, tot 2,5 mm '
+          'onder het filter); dwars op de ribben is daar weinig ruimte. De ruimte buiten het oog (15,5 mm) is de eigenlijke '
+          'verdeelruimte; de proefkast (stap 0) beslist of het zo werkt (P3-20).', '',
+          rij('stand', 'debiet zonder (m³/h)', 'debiet met ζ = 0,5 (m³/h)', 'v op 5 cm met ζ = 0,5 (m/s)', 'boven het minimum?'),
           rij('---:', '---:', '---:', '---:', '---')]
     for r in (0.6, 0.7, 0.75, 0.8, 1.0):
         q0, q1 = werkpunt(s, r), werkpunt(met, r)
-        L.append(rij(f'{r * 100:.0f} %', f0(q0), f0(q1), f2(v_vang(q1)), 'ja' if q1 >= qmin else '**nee**'))
+        L.append(rij(f'{r * 100:.0f} %', f0(q0), f0(q1), f2(v_vang(q1, 0.05)), 'ja' if q1 >= qmin else '**nee**'))
     L += ['', 'Het filter is een geschat filter (geen fabrikantcurve): 115 Pa bij 250 m³/h op het hele front (bovengrens van '
           'de literatuurband 55 tot 115 Pa). Ligt de echte weerstand lager, dan is er meer reserve; poort L1 meet het (Q–Δp '
           'bij elke stand, schoon en bij de melding).', '']
+    # P3-4: een geplooid filter is bij 2,5 m/s frontsnelheid deels kwadratisch: n = 1,3 als tweede scenario (zelfde 250 Pa-punt)
+    s13 = lambda q: FILTERS['CU']['dp_ref'] * ((q / 3600 / A_FILTER) / FILTERS['CU']['v_ref']) ** 1.3
+    L += ['**Filter deels kwadratisch (P3-4):** met n = 1,3 in plaats van 1 (zelfde drukval bij 250 m³/h op het hele front) '
+          'is de weerstand onder 250 m³/h lager en erboven hoger:', '',
+          rij('stand', 'debiet n = 1 (m³/h)', 'debiet n = 1,3 (m³/h)'), rij('---:', '---:', '---:')]
+    for r in (0.75, 0.8, 1.0):
+        L.append(rij(f'{r * 100:.0f} %', f0(werkpunt(s, r)), f0(werkpunt(s13, r))))
+    L += ['', 'Het verschil blijft binnen de band van de luchtweg (0,7x tot 1,5x); L1 meet de echte exponent.', '']
+    # 3g: inbouwverlies van de ventilator (P1-3)
+    L += ['### 3g. Inbouwverlies van de ventilator (versie 7.4)', '',
+          'De curve van Sanyo geldt met de nozzle 109-1073 in een vrije opstelling. De instroom heeft nu die vorm (tuit R6, keel '
+          'Ø125, 2 mm in het oog), maar de waaier blaast in een kuip met 4 mm ruimte rondom en door lamellen: dat kost de '
+          'ventilator debiet en druk. Geen bron geeft hoeveel: AANNAME 0, 10 en 20 % (Q x (1 − d), p x (1 − d)²). Per stand '
+          'het debiet schoon en bij de melding "filter vervangen" (gewoon scenario, firmwarefactor uit regel.h):', '',
+          rij('stand', *[f'schoon / bij de melding, {f0(d * 100)} % (m³/h)' for d in INBOUW], 'haalt het minimum'),
+          rij('---:', *['---:' for _ in INBOUW], '---')]
+    laagste = {}
+    for r in (0.75, 0.8, 0.85, 0.9, 1.0):
+        cel, ok = [], []
+        for d in INBOUW:
+            with met_inbouw(d):
+                q0 = werkpunt(s, r)
+                qm = debiet_bij_melding(r, firmware_factor(r), 1.0)
+            cel.append(f'{f0(q0)} / {f0(qm)}')
+            ok.append(qm >= qmin - 0.5)
+            if qm >= qmin - 0.5 and d not in laagste:
+                laagste[d] = r
+        L.append(rij(f'{r * 100:.0f} %', *cel, ', '.join(f'{f0(d * 100)} %: {"ja" if o else "nee"}' for d, o in zip(INBOUW, ok))))
+    L += ['', '**Gevolg:** de laagste stand die tot de melding het minimum haalt is ' + ', '.join(
+        f'{f0(laagste[d] * 100)} % bij {f0(d * 100)} % inbouwverlies' if d in laagste else f'geen stand bij {f0(d * 100)} %' for d in INBOUW)
+        + '. De belofte "75 % vangt het stof" is dus **berekend zonder inbouwverlies, niet gemeten**. Stap 0 van het meetplan '
+        '(proefkast met de echte kuip, instroomplaat en tuit) en poort L1 meten het werkelijke werkpunt; daarna worden '
+        '`beschermVanaf` en de vervangfactoren in regel.h opnieuw vastgelegd. De band 0,7x tot 1,5x op de luchtweg verandert de '
+        'curve van de ventilator niet en dekt dit dus niet.', '']
     # geluid
     G_BUDGET = 1.5  # dB: rooster, kast en galm bovenop de vrije puntbron (projectkeuze; poort G1 meet het)
+    G_BUDGET_MAX = 6.0  # dB: eerlijke bovengrens (rooster vlak voor de instroom, lamellen op 4 mm van de schoepen: toon op de
+    # schoepfrequentie, starre opstelling sinds 7.4), AANNAME
     L += ['### 3d. Geluid bij het dagwerkpunt', '',
           'Werkpunt: de medewerker zit tegenover de klant, het oor op ± 0,5 m van het rooster. Model: vrije puntbron '
           f'(69 dB(A) op 1 m bij vol toerental, ΔL = 50 log10 n), plus een budget van {f1(G_BUDGET)} dB voor rooster, kast en galm.', '',
-          rij('stand', 'debiet (m³/h)', 'dB(A) op 1 m', 'dB(A) op 0,5 m (model)', f'op 0,5 m met budget'), rij('---:', '---:', '---:', '---:', '---:')]
+          rij('stand', 'debiet (m³/h)', 'dB(A) op 1 m', 'dB(A) op 0,5 m (model)', 'op 0,5 m met budget', f'op 0,5 m, bovengrens (+{f0(G_BUDGET_MAX)} dB)'), rij('---:', '---:', '---:', '---:', '---:', '---:')]
     for r in (FW['bescherm'], 0.8, 0.9, 1.0):
-        L.append(rij(f'{r * 100:.0f} %' + (' (boost)' if r == 1 else ''), f0(werkpunt(s, r)), f1(db(r)), f1(db(r, 0.5)), f1(db(r, 0.5) + G_BUDGET)))
+        L.append(rij(f'{r * 100:.0f} %' + (' (boost)' if r == 1 else ''), f0(werkpunt(s, r)), f1(db(r)), f1(db(r, 0.5)), f1(db(r, 0.5) + G_BUDGET), f1(db(r, 0.5) + G_BUDGET_MAX)))
     DOEL = 72.0
-    assert db(FW['dagmax'], 0.5) + G_BUDGET <= DOEL, 'dagstand luider dan het comfortdoel'
+    assert db(FW['dagmax'], 0.5) + G_BUDGET <= DOEL, 'dagstand luider dan het comfortdoel (met het nominale budget)'
     L += ['', f'**Comfortdoel (projectkeuze, geen norm):** dagstand {f0(FW["dagmax"] * 100)} %: ≤ {f0(DOEL)} dB(A) op de oorpositie, '
           f'budget inbegrepen (model {f1(db(FW["dagmax"], 0.5))} + {f1(G_BUDGET)} = {f1(db(FW["dagmax"], 0.5) + G_BUDGET)}); boost kort luider. '
           'Dit is geen verbetering van het geluid: het vroegere doel van 55 dB(A) is met deze ventilator op een beschermende '
           'stand niet haalbaar en is vervangen door dit doel. Gehoorgrenzen voor werknemers (vanaf 80 dB(A) over 8 uur) '
           f'liggen hoger; het doel gaat over comfort. Op de nieuwe laagste beschermende stand ({f0(FW["bescherm"] * 100)} %) is het model '
-          f'{f1(db(FW["bescherm"], 0.5) + G_BUDGET)} dB(A) met budget. Poort G1 meet het, eerst op de proefopstelling (meetplan, stap 0).', '']
-    # rubberbuffers: eigenfrequentie
-    k_buf, m_fan = 4 * 80e3, 0.75  # N/m (Halder EH 25150.0008: ca. 80 N/mm per buffer), kg (datasheet San Ace C175: 750 g)
-    fn = math.sqrt(k_buf / m_fan) / (2 * math.pi)
-    f80, f100 = 0.8 * 3900 / 60, 3900 / 60
-    L += ['**Ontkoppeling (versie 7.2).** De ventilator staat niet meer star op de bodem maar op 4 rubberbuffers Ø15 x 10 (NR 55 '
-          f'Shore A, ca. 80 N/mm per buffer volgens Halder). Met 750 g (datasheet) is de eigenfrequentie ongeveer {f0(fn)} Hz. Trillingen '
-          f'boven √2 x {f0(fn)} = {f0(math.sqrt(2) * fn)} Hz (de schoepfrequentie en de tonen van de motor, enkele honderden Hz) worden '
-          'gedempt: die gaan niet meer star in de kuip, de romp en het blad (het blad werkt anders als klankbord). De draaifrequentie '
-          f'zelf ({f0(f80)} Hz op 80 %, {f0(f100)} Hz op 100 %) ligt onder de eigenfrequentie en wordt niet gedempt (ongeveer x '
-          f'{f2(1 / (1 - (f100 / fn) ** 2))} bij 100 %); bij een goed gebalanceerde waaier is die klein. Zachtere buffers (Ø15 x 15, 40 Shore) '
-          'zouden ook die dempen: na te gaan als G1 een brom laat horen. Hoeveel dB(A) de ontkoppeling scheelt, rekenen we niet: G1 meet '
-          'met en zonder buffers (vier M4-schroeven direct).', '',
-          '**Geluidsdemping in de uitblaas (punt e van het advies):** in de ronde kuip is tussen de waaier en de wand 4 mm: daar past '
-          'geen akoestisch schuim zonder de luchtweg te vernauwen, en een labyrint kost diepte. Niet gedaan. Wat wel helpt zonder '
-          'diepte: de lamellen blazen opzij en naar onder, weg van het oor, onder het blad (dat de rechte weg naar het oor afschermt). '
-          'Blijkt G1 te luid: een uitblaaskap met schuim onder de kuip (ca. 30 mm dieper) is de volgende stap.', '']
+          f'{f1(db(FW["bescherm"], 0.5) + G_BUDGET)} dB(A) met budget.', '',
+          f'**Eerlijk (versie 7.4, P2-1):** 70 tot {f0(db(FW["dagmax"], 0.5) + G_BUDGET_MAX)} dB(A) op oorhoogte is **niet stil**: bij 70 dB(A) achtergrond '
+          'praat je op 0,6 m met stemverheffing. Het woord "stil" is geschrapt tot G1 gemeten is. Ligt de gemeten waarde op de werkplek boven '
+          '70 dB(A), dan moet de handleiding de gemeten emissiewaarde vermelden (Machinerichtlijn 2006/42/EG bijlage I, 1.7.4.2 u; '
+          'verordening (EU) 2023/1230 bijlage III, 1.7.4.2); eronder "niet meer dan 70 dB(A)". Stiller kan door dichter bij de bron te '
+          'vangen (werkhoogte 5 cm, 1) in plaats van harder te draaien. Poort G1 meet het, ook in tertsbanden (toon), eerst op de '
+          'proefopstelling (meetplan, stap 0).', '']
+    # ---- eigenfrequenties van de ventilator op zijn bevestiging (P2-2, versie 7.4)
+    L += eigenfrequenties()
     return L
+
+# ---------------------------------------------------------------- eigenfrequenties (P2-2)
+M_FAN = 0.75  # kg (datasheet)
+F_WERK = (0.2 * 3900 / 60, 3900 / 60)  # Hz: draaifrequentie van 20 tot 100 % (13 tot 65 Hz)
+F_GRENS = math.sqrt(2) * F_WERK[1]  # Hz: alle eigenfrequenties hierboven (de onbalans wordt dan niet versterkt)
+FAN_GATEN_R = 0.029 / math.sqrt(2)  # m: de 4 bevestigingsgaten op Ø58 onder 45°: ±20,5 mm in x en z
+A_ZW = (0.020, 0.040)  # m: hoogte van het zwaartepunt boven het bevestigingsvlak, AANNAME (motor onderaan, waaier erboven)
+I_CM = 0.75 * (3 * 0.05 ** 2 + 0.069 ** 2) / 12  # kg m² om een liggende as door het zwaartepunt, AANNAME (straal 50 mm)
+
+
+def e_shore(shore):
+    """Gent (1958): E (MPa) uit de Shore A-hardheid"""
+    return 0.0981 * (56 + 7.62336 * shore) / (0.137505 * (254 - 2.54 * shore))
+
+
+def buffer_veren(d, h, shore, phi=0.85):
+    """cilindrische rubberbuffer (mm, Shore A): veer axiaal en dwars (N/mm). Axiaal: E (1 + 2 phi S²) A / h met S = d / 4h;
+    dwars: afschuiving G A / h in serie met buiging (beide einden ingeklemd) h³ / (12 E I)"""
+    E = e_shore(shore)
+    G = E / 3
+    A, I = math.pi * d * d / 4, math.pi * d ** 4 / 64
+    S = d / (4 * h)
+    k_ax = E * (1 + 2 * phi * S * S) * A / h
+    k_dw = 1 / (h / (G * A) + h ** 3 / (12 * E * I))
+    return k_ax, k_dw
+
+
+def modi(k_ax, k_dw, k_rot=None, a=0.03):
+    """4 steunpunten (N/m) onder de ventilator: verticaal, en de gekoppelde dwars-kantelmodi (u in het zwaartepunt, theta).
+    k_rot = kantelstijfheid (N m/rad); zonder: uit de 4 axiale veren op ±20,5 mm"""
+    kv = 4 * k_ax
+    kt = k_rot if k_rot is not None else 4 * k_ax * FAN_GATEN_R ** 2
+    kx = 4 * k_dw
+    # K = [[kx, kx a], [kx a, kt + kx a²]], M = diag(m, I_cm)
+    a11, a12, a22 = kx, kx * a, kt + kx * a * a
+    m1, m2 = M_FAN, I_CM
+    b = a11 / m1 + a22 / m2
+    c = (a11 * a22 - a12 * a12) / (m1 * m2)
+    l1 = (b - math.sqrt(max(b * b - 4 * c, 0))) / 2
+    l2 = (b + math.sqrt(max(b * b - 4 * c, 0))) / 2
+    f = lambda lam: math.sqrt(lam) / (2 * math.pi)
+    return f(kv / M_FAN), f(l1), f(l2)
+
+
+def naaf_star(E=1500.0, wand=0.5):
+    """7.4: de ventilator star op de massieve naaf (r 37,5) met 8 ribben (5,8 x 19, tot r 84) naar de bolle rand van de kuip.
+    Per rib een balk, ingeklemd in de naaf en (gedeeltelijk, factor `wand`) in de wand: verticaal 12 E I / L³; kantelen van de
+    naaf: per rib de verplaatsing (r0 sin) en de hoek (4 E I / L). E = 1500 MPa (PETG), wand = 0,5: de bolle rand geeft mee
+    (AANNAME). Geeft k verticaal (N/m) en kantelstijfheid (N m/rad)."""
+    b, h, r0, r1 = 5.8, 19.0, 37.5, 84.0
+    L = r1 - r0
+    I = b * h ** 3 / 12
+    kv1 = wand * 12 * E * I / L ** 3  # N/mm
+    som_sin2 = 8 / 2  # 8 ribben op 45°: som sin² = 4
+    kt = wand * som_sin2 * (kv1 * r0 ** 2 + 4 * E * I / L)  # N mm/rad
+    return 8 * kv1 * 1e3, kt * 1e-3
+
+
+def eigenfrequenties():
+    L = ['### 3h. Eigenfrequenties van de ventilator op zijn bevestiging (versie 7.4, P2-2)', '',
+         f'Het werkgebied is {f0(F_WERK[0])} tot {f0(F_WERK[1])} Hz (20 tot 100 %, 3900 min-1). Een eigenfrequentie in dat gebied versterkt de '
+         f'onbalans (en kan de waaier tegen de tuit doen aanlopen, 6b); we willen elke eigenfrequentie boven √2 x {f0(F_WERK[1])} = '
+         f'{f0(F_GRENS)} Hz. Model: de ventilator (750 g, datasheet) als star lichaam op 4 steunpunten op Ø58; zwaartepunt {f0(A_ZW[0] * 1000)} tot '
+         f'{f0(A_ZW[1] * 1000)} mm boven het steunvlak (AANNAME), traagheid om een liggende as {f1(I_CM * 1e4)} x 10⁻⁴ kg m² (AANNAME). Rubber: E uit de '
+         'Shore-hardheid (Gent), G = E / 3; dwars: afschuiving in serie met buiging.', '',
+         rij('bevestiging', 'axiaal (Hz)', 'dwars en kantelen, laagste (Hz)', 'tweede (Hz)', f'alle boven {f0(F_GRENS)} Hz?'),
+         rij('---', '---:', '---:', '---:', '---')]
+    kandidaten = [('rubberbuffer Ø15 x 10 M4, NR 55 Shore A (7.2 en 7.3; axiaal 80 N/mm volgens Halder)', 15, 10, 55),
+                  ('rubberbuffer Ø15 x 8 M4, Shore A 70 (de stijfste M4-buffer die we vonden)', 15, 8, 70),
+                  ('rubberbuffer Ø15 x 15 M4, Shore A 40 (zachter)', 15, 15, 40)]
+    for naam, d, h, sh in kandidaten:
+        ka, kd = buffer_veren(d, h, sh)
+        if sh == 55:
+            ka = 80.0  # Halder: ca. 80 N/mm
+        lo = [modi(ka * 1e3, kd * 1e3, a=a) for a in A_ZW]
+        fa, f1_, f2_ = lo[0][0], min(x[1] for x in lo), min(x[2] for x in lo)
+        L.append(rij(naam, f0(fa), f0(f1_), f0(f2_), 'ja' if min(fa, f1_) > F_GRENS else '**nee**: in of vlak bij het werkgebied'))
+    kv, kt = naaf_star()
+    kv_hi, kt_hi = naaf_star(wand=1.0)
+    k_bus_dw = 4 * 3 * 1500 * (math.pi * 12 ** 4 / 64) / 8 ** 3 * 1e3  # N/m: 4 bussen Ø12 x 8 (PETG) dwars, 3EI/h³ (ongunstig)
+    st = [modi(kv / 4, k_bus_dw / 4, k_rot=kt, a=a) for a in A_ZW]
+    st_hi = [modi(kv_hi / 4, k_bus_dw / 4, k_rot=kt_hi, a=a) for a in A_ZW]
+    fa, f1_, f2_ = st[0][0], min(x[1] for x in st), min(x[2] for x in st)
+    L.append(rij('**7.4: star op 4 bussen Ø12 op een massieve naaf met 8 ribben 5,8 x 19 (PETG)**, wand half ingeklemd',
+                 f0(fa), f0(f1_), f0(f2_), 'ja' if min(fa, f1_) > F_GRENS else '**nee**'))
+    L.append(rij('idem, wand helemaal ingeklemd', f0(st_hi[0][0]), f0(min(x[1] for x in st_hi)), f0(min(x[2] for x in st_hi)), 'ja'))
+    assert min(fa, f1_) > F_GRENS, 'de starre opstelling heeft een eigenfrequentie onder √2 x 65 Hz'
+    L += ['', '**Gevolg:** elke rubberbuffer met M4-draad (de motor heeft 4 x M4) heeft dwars en kantelend een eigenfrequentie in of '
+          'vlak bij het werkgebied: de 7.2-buffer Ø15 x 10 dwars ongeveer 40 Hz, precies op de stand van 60 %. Zachter (onder '
+          f'{f0(F_WERK[0] / math.sqrt(2))} Hz) kan niet zonder dat de ventilator centimeters beweegt (en de tuit raakt). Daarom staat de ventilator '
+          'sinds 7.4 **star** op vier bussen op een massieve naaf, die met 8 ribben op de bolle rand van de kuip steunt: alle '
+          f'eigenfrequenties liggen boven {f0(F_GRENS)} Hz. De prijs: de trillingen gaan nu star in de kuip en de romp ("stil" is geschrapt, '
+          '3d). Poort G1 doet een oploop van 20 tot 100 % met een versnellingsmeter op de kuip en op het blad: geen resonantie in het '
+          'werkgebied, geen aanlopen. De ribben zijn ook de reden dat de kuip achteraan een goot voor de aders heeft (de aders lopen '
+          'niet meer onder de kuip door, P2-5).', '',
+          '**Geluidsdemping in de uitblaas:** tussen de waaier en de wand van de kuip is 4 mm: daar past geen akoestisch schuim. '
+          'Blijkt G1 te luid, dan is een uitblaaskap met schuim onder de kuip (ca. 30 mm dieper, slechter voor de knieruimte) de volgende stap.', '']
+    return L
+
 
 # ---------------------------------------------------------------- vingerrooster: rasterberekening (balkrooster)
 def vingerrooster_fe(ringen=None, F=10.0, E=1200.0, nu=0.4, stap=2.0):
@@ -669,7 +833,7 @@ def zonder_filter_verhouding(r, k=1.0):
 # IKEA LAGKAPTEN 140 x 60: 34 mm, hardboard, spaanplaat (rand), papieren honingraat (ikea.com, 2026); max. 50 kg verdeeld,
 # 15 kg geconcentreerd. Huiden en kern: niet opgegeven -> AANNAME 3 mm vezelplaat (na te meten bij de eerste uitsparing).
 BLAD = dict(L=0.680, t=0.003, h=0.034, b=0.600, E=(2500e6, 4000e6), G=(2e6, 6e6))  # m, Pa; E vezelplaat, G papieren kern: AANNAME
-GAT = dict(boven=0.212, onder=0.212 + 0.102 + 0.038)  # m weggenomen breedte in de doorsnede x = 0 en x = -0,06 (sleuf 29 x 7)
+GAT = dict(boven=0.212, onder=0.212 + 0.102)  # m weggenomen breedte in de doorsnede x = 0 (7.4: geen sleuf naar de module meer)
 
 
 def doorbuiging(P, E, G, b_boven, b_onder):
@@ -707,15 +871,23 @@ def maak():
          'Het is een ontwerpberekening: de metingen in `Vrijgave-en-meetplan.md` beslissen.', '']
 
     L += ['## 1. Doel: hoeveel lucht', '',
-          f'Vangst bij de bron: {f1(V_VANG)} m/s op {X_HAND * 100:.0f} cm boven het rooster (Dalla Valle, opening met flens: '
-          f'v = Q / (0,75 (10x² + A)), A = {A_OPENING * 1e4:.0f} cm²).', '',
+          f'Vangst bij de bron (versie 7.4): **{f1(V_VANG)} m/s op {X_HAND * 100:.0f} cm** boven het rooster (een nagelfrees werpt het stof weg: '
+          'een actieve bron; ACGIH, Industrial Ventilation en HSE HSG258: 1,0 tot 2,5 m/s) en daarnaast 0,5 m/s op 10 cm. '
+          f'Model: Dalla Valle, opening met flens: v = Q / (0,75 (10x² + A)), A = {A_OPENING * 1e4:.0f} cm² (de opening van het '
+          f'frame; het filter zelf is {A_FILTER_VOL * 1e4:.0f} cm²: de grotere A geeft een kleiner benodigd debiet bij dezelfde v, maar '
+          'het verschil telt alleen dicht bij het rooster; op 5 cm en meer domineert 10x²). Dalla Valle geldt op de as en in '
+          'stilstaande lucht: tocht en een draaiende frees maken het slechter; L2 meet met een draaiende frees en een deeltjesteller.', '',
           rij('debiet (m³/h)', 'v op 5 cm', 'v op 10 cm', 'v op 15 cm'), rij('---:', '---:', '---:', '---:')]
     for q in (150, 200, 250, 300, 400):
         L.append(rij(q, f2(v_vang(q, 0.05)), f2(v_vang(q, 0.10)), f2(v_vang(q, 0.15))))
     qmin = q_voor_vang()
-    L += ['', f'**Minimum: {f0(qmin)} m³/h** (0,5 m/s op 10 cm), op elke beschermende stand tot de melding "filter vervangen" (het onderhoudseindpunt, 3b). **Ontwerpdebiet: 250 m³/h** met een '
-          'schoon filter (0,66 m/s op 10 cm). Meer debiet geeft vooral meer geluid; 500 m³/h is geen doel meer.', '',
-          f'**Werkhoogte (versie 7.2, eerlijk vastgelegd): 10 cm boven het rooster.** Daar is de vangst ontworpen en bewaakt. '
+    q5, q10 = q_voor_vang(V_VANG, X_HAND), q_voor_vang(V_VANG2, X_HAND2)
+    L += ['', f'**Minimum: {f0(qmin)} m³/h**: 1,0 m/s op 5 cm vraagt {f0(q5)} m³/h, 0,5 m/s op 10 cm vraagt {f0(q10)} m³/h; het grootste telt, '
+          'op elke beschermende stand tot de melding "filter vervangen" (het onderhoudseindpunt, 3b). **Ontwerpdebiet: 250 m³/h** met een '
+          f'schoon filter ({f2(v_vang(250, 0.05))} m/s op 5 cm, {f2(v_vang(250, 0.10))} m/s op 10 cm). 1,0 m/s op 10 cm zou {f0(q_voor_vang(1.0, 0.10))} m³/h vragen: meer dan boost. '
+          'Meer debiet geeft vooral meer geluid.', '',
+          f'**Werkhoogte (versie 7.4): 5 cm boven het rooster**, af te dwingen met een lage polssteun of zijschotjes naast het rooster '
+          '(keuze van Ian na W1). Boven 10 cm is de vangst niet ontworpen. '
           f'Op 15 cm haalt alleen boost 0,5 m/s, en dan alleen met een schoon filter (tabel in hoofdstuk 3: {f2(v_vang(werkpunt(filter_dp(FILTERS["CU"]), 1.0), 0.15))} m/s); '
           f'op de dagstand is het op 15 cm ongeveer {f2(v_vang(werkpunt(filter_dp(FILTERS["CU"]), 0.8), 0.15))} m/s. Wie hoger boven het rooster werkt, vangt dus minder: '
           'leg de hand van de klant op het blad of op de rand van de plaat, met de nagel laag boven het rooster.', '']
@@ -756,13 +928,13 @@ def maak():
                      f'{pct(rs[0])}–{pct(rs[1])}', f'{pct(rb[0])}–{pct(rb[1])}', geluid))
     g = filter_dp(FILTERS['CU'])
     L += ['', '**Met het gekozen filter (schoon), per stand:** debiet en luchtsnelheid boven het midden van het rooster.', '',
-          rij('toerental', 'debiet (m³/h)', 'op 10 cm', 'op 15 cm', 'op 20 cm', 'dB(A) op 1 m'),
+          rij('toerental', 'debiet (m³/h)', 'op 5 cm', 'op 10 cm', 'op 15 cm', 'dB(A) op 1 m (model)'),
           rij('---:', '---:', '---:', '---:', '---:', '---:')]
     for r in (0.4, 0.6, 0.7, 0.75, 0.8, 1.0):
         q = werkpunt(g, r)
-        L.append(rij(f'{r * 100:.0f} %' + (' (boost)' if r == 1 else ''), f0(q), f2(v_vang(q, 0.10)), f2(v_vang(q, 0.15)), f2(v_vang(q, 0.20)), f0(db(r))))
+        L.append(rij(f'{r * 100:.0f} %' + (' (boost)' if r == 1 else ''), f0(q), f2(v_vang(q, 0.05)), f2(v_vang(q, 0.10)), f2(v_vang(q, 0.15)), f0(db(r))))
     L += ['', '20 cm boven het rooster haalt geen enkele stand 0,5 m/s: dat vraagt ongeveer 600 m³/h, meer dan deze '
-          'ventilator met rooster en filter levert.']
+          'ventilator met rooster en filter levert. Alle werkpunten hierboven zijn zonder inbouwverlies (3g).']
     L += ['', 'De stand is een fractie van het volle **toerental**: de firmware regelt het toerental (ijktabel PWM -> '
           'toerental plus bijregeling op de tacho, regel.h). Debiet, geluid en warmte in dit rekenblad gebruiken dezelfde '
           'grootheid. Het geluid volgt ΔL = 50 log10(n/n_vol) en een vrije puntbron; roosterfluit, kastresonantie en galm '
@@ -834,17 +1006,19 @@ def maak():
           f'- **Adapter:** overlast vanaf {f0(ADAPTER_OVERLAST[0] * 100)} tot {f0(ADAPTER_OVERLAST[1] * 100)} % van 90 W, dus '
           f'{f1(lo)} tot {f1(hi)} A; dan hiccup (zet telkens even af en herstelt vanzelf). Overspanning en oververhitting: '
           'uit tot de stekker opnieuw in gaat (datablad Mean Well).',
-          f'- **Zekering -F1:** Bel Fuse 0697W3150-01, traag, 3,15 A, 350 V AC / **72 V DC**, I²t 66 A²s (IEC 60127-3 blad 4). '
+          f'- **Zekering -F1:** Bel Fuse 0697W3150-01, traag, 3,15 A, 350 V AC / **72 V DC**, I²t 66 A²s (IEC 60127-3 blad 4; de 72 V DC '
+          'komt uit de catalogus van de leverancier: het datablad van Bel nog bij het dossier leggen, P3-8). '
           f'Bij {f1(lo / ZEKERING)} tot {f1(hi / ZEKERING)} x In smelt ze pas na minuten (1,5 x In: {ZEK_TIJD[1.5]}; 2,1 x In: '
           f'{ZEK_TIJD[2.1]}): de adapter schakelt dus eerst af. De zekering is de reserve als de adapter zelf faalt of '
-          'als er na de adapter een fout is die hij niet ziet. Inschakelen: de elco van 470 µF laden kost hoogstens '
-          'C U² / 2R = 1,4 A²s (R ≥ 0,1 Ω), ver onder 66 A²s. De ventilator start met 50 % per seconde (regel.h, getest).',
+          'als er na de adapter een fout is die hij niet ziet. **-C1 (470 µF) is in 7.4 geschrapt (P3-6):** direct achter -Q4 gaf hij bij '
+          'het inschakelen een laadpiek van meer dan 100 A over een wipschakelaar van 10 A; de ventilator heeft zijn eigen buffering en '
+          'start met 50 % per seconde (regel.h, getest). -C2 (47 µF) blijft aan VIN van de regelaar.',
           '- **Schakelaar -Q4:** C&K D502J12S215PQA, **10 A bij 30 V DC** (resistief), 10 000 schakelingen; de ventilator '
           f'trekt hoogstens {f2(FAN_A)} A. Volgorde vanaf de adapter: -X1, -Q4, -F1 (de schakelaar zit vóór de zekering). '
           'Uit = ventilator, regelaar en ESP32-C3 spanningsloos.',
           '- **Ingang van de regelaar:** Pololu raadt boven 20 V een elco van minstens 33 µF dicht bij VIN aan (spanningspieken '
-          'bij het inschakelen door de kabelinductie). Daarom -C2 47 µF / 50 V vlak bij VIN van -T3; de buffer -C1 is 470 µF / 50 V '
-          '(niet 35 V: marge op 24 V plus piek). De regelaar mag tot 36 V aan de ingang.',
+          'bij het inschakelen door de kabelinductie). Daarom -C2 47 µF / 50 V vlak bij VIN van -T3; een buffer -C1 van 470 µF / 50 V '
+          'stond er in 7.3 ook (geschrapt in 7.4). De regelaar mag tot 36 V aan de ingang.',
           '- **Ventilator spanningsloos zonder besturing:** -Q2 (IRF4905, P-kanaal, 55 V, 20 mΩ) schakelt de 24 V naar de '
           'ventilator; -Q3 (BC547) trekt zijn gate laag via een deler (Vgs ≈ −12 V, binnen ±20 V) zodra GPIO7 van -K1 hoog is. '
           'Een weerstand van 10 kΩ houdt de basis van -Q3 laag: zonder 5 V of 3,3 V, tijdens een reset of bij het flashen staat '
@@ -852,11 +1026,16 @@ def maak():
           '- **5 V:** de D24V10F5 heeft een kortsluit- en overstroombeveiliging en schakelt af als ze te warm wordt. 1 A is een '
           'typische continue waarde die van de warmte afhangt; de piek van knop en module samen blijft eronder (tabel hierboven).',
           '- **Ompoling (versie 7.2):** de DC-kabel van de adapter wordt ingekort en op -X1 geschroefd: wie de aders verwisselt, zet '
-          '-24 V op de elco\'s, de regelaar en de MOSFET. Daarom zit -R13 (Schottky SB560, 5 A / 60 V) in sperrichting over L+ en M, '
-          'achter -F1. Juist aangesloten spert ze (geen verlies). Verkeerd om geleidt ze: de spanning blijft op ongeveer -0,5 V, de '
-          f'adapter gaat in hiccup ({f1(lo)} tot {f1(hi)} A in korte pulsen) en -F1 smelt na enige tijd. Bovendien: de min van de '
+          '-24 V op de elco, de regelaar en de MOSFET. Daarom zit -R13 (Schottky SB560, 5 A / 60 V) in sperrichting over -X1 (7.4: '
+          'vóór -Q4 en -F1). Juist aangesloten spert ze (geen verlies). Verkeerd om geleidt ze: de spanning blijft op ongeveer -0,5 V en '
+          f'de adapter gaat in hiccup ({f1(lo)} tot {f1(hi)} A in korte pulsen) en **blijft** daar tot de stekker eruit gaat; -F1 ziet die stroom '
+          'niet en smelt niet (7.3 zei ten onrechte "-F1 smelt"). De SB560 verdraagt de pulsen (gemiddeld ver onder 5 A). Een paneelbus '
+          'Ø5,5/2,5 in de wand van de box (de kabel van de adapter blijft heel) of een P-FET in serie zou ompoling helemaal uitsluiten: '
+          '**keuze voor Ian** (P3-5). Bovendien: de min van de '
           'adapter heeft de witte streep of de opdruk "-" (nameten met de multimeter vóór het vastschroeven, bouwschema). Een inbouwbus '
           'voor de originele stekker (Ø5,5/2,5, midden +) was het alternatief; die past niet op de volle print van 40 x 50.',
+          '- **Tachoklem (versie 7.4, P3-7):** 2 x BAT85 (-R15 naar 3,3 V, -R16 naar M) achter -R14: een sluiting tussen pin 1 (24 V) en '
+          'pin 2 in de M8 duwt dan ongeveer 20 mA in -R15 in plaats van in de beschermdiode van GPIO4; -R14 is daarom 1 kΩ 0,6 W.',
           '- **Tacho (versie 7.2):** de tachodraad loopt 0,5 m naast de PWM van 25 kHz. -R14 (1 kΩ in serie) en -C3 (10 nF naar M) bij '
           'GPIO4: τ = 10 µs, een tachopuls (hoogstens 130 Hz) gaat er ongeschonden door, een stoorpiek van enkele µs niet. In de '
           'software telt een flank pas 1,5 ms na de vorige (ontdendering) en komt het toerental uit de tijd tussen de pulsen '
@@ -907,8 +1086,9 @@ def maak():
         p = FAN_W * r ** 3 + p5
         # adapter, regelaar (over de hele 5 V-last) en wat in de box zelf verbruikt wordt (ESP32-C3, drukmeter, diode), plus zekering en draden
         return p, p * (1 / ADAPTER['eta'] - 1) + sum(P_5V.values()) * (1 / ETA_BUCK - 1) + P_IN_BOX + 0.3
-    rijen = [('40 % toerental', 0.4), ('60 %', 0.6), ('75 % (lage stand)', 0.75), ('80 % (dagstand: laagste beschermende en hoogste gewone stand)', 0.8),
-             ('100 % (boost)', 1.0)]
+    b0 = FW['bescherm']
+    rijen = [('40 % toerental', 0.4), ('60 %', 0.6), (f'{f0(b0 * 100)} % (laagste beschermende stand)', b0),
+             (f'{f0(FW["dagmax"] * 100)} % (dagstand: hoogste gewone stand)', FW['dagmax']), ('100 % (boost)', 1.0)]
     ergst = 0.0
     for naam, r in rijen:
         p, verlies = boxverlies(r)
@@ -929,7 +1109,21 @@ def maak():
     p100, v100 = boxverlies(1.0)
     t_fout = T_KAMER_MAX + box_dt(v100, H_WAND[0])
     assert t_fout < T_PETG_MAX and t_fout < adapter_tmax(p100 / ADAPTER['w']), 'continu 100 % te warm'
-    L += ['', f'In de box: de adapter, de regelaar en {f2(P_IN_BOX)} W van de ESP32-C3, de drukmeter en de diode (de knop zit in het blad). '
+    # 7.4 (P2-7): het oppervlak van de adapter is warmer dan de lucht in de box
+    p_dag, v_dag = boxverlies(FW['dagmax'])
+    v_adapter = p_dag * (1 / ADAPTER['eta'] - 1)
+    a_adapter = 2 * (0.145 * 0.060 + 0.145 * 0.032 + 0.060 * 0.032)  # m²
+    dt_opp = [v_adapter / (h * a_adapter) for h in (8.0, 5.0)]  # K: AANNAME h 5 tot 8 W/m²K (stilstaande lucht, ribben eronder)
+    t_dag = [T_KAMER + box_dt(v_dag, hw) for hw in H_WAND]
+    t_fout_opp = t_fout + p100 * (1 / ADAPTER['eta'] - 1) / (5.0 * a_adapter)
+    L += ['', f'**Oppervlak van de adapter (versie 7.4, P2-7):** het model hierboven rekent de lucht, niet de behuizing van de adapter. Bij '
+          f'{f1(v_adapter)} W verlies (dagstand) over {f0(a_adapter * 1e4)} cm² is de behuizing {f0(dt_opp[0])} tot {f0(dt_opp[1])} K warmer dan de '
+          f'lucht in de box (h 5 tot 8 W/m²K, AANNAME): {f0(min(t_dag) + dt_opp[0])} tot {f0(max(t_dag) + dt_opp[1])} °C op de dagstand, in het '
+          f'foutgeval tot ongeveer {f0(t_fout_opp)} °C. De klemmen drukken op de adapter: sinds 7.4 in **PA12-CF** (warmtevervorming ruim boven '
+          '100 °C volgens de gangbare datasheets; het gekochte filament nakijken), niet meer in PETG (68 °C). De ribben in de bodem van de box '
+          'blijven PETG: de adapter (300 g) geeft er minder dan 0,01 MPa op, daar kruipt niets. Poort E1 meet met een thermokoppel op de '
+          'adapter en op het contactvlak van een klem; de grens ligt op dat contactvlak (≥ 10 °C onder de HDT van het filament).', '',
+          f'In de box: de adapter, de regelaar en {f2(P_IN_BOX)} W van de ESP32-C3, de drukmeter en de diode (de knop zit in het blad). '
           'De warmte in de box bereikt geen evenwicht in de 120 s van één boost; het gemiddelde met het boosttegoed (hoogstens '
           '1/5 van de tijd op 100 %, regel.h, getest) is het geval om op te rekenen.', '',
           f'**Grenzen:** de adapter staat in elke stand op hoogstens {f0(100 * last_boost)} % last en mag dan tot '
@@ -953,13 +1147,18 @@ def maak():
           rij('---', '---', '---', '---:', '---:', '---:', '---:', '---:')]
     for naam, K, d in (('module (M5, 8 x 6)', KLAUW, 5), ('knop (M4, 6 x 5)', KNOPKLAUW, 4)):
         marge, fmax, g = klauw_band(K)
-        fs = [min(klauw_slag(K, SLAG, a, w)[0] for a in K['zone'] for w in (1.0, 0.9)), fmax]
+        # 7.4 (P2-9): de grootste kracht over de hele band (niet die van het geval met de kleinste marge)
+        fs = [min(klauw_slag(K, SLAG, a, w)[0] for a in K['zone'] for w in (1.0, 0.9)),
+              max(max(klauw_slag(K, SLAG, a, w)) for a in K['zone'] for w in (1.0, 0.9))]
         assert marge >= 1.5, f'{naam}: te weinig marge op de kruipgrens'
         R = K['rubber']
         L.append(rij(naam, f'{f1(K["zone"][0])} tot {f1(K["zone"][1])}', f'neopreen Shore A 40, {f0(R["t"])} mm, {f1(R["l"])} x {f0(R["b"])}',
                      f'{f0(rubber_veer(35, R))}–{f0(rubber_veer(45, R))}', f'{f0(fs[0])}–{f0(fs[1])}', f0(g), f1(marge),
                      f0(klauw(K, d, K['zone'][1], 0.9)[1])))
     fmin4 = 4 * min(klauw_slag(KLAUW, SLAG, a, w)[0] for a in KLAUW['zone'] for w in (1.0, 0.9))
+    kw = [min(klauw_slag(KLAUW, 0.25, a, w)[0] for a in KLAUW['zone'] for w in (1.0, 0.9)),
+          max(max(klauw_slag(KLAUW, 0.75, a, w)) for a in KLAUW['zone'] for w in (1.0, 0.9))]
+    g34 = min(klauw(KLAUW, 5, a, w)[0] for a in KLAUW['zone'] for w in (1.0, 0.9))
     L += ['', f'- **Waarom zo weinig genoeg is:** het gewicht van de module en de druk van handen gaan via de rand van het '
           'bovenframe (5 mm rondom) naar het blad, niet via de klauwen. De klauwen houden de module alleen omlaag tegen '
           f'optillen en trillen: samen minstens {f0(fmin4)} N tegen ongeveer 20 N gewicht. De knop weegt 50 g en wordt alleen '
@@ -968,42 +1167,83 @@ def maak():
           f'{f2(klauw_band(KLAUW)[1] / 60)} MPa op de onderhuid: ver onder wat vezelplaat verdraagt (enkele MPa).',
           '- **Een halve slag te veel** (dus een hele) geeft tot ' f'{f0(max(klauw_slag(KLAUW, 1.0, KLAUW["zone"][1], 0.9)))} N bij de '
           'buitenrand: rond de kruipgrens. De handleiding zegt daarom "een halve slag" en toont het met de schroefgleuf.',
+          f'- **Hoe robuust is "een halve slag"? (7.4, P2-9)** Het moment van het eerste contact voel je op ongeveer een kwart slag: '
+          f'dat geeft {f0(kw[0])} tot {f0(kw[1])} N (een kwart tot driekwart slag), terwijl de kruipgrens bij de buitenrand {f0(g34)} N is. '
+          'Neopreen relaxeert daarna nog 20 tot 30 %. Een halve slag is dus geen robuuste grens: een vaste aanslag (de naaf loopt tegen '
+          'een kraag, het rubber een vaste maat ingedrukt) of een klauw van 8 mm in PA-CF is beter: **keuze voor Ian**; poort M1 '
+          'controleert de klauwen na 1 week.',
           '- **Voedingsbox (versie 7.2):** 0,7 kg = 7 N op 4 spaanplaatschroeven 4 x 16 verzonken. Ze draaien nu niet meer alleen in de '
           'onderhuid van 3 mm maar door de huid in een houten lat van 10 x 30 mm die binnen tegen de onderhuid gelijmd is (6d). '
           'Uittrekkracht per schroef in 10 mm naaldhout: AANNAME ≥ 100 N (voorzichtig; in alleen 3 mm vezelplaat was het ≥ 30 N). '
           'Ongunstig geval: gewicht plus 20 N trek aan een kabel op één hoek: hoogstens ongeveer 12 N op één schroef. Poort M1 trekt eraan.',
           '- **Frame op het blad (versie 7.2):** de rand van 5 mm van het bovenframe ligt op de bovenhuid; daaronder zit nu rondom een '
           'lat van 28 x 44 mm tussen de huiden (6d): de last van een leunende arm gaat in hout, niet in 3 mm vezelplaat boven papier.',
-          '- **Fanschroeven M4 x 10:** kop 1 mm verzonken in een plaat van 6 mm, dus 5 mm indraaiing (fabrikant: 4 tot 6). '
-          'Met plaat ±0,2 en schroeflengte ±0,2 (ISO 4759-1, klasse A): 4,6 tot 5,4 mm.', '']
+          '- **Ventilatorschroeven (7.4, P3-1):** M4 x 16 verzonken van onderen door de bodem van de kuip (4 mm) en de bus (8 mm): '
+          '4 mm indraaiing in de motor (fabrikant: 4 tot 6). Met bodem en bus ±0,2 (print) en schroeflengte ±0,2 (ISO 4759-1, '
+          'klasse A): 3,6 tot 4,4 mm; poort M2 kijkt of de schroef niet op de bodem van het gat in de motor staat.', '']
 
     # ---- 6b vingerrooster
     w, plek, nk, ne = vingerrooster_fe()
     V = VINGER
     zak = 6 - math.sqrt(36 - (V['spleet'] / 2) ** 2)  # bolle vingertop R6 in een spleet van 10,4
-    ruimte = V['rotor'] - 0.3 - max(0.0, zak - V['h'])
+    ruimte = V['vrij'] - max(0.0, zak - V['h'])  # onder de ribben is het oog open tot de naaf
     assert w * 2 <= ruimte, 'vingerrooster buigt te ver door'
     w0 = vingerrooster_fe(ringen=[])[0]
     afstand = V['h'] + V['rotor']
     spleet_max = V['spleet'] + 0.2 * 2 / 2 + 0.1  # rib 1,6 +-0,2 en steek +-0,1 (geprint): de spleet hoogstens zoveel
-    iso = [(4, 2), (6, 10), (8, 20), (10, 80), (12, 100), (20, 120)]  # EN ISO 13857:2019 tabel 4, sleuf: e (mm) -> s_r (mm)
-    nodig = next(sr for e, sr in iso if spleet_max <= e)
-    assert afstand >= nodig, 'vingerrooster: te dicht bij de waaier voor EN ISO 13857'
-    L += ['## 6b. Vingerrooster in het oog', '',
-          f'Versie 7.2: {2 * len(V["xs"])} ribben 1,6 mm breed en {f1(V["h"])} mm hoog op steek 7,2 (spleten {f1(V["spleet"])} mm, met de '
+    iso = [(4, 2), (6, 10), (8, 20), (10, 80), (12, 100), (20, 120)]  # EN ISO 13857:2019 tabel 4 (vanaf 14 jaar), sleuf
+    # 7.4 (P2-12): in een salon komen kinderen: tabel 5 (personen vanaf 3 jaar). AANNAME: sleuf 4 < e <= 6 mm vraagt 20 mm,
+    # vierkant of rond tot 6 mm 10 mm (waarden uit het advies; na te kijken in de norm zelf, die niet gratis is)
+    iso5 = [(4, 2), (6, 20)]
+    nodig4 = next(sr for e, sr in iso if spleet_max <= e)
+    nodig = next(sr for e, sr in iso5 if spleet_max <= e)
+    # maatketen van de waaier (P1-4): datasheet 69 ± 1 mm (waaier 60,5 ± 1); kuip van bodem tot oor ± 0,3 (print), naaf en
+    # bus ± 0,2, romp van bus tot richel ± 0,2, vlakheid van de instroomplaat ± 0,4 (AANNAME, geprint, 201 mm)
+    KETEN = [('hoogte ventilator (datasheet 69 ± 1)', 1.0), ('kuip: bodem tot oor (print)', 0.3), ('naaf en bussen (print)', 0.2),
+             ('romp: bus tot richel (print)', 0.2), ('vlakheid instroomplaat (print, 201 mm)', 0.4)]
+    nom_ax = 4.0
+    wc = sum(t for _, t in KETEN)
+    rss = math.sqrt(sum(t * t for _, t in KETEN))
+    overlap = 2.0  # mm: de tuit steekt nominaal 2 mm in het oog
+    radiaal = 65.5 - (62.5 + 1.2)  # mm: oog r 65,5, buitenkant tuit r 63,7
+    rad_tol = 0.2 + 0.2 + 0.3 + 0.3  # gaten M4 (Ø4,4), oren M3, instroomplaat in de romp, concentriciteit van het oog (AANNAME)
+    assert nom_ax - wc >= 1.5, 'maatketen: te weinig axiale speling in het ongunstigste geval'
+    assert radiaal - rad_tol > 0.5, 'maatketen: tuit te dicht bij het oog'
+    afstand_min = afstand - KETEN[0][1]
+    assert afstand_min >= nodig, 'vingerrooster: te dicht bij de waaier voor EN ISO 13857 tabel 5'
+    L += ['## 6b. Speling van de waaier en vingerrooster in het oog', '',
+          '**Maatketen waaier tot instroomplaat (versie 7.4, P1-4).** Nominaal hangt de dekschijf van de waaier '
+          f'{f1(nom_ax)} mm onder de instroomplaat (7.3: 2,05 mm). Toleranties:', '',
+          rij('schakel', '± (mm)'), rij('---', '---:'),
+          *[rij(n, f1(t)) for n, t in KETEN],
+          rij('**ongunstig opgeteld**', f'**{f1(wc)}**'), rij('statistisch (wortel uit de som van de kwadraten)', f1(rss)), '',
+          f'Axiale speling: ongunstig {f1(nom_ax - wc)} mm, statistisch {f1(nom_ax - rss)} mm (eis: ≥ 1,5 mm, poort M2 meet op vier plaatsen met '
+          f'een voelermaat; 7.3 had ongunstig {f1(2.05 - wc)} mm: aanlopen). De ventilator staat star (3h): geen rubber in de keten en '
+          f'geen beweging op de eigenfrequentie. De tuit steekt nominaal {f1(overlap)} mm in het oog: ongunstig {f1(overlap - wc)} tot '
+          f'{f1(overlap + wc)} mm (bij {f1(overlap - wc)} een spleet in plaats van overlap: dat kost wat debiet, raakt niets). Radiaal: '
+          f'{f1(radiaal)} mm tussen de tuit en het oog; scheefstand ongunstig {f1(rad_tol)} mm (gaten, oren, instroomplaat, concentriciteit '
+          'van het oog, AANNAME): er blijft minstens ' f'{f1(radiaal - rad_tol)} mm. Een vulring onder de bussen (0,5 mm) stelt de hoogte '
+          'bij als M2 te weinig speling meet.', '',
+          f'Versie 7.4: {2 * len(V["xs"])} ribben 1,6 mm breed en {f1(V["h"])} mm hoog (in de losse instroomtuit) op steek 7,2 (spleten {f1(V["spleet"])} mm, met de '
           f'printtolerantie hoogstens {f1(spleet_max)}), een dwarsrib en twee ringen (r {V["ringen"][0]} en {V["ringen"][1]}). De onderkant ligt '
-          f'{f2(V["rotor"])} mm boven de waaier, de bovenkant dus {f1(afstand)} mm. Versie 7.1 had spleten van 10,4 tot 10,8 mm op 9 mm: '
-          'te weinig volgens de norm hieronder.', '',
+          f'{f1(-V["rotor"])} mm in het oog (onder de dekschijf), de bovenkant {f1(afstand)} mm boven de waaier. De tuit schermt de rand van '
+          'het oog af. Versie 7.1 had spleten van 10,4 tot 10,8 mm op 9 mm, 7.3 5,6 mm op 14 mm: te weinig volgens tabel 5 hieronder.', '',
           '**EN ISO 13857:2019, tabel 4 (personen vanaf 14 jaar, sleuf):** e ≤ 4 mm: 2 mm afstand; 4 < e ≤ 6: 10 mm; 6 < e ≤ 8: 20 mm; '
           '8 < e ≤ 10: 80 mm; 10 < e ≤ 12: 100 mm (bron: overgenomen in de veiligheidsgids van Troax, p. 6; de norm zelf is niet gratis). '
-          f'Hier: e ≤ {f1(spleet_max)} mm, dus nodig {nodig} mm; aanwezig {f1(afstand)} mm: **voldoet**. De plaat en het filter zijn '
+          '**In een salon komen kinderen (versie 7.4, P2-12): tabel 5 (vanaf 3 jaar) telt.** AANNAME: sleuf 4 < e ≤ 6 mm vraagt daar 20 mm, '
+          'vierkant of rond tot 6 mm 10 mm (waarden uit het advies, **na te kijken in de norm zelf**). '
+          f'Hier: e ≤ {f1(spleet_max)} mm, dus nodig {nodig} mm (tabel 4: {nodig4} mm); aanwezig {f1(afstand)} mm, met de tolerantie van de '
+          f'ventilator ten minste {f1(afstand_min)} mm: **voldoet** (7.3 had 14 mm). De tuit schermt de rand van het oog af: binnen de keel '
+          'is het eerste draaiende deel de naaf, dieper. De plaat en het filter zijn '
           'zonder gereedschap af te nemen en tellen dus niet als afscherming; het vingerrooster is gelijmd (vaste afscherming). De '
           'lamellen van de kuip (banden van 4 mm, loodrecht 2,8 mm) vallen onder e ≤ 4 mm: 2 mm nodig, de waaier zit 7 mm achter de wand.', '',
+          'Achteraan zit de goot voor de aders in de wand (7.4): de opening onderaan is 5 x 6 mm en ligt onder de waaier; ze '
+          'zit binnen de kuip en is van buiten niet bereikbaar.', '',
           f'**Rekenmodel:** balkrooster ({nk} knopen, {ne} balkjes) met buiging en wringing; de uiteinden van de ribben op de rand '
           'van het oog als scharnier (ongunstiger dan ingeklemd); PETG E = 1200 MPa (1500 min 20 % voor warmte en printrichting). '
           f'Een last van **10 N** (projectkeuze, geen normwaarde) staat om de beurt op elke knoop (om de 2 mm). Grootste doorbuiging '
           f'onder de last: **{f2(w)} mm** (bij x = {f0(plek[0])}, z = {f0(plek[1])}); zonder de ringen zou dat {f2(w0)} mm zijn.', '',
-          f'**Ruimte tot de waaier:** {f2(V["rotor"])} mm, min 0,3 mm printtolerantie. Een vinger (Ø12, bolle top R6, de '
+          f'**Ruimte onder de ribben:** de ribben staan in de instroomtuit en steken 2 mm in het oog; daaronder is het oog open tot de naaf (ongeveer {f0(V["vrij"])} mm, AANNAME). Een vinger (Ø12, bolle top R6, de '
           f'ongunstigste vorm) zakt {f1(zak)} mm in een spleet: dat blijft binnen de ribhoogte van {f1(V["h"])} mm. Beschikbaar: '
           f'{f2(ruimte)} mm, doorbuiging {f2(w)} mm: **factor {f1(ruimte / w)}**. Het rooster zit vast in de gelijmde '
           'instroomplaat en blijft staan als het filter eruit is. Poort W1 controleert het met een proefvinger, nooit met een '
@@ -1042,8 +1282,9 @@ def maak():
           'spaanplaat (IKEA). IKEA geeft 50 kg verdeeld en 15 kg geconcentreerd als grens. De dikte van de huiden staat nergens: '
           '**AANNAME 3 mm**, na te meten in de eerste uitsparing. Het blad ligt op twee ALEX-kasten: de vrije overspanning in het '
           'midden is 680 mm, en precies daar zitten de gaten.', '',
-          '**Wat er weg is (ongunstigste doorsnede, x = -60 mm):** bovenhuid 212 mm (de uitsparing van de module), onderhuid 212 + 102 '
-          '(de voedingsbox) + 38 mm (de sleuf naar de module, 29 x 7, loopt over 38 mm van voor naar achter door die doorsnede). Van '
+          '**Wat er weg is (ongunstigste doorsnede, x = 0):** bovenhuid 212 mm (de uitsparing van de module), onderhuid 212 + 102 '
+          '(de voedingsbox). Sinds 7.4 is er geen sleuf meer naar de module (de M8-kabel hangt vrij): de strook van 38 mm tussen de '
+          'uitsparing en de box is heel (B-6); poort M1 zet daar toch een meetklok. Van '
           f'600 mm blijft {f0((BLAD["b"] - GAT["boven"]) * 1000)} mm bovenhuid en {f0((BLAD["b"] - GAT["onder"]) * 1000)} mm onderhuid.', '',
           '**Rekenmodel:** vrij opgelegde sandwichbalk over 680 mm met een last in het midden, de verzwakte doorsnede over de hele '
           'lengte (ongunstig). Buiging door de huiden (E vezelplaat 2500 tot 4000 MPa, AANNAME), afschuiving door de papieren kern '
@@ -1073,17 +1314,17 @@ def maak():
           'werken van 10 tot 50 mm, de schroeven van de box houden zonder meer. Duurder en zwaarder.', '']
 
     # ---- 7 morsen
-    n_plooi = 195 / FILTERS['CU']['diepte'] * 0 + 195 / 4.2
+    n_plooi = 195 / 4.2
     media = n_plooi * 2 * 0.028 * 0.145
     L += ['## 7. Morsen (begrensd scenario)', '',
-          'Scenario: een fles nagellak of remover van 15 ml valt om op het rooster. Een deel loopt door de gaten (ongeveer 25 % '
-          'open); in het ongunstigste geval alles. De RVS-plaat en het siliconen van de lip kunnen ertegen; PETG niet tegen '
+          'Scenario: een fles nagellak of remover van 15 ml valt om op het rooster. Een deel loopt door de gaten (' f'{f0(100 * LASER["open_cm2"] / (22.2 * 22.2))} % '
+          'open, laserrapport); in het ongunstigste geval alles. De RVS-plaat en het siliconen van de lip kunnen ertegen; PETG niet tegen '
           f'aceton (docs/Materiaalstaat.md). Het filter heeft ongeveer {f2(media)} m² vlies ({f0(n_plooi)} plooien van 28 mm). '
           f'AANNAME: vlies houdt 100 tot 300 g vloeistof per m² vast, dus {f0(media * 100)} tot {f0(media * 300)} ml: **15 ml blijft in het filter**. '
           'Wat er toch door komt, valt in het oog op de waaier en wordt tegen de wand van de kuip geslingerd en door de lamellen en '
           'ringsleuven naar buiten (onder het blad; de voedingsbox staat erachter, buiten de uitblaas).', '',
           'Daarom na morsen: schakelaar UIT, stilstand, filter in een zak (weg), en dan de inspectie met afkeurgrenzen uit '
-          '`onderhoud.mjs` ("Na morsen"). Voor de waaier: schakelaar UIT, de M8-stekker onder het blad los, de vier klauwen los en '
+          '`onderhoud.mjs` ("Na morsen"). Voor de waaier: schakelaar UIT, de M8-stekker onder het blad los (de console onderaan de romp) en het slangetje, de vier klauwen los en '
           'de module er van boven uit; dan de kuip met de ventilator los (4 x M3). Niets staat dan onder spanning of draait.', '']
     (HIER / 'Berekeningen.md').write_text('\n'.join(L) + '\n', encoding='utf-8')
     print('\n'.join(L))

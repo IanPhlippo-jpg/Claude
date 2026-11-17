@@ -353,6 +353,56 @@
     -1
    ],
    "kind": "face"
+  },
+  "console": {
+   "id": "console",
+   "name": "Plane onderkant console",
+   "origin": [
+    0,
+    -70,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "consolegat": {
+   "id": "consolegat",
+   "name": "Plane bovenkant console",
+   "origin": [
+    0,
+    -67,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
   }
  },
  "variables": {},
@@ -3470,10 +3520,10 @@
     }
    },
    "scalars": {
-    "s15s1": 1.25,
-    "s15s4": 1.25,
-    "s15s7": 1.25,
-    "s15s10": 1.25
+    "s15s1": 1.6,
+    "s15s4": 1.6,
+    "s15s7": 1.6,
+    "s15s10": 1.6
    },
    "entities": {
     "s15e2": {
@@ -3518,24 +3568,34 @@
   "s16": {
    "id": "s16",
    "name": "Sketch16",
-   "plane": "achterwand",
+   "plane": "onder",
    "points": {
     "origin_s16": {
      "x": 0,
      "y": 0
     },
     "s16p0": {
-     "x": -60,
-     "y": 62
+     "x": 98.25,
+     "y": 0
     },
     "s16p3": {
-     "x": -78,
-     "y": 62
+     "x": -98.25,
+     "y": 0
+    },
+    "s16p6": {
+     "x": 0,
+     "y": 98.25
+    },
+    "s16p9": {
+     "x": 0,
+     "y": -98.25
     }
    },
    "scalars": {
-    "s16s1": 5.1,
-    "s16s4": 3
+    "s16s1": 2,
+    "s16s4": 2,
+    "s16s7": 2,
+    "s16s10": 2
    },
    "entities": {
     "s16e2": {
@@ -3551,15 +3611,242 @@
      "kind": "circle",
      "center": "s16p3",
      "r": "s16s4"
+    },
+    "s16e8": {
+     "id": "s16e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s16p6",
+     "r": "s16s7"
+    },
+    "s16e11": {
+     "id": "s16e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s16p9",
+     "r": "s16s10"
     }
    },
    "constraints": {},
    "entityOrder": [
     "s16e2",
-    "s16e5"
+    "s16e5",
+    "s16e8",
+    "s16e11"
    ],
    "constraintOrder": [],
    "origin": "origin_s16"
+  },
+  "s17": {
+   "id": "s17",
+   "name": "Sketch17",
+   "plane": "achterwand",
+   "points": {
+    "origin_s17": {
+     "x": 0,
+     "y": 0
+    },
+    "s17p0": {
+     "x": -78,
+     "y": 62
+    }
+   },
+   "scalars": {
+    "s17s1": 3
+   },
+   "entities": {
+    "s17e2": {
+     "id": "s17e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s17p0",
+     "r": "s17s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s17e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s17"
+  },
+  "s18": {
+   "id": "s18",
+   "name": "Sketch18",
+   "plane": "console",
+   "points": {
+    "origin_s18": {
+     "x": 0,
+     "y": 0
+    },
+    "s18p0": {
+     "x": -69,
+     "y": 82
+    },
+    "s18p1": {
+     "x": -51,
+     "y": 82
+    },
+    "s18p2": {
+     "x": -50,
+     "y": 83
+    },
+    "s18p3": {
+     "x": -50,
+     "y": 100.5
+    },
+    "s18p4": {
+     "x": -51,
+     "y": 101.5
+    },
+    "s18p5": {
+     "x": -69,
+     "y": 101.5
+    },
+    "s18p6": {
+     "x": -70,
+     "y": 100.5
+    },
+    "s18p7": {
+     "x": -70,
+     "y": 83
+    },
+    "s18p8": {
+     "x": -51,
+     "y": 83
+    },
+    "s18p9": {
+     "x": -51,
+     "y": 100.5
+    },
+    "s18p10": {
+     "x": -69,
+     "y": 100.5
+    },
+    "s18p11": {
+     "x": -69,
+     "y": 83
+    }
+   },
+   "scalars": {
+    "s18s12": 1
+   },
+   "entities": {
+    "s18e13": {
+     "id": "s18e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p0",
+     "p2": "s18p1"
+    },
+    "s18e14": {
+     "id": "s18e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s18p8",
+     "start": "s18p1",
+     "end": "s18p2",
+     "r": "s18s12",
+     "ccw": true
+    },
+    "s18e15": {
+     "id": "s18e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p2",
+     "p2": "s18p3"
+    },
+    "s18e16": {
+     "id": "s18e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s18p9",
+     "start": "s18p3",
+     "end": "s18p4",
+     "r": "s18s12",
+     "ccw": true
+    },
+    "s18e17": {
+     "id": "s18e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p4",
+     "p2": "s18p5"
+    },
+    "s18e18": {
+     "id": "s18e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s18p10",
+     "start": "s18p5",
+     "end": "s18p6",
+     "r": "s18s12",
+     "ccw": true
+    },
+    "s18e19": {
+     "id": "s18e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p6",
+     "p2": "s18p7"
+    },
+    "s18e20": {
+     "id": "s18e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s18p11",
+     "start": "s18p7",
+     "end": "s18p0",
+     "r": "s18s12",
+     "ccw": true
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s18e13",
+    "s18e14",
+    "s18e15",
+    "s18e16",
+    "s18e17",
+    "s18e18",
+    "s18e19",
+    "s18e20"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s18"
+  },
+  "s19": {
+   "id": "s19",
+   "name": "Sketch19",
+   "plane": "consolegat",
+   "points": {
+    "origin_s19": {
+     "x": 0,
+     "y": 0
+    },
+    "s19p0": {
+     "x": -60,
+     "y": 91.5
+    }
+   },
+   "scalars": {
+    "s19s1": 5.1
+   },
+   "entities": {
+    "s19e2": {
+     "id": "s19e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s19p0",
+     "r": "s19s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s19e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s19"
   }
  },
  "features": [
@@ -3843,12 +4130,66 @@
   {
    "id": "f32",
    "type": "extrude",
-   "name": "Gaten achterwand",
+   "name": "Gaten inzetmoeren",
    "sketchId": "s16",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
+   "depth": 7,
+   "reverse": true
+  },
+  {
+   "id": "ks17",
+   "type": "sketch",
+   "name": "Sketch17",
+   "sketchId": "s17",
+   "suppressed": false
+  },
+  {
+   "id": "f34",
+   "type": "extrude",
+   "name": "Gat slangetje",
+   "sketchId": "s17",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
    "depth": 5,
+   "reverse": true
+  },
+  {
+   "id": "ks18",
+   "type": "sketch",
+   "name": "Sketch18",
+   "sketchId": "s18",
+   "suppressed": false
+  },
+  {
+   "id": "f36",
+   "type": "extrude",
+   "name": "Console M8",
+   "sketchId": "s18",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3,
+   "reverse": false
+  },
+  {
+   "id": "ks19",
+   "type": "sketch",
+   "name": "Sketch19",
+   "sketchId": "s19",
+   "suppressed": false
+  },
+  {
+   "id": "f38",
+   "type": "extrude",
+   "name": "Gat M8",
+   "sketchId": "s19",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 4,
    "reverse": true
   }
  ],

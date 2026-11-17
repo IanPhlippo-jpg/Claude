@@ -1,4 +1,7 @@
-# Afzuiging: goedkoper maken (versie 7.2, totaal nu € 601,78)
+# Afzuiging: goedkoper maken
+
+Revisie: versie 7.4 (2026-11-17), zie `revisie.mjs`. De actuele prijzen en het totaal staan in de README en in
+`tekeningen/prijslijst.csv`; de bedragen hieronder zijn ongeveer en komen nog uit 7.2 (totaal toen € 601,78).
 
 Twee lijsten. Lijst 1 kan zonder de veiligheid te raken; elk punt heeft wel een nadeel. Lijst 2 is waar je **niet** op
 bespaart: daar hangt de veiligheid van af. Prijzen incl. btw, ongeveer; nog niets is aangepast in het model.
@@ -7,7 +10,7 @@ bespaart: daar hangt de veiligheid van af. Prijzen incl. btw, ongeveer; nog niet
 
 | # | Wat | Nu | Goedkoper | Besparing | Nadeel / voorwaarde |
 |---|---|---|---|---|---|
-| 1 | M8-connectoren binder 718 (bus, stekker en kabel) | € 38 | GX12 4-polig (luchtvaartstekker) met 4-aderige kabel, type met opgegeven 5 A per contact | ± € 30 | minder dicht (IP); alleen in- of uitpluggen met de schakelaar uit; gaten in box en romp aanpassen (Ø12) |
+| 1 | M8-connectoren binder 718 (bus, stekker en kabel) | € 38 | GX12 4-polig (luchtvaartstekker) met 4-aderige kabel, type met opgegeven 5 A per contact | ± € 30 | minder dicht (IP); alleen in- of uitpluggen met de schakelaar uit; gaten in de linkerwand van de box en in de console van de romp aanpassen (Ø12) |
 | 2 | Drukmeter SDP810 met slangetje en messingbuisjes | € 36 | weglaten: "filter vol" bepalen uit het toerental van de ventilator (bij een vol filter draait een radiale ventilator sneller bij dezelfde stand); stilstand blijft bewaakt via de tacho | ± € 36 | **afgeraden sinds 7.1:** dan vallen ook "filter ontbreekt of sluit niet af" en de vervangmelding per stand weg (het onderhoudseindpunt van het rekenblad); alleen een trend uit het toerental |
 | 3 | Interieurfilter MANN CU 20 013 (2 stuks) | € 28 | hetzelfde formaat van Purflux AH495 of Denso DCF585P (± € 6 tot € 9) | ± € 10 | merkfilter blijven nemen: naamloze interieurfilters vangen in proeven duidelijk minder fijn stof |
 | 4 | USB-C-kabel met haakse stekkers | € 9 | gewone rechte USB-C-kabel | ± € 5 | steekt verder uit onder het blad |
@@ -26,8 +29,9 @@ De MDF-mallen kun je weglaten als je een stijve mal zelf zaagt (multiplex 12 mm,
 
 - **Echte print (PCB)** in plaats van de gaatjesprint: minder soldeerwerk en fouten, een paar euro per stuk bij een
   printfabrikant, maar een ontwerp in KiCad (niet gemaakt in 7.2) en een minimumbestelling.
-- **GX12 in plaats van M8** (lijst 1, punt 1): de M8-bus zit nu buiten de luchtweg (onder de instroomplaat), dus de
-  dichtheid (IP) van de connector speelt geen rol meer voor de luchtdichtheid.
+- **GX12 in plaats van M8** (lijst 1, punt 1): de M8-bus zit buiten de luchtweg (7.4: verticaal naar onder in een
+  console onderaan de romp), dus de dichtheid (IP) van de connector speelt geen rol voor de luchtdichtheid. Een GX12
+  moet dan wel binnen de omtrek van 210 x 210 blijven, zodat de module door de uitsparing zakt.
 
 ## Lijst 2: hier niet op besparen (veiligheid)
 
@@ -39,9 +43,9 @@ De MDF-mallen kun je weglaten als je een stijve mal zelf zaagt (multiplex 12 mm,
 | Ventilator zonder gegevensblad (AliExpress) | Onbekende blokkeerbeveiliging (een vastgelopen motor kan heet worden), onbekend debiet en geluid. |
 | PETG voor de voedingsbox | PLA wordt zacht rond 55–60 °C; in de box zit de adapter (tot 44 °C in het ongunstigste geval, rekenblad hoofdstuk 5). |
 | Draaddikte | In de box 0,5 mm² voor 24 V en M naar de M8-stekker; de M8-kabel heeft 4 x 0,25 mm² (2,35 A, zie Berekeningen.md); niet dunner. |
-| Ompolingsdiode -R13, RC op de tacho, rubberbuffers (± € 7) | -R13 beschermt de print als de ingekorte DC-kabel verkeerd om zit; het RC-filter houdt stoorpulsen van de PWM uit de toerentalmeting (anders valse "toerental wijkt af"); de buffers houden het motorgeluid uit het blad. |
+| Ompolingsdiode -R13, RC en klem op de tacho | -R13 beschermt de print als de ingekorte DC-kabel verkeerd om zit (de adapter gaat dan in hiccup); het RC-filter houdt stoorpulsen van de PWM uit de toerentalmeting (anders valse "toerental wijkt af"); de klem (7.4) beschermt de ingang van de ESP32-C3 als er 24 V op de tachodraad komt. De rubberbuffers van 7.2 vervallen in 7.4 (de ventilator staat star). |
 | Persbouten in de RVS-plaat (± € 6) | Zonder schuift de plaat onder een arm weg van het frame en ligt het filter open. |
 | Toerentalbewaking (tacho) | Meldt een stilstaande, geblokkeerde of afgeremde ventilator (meer dan 3 % naast het doel); zonder geldig toerental geen filteroordeel. |
-| Schakelaar -Q2 en de elco's -C1/-C2 op 50 V (± € 2,50) | -Q2 maakt de ventilator spanningsloos als de besturing wegvalt; -C2 vangt de inschakelpiek aan de regelaar op (Pololu: minstens 33 µF boven 20 V). |
+| Schakelaar -Q2 en de elco -C2 op 50 V | -Q2 maakt de ventilator spanningsloos als de besturing wegvalt; -C2 vangt de inschakelpiek aan de regelaar op (Pololu: minstens 33 µF boven 20 V). -C1 is in 7.4 geschrapt (laadpiek over de schakelaar; de ventilator heeft eigen buffers). |
 | Afdichtlip (siliconenrubber, € 12) | Zonder lip kan er lucht met stof langs het filter naar de ventilator en terug in de salon; de drukmeter ziet een kleine kier niet. |
 | Filter | Een ander merk van hetzelfde formaat mag (lijst 1, punt 3), maar nooit zonder filter en nooit een naamloos filter zonder merk: dan komt vijlsel in de ventilator of fijn stof terug in de salon. |
