@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -41,7 +42,7 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 const v0 = await volume();
 // pick the cylindrical face, then Wrap
 await page.evaluate(() => {
@@ -58,7 +59,7 @@ await page.locator('.k-pm-host input.k-num').first().fill('2');
 await page.keyboard.press('Tab');
 await page.waitForTimeout(200);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const v1 = await volume();
 const add = (10 / 20) * ((22 * 22 - 20 * 20) / 2) * 10;
 let st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { names: s.doc.features.map((f) => f.name), errors: s.rebuild.errors }; });
@@ -70,10 +71,10 @@ await page.waitForTimeout(400);
 await shot('wr1-emboss');
 // Deboss: edit the feature
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.name === 'Wrap1'); s.editFeature(f.id); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="wrap-deboss"]');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const v2 = await volume();
 const cut = (10 / 20) * ((20 * 20 - 18 * 18) / 2) * 10;
 check('Deboss cuts the patch into the cylinder', Math.abs(v0 - v2 - cut) / cut < 0.06, `${(v0 - v2).toFixed(0)} vs ${cut.toFixed(0)}`);
@@ -82,10 +83,10 @@ await page.waitForTimeout(300);
 await shot('wr2-deboss');
 // Scribe: split lines only
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.name === 'Wrap1'); s.editFeature(f.id); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="wrap-scribe"]');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const split = await page.evaluate(() => (window.__phlippoStore.getState().rebuild.curves ?? []).filter((c) => c.name === 'Split Line').length);
 check('Scribe draws the split line and keeps the volume', split === 1 && Math.abs((await volume()) - v0) < 1, String(split));
 

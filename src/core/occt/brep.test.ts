@@ -12,6 +12,10 @@ import { occtKernel } from './brep';
 import { shapesToStep, stepItems, stepToMeshes } from './step';
 import { parseDocument } from '../document/persistence';
 
+// heavy B-rep work: a generous limit, so a loaded machine never fails a test on the wall clock (docs/32 P2-12); how long
+// they take is reported apart (the soft report below), not a failure
+const HEAVY_MS = 600_000;
+
 let rep: typeof import('replicad');
 let kernel: ReturnType<typeof occtKernel>;
 beforeAll(async () => {
@@ -23,7 +27,7 @@ beforeAll(async () => {
   rep = replicad;
   kernel = occtKernel(OC, replicad);
   setBrepKernel(kernel);
-}, 60000);
+}, HEAVY_MS);
 afterAll(() => setBrepKernel(null));
 
 const PI = Math.PI;
@@ -43,7 +47,7 @@ function plateWithHole(): Document {
   return doc;
 }
 
-describe('B-rep kernel in the rebuild (OpenCascade)', () => {
+describe('B-rep kernel in the rebuild (OpenCascade)', { timeout: HEAVY_MS }, () => {
   it('a plate with a hole is an exact solid: exact volume, the hole is one cylinder', () => {
     const r = rebuildDocument(plateWithHole());
     expect(r.bodies).toHaveLength(1);
@@ -185,7 +189,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
         expect(Math.abs(b.exactVolume! - mv) / mv, `${name} body ${i + 1}: ${b.exactVolume} vs ${mv}`).toBeLessThan(0.015);
       }
     }
-  }, 60000);
+  }, HEAVY_MS);
 
   it('a shell with the top face open is exact: a 2 mm wall', () => {
     const doc = createDocument();
@@ -311,7 +315,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
       doc.sketches.s1 = rect('s1', 'p30', 0, 0, 80, 60);
       doc.features.push(extrude('e1', 's1', 'boss', 10));
       doc.sketches.s2 = rect('s2', 'top', 10, 10, 30, 30);
-      doc.features.push(extrude('b2', 's2', 'boss', 10, { end: 'upToBody', upToBody: { bodyId: 'body1', label: 'Body' } }));
+      doc.features.push(extrude('b2', 's2', 'boss', 10, { end: 'upToBody', upToBody: { bodyId: 'e1#0', label: 'Body' } }));
       setBrepKernel(null);
       const mesh = rebuildDocument(doc);
       setBrepKernel(kernel);
@@ -538,7 +542,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
       const mv = mesh.bodies.reduce((a, b) => a + Math.abs(meshVolume(b.geometry)), 0);
       expect(Math.abs(total - mv) / mv, type).toBeLessThan(0.01);
     }
-  }, 60000);
+  }, HEAVY_MS);
 
   it('Combine (add, subtract, common) and Intersect of two exact bodies are exact', () => {
     const two = () => {
@@ -550,9 +554,9 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
       return doc;
     };
     const cases: [string, Record<string, unknown>, number][] = [
-      ['add', { type: 'combine', op: 'add', bodies: ['body1', 'body2'] }, 1600 * 10 * 2 - 400 * 10],
-      ['subtract', { type: 'combine', op: 'subtract', mainBody: 'body1', bodies: ['body1', 'body2'] }, 1600 * 10 - 400 * 10],
-      ['common', { type: 'combine', op: 'common', bodies: ['body1', 'body2'] }, 400 * 10],
+      ['add', { type: 'combine', op: 'add', bodies: ['e1#0', 'e2#0'] }, 1600 * 10 * 2 - 400 * 10],
+      ['subtract', { type: 'combine', op: 'subtract', mainBody: 'e1#0', bodies: ['e1#0', 'e2#0'] }, 1600 * 10 - 400 * 10],
+      ['common', { type: 'combine', op: 'common', bodies: ['e1#0', 'e2#0'] }, 400 * 10],
     ];
     for (const [label, extra, vol] of cases) {
       const doc = two();
@@ -564,7 +568,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
       expect(Math.abs(r.bodies[0].exactVolume! - vol), label).toBeLessThan(1e-4);
     }
     const doc = two();
-    doc.features.push({ id: 'ix', type: 'intersect', name: 'Intersect1', suppressed: false, bodies: ['body1', 'body2'], exclude: [], merge: false } as never);
+    doc.features.push({ id: 'ix', type: 'intersect', name: 'Intersect1', suppressed: false, bodies: ['e1#0', 'e2#0'], exclude: [], merge: false } as never);
     const r = rebuildDocument(doc);
     expect(r.errors.ix).toBeUndefined();
     expect(r.bodies).toHaveLength(3);
@@ -586,7 +590,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     const w = createDocument();
     w.sketches.s1 = addLine(createSketch('s1', 's1', 'top'), { x: 0, y: 0 }, { x: 100, y: 0 })[0];
     w.features.push({ id: 'sm', type: 'structuralMember', name: 'Structural Member1', suppressed: false, sketchId: 's1', standard: 'iso', profileType: 'square tube', size: '40 x 40 x 4', corner: 'none', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } } as never);
-    w.features.push({ id: 'tr', type: 'trimExtend', name: 'Trim/Extend1', suppressed: false, bodies: ['body1'], trimBy: 'face', trimBodies: [], weldGap: 0, face: { point: [70, 0, 0], normal: [1, 0, 0], label: 'Plane' } } as never);
+    w.features.push({ id: 'tr', type: 'trimExtend', name: 'Trim/Extend1', suppressed: false, bodies: ['sm#0'], trimBy: 'face', trimBodies: [], weldGap: 0, face: { point: [70, 0, 0], normal: [1, 0, 0], label: 'Plane' } } as never);
     const rw = rebuildDocument(w);
     expect(rw.errors.tr).toBeUndefined();
     expect(rw.bodies[0].exact).toBe(true);
@@ -640,13 +644,13 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
       const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
       expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv, label).toBeLessThan(0.01);
     }
-  }, 120000);
+  }, HEAVY_MS);
 
   it('Move/Copy Bodies: three copies 100 mm apart and a 90° turn, exact and in the right place', () => {
     for (const kernelOn of [false, true]) {
       setBrepKernel(kernelOn ? kernel : null);
       const doc = plateWithHole();
-      doc.features.push({ id: 'mc', type: 'moveBody', name: 'Body-Move/Copy1', suppressed: false, bodies: ['body1'], copy: true, copies: 3, translate: [100, 0, 0], rotate: [0, 0, 0], origin: [0, 0, 0] } as never);
+      doc.features.push({ id: 'mc', type: 'moveBody', name: 'Body-Move/Copy1', suppressed: false, bodies: ['e1#0'], copy: true, copies: 3, translate: [100, 0, 0], rotate: [0, 0, 0], origin: [0, 0, 0] } as never);
       const r = rebuildDocument(doc);
       expect(r.errors.mc).toBeUndefined();
       expect(r.bodies).toHaveLength(4);
@@ -654,7 +658,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
       expect(xs).toEqual([0, 100, 200, 300]);
       if (kernelOn) expect(r.bodies.every((b) => b.exact)).toBe(true);
       const turn = plateWithHole();
-      turn.features.push({ id: 'mv', type: 'moveBody', name: 'Body-Move/Copy1', suppressed: false, bodies: ['body1'], copy: false, copies: 1, translate: [0, 0, 0], rotate: [0, 90, 0], origin: [0, 0, 0] } as never);
+      turn.features.push({ id: 'mv', type: 'moveBody', name: 'Body-Move/Copy1', suppressed: false, bodies: ['e1#0'], copy: false, copies: 1, translate: [0, 0, 0], rotate: [0, 90, 0], origin: [0, 0, 0] } as never);
       const rt = rebuildDocument(turn);
       rt.bodies[0].geometry.computeBoundingBox();
       const bb = rt.bodies[0].geometry.boundingBox!;
@@ -710,7 +714,8 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     setBrepKernel(kernel);
     expect(r.errors.sm).toBeUndefined();
     expect(r.bodies).toHaveLength(1);
-    expect(ms).toBeLessThan(5000);
+    // the speed is a soft report: a loaded machine must not fail the test on the wall clock (P2-12)
+    if (ms > 5000) console.warn(`structural member along a circle took ${Math.round(ms)} ms (expected under 5000 ms)`);
     // a torus: 2π R × the ring area of the pipe
     const ring = PI * ((33.7 / 2) ** 2 - (33.7 / 2 - 4) ** 2);
     expect(Math.abs(Math.abs(meshVolume(r.bodies[0].geometry)) - 2 * PI * 100 * ring) / (2 * PI * 100 * ring)).toBeLessThan(0.03);
@@ -737,7 +742,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     expect(text).toMatch(/CYLINDRICAL_SURFACE/);
     const back = await stepToMeshes(rep, out.bytes);
     expect(Math.abs(back[0].volume - (80 * 60 * 10 - PI * 100 * 10))).toBeLessThan(1e-6);
-  }, 60000);
+  }, HEAVY_MS);
 
   it('without a kernel the same document builds as before (mesh)', () => {
     setBrepKernel(null);

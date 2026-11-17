@@ -6,8 +6,9 @@ import { execSync } from 'node:child_process';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as { version: string };
 
-/** the built page carries a Content-Security-Policy (the dev server needs inline scripts for React Fast Refresh) */
-const CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"; // frame-ancestors is header-only (the Electron shell sends it as a header)
+/** the built page carries a Content-Security-Policy (the dev server needs inline scripts for React Fast Refresh);
+ * style attributes stay inline (React), <style> and <link> elements only from the app itself (P3-12) */
+const CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; style-src-elem 'self'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"; // frame-ancestors is header-only (the Electron shell sends it as a header)
 const csp = (): Plugin => ({
   name: 'phlippo-csp',
   apply: 'build',
@@ -28,10 +29,9 @@ function buildCommit(): string {
   return 'unknown';
 }
 
-/** de zware modeltests van voorbeelden/ (eigen CI-job) */
-const VOORBEELD_TESTS = ['src/qa/qaAfzuiging.test.ts', 'src/qa/qaBureau.test.ts', 'src/qa/qaTrein.test.ts', 'src/qa/stlAfzuiging.test.ts',
-  'src/qa/overlapBoxAfzuiging.test.ts', 'src/qa/tekeningenAfzuiging.test.ts', 'src/qa/tekeningenTrein.test.ts', 'src/qa/schemaNorm.test.ts', 'src/qa/qaRobotarm.test.ts',
-  'src/qa/qaLastafel.test.ts', 'src/qa/tekeningenLastafel.test.ts', 'src/qa/qaDeuren.test.ts'];
+/** the heavy test groups (example models, libraries): one list in tools/test-groups.json, run by tools/run-tests.mjs */
+const testGroups = JSON.parse(readFileSync(new URL('./tools/test-groups.json', import.meta.url), 'utf-8')) as Record<string, string[] | string>;
+const HEAVY_TESTS = Object.entries(testGroups).filter(([k]) => !k.startsWith('_')).flatMap(([, v]) => v as string[]);
 
 export default defineConfig({
   base: './',
@@ -58,8 +58,12 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
-    // de modeltests van de voorbeelden (afzuiging, bureau, kabeldoos) rekenen minuten: niet in `npm test`, wel verplicht
-    // in hun eigen CI-job (npm run test:voorbeelden, ci.yml job voorbeelden)
-    exclude: process.env.VOORBEELDEN ? [] : VOORBEELD_TESTS,
+    // the model tests of the examples and the library tests take minutes and depend on bibliotheek/ and voorbeelden/:
+    // not in `npm test` (the gate of the CAD core), but required in their own CI jobs (npm run test:voorbeelden and
+    // test:bibliotheek, ci.yml jobs voorbeelden and bibliotheek); VOORBEELDEN=1 lifts the exclusion
+    exclude: process.env.VOORBEELDEN ? [] : HEAVY_TESTS,
+    // a test without a limit of its own gets a generous one: on a loaded runner the default 5 s fails tests that are
+    // slow, not wrong (P2-12); a test that sets its own limit keeps it
+    testTimeout: 120_000,
   },
 });

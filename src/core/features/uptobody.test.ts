@@ -17,7 +17,7 @@ describe('Extrude Up To Body', () => {
     doc.sketches.sk1 = s1;
     doc.sketches.sk2 = s2;
     const cyl: ExtrudeFeature = { id: 'f2', type: 'extrude', name: 'Boss-Extrude1', sketchId: 'sk1', suppressed: false, op: 'boss', end: 'midPlane', depth: 200, reverse: false };
-    const blk: ExtrudeFeature = { id: 'f4', type: 'extrude', name: 'Boss-Extrude2', sketchId: 'sk2', suppressed: false, op: 'boss', end: 'upToBody', depth: 10, reverse: false, upToBody: { bodyId: 'body1', label: 'Boss-Extrude1' } };
+    const blk: ExtrudeFeature = { id: 'f4', type: 'extrude', name: 'Boss-Extrude2', sketchId: 'sk2', suppressed: false, op: 'boss', end: 'upToBody', depth: 10, reverse: false, upToBody: { bodyId: 'f2#0', label: 'Boss-Extrude1' } };
     doc.features = [
       { id: 'f1', type: 'sketch', name: 'Sketch1', sketchId: 'sk1', suppressed: false } as SketchFeature,
       cyl,

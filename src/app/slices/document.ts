@@ -5,10 +5,10 @@
 import { createDocument, type Document, type ImportedFeature } from '../../core/document/types';
 import { autosave, validateDocument } from '../../core/document/persistence';
 import { newId } from '../../core/sketch/model';
-import { loadPrefs } from '../prefs';
+import { documentProperties, setDocumentProperties } from '../prefs';
 import { isAssembly, isDrawing } from '../../core/document/types';
 import type { State, StoreSet, StoreGet, Library } from '../store';
-import { initialSolve, initialRebuild, history, rebuildFor, rebuildNow, whenRebuilt, historyFlags, featureName, solveAll, saveLibraries } from '../store';
+import { initialSolve, initialRebuild, history, rebuildFor, decideRebuild, whenRebuilt, historyFlags, featureName, solveAll, saveLibraries } from '../store';
 import { reorderFeatures } from '../../core/features/reorder';
 import { recoveredName } from '../recovered';
 
@@ -25,6 +25,22 @@ function keepInSession(get: StoreGet, set: StoreSet) {
   set({ sessionParts: [doc, ...sessionParts.filter((p) => p.name !== doc.name)].slice(0, 10) });
 }
 
+/**
+ * Undo / Redo with a Property Panel open (a feature, a mate, a drawing view) applies to that panel: it is cancelled, as
+ * with Escape, and the document history is left alone (QA 0.5.14 advice P2-15). Undo on the document would otherwise
+ * leave the panel showing a feature that is no longer in the tree.
+ */
+function closeOpenPanel(get: StoreGet): boolean {
+  const st = get();
+  if (st.activeSketchId) return false; // in a sketch Undo undoes the sketch steps, as before
+  if (st.featureEdit) st.cancelFeature();
+  else if (st.mateEdit) st.cancelMate();
+  else if (st.drawingEdit) st.cancelDrawingEdit();
+  else return false;
+  st.pushMessage('Undo cancelled the open Property Panel; press Undo again to undo the last change of the document.');
+  return true;
+}
+
 export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, DocumentKeys> => ({
   doc: initialSolve.doc,
   rebuild: initialRebuild,
@@ -39,7 +55,7 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     const n = kind === 'assembly' ? 'Assem1' : kind === 'drawing' ? 'Draw1' : 'Part1';
     // every document has a stable id from the start (autosave and Auto-Recover keep one copy per id, QA F153)
     const doc: Document = { ...createDocument(n, kind), id: newId('doc') };
-    set({ doc, hasDocument: true, solve: {}, rebuild: rebuildFor(doc, null), activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: kind === 'assembly', asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], hoverFace: null, hoverEdge: null, selection: [], selectedConstraint: null, dirty: false, tab: kind === 'assembly' ? 'assembly' : kind === 'drawing' ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, ...historyFlags() });
+    set({ prefs: setDocumentProperties(doc.properties), doc, hasDocument: true, solve: {}, rebuild: rebuildFor(doc, null), activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: kind === 'assembly', asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], hoverFace: null, hoverEdge: null, selection: [], selectedConstraint: null, dirty: false, tab: kind === 'assembly' ? 'assembly' : kind === 'drawing' ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, ...historyFlags() });
     autosave(doc);
   },
   importMesh(source, positions) {
@@ -77,6 +93,8 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     // changes and " (Recovered)" after its name: it is not the saved file (QA F154)
     let doc = source;
     if (!doc?.id || opts?.recovered) doc = { ...doc, id: doc?.id || newId('doc'), ...(opts?.recovered ? { name: recoveredName(doc?.name) } : {}) };
+    // a file only sets Document Properties (known doc.* keys of the right type), never system options (P2-2)
+    if (doc?.properties) doc = { ...doc, properties: documentProperties(doc.properties) };
     // solved and rebuilt before anything changes: a document that cannot be opened leaves the current one (and its autosave) as it is
     let r: ReturnType<typeof solveAll>, rebuild: ReturnType<typeof rebuildFor>;
     try {
@@ -89,7 +107,7 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     }
     if (!opts?.keepHistory) history.clear();
     if (get().doc !== source && get().doc.name !== doc.name) keepInSession(get, set);
-    set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
+    set({ prefs: setDocumentProperties(doc.properties) });
     set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], hoverFace: null, hoverEdge: null, selection: [], selectedConstraint: null, dirty: !!opts?.recovered, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
     autosave(r.doc);
     if (rebuild.pending) whenRebuilt(rebuild, (rb) => { if (Object.keys(rb.errors).length) set({ whatsWrong: true }); });
@@ -119,17 +137,19 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     if (r.features.every((f, i) => f === doc.features[i])) return false;
     // a move that makes a feature fail (a fillet above the body it rounds, a sketch above its face) is refused
     const d = { ...doc, features: r.features };
-    const after = rebuildNow(d, null);
-    const broken = Object.keys(after.errors).filter((k) => !(k in rebuild.errors) && !/^Warning/.test(after.errors[k]));
-    if (broken.length) {
-      const nameOf = (fid: string) => doc.features.find((x) => x.id === fid)?.name ?? fid;
-      get().pushMessage(`${nameOf(id)} cannot be moved there: ${nameOf(broken[0])} would fail (${after.errors[broken[0]]}).`, 'warn');
-      return false;
-    }
-    history.push('Reorder', doc);
-    set({ doc: d, rebuild: after, rollbackIndex: null, dirty: true, ...historyFlags() });
-    autosave(d);
-    return true;
+    // a heavy part decides in the rebuild worker, the window stays free (P2-5c); a stale answer is dropped
+    return decideRebuild(d, null, (after) => {
+      const broken = Object.keys(after.errors).filter((k) => !(k in rebuild.errors) && !/^Warning/.test(after.errors[k]));
+      if (broken.length) {
+        const nameOf = (fid: string) => doc.features.find((x) => x.id === fid)?.name ?? fid;
+        get().pushMessage(`${nameOf(id)} cannot be moved there: ${nameOf(broken[0])} would fail (${after.errors[broken[0]]}).`, 'warn');
+        return false;
+      }
+      history.push('Reorder', doc);
+      set({ doc: d, rebuild: after, rollbackIndex: null, dirty: true, ...historyFlags() });
+      autosave(d);
+      return true;
+    }, () => get().doc === doc);
   },
   renameDocument(name) {
     const { doc } = get();
@@ -162,21 +182,31 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     return lib ? JSON.stringify({ format: 'phlippo-library', version: 1, library: lib }, null, 2) : null;
   },
   undo() {
+    if (closeOpenPanel(get)) return;
     const { doc } = get();
     const e = history.undo(doc);
     if (!e) return;
     const r = solveAll(e.state, {});
     const activeSketchId = get().activeSketchId && r.doc.sketches[get().activeSketchId!] ? get().activeSketchId : null;
-    set({ doc: r.doc, solve: r.solve, rebuild: rebuildFor(r.doc, get().rollbackIndex), activeSketchId, selection: [], selectedConstraint: null, dirty: true, ...historyFlags() });
+    // the rollback bar of the newer state is kept only where it still fits the restored feature list (P2-15)
+    const rb = get().rollbackIndex;
+    const rollbackIndex = rb !== null && rb < r.doc.features.length ? rb : null;
+    const prefs = r.doc.properties !== doc.properties ? { prefs: setDocumentProperties(r.doc.properties) } : {};
+    set({ ...prefs, doc: r.doc, solve: r.solve, rebuild: rebuildFor(r.doc, rollbackIndex), rollbackIndex, activeSketchId, selection: [], selectedConstraint: null, dirty: true, ...historyFlags() });
     autosave(r.doc);
   },
   redo() {
+    if (closeOpenPanel(get)) return;
     const { doc } = get();
     const e = history.redo(doc);
     if (!e) return;
     const r = solveAll(e.state, {});
     const activeSketchId = get().activeSketchId && r.doc.sketches[get().activeSketchId!] ? get().activeSketchId : null;
-    set({ doc: r.doc, solve: r.solve, rebuild: rebuildFor(r.doc, get().rollbackIndex), activeSketchId, selection: [], selectedConstraint: null, dirty: true, ...historyFlags() });
+    // the rollback bar of the newer state is kept only where it still fits the restored feature list (P2-15)
+    const rb = get().rollbackIndex;
+    const rollbackIndex = rb !== null && rb < r.doc.features.length ? rb : null;
+    const prefs = r.doc.properties !== doc.properties ? { prefs: setDocumentProperties(r.doc.properties) } : {};
+    set({ ...prefs, doc: r.doc, solve: r.solve, rebuild: rebuildFor(r.doc, rollbackIndex), rollbackIndex, activeSketchId, selection: [], selectedConstraint: null, dirty: true, ...historyFlags() });
     autosave(r.doc);
   },
 });

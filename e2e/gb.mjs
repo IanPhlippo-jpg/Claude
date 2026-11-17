@@ -4,6 +4,7 @@ import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -39,7 +40,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 
 const rmb = async (id) => { await page.locator(`.k-tree-row[data-id="${id}"]`).first().click({ button: 'right' }); await page.waitForTimeout(200); };
 const menuItem = (label) => menuPath(page, label);
@@ -70,7 +71,7 @@ check('Feature Properties shows name, description, suppressed', (await page.loca
 await page.locator('[data-testid="fp-desc"]').fill('Grondplaat 60 x 40');
 await page.locator('[data-testid="fp-name"]').fill('Grondplaat');
 await page.locator('[data-testid="fp-ok"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 check('Feature Properties renames and stores the description', (await doc()).features.find((f) => f.id === 'e1').name === 'Grondplaat' && (await doc()).featureMeta?.e1?.description === 'Grondplaat 60 x 40');
 // Go To
 await rmb('e2');
@@ -134,7 +135,7 @@ const text = await (await file.createReadStream()).toArray().then((b) => Buffer.
 check('ASCII STL downloads with facets', file.suggestedFilename() === 'Plaat.stl' && text.startsWith('solid Plaat') && text.includes('facet normal'), file.suggestedFilename());
 await page.waitForTimeout(300);
 await S(() => { window.__phlippoStore.setState({ exportFormat: '3mf' }); window.__phlippoStore.getState().setDialog('exportOptions'); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="export-showinfo"]').uncheck();
 const dl2 = page.waitForEvent('download', { timeout: 8000 });
 await page.locator('[data-testid="export-ok"]').click();
@@ -142,7 +143,7 @@ const f2 = await dl2;
 const buf = await (await f2.createReadStream()).toArray().then((b) => Buffer.concat(b));
 check('3MF downloads as a zip package', f2.suggestedFilename() === 'Plaat.3mf' && buf[0] === 0x50 && buf[1] === 0x4b && buf.toString('latin1').includes('3D/3dmodel.model'), f2.suggestedFilename());
 await S(() => { window.__phlippoStore.setState({ exportFormat: 'amf' }); window.__phlippoStore.getState().setDialog('exportOptions'); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="export-showinfo"]').uncheck();
 const dl3 = page.waitForEvent('download', { timeout: 8000 });
 await page.locator('[data-testid="export-ok"]').click();

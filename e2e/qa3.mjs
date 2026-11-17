@@ -7,6 +7,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -65,7 +66,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.waitForTimeout(200);
 check('a solid without sheet metal: Convert to Sheet Metal active, Edge Flange and Normal Cut greyed', !(await disabled('.k-cm-small:has-text("Convert to Sheet Metal")')) && (await disabled('.k-cm-big:has-text("Edge Flange") .k-cm-main')) && (await disabled('.k-cm-small:has-text("Normal Cut")')));
@@ -86,11 +87,11 @@ const fitWorks = await S(async () => {
 });
 await page.mouse.click(1000, 600);
 await page.keyboard.press('f');
-await page.waitForTimeout(700);
+await settle(page);
 const after = await S(() => window.__qa.cam.scale);
 check('without the hooks: F (Zoom to Fit) still fits the model', fitWorks.gone && after < fitWorks.before * 0.6, JSON.stringify({ ...fitWorks, after }));
 await page.click('.k-cm-tab:has-text("Render Tools")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-cm-big:has-text("Final Render") .k-cm-main');
 await page.waitForTimeout(1500);
 check('without the hooks: Final Render makes the image', await S(() => !!window.__qa.store.getState().finalImage));
@@ -103,7 +104,7 @@ check('the hooks come back after a reload (test build)', await S(() => typeof wi
 
 // ---- F61: after a drawing was shown, F fits the part again (not the sheet)
 await S(() => { const K = window.__phlippoKit; window.__phlippoStore.getState().openDocument(K.createDocument('Draw1', 'drawing')); });
-await page.waitForTimeout(500);
+await settle(page);
 await S(() => {
   const K = window.__phlippoKit;
   let sk = K.createSketch('s1', 'Sketch1', 'top');
@@ -113,7 +114,7 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 const s0 = await S(() => { const c = window.__phlippoCamera; c.scale *= 8; c.update?.(); return c.scale; });
 await page.mouse.click(1000, 600);
 await page.keyboard.press('f');
@@ -133,7 +134,7 @@ const r55 = await S(() => {
   const s = window.__phlippoStore.getState();
   return { name: s.doc.name, messages: (s.messages ?? []).slice(-2).map((m) => m.text ?? m) };
 });
-await page.waitForTimeout(400);
+await settle(page);
 check('a damaged assembly and drawing are refused: the part stays open, no crash', r55.name === before55.name && (await page.locator('[data-testid="crash"]').count()) === 0, JSON.stringify(r55));
 check('the autosave of the open part is not replaced by the damaged document', (await S(() => (localStorage.getItem('phlippo.autosave') ?? '').includes('"Kapot"'))) === false);
 
@@ -159,17 +160,17 @@ await S(() => {
   asm.mates = [{ id: 'm1', type: 'distance', name: 'Distance1', refs: [{ componentId: 'c1' }, { componentId: 'c2' }], aligned: false, value: 60 }];
   st.openDocument(asm);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await S(() => window.__phlippoStore.getState().setComponentHidden('c2', true));
 await S(() => window.__phlippoStore.getState().setMateSuppressed('m1', true));
 const asmUndo = await S(() => window.__phlippoStore.getState().canUndo);
 await S(() => window.__phlippoStore.getState().undo());
 check('Suppress mate is undoable', (await S(() => !!window.__phlippoStore.getState().doc.mates[0].suppressed)) === false && asmUndo);
 await S(() => window.__phlippoStore.getState().editComponent('c1'));
-await page.waitForTimeout(500);
+await settle(page);
 check('Edit Component opens the part with its context', await S(() => !!window.__phlippoStore.getState().editContext && window.__phlippoStore.getState().doc.name === 'Schijf'));
 await S(() => window.__phlippoStore.getState().returnToAssembly());
-await page.waitForTimeout(500);
+await settle(page);
 const back = await S(() => { const s = window.__phlippoStore.getState(); return { kind: s.doc.kind, canUndo: s.canUndo, hidden: s.doc.components.find((c) => c.id === 'c2').hidden }; });
 await S(() => window.__phlippoStore.getState().undo()); // the component edit
 await S(() => window.__phlippoStore.getState().undo()); // the hide from before Edit Component
@@ -179,13 +180,13 @@ const inEdit = await S(() => { window.__phlippoStore.getState().editComponent('c
 check('Edit Component again from the assembly', inEdit);
 await page.waitForTimeout(400);
 await S(() => window.__phlippoStore.getState().openDocument(window.__phlippoKit.createDocument('Nieuw')));
-await page.waitForTimeout(300);
+await settle(page);
 const f74 = await S(() => ({ ctx: window.__phlippoStore.getState().editContext === null, name: window.__phlippoStore.getState().doc.name, bar: [...document.querySelectorAll('.k-viewport button')].some((b) => b.textContent === 'Return to Assembly') }));
 check('Open/New during Edit Component ends the edit context (F74)', f74.ctx && f74.name === 'Nieuw' && !f74.bar, JSON.stringify(f74));
 
 // ---- F41: Standard Parts Open asks to save unsaved changes first
 await S(() => { const st = window.__phlippoStore.getState(); st.setPrefs({ ...st.prefs, 'addin.standardParts': true }); window.__phlippoStore.setState({ dirty: true }); st.setTaskPane('library'); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="toolbox-folder"] button:has-text("Open")').click();
 await page.waitForTimeout(300);
 check('Standard Parts Open with unsaved changes asks "Save changes?"', /Save changes to Nieuw\?/.test(await page.locator('[data-testid="ask"]').innerText().catch(skip('qa3.mjs:191', ''))));
@@ -194,7 +195,7 @@ await S(() => window.__phlippoStore.getState().setTaskPane('library'));
 
 // ---- F66 / F18: plane labels in Trimetric do not overlap and a click on "Top Plane" starts the sketch on Top
 await S(() => { window.__phlippoStore.setState({ dirty: false }); window.__phlippoStore.getState().openDocument(window.__phlippoKit.createDocument('Vlakken')); });
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
 await page.waitForTimeout(400);
@@ -223,7 +224,7 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-tree-row:has-text("Sketch1")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
@@ -247,7 +248,7 @@ check('a dropped file never navigates the window', dropped);
 
 // ---- F64: the Tolerance Tree without a scheme says so once, readable
 await S(() => window.__phlippoStore.getState().setManagerTab('autoTolerance'));
-await page.waitForTimeout(300);
+await settle(page);
 const dxText = await page.locator('[data-testid="dx-empty"]').evaluate((el) => el.parentElement.innerText).catch(skip('qa3.mjs:251', ''));
 check('Tolerance Tree without a scheme: no "Auto Dimension Scheme (n …)" next to "No … scheme"', /No tolerance scheme yet/.test(dxText) && !/Auto Dimension Scheme \(\d/.test(dxText), dxText.slice(0, 160));
 const wraps = await page.locator('[data-testid="dx-empty"]').evaluate((el) => el.scrollWidth <= el.clientWidth + 1);

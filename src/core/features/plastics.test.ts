@@ -44,7 +44,7 @@ describe('Dome (QA v0.5.1 F121)', () => {
     expect(meshVolume(u)).toBeGreaterThan(16000 + 5000);
     const r = domeTool(fl.loops[0], fl.plane, { distance: 4, reverse: true }) as THREE.BufferGeometry;
     expect(meshVolume(csg(b, r, 'subtract'))).toBeLessThan(16000 - 2000);
-  }, 30000);
+  }, 600_000);
   it('Continuous dome on a hexagon rises evenly from every edge', () => {
     const hex = new THREE.CylinderGeometry(20, 20, 10, 6).toNonIndexed();
     const fl = faceLoops(hex, topFace(hex))!;

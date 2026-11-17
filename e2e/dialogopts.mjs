@@ -5,6 +5,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -24,11 +25,11 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const part = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk.kcad', 'utf8')); delete part.format;
 await S((d) => window.__phlippoStore.getState().openDocument(d), part);
-await page.waitForTimeout(1500);
+await settle(page);
 
 // ---- Mass Properties
 await S(() => window.__phlippoStore.getState().setDialog('mass'));
-await page.waitForTimeout(400);
+await settle(page);
 const rep0 = await page.locator('.k-mass-report').innerText();
 await page.click('[data-testid="mass-options"]');
 await page.click('[data-testid="mass-custom"]');
@@ -50,7 +51,7 @@ await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('x',
 
 // ---- Check: selected items
 await S(() => window.__phlippoStore.getState().setDialog('check'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="check-selected"]');
 await page.waitForTimeout(300);
 check('Check ▸ Selected items with nothing selected checks no body', /Bodies checked: 0/.test(await page.locator('[data-testid="check-dialog"]').innerText()));
@@ -58,7 +59,7 @@ await S(() => window.__phlippoStore.getState().setDialog(null));
 
 // ---- Edit Scene
 await S(() => { const s = window.__phlippoStore.getState(); s.setSceneEdit(true); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.selectOption('[data-testid="scene-env"]', 'courtyard');
 // floor reflections are on by default; the click turns them off
 check('Floor reflections are on by default', await page.locator('[data-testid="scene-reflect"]').isChecked());
@@ -73,7 +74,7 @@ await S(() => window.__phlippoStore.getState().setSceneEdit(false));
 
 // ---- Material: custom library
 await S(() => window.__phlippoStore.getState().setDialog('material'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.fill('.k-material-search input', 'AISI 1020');
 await page.locator('.k-material-item').first().click();
 await page.click('[data-testid="mat-copy"]');
@@ -91,29 +92,29 @@ await S(() => window.__phlippoStore.getState().setDialog(null));
 
 // ---- Plane: Mid Plane between Top and an offset plane, Flip normal
 await S(() => window.__phlippoStore.getState().startPlane());
-await page.waitForTimeout(200);
+await settle(page);
 await S(() => window.__phlippoStore.getState().updatePlaneDraft({ ref: 'top', mode: 'offset', distance: 40 }));
 await S(() => window.__phlippoStore.getState().commitPlane());
-await page.waitForTimeout(200);
+await settle(page);
 const p1 = await S(() => Object.values(window.__phlippoStore.getState().doc.planes).find((p) => p.kind === 'reference'));
 await S(() => window.__phlippoStore.getState().startPlane());
 await S((id) => window.__phlippoStore.getState().updatePlaneDraft({ ref: 'top', mode: 'mid', ref2: id, flipNormal: true }), p1.id);
 await S(() => window.__phlippoStore.getState().commitPlane());
-await page.waitForTimeout(200);
+await settle(page);
 const planes = await S(() => Object.values(window.__phlippoStore.getState().doc.planes).filter((p) => p.kind === 'reference'));
 const mid = planes.find((p) => p.def?.mode === 'mid');
 check('Mid Plane halfway (y = 20), normal flipped', mid && Math.abs(mid.origin[1] - 20) < 1e-6 && mid.n[1] === -1, JSON.stringify(mid && [mid.origin, mid.n]));
 
 // ---- Configuration: BOM name and colour
 await S(() => window.__phlippoStore.getState().startAddConfiguration());
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-section-title:has-text("Bill of Materials Options")');
 await page.selectOption('[data-testid="cfg-bom-mode"]', 'configuration');
 await page.click('.k-section-title:has-text("Advanced Options")');
 await page.click('[data-testid="cfg-color-on"]');
 await S(() => window.__phlippoStore.getState().updateConfigDraft({ name: 'Long' }));
 await S(() => window.__phlippoStore.getState().commitConfiguration());
-await page.waitForTimeout(400);
+await settle(page);
 const cfgs = await S(() => window.__phlippoStore.getState().doc.configurations);
 const newCfg = cfgs[cfgs.length - 1];
 check('Configuration with BOM name and own colour', newCfg.bomName === 'configuration' && !!newCfg.color, JSON.stringify(newCfg));
@@ -121,17 +122,17 @@ await page.screenshot({ path: `${OUT}/dlg-config-color.png` });
 
 // ---- Sensor: dimension with alert
 await S(() => window.__phlippoStore.getState().setSensorEdit({ kind: 'mass' }));
-await page.waitForTimeout(200);
+await settle(page);
 await page.selectOption('[data-testid="sensor-type"]', 'dimension');
 await page.click('[data-testid="sensor-pm"] .k-section-title:has-text("Alert") .k-section-check');
 await page.click('[data-testid="sensor-ok"]');
-await page.waitForTimeout(300);
+await settle(page);
 const sensors = await S(() => window.__phlippoStore.getState().doc.sensors);
 check('Dimension sensor with alert', sensors?.length === 1 && sensors[0].kind === 'dimension' && !!sensors[0].dim && !!sensors[0].alert, JSON.stringify(sensors));
 
 // ---- Equations: radians
 await S(() => window.__phlippoStore.getState().setDialog('equations'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.selectOption('[data-testid="eq-angle"]', 'rad');
 await page.click('.k-dialog button:has-text("OK")');
 await page.waitForTimeout(300);
@@ -139,7 +140,7 @@ check('Equations angle units radians', (await S(() => window.__phlippoStore.getS
 
 // ---- Appearances pane: back / forward, new folder
 await S(() => window.__phlippoStore.getState().setTaskPane?.('appearances'));
-await page.waitForTimeout(400);
+await settle(page);
 if ((await page.locator('[data-testid="ap-newfolder"]').count()) === 1) {
   await page.click('.k-ap-row:has-text("Chrome")');
   await page.click('[data-testid="ap-back"]');
@@ -152,7 +153,7 @@ if ((await page.locator('[data-testid="ap-newfolder"]').count()) === 1) {
 
 // ---- Colour scheme: Green changes the selection colour token
 await S(() => { const s = window.__phlippoStore.getState(); s.setPrefs({ ...s.prefs, 'colors.scheme': 'Green' }); });
-await page.waitForTimeout(200);
+await settle(page);
 const tok = await S(() => getComputedStyle(document.documentElement).getPropertyValue('--sk-selected').trim());
 check('Green scheme sets the selection colour', tok.toLowerCase() === '#2f9e44', tok);
 await S(() => { const s = window.__phlippoStore.getState(); s.setPrefs({ ...s.prefs, 'colors.scheme': 'Blue' }); });

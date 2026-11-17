@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -42,7 +42,11 @@ jobs:
       # no program-specific names in the visible text and no wording that names the reference program (F50, F92)
       - id: text
         continue-on-error: true
-        run: node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs
+        run: node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs && node tools/line-length.cjs
+      # the production dependencies have no known vulnerability of high severity or worse (P3-10)
+      - id: audit
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
       # the release build (no test hooks)
       - id: build
         continue-on-error: true
@@ -58,29 +62,43 @@ jobs:
       - name: all checks passed
         if: always()
         run: |
-          echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} mutation=${{ steps.mutation.outcome }} text=${{ steps.text.outcome }} build=${{ steps.build.outcome }} budgets=${{ steps.budgets.outcome }} clean=${{ steps.clean.outcome }}"
-          test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.mutation.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.budgets.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+          echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} mutation=${{ steps.mutation.outcome }} text=${{ steps.text.outcome }} audit=${{ steps.audit.outcome }} build=${{ steps.build.outcome }} budgets=${{ steps.budgets.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.mutation.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.audit.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.budgets.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
 
   # the model tests of voorbeelden/ (extractor, desk, cable box): minutes of mesh and B-rep rebuilds, so a job of their own
-  # instead of the unit step (QA 0.5.12: no time budget, a rebuild error fails the test)
+  # instead of the unit step (QA 0.5.12: no time budget, a rebuild error fails the test); the list is tools/test-groups.json
   voorbeelden:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npm run test:voorbeelden -- --testTimeout=1800000
 
+  # the library tests (doors, balustrades, fitness: bibliotheek/) in a job of their own (P2-11): a change to a
+  # catalogue turns this job red, never the unit step of the CAD core; the list is tools/test-groups.json
+  bibliotheek:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run test:bibliotheek -- --testTimeout=1800000
+
   desktop:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -107,14 +125,18 @@ jobs:
       - id: recover
         continue-on-error: true
         run: PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs
+      # Save during Edit Component, a restart with unsaved work, Options OK, Package Files (docs/32 P1-1, P1-2, P2-1, P3-1)
+      - id: editsave
+        continue-on-error: true
+        run: PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-editsave.mjs
       - id: clean
         continue-on-error: true
         run: git diff --exit-code
       - name: desktop checks passed
         if: always()
         run: |
-          echo "nohooks=${{ steps.nohooks.outcome }} selftest=${{ steps.selftest.outcome }} autosave=${{ steps.autosave.outcome }} recover=${{ steps.recover.outcome }} clean=${{ steps.clean.outcome }}"
-          test "${{ steps.nohooks.outcome }}" = success && test "${{ steps.selftest.outcome }}" = success && test "${{ steps.autosave.outcome }}" = success && test "${{ steps.recover.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+          echo "nohooks=${{ steps.nohooks.outcome }} selftest=${{ steps.selftest.outcome }} autosave=${{ steps.autosave.outcome }} recover=${{ steps.recover.outcome }} editsave=${{ steps.editsave.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.nohooks.outcome }}" = success && test "${{ steps.selftest.outcome }}" = success && test "${{ steps.autosave.outcome }}" = success && test "${{ steps.recover.outcome }}" = success && test "${{ steps.editsave.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
 
   # The passes (docs/28, CI/testinfra):
   #   release  every script on what a user gets: the B-rep kernel and the rebuild worker (?kernel=brep&rebuild=worker, F158)
@@ -170,8 +192,8 @@ jobs:
             shard: ''
     name: regression (${{ matrix.name }})
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -193,7 +215,7 @@ jobs:
         continue-on-error: true
         run: git diff --exit-code
       # the regression log is the evidence of a run: a missing log fails the upload (F128)
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: e2e-regression-log-${{ matrix.name }}
@@ -201,7 +223,7 @@ jobs:
             e2e-out/regression-*.txt
             e2e-out/*-output.txt
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: e2e-screenshots-${{ matrix.name }}
@@ -224,8 +246,8 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -257,7 +279,7 @@ jobs:
       - id: installed
         continue-on-error: true
         run: PHLIPPO_SELFTEST_ARGS=--software-gl node e2e/desktop-installed.mjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: windows-installer-logs
@@ -292,8 +314,8 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -310,7 +332,7 @@ jobs:
       - id: clean
         continue-on-error: true
         run: git diff --exit-code
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: e2e-regression-log-${{ matrix.name }}

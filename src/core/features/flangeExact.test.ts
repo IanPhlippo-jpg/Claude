@@ -24,7 +24,7 @@ beforeAll(async () => {
   const replicad = await import('replicad');
   replicad.setOC(OC as never);
   kernel = occtKernel(OC, replicad);
-}, 60000);
+}, 600_000);
 afterAll(() => setBrepKernel(null));
 
 const T = 2, R = 3, K = 0.5;

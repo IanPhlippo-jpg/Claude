@@ -10,10 +10,12 @@ const DEFAULT = 1000;
 // lowered whenever code moves out (rebuild.ts 3500 -> 3441 in 0.5.4: the fastening features went to
 // fasteningBuild.ts; 3398 -> 2280 in 0.5.12: sheet metal, weldments and surfaces went to sheetMetalBuild.ts,
 // frameBuild.ts and surfaceBuild.ts, QA 0.5.11 F134; 2280 -> 1910 in 0.5.13: the sheet metal operations went to
-// sheetMetalOps.ts, QA 0.5.12 F134). The goal for every module is DEFAULT; the run lists how far each
-// one is from it.
+// sheetMetalOps.ts, QA 0.5.12 F134; 1910 -> 720 in 0.5.15: the feature loop became a table of builders in
+// buildBodyOps.ts, buildPatterns.ts, buildHoleRound.ts, with the shared state in rebuildState.ts and the B-rep tools in
+// brepTool.ts, QA 0.5.14 P2-14; below DEFAULT, the cap keeps it from growing back). The goal for every module is
+// DEFAULT; the run lists how far each one is from it.
 const CAPS = {
-  'src/core/features/rebuild.ts': 1910,
+  'src/core/features/rebuild.ts': 720,
   'src/app/viewport/Viewport.tsx': 1700,
   'src/app/viewport/tools.ts': 1621,
   'src/app/slices/features.ts': 1597,
@@ -22,6 +24,10 @@ const CAPS = {
   'src/app/drawing/DrawingSheetView.tsx': 1277,
   'src/ui/icons.tsx': 1022,
 };
+
+// tools/line-length.cjs derives the character budget of each module from its line cap
+module.exports = { DEFAULT, CAPS };
+if (require.main !== module) return;
 
 const root = path.join(__dirname, '..');
 const over = [];

@@ -6,7 +6,7 @@ import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import type { DrawingViewType } from '../../core/document/types';
 import { openFileDialog } from '../MenuBar';
-import { getPref, loadPrefs, savePrefs } from '../prefs';
+import { getPref, patchPrefs } from '../prefs';
 import { configurations } from '../../core/document/configurations';
 import { documentForConfiguration } from '../../core/document/configurations';
 import type { Document } from '../../core/document/types';
@@ -14,7 +14,7 @@ import type { Document } from '../../core/document/types';
 /** a pref check box kept between sessions (default on unless given) */
 function PrefCheck({ k, label, def = true, testid }: { k: string; label: string; def?: boolean; testid?: string }) {
   const [on, setOn] = useState(() => (getPref(k) === undefined ? def : getPref(k) !== false));
-  return <label className="k-check"><input type="checkbox" data-testid={testid} checked={on} onChange={(e) => { setOn(e.target.checked); savePrefs({ ...loadPrefs(), [k]: e.target.checked }); }} /> {label}</label>;
+  return <label className="k-check"><input type="checkbox" data-testid={testid} checked={on} onChange={(e) => { setOn(e.target.checked); patchPrefs({ [k]: e.target.checked }); }} /> {label}</label>;
 }
 
 /** Reference Configuration: the configurations of the model */
@@ -383,7 +383,7 @@ export function NotePM() {
             <option value="">{'<NONE>'}</option>
             {Object.keys(noteStyles).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
-          <button className="k-btn ghost icon k-tip" data-tip="Add or Update a Style" data-testid="note-style-add" onClick={() => { const name = `Style${Object.keys(noteStyles).length + 1}`; const list = { ...noteStyles, [name]: { noteAlign: de.noteAlign, noteFont: de.noteFont, noteLeader: de.noteLeader, noteBorder: de.noteBorder } }; savePrefs({ ...loadPrefs(), 'drawing.noteStyles': JSON.stringify(list) }); setNoteStyles(list); st.pushMessage(`${name} saved.`); }}>+</button>
+          <button className="k-btn ghost icon k-tip" data-tip="Add or Update a Style" data-testid="note-style-add" onClick={() => { const name = `Style${Object.keys(noteStyles).length + 1}`; const list = { ...noteStyles, [name]: { noteAlign: de.noteAlign, noteFont: de.noteFont, noteLeader: de.noteLeader, noteBorder: de.noteBorder } }; patchPrefs({ 'drawing.noteStyles': JSON.stringify(list) }); setNoteStyles(list); st.pushMessage(`${name} saved.`); }}>+</button>
         </div>
       </Section>
       <Section title="Text Format">

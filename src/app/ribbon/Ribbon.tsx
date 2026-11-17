@@ -1,5 +1,5 @@
 import { bridge } from '../viewport/bridge';
-import { getPref, loadPrefs, savePrefs } from '../prefs';
+import { getPref, patchPrefs } from '../prefs';
 import { RibbonBody } from './RibbonOverflow';
 import { useState, type ReactNode } from 'react';
 import { useStore, type RibbonTab, type ToolId } from '../store';
@@ -547,7 +547,7 @@ export function Ribbon() {
       {menuBlock}
       <Group>
         {/* Add-ins load and unload with a click (Standard Parts: standard hardware in the Part Library) */}
-        <BigButton label="Standard Parts" icon={<Icon.Library />} active={standardPartsOn} onClick={() => { const on = !standardPartsOn; setStandardPartsOn(on); savePrefs({ ...loadPrefs(), 'addin.standardParts': on }); st.pushMessage(on ? 'Standard Parts loaded: Part Library ▸ Standard Parts holds the standard hardware.' : 'Standard Parts unloaded.'); if (on && st.taskPane !== 'library') st.setTaskPane('library'); }} />
+        <BigButton label="Standard Parts" icon={<Icon.Library />} active={standardPartsOn} onClick={() => { const on = !standardPartsOn; setStandardPartsOn(on); patchPrefs({ 'addin.standardParts': on }); st.pushMessage(on ? 'Standard Parts loaded: Part Library ▸ Standard Parts holds the standard hardware.' : 'Standard Parts unloaded.'); if (on && st.taskPane !== 'library') st.setTaskPane('library'); }} />
       </Group>
     </>
   );

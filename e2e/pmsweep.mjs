@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -80,7 +81,7 @@ for (const [label, action, args, selectSketch] of COMMANDS) {
     await start();
     await page.waitForTimeout(150);
     await S(() => { const s = window.__phlippoStore.getState(); if (s.featureEdit) s.commitFeature(); else if (s.planeEdit) s.commitPlane(); else if (s.refEdit) s.commitRefGeom(); });
-    await page.waitForTimeout(250);
+    await settle(page);
     const n1 = (await editState()).n;
     committed = n1 > n0;
     await cancelAll();

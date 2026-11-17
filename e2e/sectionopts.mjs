@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -23,9 +24,9 @@ await page.click('.k-doctype:has-text("Part")');
 const part = JSON.parse(readFileSync('voorbeelden/deurkruk/Rozet.kcad', 'utf8'));
 delete part.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), part);
-await page.waitForTimeout(800);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().startSectionView());
-await page.waitForTimeout(300);
+await settle(page);
 check('Section View PM', (await page.locator('[data-testid="section-pm"]').count()) === 1);
 const caps = () => page.evaluate(() => window.__phlippoStore.getState().sectionEdit);
 await page.click('[data-testid="section-pm"] .k-section-title:has-text("Section 2") .k-section-check');
@@ -49,7 +50,7 @@ await page.waitForTimeout(200);
 const saved = await page.evaluate(() => (window.__phlippoStore.getState().doc.sectionViews ?? []).map((v) => v.name));
 check('Save stores Section View1', saved[0] === 'Section View1', JSON.stringify(saved));
 await page.click('[data-testid="section-pm"] .k-pm-ok');
-await page.waitForTimeout(300);
+await settle(page);
 check('section committed', await page.evaluate(() => !!window.__phlippoStore.getState().sectionView));
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
 process.exitCode = exitCode(results, errors);

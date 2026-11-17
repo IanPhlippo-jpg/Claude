@@ -8,7 +8,8 @@ import { meshesToStep, shapesToStep, stepItems, stepToMeshes } from '../core/occ
 import { shapesToIges } from '../core/occt/iges';
 import { occtKernel } from '../core/occt/brep';
 import { brepKernel, setBrepKernel } from '../core/features/brepKernel';
-import { rebuildDocument } from '../core/features/rebuild';
+import { rebuildDocument, setRebuildBudget } from '../core/features/rebuild';
+import { isFatalKernelError } from '../core/occt/kernelPolicy';
 import type { Document } from '../core/document/types';
 
 /** the exchange formats written here: STEP AP214 through OpenCascade, IGES 5.3 by src/core/occt/iges.ts */
@@ -17,7 +18,7 @@ export type ExchangeFormat = 'step' | 'iges';
 export type OcctRequest =
   | { id: number; op: 'import'; bytes: Uint8Array; tolerance?: number }
   | { id: number; op: 'export'; bodies: { name: string; positions: Float32Array }[]; unit: 'mm' | 'cm' | 'm' | 'in'; format?: ExchangeFormat; fileName?: string }
-  | { id: number; op: 'rebuild'; doc: Document; upTo: number | null }
+  | { id: number; op: 'rebuild'; doc: Document; upTo: number | null; budgetMs?: number }
   | { id: number; op: 'exportDoc'; doc: Document; upTo: number | null; unit: 'mm' | 'cm' | 'm' | 'in'; format?: ExchangeFormat; fileName?: string };
 
 /** one body of a B-rep rebuild: the tessellation of the exact solid (only bodies that stayed exact carry it) */
@@ -34,26 +35,50 @@ export interface RefinedBody {
 }
 
 let ready: Promise<typeof import('replicad')> | null = null;
+/** how long loading the module took (ms), sent along with the first answer after it */
+let loadMs: number | undefined;
 function load() {
   if (!ready) {
     ready = (async () => {
+      const t0 = performance.now();
       const init = (await import('replicad-opencascadejs')).default as unknown as (o: { locateFile: () => string }) => Promise<unknown>;
       const OC = await init({ locateFile: () => wasmUrl });
       const replicad = await import('replicad');
       replicad.setOC(OC as never);
       setBrepKernel(occtKernel(OC, replicad));
+      loadMs = performance.now() - t0;
       return replicad;
     })();
+    // a load that failed is tried again by the next request (not a rejected promise for good)
+    ready.catch(() => { ready = null; });
   }
   return ready;
 }
 
 const post = (msg: unknown, transfer: Transferable[] = []) => (self as unknown as Worker).postMessage(msg, transfer);
 
-self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
-  const req = ev.data;
+/** a WASM abort leaves the module dead while `ready` stays resolved: a small shape tells (docs/32 P2-4) */
+function alive(replicad: typeof import('replicad')): boolean {
   try {
-    const replicad = await load();
+    replicad.makeBaseBox(1, 1, 1).delete();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// one request at a time, in order: the client starts the clock of a call when it begins here ("started", P3-9)
+let chain: Promise<void> = Promise.resolve();
+self.onmessage = (ev: MessageEvent<OcctRequest>) => {
+  const req = ev.data;
+  chain = chain.then(() => handle(req));
+};
+
+async function handle(req: OcctRequest) {
+  post({ id: req.id, started: true });
+  let replicad: typeof import('replicad') | null = null;
+  try {
+    replicad = await load();
     if (req.op === 'import') {
       const bodies = await stepToMeshes(replicad, req.bytes, req.tolerance ?? 0.02);
       post({ id: req.id, bodies }, bodies.map((b) => b.positions.buffer));
@@ -65,21 +90,30 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
       post({ id: req.id, bytes: r.bytes, volumes: r.volumes }, [r.bytes.buffer]);
     } else if (req.op === 'exportDoc') {
       // the part rebuilt with the B-rep kernel: exact bodies go out as their B-rep, the rest as sewn meshes
-      const r = rebuildDocument(req.doc, req.upTo);
       try {
+        const r = rebuildDocument(req.doc, req.upTo);
         if (req.format === 'iges') {
           const out = await shapesToIges(replicad, stepItems(r), req.unit, req.fileName);
           post({ id: req.id, bytes: out.bytes, volumes: out.volumes, exact: out.exact, faces: out.stats.faces, approximated: out.stats.approximatedSurfaces }, [out.bytes.buffer]);
-          return;
+        } else {
+          const out = await shapesToStep(replicad, stepItems(r), req.unit);
+          post({ id: req.id, bytes: out.bytes, volumes: out.volumes, exact: out.exact }, [out.bytes.buffer]);
         }
-        const out = await shapesToStep(replicad, stepItems(r), req.unit);
-        post({ id: req.id, bytes: out.bytes, volumes: out.volumes, exact: out.exact }, [out.bytes.buffer]);
       } finally {
         brepKernel()?.release();
       }
     } else {
-      const r = rebuildDocument(req.doc, req.upTo);
-      brepKernel()?.release();
+      // the rebuild budget of the window goes along: the B-rep rebuild stops where the mesh rebuild stops (P2-4)
+      if (req.budgetMs !== undefined) setRebuildBudget(req.budgetMs);
+      const t0 = performance.now();
+      let r: ReturnType<typeof rebuildDocument>;
+      try {
+        r = rebuildDocument(req.doc, req.upTo);
+      } finally {
+        // the OCCT objects of this rebuild are freed even when it throws (P3-4)
+        brepKernel()?.release();
+      }
+      const ms = performance.now() - t0;
       const transfer: Transferable[] = [];
       const bodies: RefinedBody[] = r.bodies.map((b) => {
         // a body whose B-rep carries a faceted part is sent too (its shape is closer than the mesh kernel's), not exact
@@ -98,9 +132,18 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
         transfer.push(display.positions.buffer, display.normals.buffer, display.edges.buffer, display.tangentEdges.buffer);
         return { id: b.id, exact: !!b.exact, exactVolume: b.exactVolume, positions, normals, display, approximate: note };
       });
-      post({ id: req.id, bodies }, transfer);
+      post({ id: req.id, bodies, stopped: !!r.stopped, ms, loadMs: took() }, transfer);
     }
   } catch (err) {
-    post({ id: req.id, error: err instanceof Error ? err.message : String(err) });
+    post({ id: req.id, error: err instanceof Error ? err.message : String(err), fatal: isFatalKernelError(err), loadMs: took() });
+    return;
   }
-};
+  if (replicad && !alive(replicad)) post({ dead: true });
+}
+
+/** the load time, once */
+function took(): number | undefined {
+  const t = loadMs;
+  loadMs = undefined;
+  return t;
+}

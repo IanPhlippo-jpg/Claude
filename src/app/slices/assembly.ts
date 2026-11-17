@@ -15,6 +15,7 @@ import { modelItems } from '../drawing/modelItems';
 import { assemblyHoles, fastenerSlots, placeFasteners } from '../../core/assembly/fasteners';
 import * as THREE from 'three';
 import { defaultMateAligned, fixFirstComponent, largeAssemblyDue, largeAssemblyLook, mateOptionDefaults } from '../prefsEffects';
+import { assemblyWithEditedPart } from '../editContext';
 import type { State, StoreSet, StoreGet, MotionEdit, PatternEdit, ExplodeEdit } from '../store';
 import { history, withSolvedComponents, historyFlags, rebuildFor, mateRefCount, refreshMatePreview, splitMateRefs, COUPLING_MATES, joinMateRefs, previewPattern, previewExplode, explodeStepOf } from '../store';
 
@@ -253,7 +254,7 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
       get().pushMessage('Select a component to edit (in the graphics area or the tree).', 'warn');
       return;
     }
-    const ctx = { assembly: doc, componentName: comp.name, partName: comp.part.name, history: history.save() };
+    const ctx = { assembly: doc, componentName: comp.name, componentId: comp.id, partId: comp.part.id, partName: comp.part.name, history: history.save() };
     const seq = get().openSeq;
     get().openDocument({ ...comp.part, kind: 'part' });
     if (get().openSeq === seq) return; // the part could not be opened; the assembly stays
@@ -264,14 +265,16 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
     const ctx = get().editContext;
     if (!ctx) return;
     const part = get().doc;
-    const assembly: Document = { ...ctx.assembly, components: (ctx.assembly.components ?? []).map((c) => (c.part.name === ctx.partName ? { ...c, part: { ...part, kind: 'part' } } : c)) };
+    // matched on the part's id, not its name (P2-13); unchanged since a Save in the edit: nothing new to save
+    const assembly = assemblyWithEditedPart(ctx, part);
+    const changed = ctx.savedPart !== part;
     // the assembly's undo stack comes back, with the component edit as one undoable step
     if (ctx.history) history.restore(ctx.history);
     else history.clear();
     history.push(`Edit Component ${ctx.componentName}`, ctx.assembly);
     set({ editContext: null });
     get().openDocument(assembly, { keepHistory: true });
-    set({ tab: 'assembly', dirty: true, ...historyFlags() });
+    set({ tab: 'assembly', dirty: changed, ...historyFlags() });
     autosave(get().doc);
   },
   setLargeAssembly(largeAssembly) {

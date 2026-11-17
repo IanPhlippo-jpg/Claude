@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { combineMassProperties, faceMeasure, massProperties, withExactVolume, massPropertiesInFrame, overrideMassProperties, polylineDistance } from '../core/features/measure';
 import { rebuildAssembly } from '../core/assembly/assembly';
-import { getPref, lengthDecimals, loadPrefs, savePrefs } from './prefs';
+import { getPref, lengthDecimals, patchPrefs } from './prefs';
 import { defaultDensity, docVolumeUnit, formatNumber, massDocUnits } from './prefsFormat';
 import { activeConfiguration } from '../core/document/configurations';
 import { sampleEntity } from '../core/sketch/geometry';
@@ -36,7 +36,7 @@ export function MassPropertiesDialog() {
   const [frameId, setFrameId] = useState('default');
   const [opts, setOptsState] = useState<MassOpts>(loadMassOpts);
   const [panel, setPanel] = useState<'options' | 'override' | null>(null);
-  const setOpts = (o: MassOpts) => { setOptsState(o); savePrefs({ ...loadPrefs(), 'mass.options': JSON.stringify(o) }); };
+  const setOpts = (o: MassOpts) => { setOptsState(o); patchPrefs({ 'mass.options': JSON.stringify(o) }); };
   const frames = (st.doc.refGeometry ?? []).filter((r) => r.kind === 'csys');
   const ov = st.doc.massOverride ?? {};
   const setOverride = (o: typeof ov) => st.applyDocument('Override Mass Properties', { ...st.doc, massOverride: o.mass === undefined && !o.centroid ? undefined : o });

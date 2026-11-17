@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -36,19 +37,19 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
 // Draft On/Off: the walls taper inward by 5 degrees
 await page.click('.k-pm-stylebtn[data-tip="Draft On/Off"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').nth(1).fill('5');
 await page.locator('.k-pm-valuerow input.k-num').nth(1).press('Tab');
 await page.waitForTimeout(400);
 await shot('r0-extrude-draft');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 const bb = await bbox();
 const v0 = await volume();
 const fullBox = (bb.max[0] - bb.min[0]) * (bb.max[2] - bb.min[2]) * 10;
@@ -67,7 +68,7 @@ await page.waitForTimeout(200);
 await page.click('.k-tree-row:has-text("Front Plane")', { clickCount: 2 });
 await page.waitForTimeout(700);
 await page.evaluate(() => window.__phlippoZoomFit());
-await page.waitForTimeout(300);
+await settle(page);
 const top = bb.max[1];
 const x0 = bb.min[0] + 10, x1 = bb.max[0] - 10, yl = top + 15;
 const la = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x0, yl]);
@@ -90,7 +91,7 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(400);
 await shot('r2-rib-preview');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const v1 = await volume();
 const expected = (x1 - x0) * (yl - top) * 4;
 check('Rib1 adds the wall volume (width x height x 4)', Math.abs(v1 - v0 - expected) < expected * 0.05, `${(v1 - v0).toFixed(1)} vs ${expected.toFixed(1)}`);
@@ -99,7 +100,7 @@ const tree = (await page.locator('.k-tree').innerText()).replace(/\s+/g, ' ');
 check('tree shows Rib1 with its sketch', /Rib1/.test(tree) && /Sketch2/.test(tree), tree.slice(0, 200));
 check('no rebuild errors', (await page.evaluate(() => Object.keys(window.__phlippoStore.getState().rebuild.errors).length)) === 0);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('r3-rib-done');
 
 // edit: Flip material side grows upward (nothing above: error), back again builds
@@ -111,7 +112,7 @@ await page.waitForTimeout(400);
 await page.locator('.k-check:has-text("Flip material side") input').uncheck();
 await page.waitForTimeout(300);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 check('edit keeps the rib', Math.abs((await volume()) - v1) < 1);
 
 // equation name D1@Rib1 exists

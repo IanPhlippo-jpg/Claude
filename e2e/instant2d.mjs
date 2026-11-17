@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -34,9 +35,9 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().editSketch('s1'));
-await page.waitForTimeout(500);
+await settle(page);
 const state = () => page.evaluate(() => {
   const s = window.__phlippoStore.getState();
   const sk = s.doc.sketches.s1;
@@ -50,7 +51,7 @@ check('the sketch is fully defined with the line at 50', s0.status === 'full' &&
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Drag Dimensions")');
 await page.evaluate(() => window.__phlippoStore.getState().selectConstraint('dimL'));
-await page.waitForTimeout(300);
+await settle(page);
 const grip = await page.locator('[data-testid="dragDimensions-grip"]').boundingBox();
 check('the selected dimension has a drag handle', !!grip);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
@@ -79,7 +80,7 @@ if (grip) {
   check('Undo once: the line is 50 again', Math.abs(back.len - 50) < 1e-6 && back.value === 50, JSON.stringify(back));
   // the drag value rounds to the 0.5 mm ruler
   await page.evaluate(() => window.__phlippoStore.getState().selectConstraint('dimL'));
-  await page.waitForTimeout(200);
+  await settle(page);
   const g2 = await page.locator('[data-testid="dragDimensions-grip"]').boundingBox();
   const p = await P(47.8, 0);
   await page.mouse.move(g2.x + g2.width / 2, g2.y + g2.height / 2);

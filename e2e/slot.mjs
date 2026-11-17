@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -85,13 +86,13 @@ await shot('s2b-tangent-dimension');
 // extrude: two closed slot contours become one body (two separate bodies, far apart)
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(700);
+await settle(page);
 const r = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { bodies: s.rebuild.bodies.length, errors: s.rebuild.errors }; });
 check('slots extrude without errors', r.bodies >= 1 && Object.keys(r.errors).length === 0, JSON.stringify(r));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('s3-slot-extruded');
 
 console.log(`

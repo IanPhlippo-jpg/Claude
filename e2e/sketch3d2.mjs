@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,7 +22,7 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.waitForTimeout(500);
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.locator('.k-cm-big:has-text("Sketch") .k-cm-arrow').first().click();
 await page.click('.k-menu-item:has-text("3D Sketch")');
@@ -95,11 +96,11 @@ check('a distance on the fully defined line is refused (would over define)', (aw
 
 // OK: the dimensions are kept with the feature and come back when it is edited
 await page.click('[data-testid="sketch3d-pm"] .k-pm-ok');
-await page.waitForTimeout(400);
+await settle(page);
 const f = await page.evaluate(() => window.__phlippoStore.getState().doc.features.find((x) => x.type === 'sketch3d'));
 check('3DSketch1 keeps its two dimensions', f?.dims?.length === 2, JSON.stringify(f?.dims));
 await page.evaluate((id) => window.__phlippoStore.getState().edit3DSketch(id), f.id);
-await page.waitForTimeout(200);
+await settle(page);
 check('editing it again shows the dimensions', (await page.locator('[data-testid="sketch3d-dim-row"]').count()) === 2);
 
 console.log(`

@@ -1487,16 +1487,27 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable 5.2 leest het CAD-programma Phlippo CAD 0.5.14 na (docs/32: 3 x P1, 15 x P2, 13 x P3, 12 pariteitspunten)
 - [x] Fable 5.2 leest de inbouwafzuiging en het bureau na (Advies-Fable-5.2-v1.md: 4 x P1, 20 x P2, 22 x P3; bureau 3 x P2, 5 x P3)
 - [ ] Rapporten in docs/ zetten, committen en aan Ian samenvatten
-- [~] Alle adviezen verwerken, met tests op de oude fouten (CAD, balustrades en afzuiging bezig; projectiesymbool werktekening.ts rechtgezet)
+- [~] Alle adviezen verwerken, met tests op de oude fouten (balustrades klaar e119ed0, artifact v3; fitness v7 502cacc; CAD, trein en afzuiging bezig; projectiesymbool werktekening.ts rechtgezet)
 - [ ] Artifacts bijwerken, foto's, commit en push
 
 ## Phlippo CAD 0.5.15: advies Fable 5.2 verwerken (2026-11-17)
-- [ ] P1-1 Ctrl+S tijdens Edit Component: assembly met bewerkt onderdeel opslaan, nooit het verkeerde document naar een handle (test)
-- [ ] P1-2 herstart voor software-GL vraagt eerst om op te slaan, hoofdproces weigert bij dirty (test)
-- [ ] P1-3 stabiele lichaam-ids (featureId#k) met migratie van oude bodyN, negatieve test in beide kernen
-- [ ] P2 instellingen en shell: Options OK samenvoegen, doc-eigenschappen apart, dode renderer, undo met open paneel, returnToAssembly op id
-- [ ] P2 kernen en snelheid: incrementele rebuild, solver per groep, exacte nabouw met budget/afbreken/fouten, rebuild-worker, mesh-booleans, autosave, bestandsformaat
-- [ ] P2 testpoort: bibliotheektests uit npm test (één lijst), wandklok uit B-rep-tests, e2e-wachthelper, regellengte-test
-- [ ] Alle P3's
-- [ ] Pariteitslijst: haalbare punten; voorstel meerdere documenten/externe verwijzingen voor Ian (niet bouwen)
-- [ ] Versie 0.5.15, typecheck, vitest, e2e P1-1/P1-2/Options, screenshots, graphify update, statustabel in docs/32
+- [x] P1-1 Ctrl+S tijdens Edit Component: assembly met bewerkt onderdeel opslaan, nooit het verkeerde document naar een handle (test)
+- [x] P1-2 herstart voor software-GL vraagt eerst om op te slaan, hoofdproces weigert bij dirty (test)
+- [x] P1-3 stabiele lichaam-ids (featureId#k) met migratie van oude bodyN, negatieve test in beide kernen
+- [x] P2 instellingen en shell: Options OK samenvoegen, doc-eigenschappen apart, dode renderer, undo met open paneel, returnToAssembly op id
+- [x] P2 kernen en snelheid: incrementele rebuild, solver per groep, exacte nabouw met budget/afbreken/fouten, rebuild-worker, mesh-booleans, autosave, bestandsformaat
+- [x] P2 testpoort: bibliotheektests uit npm test (één lijst), wandklok uit B-rep-tests, e2e-wachthelper, regellengte-test
+- [x] Alle P3's
+- [x] Pariteitslijst: haalbare punten; voorstel meerdere documenten/externe verwijzingen voor Ian (niet bouwen; deels: P2-3, P2-6, P2-12, P3-10, P3-11, zie docs/32)
+- [x] Versie 0.5.15, typecheck, vitest, e2e P1-1/P1-2/Options, screenshots, graphify update, statustabel in docs/32
+
+## Afzuiging en bureau: advies Fable 5.2 verwerken (2026-11-17)
+- [x] Lezen: README, docs, generators, tests, bouwschema; plan per punt (versie 7.4)
+- [x] P1-1/P1-2: M8-verbinding verplaatsen (bus binnen de omtrek, stekker op de kopse wand van de box), haakse kabel met buigstraal als onderdeel, sleuf op de connectoren; tests (speling kabel, module zakt door de uitsparing)
+- [x] P1-3/P1-4/P2-2: instroom met nozzle-vorm 109-1073 (overlap in het oog), installatieverlies in het rekenblad, maatketen 69 ± 1 + printtolerantie, buffers dwars/kantelen buiten 13-65 Hz; "zeker" weg
+- [x] Overige P2: geluid eerlijk, EN ISO 13857 tabel 5, typeplaatje past, één revisie 7.4 overal, M5 x 70 en Ø5,4 x 69 uit het model, schakelaar en box bereikbaar, aders in de kuip, risicoanalyse, CE, prijzen
+- [x] Alle P3 en bureau (B-1 knieruimte, B-2 LAGKAPTEN onbekend + controlestap, B-3 blad vast aan de ALEX, B-4..B-8)
+- [~] Negatieve tests per P1/P2; typecheck; vitest (QA in de achtergrond, met AFZUIGING_STL/TEKENINGEN)
+- [~] Alles opnieuw genereren: .kcad, STL, tekeningen, schema, bouwschema, alles-PDF; graphify update
+- [ ] Foto's voor/na (M8, uitsparing, inlaat, projectiesymbool, beenruimte) in de scratchpad en zelf bekijken
+- [x] Statustabel onderaan Advies-Fable-5.2-v1.md (gedaan / deels / niet)

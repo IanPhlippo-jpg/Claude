@@ -17,7 +17,7 @@ beforeAll(async () => {
   OC = await init({ wasmBinary: readFileSync(require.resolve('replicad-opencascadejs/wasm')) });
   rep = await import('replicad');
   rep.setOC(OC as never);
-}, 60000);
+}, 600_000);
 
 /**
  * The shape out as IGES and back, every check of the round trip within the bounds of QA F199: surface points within

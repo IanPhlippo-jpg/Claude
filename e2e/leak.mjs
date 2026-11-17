@@ -2,6 +2,7 @@
 // geometries, textures and shader programs flat. A leak shows as steady growth.
 import { chromium } from 'playwright';
 import { checks, exitCode, track, waitSettled } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
@@ -51,7 +52,7 @@ check('75 feature edits keep the GPU geometries flat', m1.geometries <= m0.geome
 check('75 feature edits keep the textures and programs flat', m1.textures <= m0.textures + 1 && m1.programs <= m0.programs + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m1)}`);
 for (let k = 0; k < 10; k++) {
   await S(() => window.__phlippoStore.getState().openDocument(window.__phlippoKit.createDocument('Leeg')));
-  await page.waitForTimeout(150);
+  await settle(page);
   await openBlock();
   await page.waitForTimeout(250);
 }

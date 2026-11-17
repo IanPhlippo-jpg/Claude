@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -153,7 +154,7 @@ await settled();
 s = await state();
 check('Undo rebuilds in the worker too (depth 14)', Math.abs(s.volume - expected(14)) / expected(14) < 0.01, `${s.volume.toFixed(0)} vs ${expected(14).toFixed(0)}`);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await page.screenshot({ path: `${OUT}/rebuildworker-done.png`, timeout: SHOT_MS });
 
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);

@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,7 +22,7 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.waitForTimeout(500);
 await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- 3D Sketch from the Sketch flyout
 await page.click('.k-cm-tab:has-text("Sketch")');
@@ -73,11 +74,11 @@ await page.evaluate(() => {
   const d = { ...st.doc, sketches: { ...st.doc.sketches, skc: s }, features: [...st.doc.features, { id: 'fc', type: 'sketch', name: 'Sketch1', sketchId: 'skc', suppressed: false }, { id: 'fsw', type: 'sweep', name: 'Sweep1', sketchId: 'skc', pathSketchId: f3d.id, suppressed: false, op: 'boss' }] };
   st.openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 let r = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const g = s.rebuild.bodies[0]?.geometry; if (!g) return { errors: s.rebuild.errors }; g.computeBoundingBox(); return { errors: s.rebuild.errors, max: g.boundingBox.max.toArray() }; });
 check('Sweep1 along the 3D sketch reaches (65, 45, 50)', r.max && Object.keys(r.errors).length === 0 && Math.abs(r.max[0] - 65) < 0.6 && Math.abs(r.max[1] - 45) < 0.6 && Math.abs(r.max[2] - 50) < 0.6, JSON.stringify(r));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('s3d2-sweep');
 
 // ---- Loft with a guide curve through the Loft Property Panel
@@ -99,19 +100,19 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Loft1")').last().dblclick();
 await page.waitForTimeout(400);
 await page.locator('[data-testid="loft-add-guide"]').selectOption('sg');
 await page.waitForTimeout(300);
 check('guide curve listed in the Loft Property Panel', (await page.locator('[data-testid="loft-guides"]').innerText()).includes('Sketch3'));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 r = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const g = s.rebuild.bodies[0]?.geometry; if (!g) return { errors: s.rebuild.errors }; g.computeBoundingBox(); return { errors: s.rebuild.errors, max: g.boundingBox.max.toArray() }; });
 // the arc through (10,0), (10,100) around (-40,50): x at the middle = -40 + sqrt(50^2+50^2) = 30.7
 check('the loft bulges to the guide (x ≈ 30.7 half way)', r.max && Object.keys(r.errors).length === 0 && Math.abs(r.max[0] - 30.7) < 1.2, JSON.stringify(r));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('s3d3-vase');
 
 console.log(`

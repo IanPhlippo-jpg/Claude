@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -38,7 +39,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 const tabsBefore = await page.locator('.k-cm-tab').count();
 
 // ---- open from Tools ▸ Customize…
@@ -93,7 +94,7 @@ await page.locator('[data-testid="cz-tab-customization"]').click();
 await page.locator('[data-testid="cz-tooltips"]').uncheck();
 await page.locator('[data-testid="cz-lock"]').check();
 await page.locator('[data-testid="cz-ok"]').click();
-await page.waitForTimeout(500);
+await settle(page);
 
 // ---- the settings are in effect
 check('Render Tools tab hidden', (await page.locator('.k-cm-tab').count()) === tabsBefore - 1 && (await page.locator('.k-cm-tab:has-text("Render Tools")').count()) === 0);
@@ -137,11 +138,11 @@ await page.keyboard.press('Escape');
 
 // ---- disable gestures: a right drag changes nothing
 await S(() => window.__phlippoStore.getState().setDialog('customize'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="cz-tab-mousegestures"]').click();
 await page.locator('[data-testid="cz-gestures-on"]').uncheck();
 await page.locator('[data-testid="cz-ok"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 await page.keyboard.press('Control+1');
 await page.waitForTimeout(200);
 await page.mouse.move(1000, 600);
@@ -154,11 +155,11 @@ await page.keyboard.press('Escape');
 
 // ---- Reset All Customization
 await S(() => window.__phlippoStore.getState().setDialog('customize'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="cz-tab-customization"]').click();
 await page.locator('[data-testid="cz-reset-all"]').click();
 await page.locator('[data-testid="cz-ok"]').click();
-await page.waitForTimeout(400);
+await settle(page);
 check('Reset All Customization brings the tabs, Home button and labels back', (await page.locator('.k-cm-tab').count()) === tabsBefore && (await page.locator('.k-cm-mbgrid [data-tip="Home"]').count()) === 1 && (await page.locator('.k-cm.k-cm-notext').count()) === 0);
 check('the keyboard preference is cleared', !(await pref('customize.keys')));
 check('the preferences survive a reload (stored)', await S(() => { try { return JSON.parse(localStorage.getItem('phlippo.prefs') ?? '{}') !== null; } catch { return false; } }));

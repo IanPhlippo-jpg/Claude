@@ -6,6 +6,7 @@ import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 // the regression writes to a temporary folder; the committed examples are only rewritten on purpose (QA v0.3.4 F84):
@@ -240,7 +241,7 @@ for (const name of ['deur', 'rozet', 'sleutel', 'stift', 'kruk']) {
 }
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('deurkruk-kruk');
 
 // the assembly
@@ -256,16 +257,16 @@ check('Auto Fasteners: four ISO 10642 M4 countersunk screws in the rosettes', sf
   sf.doc.explodeSteps = sf.doc.explodeSteps.map((e) => (e.id === 'e1' ? { ...e, componentIds: [...e.componentIds, ...screwsFront] } : e.id === 'e3' ? { ...e, componentIds: [...e.componentIds, ...screwsBack] } : e));
   docs.asm = { ...sf.doc };
   await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), docs.asm);
-  await page.waitForTimeout(800);
+  await settle(page);
 }
 writeFileSync(`${DIR}/Deurkruk.kcad`, JSON.stringify({ format: 'phlippo-cad', ...docs.asm }, null, 2));
 await page.waitForTimeout(300);
 await page.mouse.move(120, 1000);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(500);
+await settle(page);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shaded'); s.toggleShow('realisticShading'); window.__phlippoStore.getState().toggleShow('shadows'); });
-await page.waitForTimeout(800);
+await settle(page, { quiet: 300 });
 check('Realistic Shading and shadows on', await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.show.realisticShading && s.show.shadows; }));
 await shot('deurkruk-assembly');
 // close-up of the handle (zoom in around the front lever)
@@ -274,9 +275,9 @@ await zoomTo(45, -30, 60, 0.3);
 await page.waitForTimeout(300);
 await shot('deurkruk-closeup');
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shadedEdges'); s.toggleShow('realisticShading'); window.__phlippoStore.getState().toggleShow('shadows'); });
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('deurkruk-assembly-edges');
 // no interference between the parts (touching faces only)
 await expandTree();
@@ -286,10 +287,10 @@ const moved = await page.evaluate((orig) => window.__phlippoStore.getState().doc
 check('the mates are satisfied: no component moved', moved.every((d) => d < 0.01), JSON.stringify(moved));
 // exploded
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setExploded(true); s.setDisplayStyle('shaded'); s.toggleShow('realisticShading'); });
-await page.waitForTimeout(500);
+await settle(page);
 await page.mouse.move(120, 1000);
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await zoomTo(20, -36, 40, 0.42);
 await page.waitForTimeout(600);
 await shot('deurkruk-exploded');
@@ -297,7 +298,7 @@ await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDis
 await page.evaluate(() => window.__phlippoStore.getState().setExploded(false));
 // mass
 const mass = await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDialog('mass'); return true; });
-await page.waitForTimeout(400);
+await settle(page);
 const report = await page.locator('.k-mass-report').innerText().catch(skip('doorhandle.mjs:301', ''));
 check('Mass Properties of the assembly', mass && /Mass = /.test(report), report.slice(0, 80));
 await page.evaluate(() => window.__phlippoStore.getState().setDialog(null));
@@ -376,7 +377,7 @@ const asmDrawing = await page.evaluate((model) => {
   window.__phlippoStore.getState().insertBomTable();
   return d;
 }, docs.asm);
-await page.waitForTimeout(1200);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-small:has-text("Auto Balloon")');
 { const q = await page.evaluate(() => window.__phlippoSheet.toPx([180, 150])); await page.mouse.click(q.x, q.y); }
@@ -396,7 +397,7 @@ const alt = await page.evaluate(() => {
   const v2 = window.__phlippoStore.getState().doc.sheets[0].views.find((x) => x.id === 'v2');
   return { alt: v2.altPosition };
 });
-await page.waitForTimeout(1500);
+await settle(page);
 const phantom = await page.locator('.k-alt-position').count();
 check('Alternate Position View: the pressed handle in phantom lines on the front view', alt.alt && alt.alt.source === 'motion' && phantom > 10, JSON.stringify({ alt, phantom }));
 const asmSheets = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets);
@@ -406,16 +407,16 @@ await shot('deurkruk-samenstelling-tekening');
 
 // Motion Study 1 of the assembly: the front lever is pressed, the spindle and the back lever turn with it
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), docs.asm);
-await page.waitForTimeout(1500);
+await settle(page);
 await page.click('[data-testid="motion-tab"]');
 await page.waitForTimeout(300);
 await page.evaluate(() => window.__phlippoStore.getState().setMotionTime(1));
-await page.waitForTimeout(400);
+await settle(page);
 const motion = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { open: s.motionOpen, motors: s.doc.motionStudy?.motors.length, rows: document.querySelectorAll('.k-motion-row').length }; });
 check('Motion Study 1: Motion Timeline with RotaryMotor1 under the graphics area', motion.open && motion.motors === 1 && motion.rows >= 10, JSON.stringify(motion));
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await page.mouse.move(120, 1000);
 await shot('deurkruk-motion');
 await page.click('[data-testid="motion-tab"]');

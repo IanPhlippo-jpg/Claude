@@ -44,6 +44,18 @@ Status per fase:
 7. Massa-eigenschappen, meten en materialen — **gereed** (Mass Properties, Measure, Edit Material met dichtheid per body, Appearances); geen fotorealistische render (raytracing)
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor, Hem, Jog, Miter Flange, Unfold/Fold) — **gereed** (e2e: sheetmetal, hem, jogmiter, unfoldfold)
 
+## Status 0.5.15 (2026-11-17)
+
+Advies Fable 5.2 op 0.5.14 (3 x P1, 15 x P2, 13 x P3) verwerkt; per punt de stand onderaan `docs/32-advies-fable-5.2-cad-0.5.14.md`.
+- `npm test`: 970 tests (`tools/doc-counts.cjs`); de tests van `voorbeelden/` en `bibliotheek/` staan in één lijst
+  (`tools/test-groups.json`) en draaien apart (`npm run test:voorbeelden`, `npm run test:bibliotheek`). De strikte QA-tests in
+  `src/qa/`: qaStrict.test.ts (8), qaBrep.test.ts (37), qaCrossCheck.test.ts (16), qaNaming.test.ts (12), qaTeam.test.ts (5),
+  qaMismatch.test.ts (1).
+- Opslaan tijdens Edit Component schrijft het assembly met het bewerkte onderdeel (P1-1); een herstart vraagt eerst om op te
+  slaan (P1-2); lichamen heten `<feature>#<k>` en oude bestanden worden omgezet (P1-3, formaat 3 met programmaversie).
+- Rebuild vanaf de eerste gewijzigde feature (tussenstanden per feature), schetsen per samenhangende groep opgelost,
+  exacte nabouw met budget en afbreken; e2e `desktop-editsave` voor P1-1, P1-2, P2-1 en P3-1.
+
 ## Status 0.5.14 (2026-11-10)
 
 QA-rapport 0.5.13 (5/10, NO-GO) verwerkt; per bevinding in `docs/31-qa-0.5.13.md`, het bewijs per commit in `qa-logs/0.5.14/`.

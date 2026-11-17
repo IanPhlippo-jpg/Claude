@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -52,7 +53,7 @@ check('Base Flange PM: Profile Sketch check says the sketch is valid', (await pa
 await page.locator('.k-section:has-text("Direction 1") select').first().selectOption('midPlane');
 await page.waitForTimeout(300);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const v0 = await vol();
 check('Base-Flange1 built (Mid Plane)', v0 > 10000 && Object.keys(await errs()).length === 0, `${v0.toFixed(0)} ${JSON.stringify(await errs())}`);
 
@@ -70,7 +71,7 @@ await S(() => {
   feats.splice(fp < 0 ? feats.length : fp, 0, { id: 'kv', type: 'sketch', name: 'VentSketch', sketchId: 'vent1', suppressed: false });
   st.openDocument({ ...d, sketches: { ...d.sketches, vent1: sk }, features: feats });
 });
-await page.waitForTimeout(600);
+await settle(page);
 const vBefore = await vol();
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Vent")');
@@ -81,13 +82,13 @@ await page.waitForTimeout(600);
 check('Vent lists 2 ribs and 1 spar', (await page.locator('[data-testid="vent-ribs"] .k-selbox-row').count()) === 2 && (await page.locator('[data-testid="vent-spars"] .k-selbox-row').count()) === 1, await page.locator('[data-testid="vent-flow"]').innerText().catch(skip('ge.mjs:81', '?')));
 await shot('ge1-vent-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const vVent = await vol();
 // open area: pi 100 - ribs (2·20·3 - 9) - spar ring (pi(6.5² - 3.5²) ≈ 94) + the ring/rib overlaps (~4·3·3) ≈ 314 - 111 - 94 + 36 ≈ 145 → × 3 thick
 check('Vent1 cuts the open area through the sheet (≈ 145 mm² × 3)', vBefore - vVent > 300 && vBefore - vVent < 600 && !(await errs()).length, `${(vBefore - vVent).toFixed(0)} ${JSON.stringify(await errs())}`);
 check('tree: Vent1', (await names()).includes('Vent1'));
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('ge2-vent');
 
 // ---- Forming Tool: a small circular emboss on the top face of the horizontal leg, away from the vent
@@ -105,12 +106,12 @@ await page.waitForTimeout(400);
 check('Form Tool Feature PM: Type/Position tabs, Placement Face, Forming Tool (Part Library list), Flat Pattern Visibility', (await page.locator('.k-pm-title:has-text("Form Tool Feature")').count()) === 1 && (await page.locator('[data-testid="form-shape"] option').count()) === 6 && (await page.locator('.k-section:has-text("Flat Pattern Visibility")').count()) === 1);
 check('the placement face is filled in', (await page.locator('[data-testid="form-face"] .k-selbox-row').count()) === 1);
 await S(() => { const st = window.__phlippoStore.getState(); st.updateFeatureDraft({ width: 8, length: 8, height: 4 }); st.addFormToolPoint({ x: 0, y: 18 }); });
-await page.waitForTimeout(500);
+await settle(page, { quiet: 300 });
 await page.locator('.k-pm-tabs button:has-text("Position")').click();
 check('Position tab lists the placed point', (await page.locator('[data-testid="form-points"] .k-selbox-row').count()) === 1);
 await shot('ge3-formtool-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const vForm = await vol();
 // net: pi·16·4 (bump above the sheet) - pi·1·4 (hollow r 1) ≈ 188
 check('circular emboss1 adds a hollow bump (≈ 188 mm³)', vForm - vVent > 120 && vForm - vVent < 260 && !Object.keys(await errs()).length, `${(vForm - vVent).toFixed(0)} ${JSON.stringify(await errs())}`);
@@ -139,7 +140,7 @@ await gDepth.press('Tab');
 await page.waitForTimeout(600);
 await shot('ge5-gusset-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const vGusset = await vol();
 check('Sheet Metal Gusset1 is pressed across the bend (volume changes, no error)', Math.abs(vGusset - vForm) > 5 && !Object.keys(await errs()).length, `${(vGusset - vForm).toFixed(0)} ${JSON.stringify(await errs())}`);
 check('tree: Sheet Metal Gusset1', (await names()).includes('Sheet Metal Gusset1'));
@@ -156,10 +157,10 @@ await page.click('.k-cm-small:has-text("Simple Hole")');
 await page.waitForTimeout(400);
 check('Simple Hole PM: title Hole, Direction 1 (Blind/Through All) and the diameter, no Hole Tool pages', (await page.locator('.k-pm-title').innerText()).trim().startsWith('Hole') && (await page.locator('.k-section-name:text-is("Direction 1")').count()) === 1 && (await page.locator('[data-testid="hole-types"]').count()) === 0, await page.locator('.k-pm-title').innerText());
 await S(() => window.__phlippoStore.getState().addHolePoint({ x: 0, y: -18 }));
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('ge7-simplehole-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const vHole = await vol();
 check('Hole1: a 6.6 through hole (≈ 103 mm³)', vGusset - vHole > 80 && vGusset - vHole < 130 && (await names()).includes('Hole1'), `${(vGusset - vHole).toFixed(0)} ${(await names()).join(',')}`);
 
@@ -178,7 +179,7 @@ await S(() => {
   st.openDocument({ ...d, sketches: { ...d.sketches, cut1: sk }, features: feats });
   window.__phlippoStore.getState().setSelectedFeature('kc');
 });
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Extruded Cut")');
 await page.waitForTimeout(400);
@@ -191,7 +192,7 @@ check('Optimize geometry is greyed when Normal cut is off', await page.locator('
 await page.locator('[data-testid="cut-normal"]').check();
 await shot('ge8-cut-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const vCut = await vol();
 check('Cut-Extrude linked to thickness removes 6 × 6 × 3', Math.abs(vHole - vCut - 108) < 6 && !Object.keys(await errs()).length, `${(vHole - vCut).toFixed(0)} ${JSON.stringify(await errs())}`);
 
@@ -253,16 +254,16 @@ await S(() => {
   const f = b.faces.find((x) => !x.curved && x.normal[0] < -0.99 && Math.abs(x.centroid[0] - 30) < 0.2 && x.area > 1000);
   s.setSelectedFace({ bodyId: b.id, faceId: f.id });
 });
-await page.waitForTimeout(500);
+await settle(page, { quiet: 300 });
 check('the slot face is filled in', (await page.locator('[data-testid="ts-face"] .k-selbox-row').count()) === 1);
 await shot('ge9-tabslot-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(1000);
+await settle(page);
 const vTS1 = await vol();
 // tabs add 3 × 10 × 3 × 3 = 270, slots remove 3 × 10.2 × 3.2 × 3 ≈ 294
 check('Tab and Slot1: tabs on the plate, slots through the upright (net ≈ -24 mm³, still two bodies)', Math.abs(vTS1 - vTS0 + 24) < 20 && (await S(() => window.__phlippoStore.getState().rebuild.bodies.length)) === 2 && !Object.keys(await errs()).length, `${(vTS1 - vTS0).toFixed(1)} ${JSON.stringify(await errs())}`);
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('ge10-tabslot');
 
 // ---- Rip on an open box (outer boss, inner cut through all)
@@ -289,7 +290,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 const vRip0 = await vol();
 const ripEdge = await S(() => {
   const s = window.__phlippoStore.getState();
@@ -310,12 +311,12 @@ await ripGap.press('Tab');
 await page.waitForTimeout(500);
 await shot('ge11-rip-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const vRip1 = await vol();
 // removed: len · t · (t + g) = 40 · 2 · 2.5 = 200
 check('Rip1 cuts the corner open by the gap (≈ 200 mm³)', Math.abs(vRip0 - vRip1 - 200) < 20 && !Object.keys(await errs()).length, `${(vRip0 - vRip1).toFixed(0)} ${JSON.stringify(await errs())}`);
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('ge12-rip');
 
 // ---- Swept Flange: a flat plate, an open profile on the Front plane at the plate's right end, path along the end edge
@@ -339,7 +340,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 const vSF0 = await vol();
 const pathEdge = await S(() => {
   const s = window.__phlippoStore.getState();
@@ -358,13 +359,13 @@ await page.locator('[data-testid="sf-profile"]').selectOption('pr');
 await page.waitForTimeout(700);
 await shot('ge13-sweptflange-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(1000);
+await settle(page);
 const vSF1 = await vol();
 // the thin profile (12 up + 10 across, 3 thick) swept 40 along the edge: ≈ (12 + 10) · 3 · 40 ≈ 2640 (minus the corner overlap)
 check('Swept Flange1 sweeps the sheet profile along the edge (≈ 2500 mm³)', vSF1 - vSF0 > 2000 && vSF1 - vSF0 < 3000 && !Object.keys(await errs()).length, `${(vSF1 - vSF0).toFixed(0)} ${JSON.stringify(await errs())}`);
 check('tree: Swept Flange1', (await names()).includes('Swept Flange1'));
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('ge14-sweptflange');
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');

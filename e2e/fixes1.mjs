@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -55,7 +56,7 @@ check('Center Rectangle: an 80 x 40 rectangle around the centre with two constru
 
 // Corner Rectangle with Add construction lines (from the midpoints)
 await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'));
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="rect-construction"]');
 await page.click('[data-testid="rect-midpoints"]');
 await page.waitForTimeout(100);
@@ -72,14 +73,14 @@ await page.evaluate(() => {
   const top = Object.values(sk.entities).find((e) => e.kind === 'line' && !e.construction && Math.abs(sk.points[e.p1].y - 70) < 1e-6 && Math.abs(sk.points[e.p2].y - 70) < 1e-6);
   s.commit('Dim', (k) => ({ ...k, constraints: { ...k.constraints, dimT: { id: 'dimT', kind: 'length', refs: [top.id], value: 60, labelOffset: { x: 70, y: 85 } } }, constraintOrder: [...k.constraintOrder, 'dimT'] }));
 });
-await page.waitForTimeout(400);
+await settle(page);
 const lbl = await page.evaluate(() => { const el = [...document.querySelectorAll('.k-viewport *')].find((x) => x.children.length === 0 && x.textContent.trim() === '60.00'); if (!el) return null; const r = el.getBoundingClientRect(); return { cx: r.left + r.width / 2 }; });
 const mid = await P(90, 85);
 check('the dimension text is centred between the arrows', lbl && Math.abs(lbl.cx - mid.x) < 6, JSON.stringify({ lbl, mid }));
 
 // the Modify box in the layout of the intended design
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setModify({ id: 'dimT', x: 900, y: 400 }); });
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 const mod = await page.evaluate(() => { const m = document.querySelector('.k-modify'); if (!m) return null; const r = m.getBoundingClientRect(); const name = m.querySelector('[data-testid="modify-name"]'); const acts = m.querySelector('.k-modify-actions'); return { w: Math.round(r.width), value: m.querySelector('input.k-num')?.value, name: name?.textContent, actionsBeforeName: !!(acts && name && (acts.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING)) }; });
 check('Modify box: narrow, icon row under the title, then the name and the value', mod && mod.w < 230 && mod.value === '60.00mm' && /@Sketch1/.test(mod.name) && mod.actionsBeforeName, JSON.stringify(mod));
 await shot('fx2-modify');

@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -22,7 +23,7 @@ await page.waitForTimeout(500);
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
-await page.waitForTimeout(1200);
+await settle(page);
 const toPx = (p) => page.evaluate((q) => window.__phlippoSheet.toPx(q), p);
 const click = async (p) => { const q = await toPx(p); await page.mouse.click(q.x, q.y); await page.waitForTimeout(150); };
 const sheetState = () => page.evaluate(() => { const s = window.__phlippoStore.getState().doc.sheets[0]; return { tb: s.titleBlock ?? {}, revs: (s.revisions ?? []).map((r) => r.rev), symbols: (s.symbols ?? []).map((x) => x.kind + ':' + (x.text ?? '')) }; });
@@ -30,13 +31,13 @@ const sheetState = () => page.evaluate(() => { const s = window.__phlippoStore.g
 // Title Block Fields
 await page.click('.k-cm-tab:has-text("Sheet Format")');
 await page.click('.k-cm-big:has-text("Title Block Fields") .k-cm-main');
-await page.waitForTimeout(200);
+await settle(page);
 await page.fill('[data-testid="tb-company"]', 'PHLIPPO');
 await page.fill('[data-testid="tb-drawnBy"]', 'IAN');
 await page.fill('[data-testid="tb-drawnDate"]', '2026-10-21');
 await page.fill('[data-testid="tb-dwgNo"]', 'DK-001');
 await page.click('[data-testid="titleblock-pm"] .k-pm-ok');
-await page.waitForTimeout(200);
+await settle(page);
 let s = await sheetState();
 const tbText = await page.locator('[data-testid="title-block-values"]').innerHTML();
 check('Title Block Fields fill the title block (company, drawn by, date, DWG NO.)', s.tb.company === 'PHLIPPO' && /IAN/.test(tbText) && /2026-10-21/.test(tbText) && (await page.locator('text=DK-001').count()) === 1, JSON.stringify(s.tb));

@@ -7,6 +7,7 @@ import { Icon } from '../ui/icons';
 import { addComment, downloadText, mirrorComponents, packAndGoFiles } from './assemblyCommands';
 import { serializeDocument } from '../core/document/persistence';
 import { newId } from '../core/sketch/model';
+import { desktop } from './desktop';
 
 function Frame({ title, testid, children, actions, width = 420 }: { title: string; testid: string; children: React.ReactNode; actions: React.ReactNode; width?: number }) {
   const st = useStore(useShallow((s) => ({ setDialog: s.setDialog })));
@@ -55,11 +56,16 @@ export function PackAndGoDialog() {
   const files = packAndGoFiles();
   const [prefix, setPrefix] = useState('');
   const save = async () => {
-    const api = (window as unknown as { phlippo?: { saveFile: (o: { defaultPath: string; data: ArrayBuffer }) => Promise<unknown> } }).phlippo;
-    for (const f of files) {
-      if (api) await api.saveFile({ defaultPath: prefix + f.name, data: new TextEncoder().encode(f.text).buffer as ArrayBuffer });
-      else downloadText(prefix + f.name, f.text);
+    // the desktop app writes every file into one folder the user picks (P3-1); the browser downloads them
+    const api = desktop();
+    if (api?.savePackage) {
+      const r = await api.savePackage(files.map((f) => ({ name: prefix + f.name, data: new TextEncoder().encode(f.text).buffer as ArrayBuffer })));
+      if (!r) return;
+      st.setDialog(null);
+      st.pushMessage(`Package Files: ${r.count} files saved in ${r.folder}.${r.skipped.length ? ` Not saved: ${r.skipped.join(', ')}.` : ''}`, r.skipped.length ? 'warn' : 'info');
+      return;
     }
+    for (const f of files) downloadText(prefix + f.name, f.text);
     st.setDialog(null);
     st.pushMessage(`Package Files: ${files.length} files saved.`);
   };

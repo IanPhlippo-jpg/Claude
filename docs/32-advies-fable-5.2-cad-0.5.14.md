@@ -383,3 +383,128 @@ Niet gedekt, voor zover ik zag:
 6. P2-4, P2-6, P2-7, P2-8, P2-10.
 7. Pariteit: eerst punt 1 (meerdere documenten en verwijzingen naar bestanden). Dat is een ontwerpbesluit voor Ian:
    het verandert het bestandsformaat.
+
+---
+
+## Status na verwerking (0.5.15, 2026-11-17)
+
+Eerlijk per punt: "gedaan" alleen als het punt helemaal af is. Rebuildbudgetten en tijdmetingen: **nog te meten, alleen
+draaiend** (andere agenten draaiden zware tests; de genoemde tijden zijn ruwe enkelvoudige metingen onder belasting).
+
+| Punt | Stand | Waar | Opmerking |
+|---|---|---|---|
+| P1-1 Ctrl+S tijdens Edit Component | gedaan | `src/app/editContext.ts`, `MenuBar.tsx` (`saveDocument`, `markSaved`), `desktop.ts` (`handleFor`) | Schrijft het assembly met het bewerkte onderdeel; een handle hoort bij één document-id. Tests: `src/app/saveContext.test.ts`, e2e `e2e/desktop-editsave.mjs` |
+| P1-2 herstart software-GL | gedaan | `electron/main.cjs` (`gpu:restart` weigert bij dirty), `preload.cjs`, `src/app/softwareGL.tsx` (`restartForGraphics`) | Save / Don't Save / Cancel vóór de herstart. Tests: `saveContext.test.ts`, `desktop-editsave.mjs` |
+| P1-3 lichaam-ids | gedaan | `src/core/features/bodyIds.ts`, `rebuild.ts`, `src/core/document/migrate.ts` | `<featureId>#<k>`, ook vlaklichamen (`surfN`); oude `bodyN`/`surfN` worden bij het openen omgezet; negatieve test in beide kernen (`bodyIds.test.ts`). Restrisico: binnen één feature schuift `k` als die feature meer of minder stukken maakt |
+| P2-1 Options OK overschrijft | gedaan | `src/app/prefs.ts` (`patchPrefs`, `changedPrefs`), `options.tsx`, 8 losse schrijvers | Eén schrijfpad; OK schrijft alleen wat in het venster veranderde. Tests: `prefsLayers.test.ts`, `desktop-editsave.mjs` |
+| P2-2 doc-eigenschappen | gedaan | `prefs.ts` (`documentProperties`, `setDocumentProperties`), `slices/document.ts`, `slices/features.ts` | Een bestand zet alleen bekende `doc.*` van het juiste type; meteen actief; niet in het profiel; nieuw document = standaard. Test: `prefsLayers.test.ts` |
+| P2-3 dode/hangende renderer | deels | `electron/main.cjs` (`render-process-gone`, `unresponsive`, ontvangstbevestiging binnen 5 s), `preload.cjs` | Gebouwd, maar zonder geautomatiseerde test (crash en hang niet nagebootst) |
+| P2-4 exacte nabouw | gedaan | `src/core/occt/occtClient.ts`, `kernelPolicy.ts`, `src/workers/occt.worker.ts`, `src/app/brepRefine.ts` | Klok vanaf "started", limiet = budget + laadtijd, `stopped` terug zonder kruiscontrole, verouderde nabouw afgebroken, fouten één keer gemeld, herstart na fatale fout. Unit-tests (`kernelPolicy.test.ts`, `occtClient.test.ts`) |
+| P2-5 volledige rebuild | gedaan | `rebuildCache.ts`, `rebuildState.ts`, `src/app/rebuildQueue.ts`, `assembly.ts`, `slices/document.ts` (`reorderFeature`) | (a) tussenstanden per feature, beide kernen; (b) `SYNC_REBUILD_MS` 300 ms; (c) reorder en onderdelen van assemblies via de worker; (d) budget binnen patronen. Test: `rebuildCache.test.ts`. Budget: nog te meten |
+| P2-6 autosave | deels | `persistence.ts` (±2 s uitgesteld, zonder inspringing), `positionCodec.ts` (base64 Float32) | Nog naar localStorage, niet via de recover-brug naar schijf |
+| P2-7 bestandsformaat | gedaan | `persistence.ts`, `validateFeatures.ts`, `types.ts` | Formaat 3 met `app` en `commit`; een nieuwer bestand opent met een waarschuwing (`MenuBar.tsx` `readKcad`, `TaskPane.tsx`); grenzen per featuretype. Test: `persistence3.test.ts` |
+| P2-8 mesh-booleans | gedaan | `src/core/features/meshCheck.ts`, `solid.ts` | Cut/union zonder effect bij echte overlap = fout; geslotenheid op randen. Gaten: alleen binnen 0,1 % volume, zeldzame gedeelde-hoekpuntgevallen. Test: `meshCheck.test.ts` |
+| P2-9 schetssolver | gedaan | `src/core/solver/groups.ts`, `lm.ts`, `linalg.ts`, `solver.ts`, `store.ts` (`solveSketchCached` in `solveAll`) | Per samenhangende groep, ijle AᵀA; undo/redo/open lossen alleen gewijzigde schetsen op. Ruw: 541 gaten ±1 s (was 14-30 s). Test: `groups.test.ts` |
+| P2-10 rebuild-worker | gedaan | `src/app/rebuildWorkerClient.ts`, `rebuildWorker.ts`, `src/workers/rebuild.worker.ts` | Hergebruik, warme reserve, debounce, `onmessageerror`, waakhond. Test: `rebuildWorkerClient.test.ts` |
+| P2-11 testpoort | gedaan | `tools/test-groups.json`, `tools/run-tests.mjs`, `vite.config.ts`, `package.json`, `ci.yml` (job `bibliotheek`) | Eén lijst; `src/qa/testGroups.test.ts` bewaakt hem (vond meteen `typeplaatjeAfzuiging.test.ts`) |
+| P2-12 wandklok | deels | `brep.test.ts` e.a. (600 s), `vite.config.ts` (`testTimeout` 120 s), `e2e/lib/wait.mjs` | E2e: 558 van 1657 vaste pauzes vervangen door `settle()`, **1099 over** |
+| P2-13 returnToAssembly op naam | gedaan | `src/app/editContext.ts` (`isEditedPart`) | Op `part.id`, de naam alleen voor oude onderdelen zonder id. Tests: `saveContext.test.ts`, `desktop-editsave.mjs` |
+| P2-14 regelbegroting | gedaan | `tools/line-length.cjs`, `tools/line-length-baseline.json`, `rebuild.ts` (1909 → 707 regels) | Regels > 200 tekens bevroren per bestand, tekenbudget per module; `rebuildDocument` 1209 → 75 regels (tabel `BUILDERS`). Het functieplafond is alleen een rapport (geen ESLint, niets geïnstalleerd) |
+| P2-15 undo met open paneel | gedaan | `src/app/slices/document.ts` (`closeOpenPanel`, rollback begrensd) | Undo annuleert eerst het paneel. Test: `saveContext.test.ts` |
+| P3-1 Pack and Go | gedaan | `lifecycleDialogs.tsx`, `main.cjs` (`pack:save`), `preload.cjs` | Eén map kiezen; alleen basisnamen `.kcad`. Test: `desktop-editsave.mjs` |
+| P3-2 Ctrl+Shift+S | gedaan | `MenuBar.tsx`, `src/app/shortcutLabels.test.ts` | Save As toont de toets niet meer; de test legt menu en lint tegen de handler |
+| P3-3 relatief pad tweede start | gedaan | `main.cjs` (`second-instance`) | Geen test |
+| P3-4 release in finally | gedaan | `occt.worker.ts` | |
+| P3-5 dirty na await | gedaan | `MenuBar.tsx` (`markSaved`) | Test: `saveContext.test.ts` |
+| P3-6 relatieve verwijzingsmarge | gedaan | `tolerance.ts` (`referenceTol`), `edgesets.ts`, `deleteface.ts` | Test: `tolerance.test.ts`. Niet geschaald: het lengtefilter van `matchEdge`, `matchMovedEdge`, `sheetmetal4.ts` |
+| P3-7 rang in de solver | gedaan | `linalg.ts` (`rowRank`), `lm.ts` (vouwtest) | Centrale verschillen, genormaliseerde rijen. Test: `groups.test.ts` |
+| P3-8 console.warn | gedaan | `solid.ts` (`CadBrush`) | Bij een upgrade van three-bvh-csg de override nakijken |
+| P3-9 klok achter wachtrij | gedaan | `occtClient.ts` | |
+| P3-10 CI | deels | `ci.yml` (SHA-pins, `npm audit`), `.github/dependabot.yml` | Geen dekkingsmeting (provider niet geïnstalleerd) |
+| P3-11 bibliotheektests in src/qa | deels | `tools/test-groups.json` | Eigen groep, script en CI-job; niet verhuisd (qaFitness mocht niet aangeraakt worden) |
+| P3-12 CSP | gedaan | `vite.config.ts`, `main.cjs` | `style-src-elem 'self'`; desktop-e2e groen, de geïnstalleerde build niet nagekeken |
+| P3-13 volgnummer i.p.v. identiteit | gedaan | `src/app/rebuildQueue.ts` | Test: `rebuildQueue.test.ts` |
+
+### Pariteitslijst
+
+| Nr | Stand | Opmerking |
+|---|---|---|
+| 1 meerdere documenten, externe verwijzingen | niet | Besluit voor Ian, zie het voorstel hieronder |
+| 2 facetten → exact, selectie op gekromde vlakken | deels | `src/app/faceTransfer.ts`: eerst `ftag`, normaaldrempel naar kromming (test `faceTransfer.test.ts`); nog steeds twee kernen na elkaar |
+| 3 rebuildsnelheid | deels | Incrementeel (P2-5); budget nog te meten |
+| 4 Options zonder effect (F112) | niet | |
+| 5 uitwisseling (STEP als B-rep, DXF/DWG, Parasolid) | niet | |
+| 6 Instant3D | niet | |
+| 7 grote schetsen | gedaan | P2-9 |
+| 8 tekeningen | niet | |
+| 9 standaardonderdelen, Excel-ontwerptabellen | niet | |
+| 10 uiterlijk | niet | bewust anders (F189) |
+| 11 toetsen | deels | Tab / Shift+Tab verbergen en tonen een component (`shortcuts.ts`; Shift+Tab toont de laatst met Tab verborgen, niet "onder de aanwijzer"); Ctrl+Tab vraagt meerdere documenten; P3-2 en P2-15 gedaan |
+| 12 installer niet ondertekend | niet | certificaat, besluit Ian |
+
+Tellingen: P1 3 gedaan; P2 12 gedaan, 3 deels (P2-3, P2-6, P2-12); P3 11 gedaan, 2 deels (P3-10, P3-11); pariteit 1
+gedaan, 3 deels, 8 niet.
+
+Gedraaid: `npm run typecheck` schoon; `npx vitest run` 971 tests, 970 geslaagd, 0 gefaald, 1 overgeslagen (het tijdelijke hulpbestand
+`src/qa/fotosAfzuiging74.test.ts` van de afzuiging-agent; zolang het er staat, telt `tools/doc-counts.cjs` 971 i.p.v. 970), groen na
+twee aanpassingen (de prefsStore-test zet een doc-optie nu na het nieuwe document, P2-2; `typeplaatjeAfzuiging.test.ts`
+in de groep voorbeelden); e2e desktop: `desktop-editsave` 13/13, `desktop` 15/15, `desktop-recover` 21/21;
+browser (mesh-pass): editcomponent, dialogopts, prefs112, reorder, multibody, assembly, features groen; release-pass
+(`?kernel=brep&rebuild=worker`): brep, rebuildworker, multibody groen. De volledige regressie (117 scripts, 3 passes) is niet gedraaid.
+
+### Voorstel voor Ian: meerdere documenten en externe verwijzingen (niet gebouwd)
+
+Nu bevat een assembly een kopie van elk onderdeel (`component.part`) en een tekening een kopie van het model
+(`view.model`). Het referentieprogramma werkt met losse bestanden die naar elkaar verwijzen.
+
+Voorstel:
+1. Een component krijgt `ref: { file: <relatief pad>, id: <document-id>, rev: <hash> }`, eerst naast `part` (overgang),
+   later in plaats ervan. Openen zoekt het bestand naast het assembly, dan in de zoekpaden; ontbreekt het, dan de
+   ingebedde kopie met de waarschuwing "verwijzing niet gevonden".
+2. Meerdere open documenten in één venster (Window-menu, Ctrl+Tab), elk met eigen undo, dirty en handle; opslaan van een
+   assembly vraagt welke gewijzigde onderdelen mee moeten (Save All).
+3. Een tekening verwijst op dezelfde manier naar haar model en werkt bij als het modelbestand verandert.
+
+Gevolgen:
+- Bestandsformaat 4 met migratie: ingebedde onderdelen worden bij het opslaan als losse bestanden uitgepakt. Pack and Go
+  wordt dan echt nodig om een set te versturen.
+- De desktop-brug moet bestanden naast elkaar mogen lezen en schrijven (nu alleen handles uit een dialoog): een map-handle
+  per project, met dezelfde padcontrole.
+- De browserversie kan geen verwijzingen naar schijf volgen; daar blijft ingebed werken.
+- P1-1 en P2-13 verdwijnen als soort fout (opslaan schrijft het onderdeelbestand zelf).
+- Grote ingreep in store, Edit Component, tekeningen, autosave/Recovery en e2e; meerdere rondes werk.
+
+### Rebuildtijd: vertraging gevonden en opgelost (2026-11-17, avond)
+
+De treinagent zag `Kabeldoos-bak-links.kcad` van 24,2 s naar ±44 s gaan. Gemeten met een tijdelijke test die de
+mesh-rebuild (zonder budget) van dezelfde `.kcad`-bestanden doet, afwisselend op een werkboom van 0.5.14 (`git worktree`
+van HEAD) en op deze werkboom. Andere agenten draaiden intussen zware tests (afzuiging, tekeningen): de absolute tijden
+schommelen ±30 %, alleen de afwisselende paren zijn te vergelijken. Een meting op een rustige machine blijft **nog te
+meten, alleen draaiend**.
+
+Eerste paar (vóór de oplossing): links 32,0 → 45,7 s, rechts 18,0 → 30,2 s. Oorzaak, met een CPU-profiel:
+- `isClosed`/`openArea` (P2-8, nieuw) lasten elk hoekpunt via tekstsleutels, drie keer per boolean (lichaam, gereedschap,
+  resultaat): ±2,3 s tegen 0,7 s.
+- `booleanMissed` (P2-8, nieuw) liep ook op de boekhoud-union van de boss-geschiedenis en bemonsterde alle hoekpunten van
+  het grote lichaam: ±4,3 s.
+- Rebuildcache en solver waren het niet (cache uit: even traag).
+
+Opgelost in `src/core/features/meshCheck.ts` en `solid.ts`: lassen met numerieke celhashing en de ruwe array, randen tellen
+met gesorteerde typed arrays, eerst het resultaat controleren (lichaam en gereedschap alleen als het resultaat open is),
+`csg(..., { checks: false })` voor de boss-geschiedenis, en bij `booleanMissed` alleen punten binnen de doos van het andere
+lichaam (cut) of van het lichaam dat het volume mist (union). Daarbij een oud knelpunt gevonden: `meshPieces` had een
+union-find op tekstsleutels zonder padcompressie (26 s van de 60 s van de linkerbak); nu gehele getallen met padhalvering
+en unie op grootte.
+
+Na de oplossing, twee afwisselende paren (0.5.14 → 0.5.15, wandtijd, gemiddelde):
+
+| Model | 0.5.14 | 0.5.15 |
+|---|---:|---:|
+| Kabeldoos-bak-links | 41,8 s | 27,6 s |
+| Kabeldoos-bak-rechts | 19,5 s | 18,0 s |
+| Ventilatorkuip (afzuiging) | 63,9 s | 44,3 s |
+| Voedingsbox (afzuiging) | 60,8 s | 54,6 s |
+| Lastafel (alle onderdelen) | 47,2 s | 46,2 s |
+
+De schetsoplossing van dezelfde bestanden bleef 3-170 ms. Tests na de wijziging: `src/core/features` en de strikte
+QA-tests (81 bestanden, 354 tests) groen.

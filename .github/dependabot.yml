@@ -1,0 +1,16 @@
+# Dependency updates (QA 0.5.14 P3-10): the npm packages and the pinned GitHub Actions (ci.yml pins each action to a
+# commit SHA with its tag in a comment; Dependabot updates both together)
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-dependencies:
+        dependency-type: development
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

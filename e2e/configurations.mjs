@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, dontSave } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -45,17 +46,17 @@ await page.mouse.click(cx + 100, cy + 80);
 await page.waitForTimeout(200);
 await page.locator('.k-modify input.k-num').fill('40');
 await page.locator('.k-modify input.k-num').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 let c = await C();
 check('plate built', c.bodies === 1 && c.depth === 10, JSON.stringify(c));
 
@@ -74,7 +75,7 @@ await shot('c2-add-configuration-pm');
 await page.locator('[data-testid="configuration-pm"] input.k-input').first().fill('210');
 await page.locator('[data-testid="configuration-pm"] input.k-input').nth(1).fill('210 mm plate');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(300);
+await settle(page);
 c = await C();
 check('configuration 210 added and active', c.names.join(',') === 'Default,210' && c.active === '210', JSON.stringify(c));
 const tree2 = (await page.locator('.k-tree').innerText()).replace(/\s+/g, ' ');
@@ -133,7 +134,7 @@ if (scopeFound) {
   await page.locator('[data-testid="modify-scope"]').selectOption('all');
   await page.locator('.k-modify input.k-num').fill('50');
   await page.locator('.k-modify input.k-num').press('Enter');
-  await page.waitForTimeout(400);
+  await settle(page);
   const allDims = await page.evaluate(() => (window.__phlippoStore.getState().doc.configurations ?? []).map((c) => c.dims['D1@Sketch1']));
   check('All Configurations: D1@Sketch1 = 50 in every configuration', allDims.length === 3 && allDims.every((v) => v === 50), JSON.stringify(allDims));
 }
@@ -167,11 +168,11 @@ const plateFile = await page.evaluate(() => JSON.stringify({ format: 'phlippo-ca
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
 await page.click('.k-menu-item:has-text("New")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-doctype:has-text("Assembly")');
 await page.click('.k-dialog-actions button:has-text("OK")');
 await dontSave(page); // Save changes? → Don't Save, when it asks
-await page.waitForTimeout(500);
+await settle(page);
 for (let i = 0; i < 3; i++) {
   if (i) await page.click('.k-cm-big:has-text("Insert Components") .k-cm-main');
   await page.waitForTimeout(200);
@@ -187,7 +188,7 @@ check('tree shows Part1<1> (270)', (await page.locator('.k-tree-row:has-text("Pa
 // change the configuration of instance 2 to 210 and of instance 3 to Default (suppressed extrude -> no body)
 await page.click('.k-tree-row:has-text("Part1<2>")', { button: 'right' });
 await page.click('.k-menu-item:has-text("210")');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-tree-row:has-text("Part1<3>")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Default")');
 await page.waitForTimeout(500);
@@ -196,7 +197,7 @@ check('instances show 270 / 210 / Default', a.comps.map((x) => x.cfg).join(',') 
 check('world bodies follow the configuration (27 and 20 thick; Default has no body)', a.bodies.length === 2 && a.bodies.includes(27) && a.bodies.includes(20), JSON.stringify(a.bodies));
 check('tree shows Part1<2> (210)', (await page.locator('.k-tree-row:has-text("Part1<2> (210)")').count()) === 1);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('c6-assembly-configurations');
 // Mass Properties of the assembly adds all components (50 x 40 x 27 + 50 x 40 x 20 = 94000 mm³)
 await page.click('.k-cm-tab:has-text("Evaluate")');

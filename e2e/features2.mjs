@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -38,7 +39,7 @@ await page.evaluate(() => {
   ] };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(1200);
+await settle(page);
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { feats: s.doc.features.map((f) => ({ name: f.name, type: f.type })), errors: s.rebuild.errors, faces: s.rebuild.bodies[0]?.faces.length, curves: (s.rebuild.curves ?? []).map((c) => c.id), refs: (s.doc.refGeometry ?? []).map((r) => r.kind + ':' + r.how) }; });
 const topFace = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.filter((x) => !x.curved && x.normal[1] > 0.99).sort((a, c) => c.area - a.area)[0]; return { bodyId: b.id, faceId: f.id }; });
 
@@ -46,25 +47,25 @@ const topFace = () => page.evaluate(() => { const s = window.__phlippoStore.getS
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Reference Geometry") .k-cm-arrow');
 await page.evaluate(() => window.__phlippoStore.getState().startRefGeom('axis'));
-await page.waitForTimeout(200);
+await settle(page);
 check('Reference Geometry ▸ Axis opens its Property Panel', (await page.locator('[data-testid="refgeom-pm"]').count()) === 1);
 // the planes are picked in the flyout Feature Tree of the graphics area, by design
 await page.click('.k-flyout-toggle');
 await page.click('.k-flyout-body .k-tree-row:has-text("Front Plane")');
 await page.click('.k-flyout-body .k-tree-row:has-text("Right Plane")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="refgeom-ok"]');
-await page.waitForTimeout(300);
+await settle(page);
 // Point at the centre of the top face, coordinate system
 await page.evaluate(() => window.__phlippoStore.getState().startRefGeom('point'));
 await page.evaluate((f) => window.__phlippoStore.getState().setSelectedFace(f), await topFace());
-await page.waitForTimeout(150);
+await settle(page);
 await page.click('[data-testid="refgeom-ok"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().startRefGeom('csys'));
 await page.evaluate((f) => window.__phlippoStore.getState().setSelectedFace(f), await topFace());
 await page.click('[data-testid="refgeom-ok"]');
-await page.waitForTimeout(300);
+await settle(page);
 let st = await S();
 check('Axis1 (two planes), Point1 (center of face) and Coordinate System1 are created', st.refs.includes('axis:Two Planes') && st.refs.includes('point:Center of Face') && st.refs.some((r) => r.startsWith('csys')), JSON.stringify(st.refs));
 check('the reference geometry shows in the tree', (await page.locator('.k-tree-row:has-text("Axis1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Coordinate System1")').count()) === 1);
@@ -77,29 +78,29 @@ await page.screenshot({ path: `${OUT}/f2-refgeom.png` });
 const vol = async () => { await waitSettled(page); return page.evaluate(() => { const s = window.__phlippoStore.getState(); const g = s.rebuild.bodies[0].geometry; const p = g.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return Math.abs(v); }); };
 const v0 = await vol();
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setSelectedFeature('f2'); s.startPattern('tablePattern'); });
-await page.waitForTimeout(300);
+await settle(page);
 check('Table Driven Pattern PM shows the XY table', (await page.locator('[data-testid="tpattern-table"]').count()) === 1);
 await page.click('[data-testid="tpattern-add"]');
 await page.evaluate(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(1200);
+await settle(page);
 const v1 = await vol();
 check('Table Driven Pattern adds three holes', Math.abs(v0 - v1 - 3 * Math.PI * 9 * 10) < 20, JSON.stringify({ v0, v1 }));
 
 // Curve Driven Pattern along Sketch3
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setSelectedFeature('f2'); s.startPattern('curvePattern'); s.updateFeatureDraft({ curve: { sketchId: 'sk3', count: 3, spacing: 20, equal: true, tangent: false } }); s.commitFeature(); });
-await page.waitForTimeout(1200);
+await settle(page);
 st = await S();
 check('Curve Driven Pattern builds without errors', st.feats.some((f) => f.type === 'curvePattern') && !Object.keys(st.errors).length, JSON.stringify(st.errors));
 
 // Fill Pattern on the top face
 await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setSelectedFeature('f2'); s.setSelectedFace(f); s.startPattern('fillPattern'); }, await topFace());
-await page.waitForTimeout(300);
+await settle(page);
 check('Fill Pattern takes the selected face as boundary', /Face/.test((await page.locator('[data-testid="fill-face"]').textContent()) ?? ''));
 await page.evaluate(() => window.__phlippoStore.getState().cancelFeature());
 
 // Variable Pattern
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setSelectedFeature('f2'); s.startPattern('variablePattern'); });
-await page.waitForTimeout(300);
+await settle(page);
 check('Variable Pattern PM shows the pattern table', (await page.locator('[data-testid="varpattern-table"]').count()) === 1);
 await page.evaluate(() => window.__phlippoStore.getState().cancelFeature());
 
@@ -111,29 +112,29 @@ await waitSettled(page);
 st = await S();
 check('Split Line splits the faces it crosses', st.feats.some((f) => f.type === 'splitLine') && st.faces > faces0 && !Object.keys(st.errors).length, JSON.stringify({ faces0, faces: st.faces, e: st.errors }));
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.startCurveFeature('projectedCurve'); s.updateFeatureDraft({ sketchId: 'sk3' }); s.commitFeature(); });
-await page.waitForTimeout(1200);
+await settle(page);
 st = await S();
 check('Projected Curve lies on the body (a 3D curve)', st.feats.some((f) => f.type === 'projectedCurve') && !Object.keys(st.errors).length, JSON.stringify(st.errors));
 
 // Advanced Hole with a far side countersink, Stud Tool
 const v2 = await vol();
 await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setSelectedFace(f); s.startHole(true); s.addHolePoint({ x: 12, y: 12 }); s.commitFeature(); }, await topFace());
-await page.waitForTimeout(1500);
+await settle(page);
 st = await S();
 const v3 = await vol();
 check('Advanced Hole (counterbore + far side countersink) removes material', st.feats.some((f) => /^Advanced Hole/.test(f.name)) && v3 < v2 - 100 && !Object.keys(st.errors).length, JSON.stringify({ v2, v3, e: st.errors }));
 await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setSelectedFace(f); s.startStud(); s.commitFeature(); }, await topFace());
-await page.waitForTimeout(1500);
+await settle(page);
 const v4 = await vol();
 st = await S();
 check('Stud Tool adds an M6 x 20 stud', st.feats.some((f) => f.type === 'stud') && v4 > v3 + 400 && !Object.keys(st.errors).length, JSON.stringify({ v3, v4, e: st.errors }));
 
 // Offset On Surface
 await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setOffsetSurfEdit({ distance: 3, reverse: false }); s.setSelectedFace(f); }, await topFace());
-await page.waitForTimeout(200);
+await settle(page);
 check('Offset On Surface opens its Property Panel', (await page.locator('[data-testid="offsetsurf-pm"]').count()) === 1);
 await page.click('[data-testid="offsetsurf-ok"]');
-await page.waitForTimeout(600);
+await settle(page);
 st = await S();
 check('Offset On Surface creates a 3D sketch', st.feats.some((f) => f.type === 'sketch3d'), JSON.stringify(st.feats.map((f) => f.name)));
 await page.keyboard.press('Control+7');

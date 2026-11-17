@@ -56,7 +56,7 @@ const APP_INDEX = path.join(APP_DIST, 'index.html');
 // files, and the Content-Security-Policy below is sent as a real header
 const APP_ORIGIN = 'app://phlippo';
 const APP_URL = `${APP_ORIGIN}/index.html`;
-const CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+const CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; style-src-elem 'self'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 // the OpenCascade worker (STEP import/export, QA F51): its Emscripten glue builds functions at run time, which needs
 // 'unsafe-eval'. Only that worker gets it; a worker keeps the policy of its own script, so the page stays strict.
 const CSP_OCCT_WORKER = CSP.replace("script-src 'self' 'wasm-unsafe-eval'", "script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'");
@@ -168,6 +168,32 @@ function sendOpen(file) {
     .catch((err) => win && win.webContents.send('file:opened', { name: path.basename(file), handle: '', error: String(err.message ?? err) }));
 }
 
+/** the close question goes to the renderer; when not even its receipt comes back within 5 s it is hung (P2-3) */
+let closeAckTimer = null;
+function askRendererToClose() {
+  if (!win) return;
+  clearTimeout(closeAckTimer);
+  closeAckTimer = setTimeout(() => void offerToClose('Phlippo CAD does not answer.'), 5000);
+  win.webContents.send('win:closeRequested');
+}
+let offering = false;
+async function offerToClose(message) {
+  if (!win || offering) return;
+  offering = true;
+  try {
+    const r = await dialog.showMessageBox(win, {
+      type: 'warning', title: 'Phlippo CAD', buttons: ['Wait', 'Close Phlippo CAD'], defaultId: 0, cancelId: 0, message,
+      detail: 'Wait for it, or close the window. Changes since the last save are lost, except what Auto-Recover saved (Document Recovery).',
+    });
+    if (r.response === 1 && win) {
+      forceClose = true;
+      win.destroy();
+    }
+  } finally {
+    offering = false;
+  }
+}
+
 function createWindow() {
   win = new BrowserWindow({
     width: 1600,
@@ -201,9 +227,20 @@ function createWindow() {
   win.on('close', (e) => {
     if (dirty && !forceClose && !SMOKE) {
       e.preventDefault();
-      win && win.webContents.send('win:closeRequested');
+      askRendererToClose();
     }
   });
+  // a crashed or hung renderer never holds the window hostage (QA 0.5.14 advice P2-3)
+  win.webContents.on('render-process-gone', (_e, details) => {
+    if (!win || details.reason === 'clean-exit') return;
+    dirty = false;
+    void dialog.showMessageBox(win, {
+      type: 'error', title: 'Phlippo CAD', buttons: ['Reload'],
+      message: `Phlippo CAD stopped unexpectedly (${details.reason}).`,
+      detail: 'The window loads again. Changes since the last save are in Document Recovery (Task Pane), as far as Auto-Recover saved them.',
+    }).then(() => win && win.webContents.reload());
+  });
+  win.on('unresponsive', () => void offerToClose('Phlippo CAD is not responding.'));
   win.on('closed', () => {
     win = null;
   });
@@ -256,8 +293,10 @@ function createWindow() {
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on('second-instance', (_e, argv) => {
-    const file = kcadFromArgv(argv);
+  app.on('second-instance', (_e, argv, workingDirectory) => {
+    // a relative path is relative to where the second start ran, not to this process (QA 0.5.14 advice P3-3)
+    const named = kcadFromArgv(argv);
+    const file = named ? path.resolve(workingDirectory || process.cwd(), named) : null;
     if (win) {
       if (win.isMinimized()) win.restore();
       win.focus();
@@ -288,6 +327,9 @@ ipcMain.handle('win:close', (e, force) => {
   if (!trusted(e) || !win) return;
   forceClose = !!force;
   win.close();
+});
+ipcMain.on('win:closeAck', (e) => {
+  if (trusted(e)) clearTimeout(closeAckTimer);
 });
 ipcMain.on('doc:dirty', (e, value) => {
   if (trusted(e)) dirty = !!value;
@@ -338,6 +380,28 @@ ipcMain.handle('file:saveAs', async (e, { defaultPath, filters, data }) => {
 // renderer names a document (id, name, the handle of its file) and never a path
 registerRecover({ ipcMain, dialog, app, trusted, getWin: () => win, pathOf: (h) => handles.get(h) ?? null, maxBytes: MAX_FILE_BYTES });
 
+// Package Files (Pack and Go, QA 0.5.14 advice P3-1): the user picks one folder; the renderer names the files (base
+// names only, .kcad) and never a path
+ipcMain.handle('pack:save', async (e, files) => {
+  if (!trusted(e) || !win || !Array.isArray(files) || files.length === 0 || files.length > 1000) return null;
+  const r = await dialog.showOpenDialog(win, { title: 'Package Files: choose a folder', properties: ['openDirectory', 'createDirectory'] });
+  if (r.canceled || !r.filePaths[0]) return null;
+  const dir = r.filePaths[0];
+  let count = 0;
+  const skipped = [];
+  for (const f of files) {
+    const name = path.basename(String(f?.name ?? '')).replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_');
+    const data = f?.data;
+    if (!/\.kcad$/i.test(name) || !(data instanceof ArrayBuffer || ArrayBuffer.isView(data)) || data.byteLength > MAX_FILE_BYTES) {
+      skipped.push(name || '?');
+      continue;
+    }
+    await fs.writeFile(path.join(dir, name), data instanceof ArrayBuffer ? Buffer.from(data) : Buffer.from(data.buffer, data.byteOffset, data.byteLength));
+    count++;
+  }
+  return { folder: path.basename(dir), count, skipped };
+});
+
 // software OpenGL: whether this run uses it, the choice for the next start, and a restart to apply it now
 ipcMain.handle('gpu:status', (e) => (trusted(e) ? { software: SOFTWARE_GL, source: SOFTWARE_GL_SOURCE, next: readGpuPrefs().software === true } : null));
 ipcMain.handle('gpu:setSoftware', async (e, on) => {
@@ -350,10 +414,14 @@ ipcMain.handle('gpu:setSoftware', async (e, on) => {
   await fs.writeFile(GPU_FILE, JSON.stringify({ software: true }));
   return true;
 });
-ipcMain.handle('gpu:restart', (e) => {
-  if (!trusted(e) || SELF_TEST) return;
+// a restart never drops unsaved work (QA 0.5.14 advice P1-2): with unsaved changes it is refused, unless the renderer
+// says the user answered the Save question first (Save or Don't Save); app.exit skips the close handler and its question
+ipcMain.handle('gpu:restart', (e, opts) => {
+  if (!trusted(e) || SELF_TEST) return false;
+  if (dirty && !(opts && opts.force === true)) return false;
   app.relaunch({ args: process.argv.slice(1).filter((a) => a !== '--software-gl') });
   app.exit(0);
+  return true;
 });
 
 /** app://phlippo/<path>: a file of dist/, never outside it, with its type and the Content-Security-Policy */

@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -40,7 +41,7 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(700);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click();
 await page.locator('.k-cm-big:has-text("Linear Pattern") .k-cm-arrow').first().click();
 await page.click('.k-menu-item:has-text("Sketch Driven Pattern")');
@@ -48,11 +49,11 @@ await page.waitForTimeout(300);
 check('Sketch Driven Pattern Property Panel with the seed', (await page.locator('.k-pm-title:has-text("Sketch Driven Pattern")').count()) === 1 && (await page.locator('.k-section:has-text("Features and Faces")').innerText()).includes('Cut-Extrude1'));
 await page.locator('[data-testid="skpattern-sketch"]').selectOption('sk3');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const r = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, feats: s.doc.features.map((f) => f.name) }; });
 check('Sketch-Pattern1 built without errors', Object.keys(r.errors).length === 0 && r.feats.includes('Sketch-Pattern1'), JSON.stringify(r));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('sp1-sketch-pattern');
 
 console.log(`

@@ -1,7 +1,9 @@
 import type { Id, Sketch, SketchPoint } from '../sketch/types';
 import { entityPoints, entityScalars } from '../sketch/model';
-import { ata, atv, dependentRows, determinedParams, rref, solveSPD, zeros, type Matrix } from './linalg';
-import { buildEquations, ParamIndex, type Equation } from './equations';
+import { rowRank } from './linalg';
+import { buildEquations, ParamIndex } from './equations';
+import { partition } from './groups';
+import { analysisRows, foldTest, levenbergMarquardt, uniqueDeps, type Part } from './lm';
 
 export type SketchStatus = 'under' | 'full' | 'over' | 'conflict' | 'invalid';
 export type EntityStatus = 'under' | 'full' | 'over';
@@ -14,6 +16,8 @@ export interface SolveOptions {
   tolerance?: number;
   /** skip the (comparatively costly) DOF / redundancy analysis */
   skipAnalysis?: boolean;
+  /** solve and analyse the sketch as one system instead of independent groups (for tests and diagnostics) */
+  joint?: boolean;
 }
 
 export interface SolveResult {
@@ -27,83 +31,6 @@ export interface SolveResult {
   constraintStatus: Record<Id, ConstraintStatus>;
   /** points (param ids) that are free to move */
   freePoints: Set<Id>;
-}
-
-function residuals(eqs: Equation[], x: number[]): number[] {
-  const f = new Array(eqs.length);
-  for (let i = 0; i < eqs.length; i++) f[i] = eqs[i].f(x);
-  return f;
-}
-
-function norm2(v: number[]): number {
-  let s = 0;
-  for (const a of v) s += a * a;
-  return s;
-}
-
-/** Sparse-aware numerical Jacobian (forward differences on the dependency set). */
-function jacobian(eqs: Equation[], x: number[], f0: number[], n: number): Matrix {
-  const J = zeros(eqs.length, n);
-  const xs = x.slice();
-  for (let r = 0; r < eqs.length; r++) {
-    const eq = eqs[r];
-    for (const c of eq.deps) {
-      const h = 1e-6 * Math.max(1, Math.abs(xs[c]));
-      const old = xs[c];
-      xs[c] = old + h;
-      J[r][c] = (eq.f(xs) - f0[r]) / h;
-      xs[c] = old;
-    }
-  }
-  return J;
-}
-
-/** Levenberg-Marquardt least squares on the equation set. */
-function levenbergMarquardt(
-  eqs: Equation[],
-  x0: number[],
-  n: number,
-  maxIter: number,
-  tol: number,
-): { x: number[]; iterations: number; residual: number; J: Matrix } {
-  let x = x0.slice();
-  let f = residuals(eqs, x);
-  let cost = norm2(f);
-  let lambda = 1e-3;
-  let it = 0;
-  let J = jacobian(eqs, x, f, n);
-  const tol2 = tol * tol;
-  for (; it < maxIter && cost > tol2; it++) {
-    const A = ata(J, n);
-    const g = atv(J, f, n);
-    for (let i = 0; i < n; i++) g[i] = -g[i];
-    let improved = false;
-    for (let tries = 0; tries < 12; tries++) {
-      const Ad = A.map((row, i) => {
-        const r = row.slice();
-        r[i] += lambda * (A[i][i] + 1);
-        return r;
-      });
-      const d = solveSPD(Ad, g);
-      if (d) {
-        const xn = x.map((v, i) => v + d[i]);
-        const fn = residuals(eqs, xn);
-        const cn = norm2(fn);
-        if (cn < cost) {
-          x = xn;
-          f = fn;
-          cost = cn;
-          lambda = Math.max(lambda / 4, 1e-12);
-          improved = true;
-          break;
-        }
-      }
-      lambda *= 8;
-    }
-    if (!improved) break;
-    J = jacobian(eqs, x, f, n);
-  }
-  return { x, iterations: it, residual: Math.sqrt(cost), J };
 }
 
 export function solveSketch(sketch: Sketch, opts: SolveOptions = {}): SolveResult {
@@ -121,23 +48,54 @@ export function solveSketch(sketch: Sketch, opts: SolveOptions = {}): SolveResul
     eqs.push({ constraintId: '__drag', deps: [py], f: (x) => x[py] - ty });
   }
 
-  const lm = levenbergMarquardt(eqs, ix.values, ix.n, maxIter, tol);
-  // a drag that cannot be satisfied: keep the user-constraints consistent by
-  // re-solving without the drag target from the dragged configuration
-  let x = lm.x;
-  let residual = lm.residual;
-  let iterations = lm.iterations;
-  let J = lm.J;
-  if (opts.drag && residual > tol * 100) {
-    const lm2 = levenbergMarquardt(equations, x, ix.n, maxIter, tol);
-    x = lm2.x;
-    residual = lm2.residual;
-    iterations += lm2.iterations;
-    J = lm2.J;
-  } else if (opts.drag) {
-    // Jacobian for analysis must not include the drag rows
-    J = J.slice(0, equations.length);
+  const nA = equations.length;
+  const deps = uniqueDeps(eqs);
+  const P = partition(eqs, deps, nA, ix.values, ix.n, !!opts.joint);
+  const x = ix.values.slice();
+  let iterations = 0;
+  const dropped = new Set<number>();
+  // one part: solve; a drag that cannot be satisfied is dropped and the part re-solved from the dragged state,
+  // so the user's relations stay consistent
+  const run = (p: Part) => {
+    const lm = levenbergMarquardt(eqs, deps, p, x, maxIter, tol);
+    let it = lm.iterations, cost = lm.cost;
+    if (p.rows[p.rows.length - 1] >= nA && Math.sqrt(cost) > tol * 100) {
+      const lm2 = levenbergMarquardt(eqs, deps, { rows: p.rows.filter((r) => r < nA), cols: p.cols }, x, maxIter, tol);
+      for (const r of p.rows) if (r >= nA) dropped.add(r);
+      it += lm2.iterations;
+      cost = lm2.cost;
+    }
+    iterations = Math.max(iterations, it);
+    return cost;
+  };
+  for (const p of P.pinParts) run(p);
+  let joint = false;
+  for (const p of P.parts) {
+    const kept = p.pinned.map((q) => x[q]);
+    const cost = run(p);
+    let moved = 0;
+    p.pinned.forEach((q, i) => {
+      moved = Math.max(moved, Math.abs(x[q] - kept[i]));
+      x[q] = kept[i];
+    });
+    // a conflict that pulls on fixed parameters (the origin, a Fix) spreads over every group hanging on them:
+    // solve the whole system together, as before the split
+    if (moved > tol * 10 && Math.sqrt(cost) > tol * 100) joint = true;
   }
+  if (joint) {
+    const all = partition(eqs, deps, nA, ix.values, ix.n, true);
+    for (let i = 0; i < ix.n; i++) x[i] = ix.values[i];
+    iterations = 0;
+    dropped.clear();
+    for (const p of all.parts) run(p);
+  }
+  let cost = 0;
+  for (let r = 0; r < eqs.length; r++) {
+    if (dropped.has(r)) continue;
+    const v = eqs[r].f(x);
+    cost += v * v;
+  }
+  const residual = Math.sqrt(cost);
 
   const solved = ix.apply(sketch, x);
   const entityStatus: Record<Id, EntityStatus> = {};
@@ -155,9 +113,30 @@ export function solveSketch(sketch: Sketch, opts: SolveOptions = {}): SolveResul
   if (!opts.skipAnalysis) {
     const conflicting = residual > tol * 100;
     // per-equation residual to identify conflicting constraints
-    const f = residuals(equations, x);
-    const determined = determinedParams(J, ix.n);
-    const dependent = dependentRows(J);
+    const f = equations.map((e) => e.f(x));
+    // rank, dependent rows and determined parameters per part (see groups.ts for why this equals the whole)
+    const determined: boolean[] = new Array(ix.n).fill(false);
+    const dependent: number[] = P.emptyRows.filter((r) => r < nA);
+    let rank = 0;
+    const analyse = (p: Part, shared: number) => {
+      const rows = p.rows.filter((r) => r < nA);
+      const jr = analysisRows(eqs, deps, rows, p.cols, x);
+      const rr = rowRank(jr, p.cols.length, foldTest(eqs, deps, rows, p.cols, x, jr));
+      rank += rr.rank - shared;
+      for (const k of rr.dependent) dependent.push(rows[k]);
+      return rr.determined;
+    };
+    for (const p of P.pinParts) {
+      const det = analyse(p, 0);
+      p.cols.forEach((c, i) => (determined[c] = det[i]));
+    }
+    for (const p of P.parts) {
+      const det = analyse(p, p.pinned.length);
+      const shared = new Set(p.pinned);
+      p.cols.forEach((c, i) => {
+        if (!shared.has(c)) determined[c] = det[i];
+      });
+    }
     const overConstraints = new Set<Id>();
     for (const r of dependent) {
       const cid = equations[r].constraintId;
@@ -175,7 +154,7 @@ export function solveSketch(sketch: Sketch, opts: SolveOptions = {}): SolveResul
     for (const [pid, [a, b]] of ix.pointIx) {
       if (!determined[a] || !determined[b]) freePoints.add(pid);
     }
-    dof = Math.max(0, ix.n - rref(J).rank);
+    dof = Math.max(0, ix.n - rank);
 
     const overEntities = new Set<Id>();
     for (const cid of overConstraints) {
@@ -220,4 +199,29 @@ export function solveSketch(sketch: Sketch, opts: SolveOptions = {}): SolveResul
     constraintStatus,
     freePoints,
   };
+}
+
+/** The number of independent parts the solver splits a sketch into (pinned-parameter parts included). */
+export function countSolveGroups(sketch: Sketch): number {
+  const ix = new ParamIndex(sketch);
+  const { equations } = buildEquations(sketch, ix);
+  const P = partition(equations, uniqueDeps(equations), equations.length, ix.values, ix.n);
+  return P.parts.length + P.pinParts.length;
+}
+
+const solveCache = new WeakMap<Sketch, SolveResult>();
+
+/**
+ * solveSketch with default options, remembered per sketch object. Sketches are immutable values in the document,
+ * so the same object always gives the same result: undo/redo/open can call this for every sketch and only the
+ * sketches that changed are solved again. A converged result is also remembered under its own solved sketch
+ * (solving that again changes nothing); a result that did not converge is not, so it keeps iterating as before.
+ */
+export function solveSketchCached(sketch: Sketch): SolveResult {
+  const hit = solveCache.get(sketch);
+  if (hit) return hit;
+  const r = solveSketch(sketch);
+  solveCache.set(sketch, r);
+  if (r.residual <= 1e-8 && r.status !== 'conflict') solveCache.set(r.sketch, r);
+  return r;
 }

@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -48,21 +49,21 @@ await page.waitForTimeout(200);
 await page.click('.k-repair-dialog .k-btn:has-text("Close")');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(700);
+await settle(page);
 let r = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { bodies: s.rebuild.bodies.length, errors: s.rebuild.errors }; });
 check('the arc slot extrudes to a curved bar (closed profile, no thin feature)', r.bodies === 1 && Object.keys(r.errors).length === 0 && !(await page.evaluate(() => window.__phlippoStore.getState().doc.features.some((f) => f.type === 'extrude' && f.thin))), JSON.stringify(r));
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('as2-arc-slot-extruded');
 // Sensor PM: Volume sensor in the Sensors folder
 await page.click('.k-cm-tab:has-text("Evaluate")');
 await page.click('.k-cm-big:has-text("Sensor") .k-cm-main');
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="sensor-property"]').selectOption('volume');
 await page.click('[data-testid="sensor-pm"] .k-pm-ok');
-await page.waitForTimeout(300);
+await settle(page);
 const sensors = await page.evaluate(() => (window.__phlippoStore.getState().doc.sensors ?? []).map((s) => s.kind ?? s.name));
 check('Sensor PM adds a volume sensor', sensors.length === 1, JSON.stringify(sensors));
 

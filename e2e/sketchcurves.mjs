@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -94,7 +95,7 @@ await page.screenshot({ path: `${OUT}/fullydefine.png` });
 // Drag Dimensions: drag the handle of a length dimension
 await page.click('.k-cm-big:has-text("Drag Dimensions")');
 const dim = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; const c = sk.constraintOrder.map((id) => sk.constraints[id]).find((k) => k.kind === 'length'); s.selectConstraint(c.id); return { id: c.id, v: c.value }; });
-await page.waitForTimeout(300);
+await settle(page);
 const grip = await page.locator('[data-testid="dragDimensions-grip"]').boundingBox();
 check('Drag Dimensions shows a drag handle on the selected dimension', !!grip);
 if (grip) {
@@ -115,7 +116,7 @@ const rapid = await page.evaluate(() => window.__phlippoStore.getState().rapidSk
 check('Rapid Sketch toggles on', rapid === true);
 const before = await page.evaluate(() => window.__phlippoStore.getState().activeSketchId);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setTool('line'); s.rapidSwitch({ plane: 'right' }); });
-await page.waitForTimeout(400);
+await settle(page);
 const after = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { id: s.activeSketchId, plane: s.doc.sketches[s.activeSketchId]?.plane, tool: s.tool }; });
 check('Rapid Sketch starts a new sketch on the other plane with the same tool', after.id && after.id !== before && after.plane === 'right' && after.tool === 'line', JSON.stringify(after));
 await page.keyboard.press('Escape');
@@ -123,7 +124,7 @@ await page.evaluate(() => window.__phlippoStore.getState().exitSketch());
 
 // Perspective (View Settings)
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); if (!s.show.perspective) s.toggleShow('perspective'); });
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 const persp = await page.evaluate(() => window.__phlippoStore.getState().show.perspective);
 check('View Settings ▸ Perspective is on', persp === true);
 await page.screenshot({ path: `${OUT}/perspective.png` });

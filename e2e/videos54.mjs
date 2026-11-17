@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { menuPath } from './lib/menu.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -45,7 +46,7 @@ await page.waitForTimeout(300);
 r = await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return Object.values(sk.entities).filter((e) => e.slot).length; });
 check('the slot is one entity: its two lines, two arcs and centreline belong together', r === 5, String(r));
 await S(() => window.__phlippoStore.getState().setTool('trim'));
-await page.waitForTimeout(100);
+await settle(page);
 // the top line of the slot lies 40 px above the centre
 await page.mouse.click(cx, cy - 40);
 await page.waitForTimeout(300);
@@ -75,7 +76,7 @@ check('typing 50 makes the line 50 long', r.some((l) => Math.abs(l - 50) < 1e-6)
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await S(() => { const s = window.__phlippoStore.getState(); s.setTool('select'); s.exitSketch(); });
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- the menus nest their groups: Insert ▸ Features ▸ Delete/Keep Body…
 await page.hover('.k-brand');
@@ -93,7 +94,7 @@ await S(() => {
   st.start3DSketch();
   window.__phlippoStore.setState({ sketch3dEdit: { ...window.__phlippoStore.getState().sketch3dEdit, segments: [[[0, 0, 0], [50, 0, 0]], [[50, 0, 0], [50, 0, 40]]], last: [50, 0, 40] } });
 });
-await page.waitForTimeout(200);
+await settle(page);
 const len0 = page.locator('[data-testid="sketch3d-length-0"] input');
 await len0.fill('60');
 await len0.press('Tab');
@@ -101,19 +102,19 @@ await page.waitForTimeout(150);
 r = await S(() => window.__phlippoStore.getState().sketch3dEdit.segments);
 check('Line1 typed to 60: its end and the line after it move along', r[0][1][0] === 60 && r[1][0][0] === 60 && r[1][1][0] === 60 && r[1][1][2] === 40, JSON.stringify(r));
 await page.click('.k-section-title:has-text("Sketch Fillet")');
-await page.waitForTimeout(100);
+await settle(page);
 await page.click('[data-testid="sketch3d-fillet-all"]');
 await page.waitForTimeout(150);
 check('Fillet all corners adds SketchFillet1 at the corner', (await page.locator('[data-testid="sketch3d-fillet-row"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/videos54-sketch3d.png` });
 await S(() => window.__phlippoStore.getState().commit3DSketch());
-await page.waitForTimeout(400);
+await settle(page);
 r = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'sketch3d'); const c = s.rebuild.curves?.find((x) => x.id === f.id); return { fillets: f.fillets?.length, n: c?.points.length }; });
 check('the 3D sketch keeps the fillet and its curve runs round the corner', r.fillets === 1 && r.n > 6, JSON.stringify(r));
 
 // ---- Curves ▸ Curve Through XYZ Points: the Curve File table
 await S(() => window.__phlippoStore.getState().setDialog('curveXYZ'));
-await page.waitForTimeout(200);
+await settle(page);
 const cell = (i, k) => page.locator(`[data-testid="curve-${i}-${k}"]`);
 await cell(0, 0).fill('0'); await cell(0, 1).fill('0'); await cell(0, 2).fill('0');
 await cell(1, 0).fill('30'); await cell(1, 1).fill('20'); await cell(1, 2).fill('0');
@@ -121,7 +122,7 @@ await cell(2, 0).fill('60'); await cell(2, 1).fill('0'); await cell(2, 2).fill('
 check('the Curve File table grows a row as the last one is filled', (await page.locator('[data-testid="curve-table"] tbody tr').count()) === 4);
 await page.screenshot({ path: `${OUT}/videos54-curvefile.png` });
 await page.click('[data-testid="curve-ok"]');
-await page.waitForTimeout(400);
+await settle(page);
 r = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'curvePoints'); return { name: f?.name, pts: f?.points?.length, curve: !!s.rebuild.curves?.find((c) => c.id === f?.id) }; });
 check('OK adds Curve1 through the three points', r.name === 'Curve1' && r.pts === 3 && r.curve, JSON.stringify(r));
 
@@ -137,9 +138,9 @@ await S(() => {
   d.sheetMetal = { thickness: 2, bendRadius: 2, kFactor: 0.5 };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 await S(() => window.__phlippoStore.getState().editFeature('b1'));
-await page.waitForTimeout(300);
+await settle(page);
 check('editing Base-Flange1 shows Override default parameters, the thickness locked', (await page.locator('[data-testid="bf-override"]').count()) === 1 && (await page.locator('.k-pm-host .k-number.disabled').count()) >= 2);
 await page.click('[data-testid="bf-override"]');
 await page.waitForTimeout(150);
@@ -159,7 +160,7 @@ await S(() => {
   d.sheetMetal = { thickness: 2, bendRadius: 2, kFactor: 0.5 };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await waitSettled(page); const vol0 = await S(() => { const g = window.__phlippoStore.getState().rebuild.bodies[0].geometry; const p = (g.index ? g.toNonIndexed() : g).getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const a = [p.getX(i), p.getY(i), p.getZ(i)], b = [p.getX(i + 1), p.getY(i + 1), p.getZ(i + 1)], c = [p.getX(i + 2), p.getY(i + 2), p.getZ(i + 2)]; v += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6; } return Math.abs(v); });
 await S(() => {
   const st = window.__phlippoStore.getState();
@@ -169,7 +170,7 @@ await S(() => {
   const e = b.edges.filter((x) => x.straight && Math.abs(x.length - 60) < 1e-6).sort((p, q) => q.centroid.y - p.centroid.y)[0];
   window.__phlippoStore.getState().updateFeatureDraft({ edge: window.__phlippoKit.edgeRef(e), length: 25, lengthMode: 'tangentBend' });
 });
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="flange-editprofile"]');
 await page.waitForTimeout(400);
 check('Edit Flange Profile opens the profile sketch with the Profile Sketch dialog: "The sketch is valid."', (await page.locator('[data-testid="profile-msg"]').innerText().catch(skip('videos54.mjs:175', ''))) === 'The sketch is valid.' && await S(() => !!window.__phlippoStore.getState().activeSketchId));
@@ -178,7 +179,7 @@ await S(() => {
   const st = window.__phlippoStore.getState();
   st.commit('line', (k) => window.__phlippoKit.addLine(k, { x: 5, y: 30 }, { x: 15, y: 40 })[0]);
 });
-await page.waitForTimeout(150);
+await settle(page, { quiet: 300 });
 check('an open line: "The sketch has both open and closed contours." and Finish greyed', (await page.locator('[data-testid="profile-msg"]').innerText()) === 'The sketch has both open and closed contours.' && await page.locator('[data-testid="profile-finish"]').isDisabled());
 await page.screenshot({ path: `${OUT}/videos54-profile-invalid.png` });
 await S(() => window.__phlippoStore.getState().undo());
@@ -186,7 +187,7 @@ await S(() => {
   const st = window.__phlippoStore.getState();
   st.commit('hole', (k) => window.__phlippoKit.addCircle(k, { x: 30, y: 12 }, 4)[0]);
 });
-await page.waitForTimeout(150);
+await settle(page, { quiet: 300 });
 check('a circle inside: valid again', (await page.locator('[data-testid="profile-msg"]').innerText()) === 'The sketch is valid.');
 await page.screenshot({ path: `${OUT}/videos54-profile.png` });
 await page.click('[data-testid="profile-finish"]');

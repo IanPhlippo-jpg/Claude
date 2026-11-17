@@ -17,9 +17,9 @@ describe('file format: validation and upgrades', () => {
     expect(() => parseDocument('{ not json')).toThrow(/not valid JSON/);
   });
 
-  it('refuses other formats and newer files', () => {
+  it('refuses other formats; a newer format opens with a warning (P2-7, persistence3.test.ts)', () => {
     expect(() => parseDocument(JSON.stringify({ format: 'other', version: 1 }))).toThrow(/Unknown file format/);
-    expect(() => parseDocument(JSON.stringify({ format: 'phlippo-cad', version: FILE_VERSION + 1, name: 'x' }))).toThrow(/newer Phlippo CAD/);
+    expect(() => parseDocument(JSON.stringify({ format: 'phlippo-cad', version: FILE_VERSION + 1, name: 'x' }))).toThrow(/Unknown units/);
   });
 
   it('upgrades a file without a version number', () => {

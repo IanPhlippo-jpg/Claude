@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -30,17 +31,17 @@ await S(({ pin, rozet }) => {
   d.components = [{ id: 'g', name: 'Rozet<1>', part: rozet, position: [0, 0, 0], rotation: q, fixed: true, suppressed: false }, { id: 'p', name: 'Vierkantstift<1>', part: pin, position: [0, 60, 0], rotation: [0, 0, 0, 1], fixed: false, suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 }, { pin, rozet });
-await page.waitForTimeout(1200);
+await settle(page);
 await page.click('[data-testid="motion-tab"]');
 await page.waitForTimeout(300);
 await page.selectOption('[data-testid="motion-type"]', 'basic');
 await page.click('[data-testid="motion-gravity"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="motion-edit-ok"]');
 await page.click('[data-testid="motion-contact"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="motion-edit-ok"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('Gravity and Contact1 in the Motion Timeline tree', (await page.locator('.k-motion-row:has-text("Gravity")').count()) === 1 && (await page.locator('.k-motion-row:has-text("Contact1")').count()) === 1);
 await page.click('[data-testid="motion-calc"]');
 await page.waitForTimeout(400);
@@ -52,19 +53,19 @@ await page.screenshot({ path: `${OUT}/motion2-basic.png` });
 // Animation Wizard: rotate the model once about Y
 await page.selectOption('[data-testid="motion-type"]', 'animation');
 await page.click('[data-testid="motion-wizard"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="motion-edit-ok"]');
-await page.waitForTimeout(200);
+await settle(page);
 const wz = await S(() => window.__phlippoStore.getState().doc.motionStudy.wizard);
 check('Animation Wizard step stored', wz?.length === 1 && wz[0].kind === 'rotate', JSON.stringify(wz));
 await S(() => window.__phlippoStore.getState().setMotionTime(2.5));
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await page.screenshot({ path: `${OUT}/motion2-wizard.png` });
 
 // Add Key: the pin at t = 2 moved
 await S(() => { const s = window.__phlippoStore.getState(); s.deleteMotionItem('wizard', '0'); s.setMotionTime(2); s.setMotionAutokey(true); });
 await S(() => window.__phlippoStore.getState().moveComponent('p', [40, 0, 0]));
-await page.waitForTimeout(200);
+await settle(page);
 const keys = await S(() => window.__phlippoStore.getState().doc.motionStudy.keys);
 const pos0 = await S(() => window.__phlippoStore.getState().doc.components.find((c) => c.id === 'p').position);
 check('Autokey: the move became a key at 2 s, the assembly pose stayed', keys?.length === 1 && Math.abs(keys[0].position[0] - 40) < 1e-6 && pos0[0] === 0, JSON.stringify({ keys, pos0 }));
@@ -76,11 +77,11 @@ check('Playback mode Loop', (await S(() => window.__phlippoStore.getState().doc.
 
 // Linear motor, Distance profile
 await page.click('[data-testid="motion-motor"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="motor-linear"]');
 await page.selectOption('[data-testid="motor-motion"]', 'distance');
 await page.click('[data-testid="motor-pm"] .k-pm-ok');
-await page.waitForTimeout(200);
+await settle(page);
 const motor = await S(() => window.__phlippoStore.getState().doc.motionStudy.motors[0]);
 check('Linear motor with Distance profile', motor.kind === 'linear' && motor.motion === 'distance' && motor.name.startsWith('LinearMotor'), JSON.stringify(motor));
 
@@ -93,11 +94,11 @@ await S(() => window.__phlippoStore.setState({ motionEdit: null }));
 
 // Motion Study Properties: frames per second
 await page.click('[data-testid="motion-props"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="motion-edit-pm"] input.k-num').first().fill('30');
 await page.locator('[data-testid="motion-edit-pm"] input.k-num').first().press('Tab');
 await page.click('[data-testid="motion-edit-ok"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('Motion Study Properties: 30 frames per second', (await S(() => window.__phlippoStore.getState().doc.motionStudy.fps)) === 30);
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');

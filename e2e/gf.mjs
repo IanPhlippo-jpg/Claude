@@ -4,6 +4,7 @@ import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -48,7 +49,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 check('two bodies', (await S(() => window.__phlippoStore.getState().rebuild.bodies.length)) === 2);
 
 // ---- Evaluate tab has the new commands
@@ -67,7 +68,7 @@ await page.locator('[data-testid="performance-dialog"] .k-btn:has-text("Close")'
 
 // ---- Symmetry Check: the beam (y 0..10, z -5..5) is symmetric about the Front plane, not about the Top plane
 await page.click('.k-cm-small:has-text("Symmetry Check")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="symmetry-plane"]').selectOption('front');
 await page.locator('[data-testid="symmetry-run"]').click();
 await page.waitForTimeout(800);
@@ -85,7 +86,7 @@ await page.waitForTimeout(400);
 check('Deviation Analysis PM opens and asks for edges', (await page.locator('[data-testid="deviation-pm"]').count()) === 1);
 // the edges are picked while the PM is open (opening an analysis clears the selection, by design)
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; s.toggleSelectedEdge(b.edges[0].id); s.toggleSelectedEdge(b.edges[1].id, true); });
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 check('Deviation Analysis PM lists the edges and 90 degree deviations', (await page.locator('[data-testid="deviation-edges"] .k-selbox-row').count()) === 2 && /Maximum deviation: 90\.00/.test(await text('[data-testid="deviation-result"]')), await text('[data-testid="deviation-result"]'));
 await shot('gf3-deviation');
 await page.locator('[data-testid="deviation-pm"] .k-pm-ok').click();
@@ -101,7 +102,7 @@ await page.locator('[data-testid="parting-pm"] .k-pm-ok').click();
 
 // ---- Compare: Body Compare of the two beams, then Compare Documents against a saved copy
 await page.click('.k-cm-big:has-text("Compare") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="compare-run"]').click();
 await page.waitForTimeout(800);
 const cmp = await text('[data-testid="compare-result"]');
@@ -142,7 +143,7 @@ await page.locator('[data-testid="beam-next"]').click();
 check('material page shows the part material (Plain Carbon Steel)', (await page.locator('[data-testid="beam-material"]').inputValue()) === 'Plain Carbon Steel');
 await page.locator('[data-testid="beam-next"]').click();
 await page.locator('[data-testid="beam-run"]').click();
-await page.waitForTimeout(300);
+await settle(page);
 await page.locator('[data-testid="beam-next"]').click();
 await page.waitForTimeout(300);
 const res = (await text('[data-testid="beam-results"]')).replace(/\s+/g, ' ');

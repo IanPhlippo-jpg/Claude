@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -48,7 +49,7 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(300);
 await shot('h1-helix-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(500);
+await settle(page);
 const after = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { features: s.doc.features.map((f) => f.name), curves: (s.rebuild.curves ?? []).map((c) => ({ n: c.points.length, top: Math.max(...c.points.map((p) => p.y)) })), errors: s.rebuild.errors }; });
 check('Helix/Spiral1 in the tree with a 3-turn curve 30 high', after.features.includes('Helix/Spiral1') && after.curves.length === 1 && after.curves[0].n > 100 && Math.abs(after.curves[0].top - 30) < 0.5 && Object.keys(after.errors).length === 0, JSON.stringify(after));
 
@@ -70,13 +71,13 @@ check('Sweep path list offers Helix/Spiral1', pathOptions.some((t) => t.includes
 await page.locator('.k-section:has-text("Profile and Path") select').selectOption({ label: 'Helix/Spiral1' });
 await page.waitForTimeout(600);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(1200);
+await settle(page);
 const v = await volume();
 const helixLength = 3 * Math.hypot(2 * Math.PI * 20, 10);
 const expected = Math.PI * 4 * helixLength;
 check('Sweep1 along the helix makes a spring of the expected volume', Math.abs(v - expected) < expected * 0.08 && (await page.evaluate(() => Object.keys(window.__phlippoStore.getState().rebuild.errors).length)) === 0, `${v.toFixed(0)} vs ${expected.toFixed(0)}`);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('h2-spring');
 
 console.log(`

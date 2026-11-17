@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -29,7 +30,7 @@ await page.evaluate((part) => {
   d.components = [{ id: 'c1', name: 'Vierkantstift<1>', part, position: [0, 0, 0], rotation: [0, 0, 0, 1], fixed: true, suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 }, pin);
-await page.waitForTimeout(600);
+await settle(page);
 const len = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const g = s.rebuild.bodies[0].geometry; g.computeBoundingBox(); const b = g.boundingBox; return Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z); });
 const before = await len();
 await page.click('.k-cm-tab:has-text("Assembly")');
@@ -48,7 +49,7 @@ const oldDepth = await page.evaluate(() => window.__phlippoStore.getState().feat
 await depthField.fill(String(oldDepth + 20));
 await depthField.press('Tab');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('[data-testid="edit-context"] .k-btn');
 await page.waitForTimeout(800);
 st = await page.evaluate(() => ({ kind: window.__phlippoStore.getState().doc.kind, ctx: !!window.__phlippoStore.getState().editContext }));

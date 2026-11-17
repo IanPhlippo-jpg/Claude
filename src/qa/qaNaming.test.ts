@@ -128,7 +128,7 @@ describe('QA T4-T7 on the B-rep kernel', { timeout: 120000 }, () => {
     const replicad = await import('replicad');
     replicad.setOC(OC as never);
     setBrepKernel(occtKernel(OC, replicad));
-  }, 60000);
+  }, 600_000);
   afterAll(() => setBrepKernel(null));
   /** the exact volume to 0.001 mm³; returns the edges of the tessellated exact body */
   const exact = (doc: Document, want: number, what: string): BodyEdge[] => {

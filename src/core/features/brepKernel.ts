@@ -82,7 +82,8 @@ export interface BrepKernel {
   /** triangles for the viewport and the mesh kernel (non-indexed, with the normals of the surfaces) */
   tessellate(shape: BrepShape): THREE.BufferGeometry;
   volume(shape: BrepShape): number;
-  /** frees what the kernel made since the last call (OpenCascade objects live outside the JS heap), except `keep` */
+  /** frees what the kernel made since the last call (OpenCascade objects live outside the JS heap), except `keep` and
+   * the pinned solids (pinnedShapes: the states the rebuild cache keeps) */
   release(keep?: BrepShape[]): void;
 }
 
@@ -94,4 +95,15 @@ export function setBrepKernel(k: BrepKernel | null): void {
 
 export function brepKernel(): BrepKernel | null {
   return current;
+}
+
+let pinned: () => Iterable<BrepShape> = () => [];
+
+/** the solids that live on between rebuilds (the rebuild cache, rebuildCache.ts): release() never frees them */
+export function setPinnedShapes(fn: () => Iterable<BrepShape>): void {
+  pinned = fn;
+}
+
+export function pinnedShapes(): BrepShape[] {
+  return [...pinned()];
 }

@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -38,7 +39,7 @@ await page.evaluate((d) => {
   d.features = [...(d.features ?? []), { id: 'ksk', type: 'sketch', name: 'Sketch1', sketchId: 'cutsk', suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 }, asm);
-await page.waitForTimeout(1500);
+await settle(page);
 const v0 = await vols();
 await page.evaluate(() => window.__phlippoStore.getState().setSelectedFeature('ksk'));
 await page.click('.k-cm-big:has-text("Assembly Features") .k-cm-main');

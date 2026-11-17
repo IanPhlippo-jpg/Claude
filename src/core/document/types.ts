@@ -1472,8 +1472,8 @@ export interface Document {
   centerOfMass?: boolean;
   /** Section View ▸ Drawing Section View ▸ Save: named section views (for drawings) */
   sectionViews?: { name: string; view: { plane: 'front' | 'top' | 'right'; offset: number; flip: boolean; cap: boolean; [k: string]: unknown } }[];
-  /** the file format (persistence FILE_VERSION); format 1 files are upgraded when opened */
-  version: 2;
+  /** the file format (persistence FILE_VERSION); older files are upgraded when opened, a newer one opens with a warning */
+  version: number;
   name: string;
   /** part (default), assembly or drawing */
   kind?: 'part' | 'assembly' | 'drawing';
@@ -1576,7 +1576,7 @@ export interface Document {
 }
 
 export function createDocument(name = 'Part1', kind: 'part' | 'assembly' | 'drawing' = 'part', sheet?: Partial<Pick<DrawingSheet, 'size' | 'landscape' | 'scale' | 'showFormat'>>): Document {
-  const doc: Document = { version: 2, name, units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [] };
+  const doc: Document = { version: 3, name, units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [] };
   if (kind === 'assembly') return { ...doc, kind, components: [], mates: [] };
   if (kind === 'drawing') return { ...doc, kind, sheets: [{ id: 'sheet1', name: 'Sheet1', size: sheet?.size ?? 'A4', landscape: sheet?.landscape ?? true, scale: sheet?.scale ?? [1, 2], showFormat: sheet?.showFormat ?? true, views: [], dimensions: [], notes: [], centerMarks: [] }] };
   return doc;

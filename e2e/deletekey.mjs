@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
@@ -45,7 +46,7 @@ await page.evaluate(() => {
   const d = { ...window.__phlippoKit.createDocument('Part1'), sketches: { s1: s }, features: [{ id: 'k', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'f1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 20, reverse: false }] };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('.k-viewport', { position: { x: 600, y: 500 } });
 await page.keyboard.press('Delete');
 if (!(await alive('nothing selected (part with a body)'))) process.exit(1);
@@ -68,7 +69,7 @@ await page.waitForTimeout(300);
 // in the sketch: a line and the dimension
 await page.evaluate(() => window.__phlippoStore.getState().openDocument(window.__phlippoStore.getState().doc));
 await page.evaluate(() => window.__phlippoStore.getState().editSketch('s1'));
-await page.waitForTimeout(400);
+await settle(page);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const id = Object.keys(sk.entities)[1]; s.setSelection([{ kind: 'entity', id }]); });
 await page.keyboard.press('Delete');
 await page.waitForTimeout(300);
@@ -83,7 +84,7 @@ await page.evaluate(() => window.__phlippoStore.getState().exitSketch());
 // an assembly component and a drawing view
 const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8')); delete asm.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm);
-await page.waitForTimeout(1500);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().setSelectedFeature('c7'));
 await page.keyboard.press('Delete');
 await page.waitForTimeout(500);
@@ -91,7 +92,7 @@ if (!(await alive('an assembly component selected'))) process.exit(1);
 await page.keyboard.press('Escape');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
-await page.waitForTimeout(1200);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView('v4'));
 await page.keyboard.press('Delete');
 await page.waitForTimeout(500);

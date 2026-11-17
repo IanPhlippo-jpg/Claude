@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -33,9 +34,9 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-big:has-text("Base Flange/Tab") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 
 // No Bends: the flat state without bend lines; again: folded
 await page.click('.k-cm-small:has-text("No Bends")');
@@ -52,14 +53,14 @@ check('No Bends again folds the sheet back', !flatOff);
 // Closed Corner and Corner Relief Property Panels take their faces
 await page.click('.k-cm-big:has-text("Corners") .k-cm-arrow');
 await page.evaluate(() => window.__phlippoStore.getState().startClosedCorner());
-await page.waitForTimeout(200);
+await settle(page);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.filter((x) => !x.curved).sort((p, q) => p.area - q.area)[0]; s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
-await page.waitForTimeout(200);
+await settle(page);
 check('Closed Corner: the picked end face is listed', (await page.locator('[data-testid="cc-faces"] .k-selbox-row').count()) === 1);
 await page.evaluate(() => window.__phlippoStore.getState().cancelFeature());
 await page.evaluate(() => window.__phlippoStore.getState().startCornerRelief());
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => x.curved); if (f) s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
-await page.waitForTimeout(200);
+await settle(page);
 check('Corner Relief: the picked bend is listed', (await page.locator('[data-testid="cr-bends"] .k-selbox-row').count()) === 1);
 await page.evaluate(() => window.__phlippoStore.getState().cancelFeature());
 
@@ -72,7 +73,7 @@ await page.evaluate(() => {
   const d = { ...K.createDocument('Block'), sketches: { s }, features: [{ id: 'k', type: 'sketch', name: 'Sketch1', sketchId: 's', suppressed: false }, { id: 'e', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's', suppressed: false, op: 'boss', end: 'blind', depth: 20, reverse: false }] };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 const vBlock = await volume();
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => !x.curved && x.normal[1] < -0.99); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
@@ -80,7 +81,7 @@ await page.click('.k-cm-small:has-text("Convert to Sheet Metal")');
 await page.waitForTimeout(300);
 check('Convert to Sheet Metal takes the selected face as fixed face', /fixed/.test((await page.locator('[data-testid="conv-fixed"]').textContent()) ?? ''));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(1200);
+await settle(page);
 st = await S();
 const vConv = await volume();
 check('Convert-Solid1 hollows the block into an open sheet tray', st.names.includes('Convert-Solid1') && !Object.keys(st.errors).length && vConv < vBlock * 0.4, JSON.stringify({ vBlock, vConv, e: st.errors }));
@@ -98,12 +99,12 @@ await page.evaluate(() => {
   const d = { ...K.createDocument('Transition'), planes: { p2: { id: 'p2', name: 'Plane1', origin: [0, 30, 0], u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], kind: 'reference' } }, sketches: { a, b }, features: [{ id: 'ka', type: 'sketch', name: 'Sketch1', sketchId: 'a', suppressed: false }, { id: 'kb', type: 'sketch', name: 'Sketch2', sketchId: 'b', suppressed: false }] };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Lofted-Bend")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(1000);
+await settle(page);
 st = await S();
 check('Lofted-Bend1 builds a sheet between the two profiles', st.names.includes('Lofted-Bend1') && !Object.keys(st.errors).length && (await volume()) > 40 * 30 * 3 * 0.9, JSON.stringify({ v: await volume(), e: st.errors }));
 await page.keyboard.press('Control+7');

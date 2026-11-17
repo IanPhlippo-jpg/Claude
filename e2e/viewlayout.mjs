@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -25,7 +26,7 @@ const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', '
 tek.sheets[0].views = tek.sheets[0].views.filter((v) => !v.section && !v.detail);
 tek.sheets[0].dimensions = [];
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
-await page.waitForTimeout(1200);
+await settle(page);
 const toPx = (p) => page.evaluate((q) => window.__phlippoSheet.toPx(q), p);
 const V = () => page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.map((v) => ({ id: v.id, type: v.type, pos: v.position, crop: v.crop, brk: v.break, aux: v.aux })));
 const bounds = (id) => page.evaluate((vid) => { const st = window.__phlippoStore.getState(); const v = st.doc.sheets[0].views.find((x) => x.id === vid); const g = window.__phlippoKit.projectedView(v.model, v.type); return { min: g.min, max: g.max }; }, id);
@@ -115,7 +116,7 @@ check('Broken-out Section opens its Property Panel', await page.locator('[data-t
   for (const pt of prof) await click(await v2s('v3', pt));
 }
 await page.click('[data-testid="brokenout-pm"] .k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const bo = await page.evaluate(() => { const v = window.__phlippoStore.getState().doc.sheets[0].views.find((x) => x.id === 'v3'); return { poly: v.brokenOut?.poly.length, depth: v.brokenOut?.depth, clipped: document.querySelectorAll('path[clip-path^="url(#k-boclip"]').length }; });
 check('Broken-out Section cuts the view and hatches the exposed material inside the profile', bo.poly === 4 && bo.depth > 0 && bo.clipped === 1, JSON.stringify(bo));
 await page.mouse.move(5, 900);
@@ -126,7 +127,7 @@ await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-big:has-text("Model Items") .k-cm-main');
 check('Model Items opens its Property Panel', await page.locator('[data-testid="modelitems-pm"]').count() === 1);
 await page.click('[data-testid="modelitems-pm"] .k-pm-ok');
-await page.waitForTimeout(400);
+await settle(page);
 const mi = await page.evaluate(() => { const sh = window.__phlippoStore.getState().doc.sheets[0]; return { n: sh.dimensions.length, views: [...new Set(sh.dimensions.map((d) => d.viewId))] }; });
 check('Model Items inserts the model dimensions into the views', mi.n >= 3, JSON.stringify(mi));
 await page.mouse.move(5, 900);
@@ -140,7 +141,7 @@ await page.evaluate((model) => {
   d.sheets[0].views = [{ id: 'v1', name: 'Drawing View1', type: 'isometric', position: [180, 150], displayStyle: 'hiddenRemoved', model: { ...model, kind: 'assembly' }, modelName: 'Deurkruk' }];
   window.__phlippoStore.getState().openDocument(d);
 }, asm);
-await page.waitForTimeout(1500);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-big:has-text("Tables") .k-cm-main');
 await page.waitForTimeout(300);

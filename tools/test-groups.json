@@ -1,0 +1,26 @@
+{
+  "_comment": "The heavy test groups (QA 0.5.14 P2-11, P3-11): the single list that vite.config.ts leaves out of `npm test` and that tools/run-tests.mjs runs per group (npm run test:voorbeelden, npm run test:bibliotheek; CI jobs of the same name). Every src/**/*.test.ts that imports from bibliotheek/ or voorbeelden/ must be in a group (src/qa/testGroups.test.ts).",
+  "voorbeelden": [
+    "src/qa/qaAfzuiging.test.ts",
+    "src/qa/qaBureau.test.ts",
+    "src/qa/qaTrein.test.ts",
+    "src/qa/stlAfzuiging.test.ts",
+    "src/qa/overlapBoxAfzuiging.test.ts",
+    "src/qa/rondAfzuiging.test.ts",
+    "src/qa/tekstenAfzuiging.test.ts",
+    "src/qa/typeplaatjeAfzuiging.test.ts",
+    "src/qa/tekeningenAfzuiging.test.ts",
+    "src/qa/tekeningenTrein.test.ts",
+    "src/qa/qaKastje.test.ts",
+    "src/qa/schemaNorm.test.ts",
+    "src/qa/qaRobotarm.test.ts",
+    "src/qa/qaLastafel.test.ts",
+    "src/qa/tekeningenLastafel.test.ts"
+  ],
+  "bibliotheek": [
+    "src/qa/qaDeuren.test.ts",
+    "src/qa/montageDeuren.test.ts",
+    "src/qa/qaBalustrades.test.ts",
+    "src/qa/qaFitness.test.ts"
+  ]
+}

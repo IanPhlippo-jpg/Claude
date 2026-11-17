@@ -34,7 +34,7 @@ export async function writeAutoRecover(): Promise<boolean> {
   if (!api?.writeRecover) return false;
   let written = 0;
   for (const { doc, handle } of unsavedDocuments()) {
-    const data = new TextEncoder().encode(serializeDocument(doc)).buffer as ArrayBuffer;
+    const data = new TextEncoder().encode(serializeDocument(doc, false)).buffer as ArrayBuffer;
     const r = await api.writeRecover({ id: doc.id!, name: doc.name, handle, data });
     if (r?.error) useStore.getState().pushMessage(`The auto-recover copy of ${doc.name} could not be written: ${r.error}`, 'warn');
     else if (r) written++;

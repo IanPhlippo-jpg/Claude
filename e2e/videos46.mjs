@@ -5,6 +5,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -48,7 +49,7 @@ await S(() => {
   d.equations = [{ id: 'q1', target: 'T', expression: '6' }, { id: 'q2', target: 'D1@Boss-Extrude1', expression: '"T" * 2' }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(900);
+await settle(page);
 
 // ---- Σ in the field and in the tree
 check('the Equations folder shows its equations', /"T" = 6/.test(await page.locator('.k-tree').first().innerText()) || (await page.locator('.k-tree-row:has-text("Equations") .caret').first().click().then(() => page.waitForTimeout(150)).then(() => page.locator('.k-tree').first().innerText())).includes('"T" = 6'));
@@ -61,14 +62,14 @@ await page.waitForTimeout(150);
 check('a click into the field shows its equation', (await page.locator('[data-testid="eq-input"]').inputValue().catch(skip('videos46.mjs:61', ''))).includes('"T" * 2'));
 await page.keyboard.press('Escape');
 await S(() => window.__phlippoStore.getState().cancelFeature());
-await page.waitForTimeout(200);
+await settle(page);
 
 // ---- status bar: Normal Distance between the top faces of the two plates (0), the hole's Diameter
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => x.curved); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
-await page.waitForTimeout(200);
+await settle(page);
 check('a cylindrical face shows its Diameter (20mm)', /Diameter: 20mm/.test(await readout()), await readout());
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const top = b.faces.find((x) => !x.curved && x.normal[1] > 0.999), bot = b.faces.find((x) => !x.curved && x.normal[1] < -0.999); s.setSelectedFace({ bodyId: b.id, faceId: top.id }); s.setSelectedFace({ bodyId: b.id, faceId: bot.id }, true); });
-await page.waitForTimeout(200);
+await settle(page);
 check('two parallel faces show the Normal Distance (12mm)', /Normal Distance: 12mm/.test(await readout()), await readout());
 await S(() => window.__phlippoStore.getState().setSelectedFace(null));
 
@@ -104,7 +105,7 @@ check('a body renamed to MAIN ROD', (await page.locator('.k-tree').first().inner
 
 // ---- Mass Properties of a selected body
 await S(() => window.__phlippoStore.getState().setDialog('mass'));
-await page.waitForTimeout(400);
+await settle(page);
 const massAll = await page.locator('.k-panel-body').last().innerText();
 await page.locator('[data-testid="mass-bodies"] input').first().check();
 await page.waitForTimeout(300);
@@ -120,7 +121,7 @@ await page.waitForTimeout(300);
 check('Delete/Keep Body opens its Property Panel with Delete Bodies / Keep Bodies', (await page.locator('.k-pm-host').innerText()).includes('Keep Bodies') && (await page.locator('[data-testid="dkb-bodies"] input:checked').count()) === 1);
 await page.click('[data-testid="dkb-keep"]');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 r = await S(() => { const s = window.__phlippoStore.getState(); return { n: s.rebuild.bodies.length, f: s.doc.features.find((f) => f.type === 'deleteBody') }; });
 check('Keep Bodies keeps only the picked body', r.n === 1 && r.f?.keep === true && r.f?.name === 'Body-Delete/Keep1', JSON.stringify(r));
 
@@ -137,10 +138,10 @@ await page.keyboard.press('F5');
 
 // ---- sketch tool prompts
 await S(() => { const s = window.__phlippoStore.getState(); s.newSketch('front'); s.setTool('rectangle'); });
-await page.waitForTimeout(300);
+await settle(page);
 check('Corner Rectangle prompt "Click one corner, then the opposite corner"', (await status()).includes('Click one corner, then the opposite corner'), await status());
 await S(() => window.__phlippoStore.getState().setTool('circle'));
-await page.waitForTimeout(150);
+await settle(page);
 check('Circle prompt "Click the centre, then a point on the circle (or drag from the centre)."', (await status()).includes('Click the centre, then a point on the circle (or drag from the centre).'));
 
 // ---- a doubled distance: a point and a centerline, the text past the centerline
@@ -154,7 +155,7 @@ await S(() => {
     return s;
   });
 });
-await page.waitForTimeout(200);
+await settle(page);
 r = await S(() => {
   const st = window.__phlippoStore.getState();
   const sk = st.doc.sketches[st.activeSketchId];
@@ -169,7 +170,7 @@ r = await S(() => {
 check('a doubled distance of 50 puts the point 25 from the centerline', Math.abs(r.d - 25) < 1e-6, JSON.stringify(r));
 await page.screenshot({ path: `${OUT}/videos46-doubled.png` });
 await S(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- a Base Flange on a part that is sheet metal already: Tab1 with the shortened panel
 await S(() => {
@@ -186,9 +187,9 @@ await S(() => {
   d.sheetMetal = { thickness: 2, bendRadius: 2, kFactor: 0.5 };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await S(() => { const s = window.__phlippoStore.getState(); s.setSelectedFeature('k2'); s.startBaseFlange(); });
-await page.waitForTimeout(300);
+await settle(page);
 r = await S(() => window.__phlippoStore.getState().featureEdit?.draft.name);
 check('a Base Flange on sheet metal is named Tab1', r === 'Tab1', String(r));
 check('the Tab panel shows only Sheet Metal Parameters with Merge result', (await page.locator('[data-testid="tab-merge"]').count()) === 1 && (await page.locator('.k-pm-host').innerText()).includes('Reverse direction') && !(await page.locator('.k-pm-host').innerText()).includes('Bend Allowance'));
@@ -203,7 +204,7 @@ check('Sketch Color opens the Sketch/Curve Color panel (Remove Color, standard p
 await page.locator('[data-testid="curvecolor-grid"] button[title="#ff0000"]').click();
 await page.screenshot({ path: `${OUT}/videos46-curvecolor.png` });
 await page.click('[data-testid="curvecolor-ok"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('OK gives Sketch2 the picked colour', await S(() => window.__phlippoStore.getState().doc.sketches.sb.color === '#ff0000'));
 
 // ---- Curves ▸ Composite Curve: two top edges of the plate joined, then a circular sweep along it
@@ -218,10 +219,10 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 'sa', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 'sa', suppressed: false, op: 'boss', end: 'blind', depth: 20, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Features")');
 await S(() => window.__phlippoStore.getState().startCompositeCurve());
-await page.waitForTimeout(200);
+await settle(page);
 check('Composite Curve opens its panel (Entities to Join)', (await page.locator('.k-pm-host').innerText()).includes('Entities to Join'));
 await S(() => {
   const st = window.__phlippoStore.getState();
@@ -233,7 +234,7 @@ await S(() => {
 });
 check('the two edges are listed as Edge<1> and Edge<2>', /Edge<1>[\s\S]*Edge<2>/.test(await page.locator('[data-testid="comp-entities"]').innerText()));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(500);
+await settle(page, { quiet: 300 });
 r = await S(() => { const s = window.__phlippoStore.getState(); const c = s.rebuild.curves?.find((x) => x.name === 'CompCurve1'); return { n: c?.points.length, errors: s.rebuild.errors, tree: s.doc.features.map((f) => f.name) }; });
 check('CompCurve1 is one curve of the two edges', r.n === 3 && !Object.keys(r.errors).length && r.tree.includes('CompCurve1'), JSON.stringify(r));
 await page.screenshot({ path: `${OUT}/videos46-compcurve.png` });

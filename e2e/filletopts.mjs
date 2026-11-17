@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -31,7 +32,7 @@ await page.evaluate(() => {
   ] };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(1200);
+await settle(page);
 
 const volume = async () => { await waitSettled(page); return page.evaluate(() => {
   const g = window.__phlippoStore.getState().rebuild.bodies[0].geometry;
@@ -57,7 +58,7 @@ const faceBy = (n) => page.evaluate((n) => {
 }, n);
 const startFillet = async (kind = 'fillet') => {
   await page.evaluate((k) => window.__phlippoStore.getState().startRound(k), kind);
-  await page.waitForTimeout(200);
+  await settle(page);
 };
 const pickTopEdges = async (n = 1) => {
   // the edge ids of the exact body differ from the mesh body's: read them once the exact body is in (slow runner)
@@ -124,7 +125,7 @@ await startFillet();
 await page.click('[data-testid="fillet-type-variable"]');
 await pickTopEdges(1);
 await page.evaluate(() => window.__phlippoStore.getState().updateFeatureDraft({ variable: { start: 2, end: 8 } }));
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await page.screenshot({ path: `${OUT}/fillet-variable.png` });
 await ok();
 const varRemoved = V0 - (await volume());
@@ -147,7 +148,7 @@ await startFillet();
 await page.click('[data-testid="fillet-type-face"]');
 await page.evaluate((f) => window.__phlippoStore.getState().setSelectedFace(f, true), await faceBy([0, 1, 0]));
 await page.evaluate((f) => window.__phlippoStore.getState().setSelectedFace(f, true), await faceBy([0, 0, 1]));
-await page.waitForTimeout(200);
+await settle(page);
 const faceEdges = await page.evaluate(() => window.__phlippoStore.getState().featureEdit.draft.edges.length);
 check('Face Fillet finds the shared edge of two faces', faceEdges === 1, String(faceEdges));
 await page.evaluate(() => window.__phlippoStore.getState().updateFeatureDraft({ size: 5 }));
@@ -161,7 +162,7 @@ await page.click('[data-testid="fillet-type-fullRound"]');
 // Side Face Set 1 = top, Center Face Set = the 20-high front face, Side Face Set 2 = bottom
 for (const n of [[0, 1, 0], [0, 0, 1], [0, -1, 0]]) {
   await page.evaluate((f) => window.__phlippoStore.getState().setSelectedFace(f), await faceBy(n));
-  await page.waitForTimeout(250);
+  await settle(page);
 }
 const fr = await page.evaluate(() => { const d = window.__phlippoStore.getState().featureEdit.draft; return { n: d.edges.length, size: d.size, sets: Object.keys(d.fullRound ?? {}).length }; });
 check('Full Round: three face sets, two edges at half the center face height', fr.sets === 3 && fr.n === 2 && Math.abs(fr.size - 10) < 0.05, JSON.stringify(fr));

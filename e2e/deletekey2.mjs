@@ -1,6 +1,7 @@
 // Delete in a sketch with relations: a line of a (center) rectangle, the whole rectangle by box selection, a dimension
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
@@ -70,21 +71,21 @@ await alive('select all + delete');
 await page.keyboard.press('Control+z');
 await page.waitForTimeout(400);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; const l = Object.values(sk.entities).find((e) => e.kind === 'line' && !e.construction); s.commit('Dim', (k) => ({ ...k, constraints: { ...k.constraints, dd: { id: 'dd', kind: 'length', refs: [l.id], value: 50 } }, constraintOrder: [...k.constraintOrder, 'dd'] })); window.__phlippoStore.getState().selectConstraint('dd'); });
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-pm-host button:has-text("Delete")').first().click();
 await page.waitForTimeout(600);
 await alive('the Delete button of the Dimension PM');
 check('the page still shows the app (no white screen)', (await page.locator('.k-viewport').count()) === 1 && (await page.locator('.k-cm-tabs').count()) === 1);
 // a relation PM Delete button
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; const c = sk.constraintOrder.map((id) => sk.constraints[id]).find((k) => k.kind === 'horizontal'); if (c) s.selectConstraint(c.id); });
-await page.waitForTimeout(300);
+await settle(page);
 const btn = page.locator('.k-pm-host button:has-text("Delete")').first();
 if (await btn.count()) { await btn.click(); await page.waitForTimeout(600); }
 await alive('the Delete button of a relation');
 check('still no white screen', (await page.locator('.k-viewport').count()) === 1);
 // exit the sketch and delete the sketch feature from the tree context menu
 await page.evaluate(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Sketch1")').first().click({ button: 'right' });
 await page.waitForTimeout(200);
 const del = page.locator('.k-menu-item:has-text("Delete")').first();

@@ -10,7 +10,7 @@ import type { Sketch, SketchPoint, Id } from '../sketch/types';
 import { sampleEntity } from '../sketch/geometry';
 import type { ContourRegion } from '../features/regions';
 import type { BodyEdge, EdgeRef } from '../features/edgesets';
-import type { BrepKernel, BrepShape } from '../features/brepKernel';
+import { pinnedShapes, type BrepKernel, type BrepShape } from '../features/brepKernel';
 import type { Contour } from '../sketch/contours';
 import { meshToSolid, shapeVolume } from './step';
 import { bezierLoopEdges, exactCurveEdges } from './curves';
@@ -638,7 +638,8 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       return shapeVolume(oc, R(shape));
     },
     release(keep = []) {
-      const kept = new Set<unknown>(keep);
+      // the solids the rebuild cache keeps between rebuilds are never freed here
+      const kept = new Set<unknown>([...keep, ...pinnedShapes()]);
       for (const x of arena.splice(0)) {
         if (kept.has(x)) { arena.push(x); continue; }
         try { x.delete(); } catch { /* already freed */ }

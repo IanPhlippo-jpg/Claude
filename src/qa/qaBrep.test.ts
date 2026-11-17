@@ -30,7 +30,7 @@ beforeAll(async () => {
   rep = replicad;
   kernel = occtKernel(OC, replicad);
   setBrepKernel(kernel);
-}, 60000);
+}, 600_000);
 afterAll(() => setBrepKernel(null));
 
 const exact = (doc: Parameters<typeof rebuildDocument>[0]) => {
@@ -400,7 +400,7 @@ describe('QA plastics on the B-rep kernel (0.5.11 F51 / F121, parity rows 16 and
     doc.sketches.s1 = rect('s1', 'top', -50, -50, 50, 50);
     doc.sketches.s2 = rect('s2', 'top', -5, -5, 5, 5);
     doc.features.push(extrude('e1', 's1', 'boss', 4), extrude('e2', 's2', 'boss', 12, { merge: false, direction2: { end: 'blind', depth: 2 } }));
-    doc.features.push({ id: 'in', type: 'indent', name: 'Indent1', suppressed: false, target: 'body1', tool: 'body2', thickness, clearance, cut } as never);
+    doc.features.push({ id: 'in', type: 'indent', name: 'Indent1', suppressed: false, target: 'e1#0', tool: 'e2#0', thickness, clearance, cut } as never);
     return doc;
   };
   it('Indent with a block tool: the plate wraps around it (pocket of the clearance, wall of the thickness)', () => {

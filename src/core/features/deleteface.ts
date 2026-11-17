@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { planarFaces } from './solid';
-import { TOL } from './tolerance';
+import { referenceTol, TOL } from './tolerance';
 
 type V3 = [number, number, number];
 
@@ -22,7 +22,7 @@ export function deleteFaces(g: THREE.BufferGeometry, refs: { normal: V3; point: 
       const d = new THREE.Vector3(...f.centroid).distanceTo(p);
       if (d < bd) { bd = d; best = f; }
     }
-    if (!best || bd > TOL.reference) return { geometry: null, error: 'A face to delete is no longer there.' };
+    if (!best || bd > referenceTol(Math.sqrt(best.area))) return { geometry: null, error: 'A face to delete is no longer there.' };
     for (const t of best.triangles) gone.add(t);
   }
   const tri = (t: number) => [0, 1, 2].map((k) => new THREE.Vector3().fromBufferAttribute(pos, t * 3 + k));

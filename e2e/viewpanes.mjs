@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import { chromium } from 'playwright';
 import { checks, exitCode, track } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 const { results, check } = checks();
 const URL = process.env.E2E_URL ?? 'http://127.0.0.1:4173/';
 fs.mkdirSync('e2e-out', { recursive: true });
@@ -37,9 +38,9 @@ const boxPart = async (page) => {
   await page.click('.k-cm-big:has-text("Exit Sketch") .k-cm-main');
   await page.click('.k-cm-tab:has-text("Features")');
   await page.click('.k-cm-big:has-text("Extruded Boss") .k-cm-main');
-  await page.waitForTimeout(800);
+  await settle(page);
   await page.click('.k-pm-ok');
-  await page.waitForTimeout(800);
+  await settle(page);
 };
 // what a pane's canvas holds: share of drawn pixels, their mean brightness, and dark (edge) pixels
 const paneStats = (page, view) => page.evaluate((view) => {
@@ -173,7 +174,7 @@ for (const theme of ['light', 'dark']) {
   // Two View: the pane and the large view split the whole area (Horizontal: one above the other)
   for (const [layout, view] of [['twoH', 'top'], ['twoV', 'front']]) {
     await page.evaluate((l) => window.__phlippoStore.getState().setViewportLayout(l), layout);
-    await page.waitForTimeout(1200);
+    await settle(page);
     const r = await page.evaluate((view) => {
       const g = document.querySelector('[data-testid="viewgrid"]').getBoundingClientRect(), p = document.querySelector(`[data-testid="viewpane-${view}"]`).getBoundingClientRect(), m = document.querySelector('.k-viewgrid-main').getBoundingClientRect();
       return { grid: [g.width, g.height].map(Math.round), pane: [p.left - g.left, p.top - g.top, p.width, p.height].map(Math.round), main: [m.left - g.left, m.top - g.top, m.width, m.height].map(Math.round) };
@@ -199,7 +200,7 @@ check('no-WebGL browser really has no WebGL', !webgl);
 await fourView(page);
 for (const layout of ['four', 'twoV', 'twoH']) {
   await page.evaluate((l) => window.__phlippoStore.getState().setViewportLayout(l), layout);
-  await page.waitForTimeout(500);
+  await settle(page);
   const want = layout === 'four' ? 3 : 1;
   const notes = await page.locator('[data-testid="viewpane-nowebgl"]').evaluateAll((els) => els.filter((e) => e.offsetWidth > 0 && /needs WebGL/.test(e.textContent)).length);
   check(`no WebGL, ${layout}: every pane shows the WebGL message`, notes === want, `${notes}/${want}`);

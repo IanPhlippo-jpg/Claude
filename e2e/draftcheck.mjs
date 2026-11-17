@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -31,13 +32,13 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(700);
+await settle(page);
 const vol = async () => { await waitSettled(page); return page.evaluate(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, vols: s.rebuild.bodies.map((b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const a = g.getAttribute('position'); let v = 0; for (let i = 0; i < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } return v; }) }; }); };
 const W = (x, y, z) => page.evaluate(([x, y, z]) => window.__phlippoProjectWorld(x, y, z), [x, y, z]);
 
 // ---- Draft: neutral plane = top face (y = 40), faces = the two visible sides; 5 degrees
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-small:has-text("Draft")');
 await page.waitForTimeout(300);
@@ -51,7 +52,7 @@ const dd = await page.evaluate(() => { const d = window.__phlippoStore.getState(
 check('neutral plane and two faces picked', !!dd.neutral && dd.faces === 2, JSON.stringify(dd));
 await shot('dc1-draft-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 let v = await vol();
 check('Draft1 tapers the two faces (volume smaller than 64000)', Object.keys(v.errors).length === 0 && v.vols[0] < 64000 - 2000 && v.vols[0] > 64000 - 6000, JSON.stringify(v));
 
@@ -71,7 +72,7 @@ await page.click('.k-sectionprops-dialog .k-btn:has-text("Close")');
 
 // ---- Draft Analysis (pull -Y, i.e. out of the top face: the drafted sides have positive draft) and Curvature
 await page.click('.k-cm-small:has-text("Draft Analysis")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="draft-analysis-pm"] .k-pm-stylebtn[data-tip="Reverse Direction"]');
 await page.waitForTimeout(400);
 const leg = await page.locator('[data-testid="draft-legend"]').innerText();
@@ -95,7 +96,7 @@ await page.evaluate(() => {
   const d = { ...st.doc, sketches: { ...st.doc.sketches, b: s }, features: [...st.doc.features, { id: 'f8', type: 'sketch', name: 'Sketch2', sketchId: 'b', suppressed: false }, { id: 'f9', type: 'extrude', name: 'Boss-Extrude2', sketchId: 'b', suppressed: false, op: 'boss', end: 'blind', depth: 20, reverse: false, merge: false }] };
   st.openDocument(d);
 });
-await page.waitForTimeout(700);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-small:has-text("Intersect")');
 await page.waitForTimeout(300);
@@ -103,7 +104,7 @@ check('Intersect Property Panel with both bodies', (await page.locator('[data-te
 await page.locator('.k-section:has-text("Regions to Exclude") .k-check').nth(1).click();
 await page.locator('.k-section:has-text("Regions to Exclude") .k-check').nth(2).click();
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page, { quiet: 300 });
 v = await vol();
 check('Intersect1 keeps the common region only (one body)', Object.keys(v.errors).length === 0 && v.vols.length === 1 && v.vols[0] > 10000 && v.vols[0] < 16000, JSON.stringify(v));
 await shot('dc3-intersect');

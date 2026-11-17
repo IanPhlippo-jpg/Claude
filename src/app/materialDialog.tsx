@@ -3,15 +3,15 @@ import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { MATERIAL_LIBRARIES, MATERIAL_LIBRARY, materialInfo, type MaterialDef } from '../core/document/materials';
-import { getPref, loadPrefs, savePrefs } from './prefs';
+import { getPref, patchPrefs } from './prefs';
 import { activeConfiguration, configurations } from '../core/document/configurations';
 
 /** the custom material library (kept between sessions) */
 const loadCustom = (): MaterialDef[] => { try { return JSON.parse(String(getPref('material.custom') || '[]')); } catch { return []; } };
-const saveCustom = (list: MaterialDef[]) => savePrefs({ ...loadPrefs(), 'material.custom': JSON.stringify(list) });
+const saveCustom = (list: MaterialDef[]) => patchPrefs({ 'material.custom': JSON.stringify(list) });
 /** Favorites: material names kept between sessions (the right-click material menu of the tree lists them) */
 import { materialFavorites as loadFavorites } from './prefs';
-const saveFavorites = (list: string[]) => savePrefs({ ...loadPrefs(), 'material.favorites': JSON.stringify(list) });
+const saveFavorites = (list: string[]) => patchPrefs({ 'material.favorites': JSON.stringify(list) });
 /** stress units of the Properties table: factor from N/m² */
 const STRESS = { pa: { f: 1, u: 'N/m^2' }, mpa: { f: 1e-6, u: 'N/mm^2' }, psi: { f: 1 / 6894.757, u: 'psi' } } as const;
 

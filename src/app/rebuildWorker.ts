@@ -1,24 +1,16 @@
 /**
- * The client of the rebuild worker (QA F46). One rebuild at a time: a newer request makes the running one void, and
- * because a boolean cannot be interrupted the busy worker is stopped and a fresh one started.
+ * The client of the rebuild worker (QA F46). One rebuild at a time: a newer request makes the running one void; the
+ * queue (rebuildWorkerClient.ts) holds requests back during a drag, keeps a warm spare worker and watches for a hung
+ * one (docs/32 P2-10).
  */
 import type { Document } from '../core/document/types';
 import type { RebuildResult } from '../core/features/rebuild';
 import { unpackRebuild } from '../core/features/rebuildWire';
 import { getPref } from './prefs';
 import { TEST_HOOKS } from './testHooks';
+import { RebuildWorkerClient, type WorkerLike } from './rebuildWorkerClient';
 
-let worker: Worker | null = null;
-let seq = 0;
-let running: { id: number; reject: (e: Error) => void } | null = null;
-
-/** a request that a newer one replaced (not an error to show) */
-export class RebuildSuperseded extends Error {
-  constructor() {
-    super('superseded');
-    this.name = 'RebuildSuperseded';
-  }
-}
+export { RebuildSuperseded, RebuildWorkerHung } from './rebuildWorkerClient';
 
 /** on by default (Tools ▸ Options ▸ Performance); the e2e builds rebuild on the UI thread unless a test asks for the
  * worker (?rebuild=worker in the address, or localStorage phlippo.rebuild = worker) */
@@ -35,31 +27,23 @@ export function rebuildWorkerEnabled(): boolean {
   return true;
 }
 
-export function rebuildInWorker(doc: Document, upTo: number | null, budgetMs: number): Promise<{ result: RebuildResult; ms: number }> {
-  if (running) {
-    running.reject(new RebuildSuperseded());
-    running = null;
-    worker?.terminate();
-    worker = null;
-  }
-  const w = (worker ??= new Worker(new URL('../workers/rebuild.worker.ts', import.meta.url), { type: 'module' }));
-  const id = ++seq;
-  return new Promise((resolve, reject) => {
-    running = { id, reject };
-    const done = () => { if (running?.id === id) running = null; };
-    w.onmessage = (ev: MessageEvent<{ id: number; result?: unknown; ms?: number; error?: string }>) => {
-      if (ev.data.id !== id) return;
-      done();
-      if (ev.data.error !== undefined) reject(new Error(ev.data.error));
-      else resolve({ result: unpackRebuild(ev.data.result), ms: ev.data.ms ?? 0 });
-    };
-    w.onerror = (ev) => {
-      ev.preventDefault();
-      done();
-      worker?.terminate();
-      worker = null;
-      reject(new Error(ev.message || 'the rebuild worker failed'));
-    };
-    w.postMessage({ id, doc, upTo, budgetMs });
-  });
+let client: RebuildWorkerClient | null = null;
+function queue(): RebuildWorkerClient {
+  return (client ??= new RebuildWorkerClient({
+    spawn: () => new Worker(new URL('../workers/rebuild.worker.ts', import.meta.url), { type: 'module' }) as unknown as WorkerLike,
+    setTimeout: (fn, ms) => window.setTimeout(fn, ms),
+    clearTimeout: (h) => window.clearTimeout(h as number),
+    now: () => performance.now(),
+  }));
+}
+
+export async function rebuildInWorker(doc: Document, upTo: number | null, budgetMs: number): Promise<{ result: RebuildResult; ms: number }> {
+  const d = await queue().request({ doc, upTo }, budgetMs);
+  return { result: unpackRebuild(d.result), ms: Number(d.ms ?? 0) };
+}
+
+/** the parts of an assembly that have no rebuild yet, rebuilt one after the other in the worker */
+export async function rebuildPartsInWorker(docs: Document[], budgetMs: number): Promise<{ results: RebuildResult[]; ms: number }> {
+  const d = await queue().request({ docs, upTo: null }, budgetMs, budgetMs * Math.max(1, docs.length));
+  return { results: ((d.results as unknown[]) ?? []).map((w) => unpackRebuild(w)), ms: Number(d.ms ?? 0) };
 }

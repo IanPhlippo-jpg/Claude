@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -27,7 +28,7 @@ await S(({ rozet, pin }) => {
   d.components = [{ id: 'g', name: 'Rozet<1>', part: rozet, position: [0, 0, 0], rotation: [0, 0, 0, 1], fixed: true, suppressed: false }, { id: 'p', name: 'Vierkantstift<1>', part: pin, position: [80, 0, 0], rotation: [0, 0, 0, 1], fixed: false, suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 }, { rozet, pin });
-await page.waitForTimeout(1200);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-tree-row:has-text("Vierkantstift<1>")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Move with Triad")');
@@ -70,7 +71,7 @@ const pick = (cid, n) => S(({ cid, n }) => {
 await pick('g', [0, 0, 1]);
 await pick('p', [0, 0, -1]);
 await S(() => window.__phlippoStore.getState().commitMate());
-await page.waitForTimeout(600);
+await settle(page, { quiet: 300 });
 const selMate = await S(() => { const s = window.__phlippoStore.getState(); return s.doc.mates?.some((m) => m.id === s.selectedFeatureId); });
 check('the new mate stays selected', selMate);
 await page.screenshot({ path: `${OUT}/triad2-mate-cyan.png` });

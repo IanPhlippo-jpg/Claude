@@ -43,7 +43,8 @@ describe('Intersection, Merge and Equal Curvature (QA v0.5.1 F123)', () => {
     [s, l2] = addLine(s, { x: 0, y: 10 }, { x: 10, y: 0 });
     for (const q of [l1.p1, l1.p2, l2.p1, l2.p2]) [s] = addConstraint(s, 'fix', [q]);
     [s, p] = addPoint(s, { x: 2, y: 7 });
-    expect(relationsForSelection(s, [{ kind: 'entity', id: p.id }, { kind: 'entity', id: l1.id }, { kind: 'entity', id: l2.id }]).map((o) => o.kind)).toContain('intersection');
+    const sel = [{ kind: 'entity' as const, id: p.id }, { kind: 'entity' as const, id: l1.id }, { kind: 'entity' as const, id: l2.id }];
+    expect(relationsForSelection(s, sel).map((o) => o.kind)).toContain('intersection');
     [s] = addConstraint(s, 'intersection', [p.id, l1.id, l2.id]);
     const sk = solveSketch(s).sketch;
     expect(sk.points[p.p].x).toBeCloseTo(5, 4);

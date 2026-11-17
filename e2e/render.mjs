@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -22,11 +23,11 @@ await page.waitForTimeout(500);
 await page.click('.k-doctype:has-text("Part")');
 const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8')); delete asm.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm);
-await page.waitForTimeout(1500);
+await settle(page);
 // a three-quarter view close to the handle
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => { const c = window.__phlippoCamera; const r = document.querySelector('.k-viewport').getBoundingClientRect(); const p = window.__phlippoProjectWorld(45, -30, 60); c.zoomAt(p.x - r.left, p.y - r.top, 0.35); });
 await page.evaluate(() => window.__phlippoStore.getState().setDisplayStyle('shaded'));
 await page.click('.k-cm-tab:has-text("Render Tools")');

@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { checks, exitCode, track, skip, dontSave } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -70,9 +71,9 @@ await S(() => {
   window.__phlippoStore.getState().toggleSelectedEdge(e.id);
   window.__phlippoStore.getState().updateFeatureDraft({ size: 3 });
 });
-await page.waitForTimeout(200);
+await settle(page);
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(300);
+await settle(page);
 const ok2 = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.features.some((f) => f.type === 'fillet') && !s.rebuild.pending && s.rebuild.bodies.every((b) => b.exact); }, null, { timeout: 60000 }).then(() => true, () => false);
 const s2 = await state();
 const exact2 = exact1 - (1 - Math.PI / 4) * 9 * 60;
@@ -81,7 +82,7 @@ await page.screenshot({ path: `${OUT}/brep-fillet.png` });
 
 // Mass Properties uses the exact volume
 await S(() => window.__phlippoStore.getState().setDialog('mass'));
-await page.waitForTimeout(400);
+await settle(page);
 const massText = await page.locator('.k-mass-dialog').first().evaluate((el) => el.innerText + ' ' + [...el.querySelectorAll('textarea, pre')].map((t) => t.value ?? t.textContent).join(' ')).catch(skip('brep.mjs:80', ''));
 await S(() => window.__phlippoStore.getState().setDialog(null));
 const volShown = /Volume\s*=?\s*([\d.,]+)/i.exec(massText);
@@ -109,7 +110,7 @@ const okAsm = await page.waitForFunction(() => { const s = window.__phlippoStore
 const sa = await S(() => { const s = window.__phlippoStore.getState(); return { n: s.rebuild.bodies.length, exact: s.rebuild.bodies.filter((b) => b.exact).length, errors: Object.keys(s.rebuild.errors).length }; });
 check('the door handle assembly: every component is an exact body', okAsm && sa.n === sa.exact && !sa.errors, JSON.stringify(sa));
 await S(() => window.__phlippoZoomFit?.());
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await page.screenshot({ path: `${OUT}/brep-deurkruk.png` });
 
 await browser.close();

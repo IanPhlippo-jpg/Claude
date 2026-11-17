@@ -35,7 +35,7 @@ describe('multi-body', () => {
   it('a boss that touches nothing becomes a second body (even with Merge result on)', () => {
     const r = rebuildDocument(twoBlocks(true));
     expect(Object.keys(r.errors)).toHaveLength(0);
-    expect(r.bodies.map((b) => b.id)).toEqual(['body1', 'body2']);
+    expect(r.bodies.map((b) => b.id)).toEqual(['e1#0', 'e2#0']);
     expect(vol(r.bodies[1].geometry)).toBeCloseTo(1000, 0);
   });
 
@@ -56,14 +56,14 @@ describe('multi-body', () => {
     expect(Object.keys(r.errors)).toHaveLength(0);
     expect(vol(r.bodies[0].geometry)).toBeCloseTo(1000, 0);
     expect(vol(r.bodies[1].geometry)).toBeCloseTo(1000 - 160, 0);
-    // Feature Scope: only body1 selected -> the cut misses it and reports that
-    const scoped = rebuildDocument({ ...doc, features: [...doc.features, sketchF('k3', 's3', 'Sketch3'), { ...cut, scope: ['body1'] }] });
+    // Feature Scope: only the first body selected -> the cut misses it and reports that
+    const scoped = rebuildDocument({ ...doc, features: [...doc.features, sketchF('k3', 's3', 'Sketch3'), { ...cut, scope: ['e1#0'] }] });
     expect(scoped.errors['c1']).toMatch(/Feature Scope/);
   });
 
   it('hidden bodies are not used for Merge result', () => {
     const doc = twoBlocks(true);
-    const overlapping: Document = { ...doc, sketches: { ...doc.sketches, s2: square('s2', 'Sketch2', 5, 0, 10) }, hiddenBodies: ['body1'] };
+    const overlapping: Document = { ...doc, sketches: { ...doc.sketches, s2: square('s2', 'Sketch2', 5, 0, 10) }, hiddenBodies: ['e1#0'] };
     const r = rebuildDocument(overlapping);
     expect(r.bodies).toHaveLength(2);
   });
@@ -71,7 +71,7 @@ describe('multi-body', () => {
   it('Combine adds, subtracts and keeps the common part', () => {
     const doc = twoBlocks(false);
     const overlapping = { ...doc, sketches: { ...doc.sketches, s2: square('s2', 'Sketch2', 5, 0, 10) } };
-    const combine = (op: CombineFeature['op']): CombineFeature => ({ id: 'cb', type: 'combine', name: 'Combine1', suppressed: false, op, mainBody: 'body1', bodies: ['body1', 'body2'] });
+    const combine = (op: CombineFeature['op']): CombineFeature => ({ id: 'cb', type: 'combine', name: 'Combine1', suppressed: false, op, mainBody: 'e1#0', bodies: ['e1#0', 'e2#0'] });
     const add = rebuildDocument({ ...overlapping, features: [...overlapping.features, combine('add')] });
     expect(add.bodies).toHaveLength(1);
     expect(vol(add.bodies[0].geometry)).toBeCloseTo(1500, 0);

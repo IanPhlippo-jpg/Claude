@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -54,7 +55,7 @@ await page.waitForTimeout(600);
 console.log('step 1: units in a value field: the Extrude depth typed as 2in becomes 50.8 mm');
 // ---- units in a value field: the Extrude depth typed as 2in becomes 50.8 mm
 await S(() => { const s = window.__phlippoStore.getState(); s.setState ? null : null; window.__phlippoStore.setState({ selectedFeatureId: 'k1' }); s.startFeature('extrude', 'boss'); });
-await page.waitForTimeout(400);
+await settle(page);
 const depthField = page.locator('.k-pm-valuerow[data-tip="Depth"] input.k-num');
 check('Extrude PM shows the depth field with its icon', (await depthField.count()) === 1);
 await depthField.fill('2in');
@@ -72,11 +73,11 @@ check('0 is held at the minimum (0.01)', (await S(() => window.__phlippoStore.ge
 // a zero depth through the store does not commit
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ depth: 0 }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(200);
+await settle(page);
 check('a zero depth does not commit', !!(await S(() => window.__phlippoStore.getState().featureEdit)) && /positive number/.test(await lastMsg()), await lastMsg());
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ depth: Infinity })); // ignored: the draft keeps 0
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(200);
+await settle(page, { quiet: 300 });
 check('an infinite depth does not commit', !!(await S(() => window.__phlippoStore.getState().featureEdit)));
 await S(() => window.__phlippoStore.getState().cancelFeature());
 await page.screenshot({ path: `${OUT}/qa2-extrude-pm.png` });
@@ -84,28 +85,28 @@ await page.screenshot({ path: `${OUT}/qa2-extrude-pm.png` });
 console.log('step 2: an empty sketch gives no extrude');
 // ---- an empty sketch gives no extrude
 await S(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k2' }); window.__phlippoStore.getState().startFeature('extrude', 'boss'); });
-await page.waitForTimeout(200);
+await settle(page);
 check('Extrude on an empty sketch is refused with a message', !(await S(() => window.__phlippoStore.getState().featureEdit)) && /empty/.test(await lastMsg()), await lastMsg());
 
 console.log('step 3: a cut that touches nothing is an error of that feature; the plate stays');
 // ---- a cut that touches nothing is an error of that feature; the plate stays
 await S(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k3' }); window.__phlippoStore.getState().startFeature('extrude', 'cut'); });
-await page.waitForTimeout(200);
+await settle(page);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ end: 'throughAll' }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(500);
+await settle(page);
 const afterCut = await S(() => { const s = window.__phlippoStore.getState(); return { bodies: s.rebuild.bodies.length, errors: s.rebuild.errors, features: s.doc.features.length }; });
 check('the far cut is marked as an error, the plate is still there', afterCut.bodies === 1 && Object.keys(afterCut.errors).length === 1, JSON.stringify(afterCut));
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(300);
+await settle(page);
 
 console.log('step 4: instance limit');
 // ---- instance limit
 await S(() => { const s = window.__phlippoStore.getState(); window.__phlippoStore.setState({ selectedFeatureId: 'e1' }); s.startPattern('linearPattern'); });
-await page.waitForTimeout(200);
+await settle(page);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ featureIds: ['e1'], dir1: { axis: [1, 0, 0], spacing: 70, count: 100 }, dir2: { axis: [0, 0, 1], spacing: 50, count: 100 } }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(200);
+await settle(page);
 check('10 000 instances are refused', !!(await S(() => window.__phlippoStore.getState().featureEdit)) && /Too many instances/.test(await lastMsg()), await lastMsg());
 await S(() => window.__phlippoStore.getState().cancelFeature());
 
@@ -118,27 +119,27 @@ await S(() => {
   window.__phlippoStore.setState({ selectedEdges: vertical.map((e) => e.id) });
   s.startRound('fillet');
 });
-await page.waitForTimeout(200);
+await settle(page);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ size: 3 }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(500);
+await settle(page);
 const f0 = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'fillet'); return { edges: f?.edges.length, err: s.rebuild.errors[f?.id] }; });
 check('fillet on the four vertical edges builds clean', f0.edges === 4 && !f0.err, JSON.stringify(f0));
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Depth', { ...s.doc, features: s.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 40 } : f)) }); });
-await page.waitForTimeout(600);
+await settle(page);
 const volOf = async () => { await waitSettled(page); return S(() => window.__phlippoStore.getState().rebuild.bodies.reduce((a, b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const p = g.getAttribute('position'); let v = 0; for (let k = 0; k < p.count; k += 3) { const ax = p.getX(k), ay = p.getY(k), az = p.getZ(k), bx = p.getX(k + 1), by = p.getY(k + 1), bz = p.getZ(k + 1), cx = p.getX(k + 2), cy = p.getY(k + 2), cz = p.getZ(k + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0)); };
 const f1 = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'fillet'); return { err: s.rebuild.errors[f?.id] ?? '', bodies: s.rebuild.bodies.length }; });
 const withFillet = await volOf();
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Suppress', { ...s.doc, features: s.doc.features.map((f) => (f.type === 'fillet' ? { ...f, suppressed: true } : f)) }); });
-await page.waitForTimeout(400);
+await settle(page);
 const without = await volOf();
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(400);
+await settle(page);
 const removed = 4 * (1 - Math.PI / 4) * 9 * 40;
 check('after the plate grows to 40 mm the fillet keeps all four vertical edges (F47)', !f1.err && f1.bodies === 1 && Math.abs(without - withFillet - removed) < removed * 0.15, `${JSON.stringify(f1)} removed ${(without - withFillet).toFixed(1)} of ${removed.toFixed(1)}`);
 // a reference to an edge that no longer exists (other faces, other face names since 0.5.0): reported, not silent
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Ref', { ...s.doc, features: s.doc.features.map((f) => (f.type === 'fillet' ? { ...f, edges: f.edges.map((r, k) => (k === 0 ? { ...r, centroid: [999, 999, 999], normals: [[0.6, 0.8, 0], [0, 0.6, 0.8]], faces: [1, 2] } : r)) } : f)) }); });
-await page.waitForTimeout(500);
+await settle(page, { quiet: 300 });
 const f2 = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'fillet'); return { err: s.rebuild.errors[f?.id] ?? '', bodies: s.rebuild.bodies.length }; });
 check('a fillet whose edge is gone reports its lost reference instead of failing silently', /dangling|could not be found/i.test(f2.err) && f2.bodies === 1, JSON.stringify(f2));
 await page.screenshot({ path: `${OUT}/qa2-dangling.png` });
@@ -165,7 +166,7 @@ await page.waitForTimeout(300);
 check('a plain right-click still opens the context menu', (await page.locator('.k-menu').count()) >= 1);
 await page.keyboard.press('Escape');
 await S(() => window.__phlippoStore.getState().editSketch('s2'));
-await page.waitForTimeout(400);
+await settle(page);
 await page.mouse.move(cx, cy);
 await page.mouse.down({ button: 'right' });
 await page.mouse.move(cx - 90, cy, { steps: 4 });

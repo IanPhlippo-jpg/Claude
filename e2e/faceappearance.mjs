@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -33,9 +34,9 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(700);
+await settle(page);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page);
 const top = await page.evaluate(() => window.__phlippoProjectWorld(30, 30, 30));
 await page.mouse.click(top.x, top.y);
 await page.waitForTimeout(200);
@@ -45,7 +46,7 @@ await page.waitForTimeout(200);
 check('Color dialog targets the face', (await page.locator('[data-testid="appearance-target"]').innerText()).includes('Face<'));
 await page.click('.k-swatch[title="#e60000"]');
 await page.click('[data-testid="appearance-ok"]');
-await page.waitForTimeout(500);
+await settle(page);
 // clear the selection highlight, then sample the top face and a side face
 await page.keyboard.press('Escape');
 await page.mouse.click(1800, 900);

@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -44,7 +45,7 @@ const isoPos = (await sheet()).views.find((v) => v.type === 'isometric').positio
 
 // Auto Balloon, default Square layout
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sh = s.doc.sheets[0]; s.applyDocument('clear', { ...s.doc, sheets: [{ ...sh, symbols: [], magneticLines: [] }] }); s.startSymbol('autoBalloon'); });
-await page.waitForTimeout(200);
+await settle(page);
 check('Auto Balloon PM: Balloon Layout with 6 layouts, Square active', (await page.locator('[data-testid="balloon-layout"] .k-pm-typebtn').count()) === 6 && (await page.locator('[data-testid="balloon-layout-square"].active').count()) === 1);
 await clickAt(isoPos[0], isoPos[1]);
 await page.waitForTimeout(600);
@@ -91,11 +92,11 @@ const moved = sh.views.find((v) => v.id === isoId).position[0] - isoPos[0];
 const b0c = sh.symbols.find((s) => s.id === b0.id);
 check('dragging the view moves its balloons and leader ends with it', moved < -5 && Math.abs(b0c.position[0] - b0b.position[0] - moved) < 0.01 && Math.abs(b0c.anchor[0] - b0b.anchor[0] - moved) < 0.01, JSON.stringify({ moved, b: b0c.position }));
 await page.evaluate(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(200);
+await settle(page);
 
 // Hole Table: on a free spot, follows the cursor, a click places it
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.selectDrawingView(s.doc.sheets[0].views.find((x) => x.type === 'front').id); s.insertHoleTable(); });
-await page.waitForTimeout(200);
+await settle(page);
 sh = await sheet();
 let ht = sh.tables.find((t) => t.kind === 'hole');
 check('Hole Table starts on a free spot clear of the title block', ht.position[1] - 0 > 10 + 44 + 5, JSON.stringify(ht.position));
@@ -120,7 +121,7 @@ await page.waitForTimeout(200);
 const ht2 = (await sheet()).tables.find((t) => t.kind === 'hole');
 check('a table is dragged with the mouse', ht2.position[0] > ht.position[0] + 3 && ht2.position[1] > ht.position[1] + 3, JSON.stringify(ht2.position));
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sh = s.doc.sheets[0]; s.applyDocument('note', { ...s.doc, sheets: [{ ...sh, notes: [...sh.notes, { id: 'ntx', text: 'MATERIAL: ALUMINIUM', position: [40, 200] }] }] }); });
-await page.waitForTimeout(200);
+await settle(page);
 const np = await px(45, 201);
 await page.mouse.move(np.x, np.y);
 await page.mouse.down();
@@ -138,16 +139,16 @@ await page.screenshot({ path: `${OUT}/drawfix-tables.png` });
 // new drawing of the door handle assembly: automatic scale + Standard 3 View without overlap, inside the sheet
 const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8')); delete asm.format;
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.openDocument({ ...s.doc, sheets: [{ ...s.doc.sheets[0], views: [], symbols: [], tables: [], notes: [], magneticLines: [], dimensions: [], centerMarks: [], scale: [1, 1] }] }); });
-await page.waitForTimeout(500);
+await settle(page);
 await page.evaluate((m) => { const s = window.__phlippoStore.getState(); s.startModelView(); s.setModelViewSource(m); }, asm);
-await page.waitForTimeout(500);
+await settle(page);
 const sc = (await sheet()).scale;
 check('automatic scaling: the door (600 mm) gets 1 : 5 on A3', sc[0] === 1 && sc[1] === 5, JSON.stringify(sc));
 await page.evaluate(() => window.__phlippoStore.getState().placeView([150, 180]));
 await page.keyboard.press('Escape');
 await page.evaluate(() => window.__phlippoStore.getState().cancelDrawingEdit());
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sh = s.doc.sheets[0]; s.openDocument({ ...s.doc, sheets: [{ ...sh, views: sh.views.slice(0, 1) }] }); window.__phlippoStore.getState().startStandardThreeViews(); });
-await page.waitForTimeout(1500);
+await settle(page);
 const sh3 = await sheet();
 const three = await page.evaluate((ids) => ids.map((id) => window.__phlippoSheet.bounds(id)), sh3.views.slice(-3).map((v) => v.id));
 let overlap = 0;

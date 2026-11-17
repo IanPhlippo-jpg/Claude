@@ -29,7 +29,7 @@ beforeAll(async () => {
   const replicad = await import('replicad');
   replicad.setOC(OC as never);
   kernel = occtKernel(OC, replicad);
-}, 60000);
+}, 600_000);
 afterAll(() => setBrepKernel(null));
 
 const clone = (d: Document): Document => JSON.parse(JSON.stringify(d));

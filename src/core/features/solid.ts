@@ -4,7 +4,9 @@ import { TOL } from './tolerance';
 import { circleSegments } from '../sketch/geometry';
 import { offsetPolyline } from './thin';
 import { polyArea } from './regions';
-import { ADDITION, Brush, Evaluator, INTERSECTION, SUBTRACTION } from 'three-bvh-csg';
+import { ADDITION, Brush, Evaluator, HalfEdgeMap, INTERSECTION, SUBTRACTION } from 'three-bvh-csg';
+import { MeshBVH } from 'three-mesh-bvh';
+import { booleanMissed, isClosed, openArea, volumeUnchanged } from './meshCheck';
 import type { ExtrudeFeature, PlaneDef, RevolveFeature } from '../document/types';
 import type { Sketch, SketchPoint } from '../sketch/types';
 import type { Region } from './regions';
@@ -271,25 +273,34 @@ export function meshPieces(g: THREE.BufferGeometry): THREE.BufferGeometry[] {
   const ng = g.index ? g.toNonIndexed() : g;
   const a = ng.getAttribute('position');
   const tri = Math.floor(a.count / 3);
-  const key = (i: number) => `${Math.round(a.getX(i) * 1e3)},${Math.round(a.getY(i) * 1e3)},${Math.round(a.getZ(i) * 1e3)}`;
-  const parent = new Map<string, string>();
-  const find = (k: string): string => {
-    let r = k;
-    while (parent.has(r) && parent.get(r) !== r) r = parent.get(r)!;
-    parent.set(k, r);
-    return r;
-  };
-  const union = (x: string, y: string) => {
-    const rx = find(x), ry = find(y);
-    if (rx !== ry) parent.set(rx, ry);
-  };
-  for (let t = 0; t < tri; t++) {
-    union(key(t * 3), key(t * 3 + 1));
-    union(key(t * 3 + 1), key(t * 3 + 2));
+  // vertices welded by position (rounded to 0.001 mm) into integer ids, then union-find with path halving and union by
+  // size: the string-keyed version without either took tens of seconds on a large part (0.5.15 timing)
+  const idOf = new Map<string, number>(), vid = new Int32Array(tri * 3);
+  for (let i = 0; i < tri * 3; i++) {
+    const k = `${Math.round(a.getX(i) * 1e3)},${Math.round(a.getY(i) * 1e3)},${Math.round(a.getZ(i) * 1e3)}`;
+    let id = idOf.get(k);
+    if (id === undefined) { id = idOf.size; idOf.set(k, id); }
+    vid[i] = id;
   }
-  const groups = new Map<string, number[]>();
+  const parent = Int32Array.from({ length: idOf.size }, (_, i) => i), size = new Int32Array(idOf.size).fill(1);
+  const find = (x: number): number => {
+    while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; }
+    return x;
+  };
+  const union = (x: number, y: number) => {
+    let rx = find(x), ry = find(y);
+    if (rx === ry) return;
+    if (size[rx] < size[ry]) [rx, ry] = [ry, rx];
+    parent[ry] = rx;
+    size[rx] += size[ry];
+  };
   for (let t = 0; t < tri; t++) {
-    const r = find(key(t * 3));
+    union(vid[t * 3], vid[t * 3 + 1]);
+    union(vid[t * 3 + 1], vid[t * 3 + 2]);
+  }
+  const groups = new Map<number, number[]>();
+  for (let t = 0; t < tri; t++) {
+    const r = find(vid[t * 3]);
     (groups.get(r) ?? groups.set(r, []).get(r)!).push(t);
   }
   if (groups.size < 2) return [g];
@@ -473,28 +484,47 @@ function brush(g: THREE.BufferGeometry): Brush {
   for (const name of Object.keys(ng.attributes)) if (name !== 'position' && name !== 'normal' && name !== FACE_TAG) ng.deleteAttribute(name);
   // both sides of a boolean carry the face names (0 where a face has none), so the result keeps them (F47)
   if (!ng.getAttribute(FACE_TAG)) ng.setAttribute(FACE_TAG, new THREE.BufferAttribute(new Float32Array(ng.getAttribute('position').count), 1));
-  const b = new Brush(ng, csgMaterial);
+  const b = new CadBrush(ng, csgMaterial);
   b.updateMatrixWorld();
   return b;
 }
 
-/** Boolean union / subtraction of two solids (world coordinates). */
-export function csg(a: THREE.BufferGeometry, b: THREE.BufferGeometry, op: 'union' | 'subtract' | 'intersect'): THREE.BufferGeometry {
-  // three-bvh-csg 0.0.18 builds its BVH with the old "maxLeafSize" option name; that one deprecation notice is
-  // dropped here (it printed once per boolean, hundreds of times per test run, F35). Other warnings pass through.
-  const warn = console.warn;
-  console.warn = (...args: unknown[]) => { if (typeof args[0] === 'string' && args[0].includes('"maxLeafSize" option has been deprecated')) return; warn(...args); };
-  let r: Brush;
-  try {
-    const ba = brush(a), bb = brush(b);
-    if (op === 'subtract') {
-      ba.prepareGeometry();
-      detachCoincident(bb.geometry, ba.geometry);
-    }
-    r = evaluator.evaluate(ba, bb, op === 'union' ? ADDITION : op === 'intersect' ? INTERSECTION : SUBTRACTION) as Brush;
-  } finally {
-    console.warn = warn;
+/**
+ * A boolean operand whose BVH is built with the current option name (QA 0.5.14 P3-8): three-bvh-csg 0.0.18 passes
+ * the old "maxLeafSize", and three-mesh-bvh 0.9 printed a deprecation notice for it on every boolean (F35). The steps
+ * are those of Brush.prepareGeometry (BVH, half edges, group indices, cached on a hash of the geometry); the buffers stay
+ * ordinary arrays (the shared copies are only of use to a worker that receives the BVH, which none does).
+ */
+class CadBrush extends Brush {
+  private prepared: unknown[] = [];
+
+  prepareGeometry(): void {
+    const geometry = this.geometry as THREE.BufferGeometry & { boundsTree?: MeshBVH; halfEdges?: HalfEdgeMap; groupIndices?: Uint16Array };
+    const index = geometry.index, pos = geometry.attributes.position as THREE.BufferAttribute;
+    // prepared before for this very geometry and its buffers unchanged (the tool is prepared again after detachCoincident)
+    const state = [geometry, index, index?.count, index?.version, pos, pos.count, pos.version];
+    if (state.every((x, i) => x === this.prepared[i])) return;
+    this.prepared = state;
+    geometry.boundsTree = new MeshBVH(geometry, { targetLeafSize: 3, indirect: true });
+    if (!geometry.halfEdges) geometry.halfEdges = new HalfEdgeMap();
+    geometry.halfEdges.updateFrom(geometry);
+    const triCount = (index ? index.count : pos.count) / 3;
+    if (!geometry.groupIndices || geometry.groupIndices.length !== triCount) geometry.groupIndices = new Uint16Array(triCount);
+    const groupIndices = geometry.groupIndices;
+    geometry.groups.forEach(({ start, count }, i) => { for (let t = start / 3; t < (start + count) / 3; t++) groupIndices[t] = i; });
   }
+}
+
+/** Boolean union / subtraction of two solids (world coordinates). */
+/** `checks: false`: bookkeeping booleans (the boss history of the shell) skip the overlap and closed checks, which cost
+ *  time on every feature and judge nothing the user sees; the volume check stays */
+export function csg(a: THREE.BufferGeometry, b: THREE.BufferGeometry, op: 'union' | 'subtract' | 'intersect', opts?: { checks?: boolean }): THREE.BufferGeometry {
+  const brushA = brush(a), brushB = brush(b);
+  if (op === 'subtract') {
+    brushA.prepareGeometry();
+    detachCoincident(brushB.geometry, brushA.geometry);
+  }
+  const r = evaluator.evaluate(brushA, brushB, op === 'union' ? ADDITION : op === 'intersect' ? INTERSECTION : SUBTRACTION) as Brush;
   const g = r.geometry;
   // the result is checked: no triangles (the bodies do not overlap, or the cut takes the whole body) or invalid
   // coordinates would otherwise travel on silently as an "empty body"
@@ -510,11 +540,19 @@ export function csg(a: THREE.BufferGeometry, b: THREE.BufferGeometry, op: 'union
   // (the size of the result is compared: a few tools give a correctly sized but inside-out result)
   const va = meshVolume(a), vb = meshVolume(b), vr = Math.abs(meshVolume(g));
   if (!booleanVolumeOk(op, va, vb, vr)) throw new Error(`the boolean result failed the volume check (${op}: ${va.toFixed(2)} and ${vb.toFixed(2)} gave ${vr.toFixed(2)} mm³)`);
-  // closed check (F48): two closed solids give a closed result. A hole in the surface leaves an open area (the sum of
-  // the oriented triangle areas is no longer zero); T-junctions of the boolean do not count, they still close.
+  // overlap check (QA 0.5.14 P2-8): a cut that removed nothing or a union that dropped the tool keeps the volume and
+  // passes the check above; where the volume stayed, the bodies' points tell whether they really overlap
+  if (opts?.checks === false) return g;
+  if (op !== 'intersect' && volumeUnchanged(op, va, vb, vr)) {
+    const missed = booleanMissed(op, a, b, g, { va, vb, vr });
+    if (missed) throw new Error(missed);
+  }
+  // closed check (F48): two closed solids give a closed result. A hole in the surface leaves edges that are not run
+  // both ways (counted per opening, P2-8); T-junctions of the boolean do not count, they still close.
   // The mesh kernel's boolean leaves such cracks now and then: the body stays (as in the intended design a rebuild
   // warning, not an error) and the rebuild marks the feature with the size of the opening.
-  if (isClosed(a) && isClosed(b) && !isClosed(g)) g.userData.openArea = openArea(g);
+  // (the result first: the inputs are only looked at when it is open, which is rare)
+  if (!isClosed(g) && isClosed(a) && isClosed(b)) g.userData.openArea = openArea(g);
   return g;
 }
 
@@ -527,39 +565,8 @@ export function booleanVolumeOk(op: 'union' | 'subtract' | 'intersect', va: numb
   return vr >= Math.max(va, vb) - tol && vr <= va + vb + tol;
 }
 
-/** the size of the openings of a triangle mesh: the length of the sum of its oriented triangle areas (0 when closed) */
-export function openArea(g: THREE.BufferGeometry): number {
-  const ng = g.index ? g.toNonIndexed() : g;
-  const a = ng.getAttribute('position');
-  let x = 0, y = 0, z = 0;
-  for (let i = 0; i + 2 < a.count; i += 3) {
-    const ux = a.getX(i + 1) - a.getX(i), uy = a.getY(i + 1) - a.getY(i), uz = a.getZ(i + 1) - a.getZ(i);
-    const vx = a.getX(i + 2) - a.getX(i), vy = a.getY(i + 2) - a.getY(i), vz = a.getZ(i + 2) - a.getZ(i);
-    x += (uy * vz - uz * vy) / 2;
-    y += (uz * vx - ux * vz) / 2;
-    z += (ux * vy - uy * vx) / 2;
-  }
-  return Math.hypot(x, y, z);
-}
-
-/** the total area of a triangle mesh */
-export function meshArea(g: THREE.BufferGeometry): number {
-  const ng = g.index ? g.toNonIndexed() : g;
-  const a = ng.getAttribute('position');
-  let t = 0;
-  for (let i = 0; i + 2 < a.count; i += 3) {
-    const ux = a.getX(i + 1) - a.getX(i), uy = a.getY(i + 1) - a.getY(i), uz = a.getZ(i + 1) - a.getZ(i);
-    const vx = a.getX(i + 2) - a.getX(i), vy = a.getY(i + 2) - a.getY(i), vz = a.getZ(i + 2) - a.getZ(i);
-    t += Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2;
-  }
-  return t;
-}
-
-/** closed within round-off: the openings are below a thousandth of the area */
-export function isClosed(g: THREE.BufferGeometry): boolean {
-  const area = meshArea(g);
-  return area > 0 && openArea(g) <= 1e-3 * area + 1e-6;
-}
+// the closed check counts edges now and lives with the overlap check (QA 0.5.14 P2-8)
+export { isClosed, meshArea, openArea } from './meshCheck';
 
 /** Signed volume of a closed triangle mesh (positive for outward-facing triangles). */
 export function meshVolume(g: THREE.BufferGeometry): number {

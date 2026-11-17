@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -21,7 +22,7 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const doc = JSON.parse(readFileSync(new URL('./fixtures/user-part1.json', import.meta.url), 'utf8'));
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), doc);
-await page.waitForTimeout(1200);
+await settle(page);
 
 // Delete Boss-Extrude1 from the tree with the Delete key
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().click();
@@ -47,7 +48,7 @@ check('Ctrl+Z restores both', n.includes('Boss-Extrude1') && n.includes('Fillet1
 
 // Delete child features: the fillet goes too
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.requestDeleteFeature(s.doc.features.find((f) => f.name === 'Boss-Extrude1').id); });
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('[data-testid="cdel-childopt"]');
 await page.click('[data-testid="cdel-yes"]');
 await page.waitForTimeout(800);
@@ -74,9 +75,9 @@ check('the app keeps responding', alive === 1);
 
 // an error inside React shows the recovery box instead of a blank window
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.deleteFeature(s.doc.features.find((f) => f.name === 'Fillet1').id); });
-await page.waitForTimeout(400);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.setState({ confirmDelete: { id: 'nope', children: ['x'], absorbed: [], checking: false }, doc: { ...window.__phlippoStore.getState().doc, features: null } }));
-await page.waitForTimeout(500);
+await settle(page);
 const crash = await page.locator('[data-testid="crash"]').count();
 check('a crash shows the recovery box (no blank window)', crash === 1);
 if (crash) { await page.click('[data-testid="crash"] button:has-text("Undo and continue")'); await page.waitForTimeout(800); }

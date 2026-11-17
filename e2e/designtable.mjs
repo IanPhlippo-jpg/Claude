@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -56,24 +57,24 @@ await page.mouse.click(cx + 100, cy + 80);
 await page.waitForTimeout(200);
 await page.locator('.k-modify input.k-num').fill('40');
 await page.locator('.k-modify input.k-num').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 let c = await C();
 check('plate built', c.bodies === 1 && c.depth === 10 && c.size[0]?.includes(40), JSON.stringify(c));
 const base = c.size[0];
 
 // ---- Insert Design Table…: the menu of the top node of the Configurations panel
 await page.click('.k-manager-tab[data-tip="Configurations"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-tree-row:has-text("Configuration(s)")', { button: 'right' });
 const menu = (await page.locator('.k-menu').innerText()).replace(/\s+/g, ' ');
 check('menu offers Insert Design Table… and Export Design Table…', /Insert Design Table/.test(menu) && /Export Design Table/.test(menu), menu);
@@ -96,7 +97,7 @@ await page.waitForTimeout(600);
 c = await C();
 check('Long: 80 wide and 20 thick, the other side as drawn', c.active === 'Long' && c.depth === 20 && c.size[0]?.includes(80) && c.size[0]?.includes(20) && c.size[0]?.includes((base ?? []).find((v) => v !== 40 && v !== 10) ?? 40), JSON.stringify({ ...c, base }));
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('dt3-long');
 await page.dblclick('.k-cfg-row:has-text("Short")');
 await page.waitForTimeout(600);

@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -48,7 +49,7 @@ check('Copy with Mates copies the component and its mates', st.comps.length === 
 
 // Mirror Components about the Right Plane
 await page.evaluate(() => window.__phlippoStore.getState().setDialog('mirrorComponents'));
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="mirror-comps"] .k-check input').first().check();
 await page.click('[data-testid="mirror-ok"]');
 await page.waitForTimeout(1200);

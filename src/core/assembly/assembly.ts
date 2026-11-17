@@ -561,11 +561,41 @@ export function setPartRebuild(part: Document, r: RebuildResult): void {
 /** Rebuild of a part document, cached by document identity (documents are immutable). */
 export function partRebuild(part: Document): RebuildResult {
   let r = partCache.get(part);
+  if (!r && provisional) return NO_REBUILD;
   if (!r) {
     r = rebuildDocument(part, null);
     partCache.set(part, r);
   }
   return r;
+}
+
+/** while set, a part without a cached rebuild counts as empty instead of being rebuilt here (provisionalRebuild) */
+let provisional = false;
+const NO_REBUILD: RebuildResult = { bodies: [], errors: {}, consumedSketches: new Set() };
+
+/**
+ * fn run with the parts that have no rebuild yet left out (their rebuild is on its way from the rebuild worker,
+ * docs/32 P2-5): the mates are solved and the cached parts placed, as an assembly shows while it waits.
+ */
+export function provisionalRebuild<T>(fn: () => T): T {
+  const was = provisional;
+  provisional = true;
+  try {
+    return fn();
+  } finally {
+    provisional = was;
+  }
+}
+
+/** the part documents of an assembly's components that have no cached rebuild yet, each once (not sub-assemblies) */
+export function uncachedParts(doc: Document): Document[] {
+  const out = new Set<Document>();
+  for (const c of doc.components ?? []) {
+    if (c.suppressed) continue;
+    const part = documentForConfiguration(c.part, c.configuration);
+    if (!part.kind || part.kind === 'part') if (!partCache.has(part)) out.add(part);
+  }
+  return [...out];
 }
 
 function transformFace(f: PlanarFace, m: THREE.Matrix4, rot: THREE.Matrix3, bodyId: string): PlanarFace {

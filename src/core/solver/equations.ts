@@ -298,7 +298,7 @@ export function buildEquations(
                 return Math.hypot(B.x - A.x, B.y - A.y) - Math.hypot(D.x - C.x, D.y - C.y);
               },
             });
-          } else if (e1.kind !== 'line' && e2.kind !== 'line' && e1.kind !== 'point' && e2.kind !== 'point' && e1.kind !== 'spline' && e2.kind !== 'spline' && (e1.kind === 'circle' || e1.kind === 'arc') && (e2.kind === 'circle' || e2.kind === 'arc')) {
+          } else if ((e1.kind === 'circle' || e1.kind === 'arc') && (e2.kind === 'circle' || e2.kind === 'arc')) {
             const r1 = ix.sc(e1.r), r2 = ix.sc(e2.r);
             equations.push({ constraintId: cid, deps: [r1, r2], f: (x) => x[r1] - x[r2] });
           } else throw new EquationBuildError('equal needs two lines or two circular entities');
@@ -359,7 +359,11 @@ export function buildEquations(
             const e = entityOf(s, id);
             if (e.kind === 'line') {
               const [a, b] = linePts(s, id);
-              return { deps: [...pointDeps(a), ...pointDeps(b)], f: (x) => { const A = pt(x, ix, a), B = pt(x, ix, b); return Math.hypot(B.x - A.x, B.y - A.y); } };
+              const f = (x: number[]) => {
+                const A = pt(x, ix, a), B = pt(x, ix, b);
+                return Math.hypot(B.x - A.x, B.y - A.y);
+              };
+              return { deps: [...pointDeps(a), ...pointDeps(b)], f };
             }
             if (e.kind === 'arc') {
               const ri = ix.sc(e.r);
@@ -448,7 +452,10 @@ export function buildEquations(
           const ref1 = c.refs[1];
           const e2 = s.entities[ref1];
           // Arc Condition (Shift+click): the distance is to the edge of the arc = centre distance -/+ radius
-          const arcs = Object.values(c.arcCondition ?? {}).map((ac) => ({ r: ix.sc((s.entities[ac.entityId] as { r: Id }).r), sign: ac.mode === 'max' ? 1 : -1 }));
+          const arcs = Object.values(c.arcCondition ?? {}).map((ac) => ({
+            r: ix.sc((s.entities[ac.entityId] as { r: Id }).r),
+            sign: ac.mode === 'max' ? 1 : -1,
+          }));
           const radii = (x: number[]) => arcs.reduce((sum, a) => sum + a.sign * x[a.r], 0);
           const arcDeps = arcs.map((a) => a.r);
           if (e2 && e2.kind === 'line') {

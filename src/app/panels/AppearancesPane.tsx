@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
-import { getPref, loadPrefs, savePrefs } from '../prefs';
+import { getPref, patchPrefs } from '../prefs';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 
 /**
@@ -86,7 +86,7 @@ function findFolder(list: Folder[], path: string): Folder | null {
 
 /** the user's own library (Add to Library / New Folder), kept between sessions */
 const loadMine = (): Folder[] => { try { return JSON.parse(String(getPref('appearance.custom') || '[]')); } catch { return []; } };
-const saveMine = (f: Folder[]) => savePrefs({ ...loadPrefs(), 'appearance.custom': JSON.stringify(f) });
+const saveMine = (f: Folder[]) => patchPrefs({ 'appearance.custom': JSON.stringify(f) });
 const MINE = 'My Appearances';
 
 export function AppearancesPane() {

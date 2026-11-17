@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -35,9 +36,9 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-big:has-text("Base Flange/Tab") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const v0 = await volume();
 
 // Cross-Break on the largest flat face of the bottom leg
@@ -52,7 +53,7 @@ await page.click('.k-cm-small:has-text("Cross-Break")');
 await page.waitForTimeout(300);
 check('Cross-Break PM takes the selected face', /Face<\d+>/.test(await page.locator('[data-testid="xbreak-face"]').innerText()));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 let st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { names: s.doc.features.map((f) => f.name), curves: (s.rebuild.curves ?? []).filter((c) => c.name === 'Cross-Break').length, errors: s.rebuild.errors }; });
 check('Cross-Break1 in the tree, two break lines, body unchanged', st.names.includes('Cross-Break1') && st.curves === 2 && Object.keys(st.errors).length === 0 && Math.abs((await volume()) - v0) < 1e-6, JSON.stringify(st));
 await page.keyboard.press('Control+7');
@@ -63,14 +64,14 @@ await shot('co1-cross-break');
 
 // Corners ▸ Break-Corner: collect all corners, chamfer 5
 await page.click('.k-cm-big:has-text("Corners") .k-cm-main');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="collect-corners"]');
 const nCorners = await page.locator('[data-testid="bcorner-edges"] .k-selbox-row').count();
 check('Collect all corners finds the four corners of the sheet', nCorners === 4, String(nCorners));
 await page.mouse.move(5, 900);
 await shot('co2-break-corner-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { names: s.doc.features.map((f) => f.name), errors: s.rebuild.errors }; });
 const v1 = await volume();
 // four 5 x 5 chamfers through 3 mm: 4 * 12.5 * 3 = 150

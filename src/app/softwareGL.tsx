@@ -6,6 +6,20 @@ import { useEffect, useState } from 'react';
 import { desktop, type DesktopApi } from './desktop';
 import { getPref } from './prefs';
 import { useStore } from './store';
+import { withUnsavedCheck } from './MenuBar';
+
+/**
+ * Restart the app for a changed graphics choice, without losing work (QA 0.5.14 advice P1-2): with unsaved changes the
+ * Save question comes first (Save / Don't Save / Cancel, as when closing); Cancel keeps everything as it is, and the
+ * choice is only stored once the restart goes ahead.
+ */
+export function restartForGraphics(api: DesktopApi, softwareGL: boolean, ask: (then: () => void) => void = withUnsavedCheck): void {
+  ask(() => {
+    const st = useStore.getState();
+    st.setPrefs({ ...st.prefs, 'perf.softwareOpenGL': softwareGL });
+    void api.setSoftwareGL!(softwareGL).then(() => api.restartApp!({ force: true }));
+  });
+}
 
 const RESTART_NOTE = 'Software OpenGL takes effect when Phlippo CAD starts again.';
 
@@ -32,17 +46,12 @@ if (typeof window !== 'undefined') setTimeout(() => void syncSoftwareGL(), 0);
 export function NoWebGL() {
   const api = desktop();
   const canSwitch = !!api?.setSoftwareGL && !!api.restartApp;
-  const restart = async () => {
-    const st = useStore.getState();
-    st.setPrefs({ ...st.prefs, 'perf.softwareOpenGL': true });
-    await api!.setSoftwareGL!(true);
-    await api!.restartApp!();
-  };
+  const restart = () => restartForGraphics(api!, true);
   return (
     <div className="k-nogl" data-testid="no-webgl">
       This computer cannot show 3D graphics (WebGL is off or the graphics driver is missing).{' '}
       {canSwitch ? 'Update the graphics driver, or draw the 3D view in software (slower).' : 'Update the graphics driver, or turn on hardware acceleration in the browser.'}
-      {canSwitch && <div style={{ marginTop: 10 }}><button className="k-btn" data-testid="use-software-gl" onClick={() => void restart()}>Use software OpenGL and restart</button></div>}
+      {canSwitch && <div style={{ marginTop: 10 }}><button className="k-btn" data-testid="use-software-gl" onClick={restart}>Use software OpenGL and restart</button></div>}
     </div>
   );
 }
@@ -55,12 +64,7 @@ export function SoftwareGLNote() {
   const [status, setStatus] = useState<GpuStatus | null>(null);
   useEffect(() => { void api?.gpuStatus?.().then((s) => setStatus(s ?? null)); }, [api]);
   if (!status || (!status.software && !status.next)) return null;
-  const back = async () => {
-    const st = useStore.getState();
-    st.setPrefs({ ...st.prefs, 'perf.softwareOpenGL': false });
-    await api!.setSoftwareGL!(false);
-    await api!.restartApp!();
-  };
+  const back = () => restartForGraphics(api!, false);
   const why = status.source === 'argument' ? ' for this run (started with --software-gl)' : status.source === 'environment' ? ' for this run (PHLIPPO_SOFTWARE_GL)' : '';
   return (
     <div className="k-opt-note" data-testid="software-gl-note">
@@ -68,7 +72,7 @@ export function SoftwareGLNote() {
         ? `The 3D view is drawn in software (SwiftShader)${why}: slower than the graphics card, and Chromium runs its software renderer with a JIT it otherwise keeps off for web pages. This window only loads Phlippo CAD's own pages.`
         : 'Software OpenGL is chosen and takes effect when Phlippo CAD starts again.'}
       {status.next && api?.setSoftwareGL && api.restartApp && (
-        <div style={{ marginTop: 6 }}><button className="k-btn" data-testid="software-gl-off" onClick={() => void back()}>Use the graphics card again and restart</button></div>
+        <div style={{ marginTop: 6 }}><button className="k-btn" data-testid="software-gl-off" onClick={back}>Use the graphics card again and restart</button></div>
       )}
     </div>
   );

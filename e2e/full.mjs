@@ -1,6 +1,7 @@
 // Full functional check: every tool and command, reporting pass/fail per step.
 import { chromium } from 'playwright';
 import { exitCode, skip, dontSave } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
@@ -272,7 +273,7 @@ await page.click('.k-hud-btn[data-tip^="Previous View"]');
 await page.waitForTimeout(350);
 check('zoom to area then previous view', true, txt1);
 await page.keyboard.press('f');
-await page.waitForTimeout(350);
+await settle(page);
 await page.keyboard.press('z');
 await page.keyboard.press('Shift+Z');
 

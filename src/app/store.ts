@@ -15,8 +15,9 @@ import type { SectionPlane } from '../core/features/section';
 import { create } from 'zustand';
 import { createDocument, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature, type DeformFeature, type MoveBodyFeature, type DeleteBodyFeature, type CompositeCurveFeature } from '../core/document/types';
 import { type AutoToleranceData, type AutoToleranceGtol, type FaceRef as DxFaceRef } from '../core/document/autoTolerance';
-import { rebuildBudgetMs, rebuildDocument, setRebuildBudget, type RebuildResult } from '../core/features/rebuild';
-import { rebuildInWorker, rebuildWorkerEnabled, RebuildSuperseded } from './rebuildWorker';
+import { rebuildDocument, type RebuildResult } from '../core/features/rebuild';
+import { rebuildInWorker, rebuildPartsInWorker, rebuildWorkerEnabled } from './rebuildWorker';
+import { bindRebuildHost, decideRebuild, queuedRebuild, whenRebuilt } from './rebuildQueue';
 import { registerPlanes } from './viewport/camera';
 import { History } from '../core/document/history';
 import { autosave, loadAutosave, setAutosaveErrorHandler } from '../core/document/persistence';
@@ -42,11 +43,11 @@ export function pointLineDistance(q: SketchPoint, a: SketchPoint, b: SketchPoint
 import { newId, addConstraint } from '../core/sketch/model';
 import type { StudFeature, SplitLineFeature, ProjectedCurveFeature, ClosedCornerFeature, CornerReliefFeature, LoftedBendFeature, ConvertSheetFeature, DeleteFaceFeature } from '../core/document/types';
 import type { Constraint, ConstraintKind, Id, Sketch, SketchPoint } from '../core/sketch/types';
-import { solveSketch, type SolveResult } from '../core/solver/solver';
+import { solveSketch, solveSketchCached, type SolveResult } from '../core/solver/solver';
 import type { SelectionItem } from '../core/sketch/relations';
 import { applyEquations, evaluateFieldExpression, FILE_PROPERTIES, type Equation } from '../core/document/equations';
 import { equationEnv } from '../ui/equationMenu';
-import { type PrefValue } from './prefs';
+import { onPrefsChanged, type PrefValue } from './prefs';
 import { rebuildAssembly } from '../core/assembly/assembly';
 import { type SheetMetalParams } from '../core/features/sheetmetal';
 import { isAssembly, isDrawing, type DrawingSymbol, type DrawingView as DrawingViewT, type ComponentPattern, type ExplodeStep, type Component, type DrawingDimension, type DrawingSheet, type DrawingView, type DrawingViewType, type Mate, type MateRef } from '../core/document/types';
@@ -71,6 +72,7 @@ import type { Circle2D, Line2D } from '../core/drawing/hlr';
 import * as THREE from 'three';
 import { type Block } from '../core/sketch/blocks';
 import { type RefSelection } from '../core/features/refgeom';
+import type { EditContext } from './editContext';
 
 export type SelFilterKind = 'vertices' | 'edges' | 'faces' | 'solidBodies' | 'planes' | 'sketchPoints' | 'sketchSegments';
 
@@ -499,7 +501,7 @@ export interface State extends PlasticsActions {
   patternEdit: PatternEdit | null;
   sketch3dEdit: Sketch3DEdit | null;
   /** Assembly ▸ Edit Component: the assembly waiting while one of its parts is edited */
-  editContext: { assembly: Document; componentName: string; partName: string; history?: ReturnType<History<Document>['save']> } | null;
+  editContext: (EditContext & { history?: ReturnType<History<Document>['save']> }) | null;
   /** What's Wrong: the list of rebuild errors (opens after opening a document that has them) */
   whatsWrong: boolean;
   /** Evaluate ▸ Sensor Property Panel (Mass Properties: Mass / Volume / Surface Area) */
@@ -1071,8 +1073,8 @@ export interface State extends PlasticsActions {
   setViewName(n: string): void;
   setTaskPane(t: TaskPaneTab): void;
   setDialog(d: DialogId): void;
-  /** Tools > Options OK: store system options per user and document properties in the document */
-  setPrefs(prefs: Record<string, PrefValue>): void;
+  /** Options ▸ OK and the menu toggles: writes the keys that differ from `base` (default: the current prefs) */
+  setPrefs(prefs: Record<string, PrefValue>, base?: Record<string, PrefValue>): void;
   setConfirmAtCursor(p: { x: number; y: number } | null): void;
   setModify(m: { id: Id; x: number; y: number } | null): void;
   setFeedback(f: string | null): void;
@@ -1121,7 +1123,7 @@ export function solveAll(doc0: Document, prev: Record<Id, SolveResult>, only?: I
     if (only && id !== only && prev[id]) continue;
     // Pierce: the point follows where its curve crosses the plane
     sketches[id] = refreshPierce({ ...doc, sketches }, sketches[id]);
-    const r = solveSketch(sketches[id]);
+    const r = solveSketchCached(sketches[id]); // undo, redo, open: only changed sketches are solved again (P2-9)
     solve[id] = r;
     sketches[id] = r.sketch;
   }
@@ -1215,63 +1217,30 @@ export function rebuildNow(doc: Document, rollbackIndex: number | null): Rebuild
   }
 }
 
-/** a part rebuild slower than this goes to the rebuild worker the next time (ms) */
-const HEAVY_REBUILD_MS = 250;
-/** with the worker available a rebuild on this thread stops here and goes on in the worker (ms) */
-const SYNC_REBUILD_MS = 4_000;
-/** per document: how long its last part rebuild took */
-const lastRebuildMs = new Map<string, number>();
+// which rebuild runs where (worker, sequence numbers, assemblies, Reorder): rebuildQueue.ts, bound to this store here
+bindRebuildHost({
+  shown: () => useStore.getState().rebuild,
+  shownKey: () => { const d = useStore.getState().doc; return d ? d.id ?? d.name : undefined; },
+  show: (rebuild) => useStore.setState({ rebuild }),
+  subscribe: (cb) => useStore.subscribe(cb),
+  rebuildNow,
+  prepare: (doc) => registerPlanes(doc.planes),
+  workerEnabled: rebuildWorkerEnabled,
+  message: (text, level) => useStore.getState().pushMessage(text, level),
+  now: () => performance.now(),
+  part: rebuildInWorker,
+  parts: rebuildPartsInWorker,
+});
 
 /**
- * The rebuild the store shows. Parts that rebuild slowly are built in the rebuild worker (QA F46): the window stays
- * responsive, the previous result stays shown (pending, "Rebuilding…" in the status bar) and the new one replaces it
- * when it is done, unless another rebuild came first.
+ * The rebuild the store shows. Parts that rebuild slowly, and the parts of an assembly that have no rebuild yet, are
+ * built in the rebuild worker (QA F46, docs/32 P2-5); see rebuildQueue.ts.
  */
 export function rebuildFor(doc: Document, rollbackIndex: number | null): RebuildResult {
-  if (isDrawing(doc) || isAssembly(doc) || !rebuildWorkerEnabled()) return rebuildNow(doc, rollbackIndex);
-  const key = doc.id ?? doc.name;
-  if ((lastRebuildMs.get(key) ?? 0) >= HEAVY_REBUILD_MS) return rebuildLater(doc, rollbackIndex, key);
-  const budget = rebuildBudgetMs;
-  setRebuildBudget(Math.min(budget, SYNC_REBUILD_MS));
-  const t0 = performance.now();
-  let r: RebuildResult;
-  try {
-    r = rebuildNow(doc, rollbackIndex);
-  } finally {
-    setRebuildBudget(budget);
-  }
-  lastRebuildMs.set(key, performance.now() - t0);
-  return r.stopped ? rebuildLater(doc, rollbackIndex, key) : r;
+  return queuedRebuild(doc, rollbackIndex);
 }
+export { whenRebuilt, decideRebuild };
 
-/** runs cb with the finished rebuild: at once, or when the rebuild worker delivers it (a newer rebuild counts too) */
-export function whenRebuilt(r: RebuildResult, cb: (r: RebuildResult) => void): void {
-  if (!r.pending) { cb(r); return; }
-  const unsub = useStore.subscribe((s) => {
-    if (s.rebuild.pending) return;
-    unsub();
-    cb(s.rebuild);
-  });
-}
-
-function rebuildLater(doc: Document, rollbackIndex: number | null, key: string): RebuildResult {
-  registerPlanes(doc.planes);
-  const st = useStore.getState();
-  const placeholder: RebuildResult = st.doc && (st.doc.id ?? st.doc.name) === key ? { ...st.rebuild, pending: true } : { bodies: [], errors: {}, consumedSketches: new Set(), pending: true };
-  rebuildInWorker(doc, rollbackIndex, rebuildBudgetMs).then(
-    ({ result, ms }) => {
-      lastRebuildMs.set(key, ms);
-      if (useStore.getState().rebuild === placeholder) useStore.setState({ rebuild: result });
-    },
-    (err) => {
-      if (err instanceof RebuildSuperseded) return;
-      // the worker failed: the rebuild runs here after all
-      lastRebuildMs.delete(key);
-      if (useStore.getState().rebuild === placeholder) useStore.setState({ rebuild: rebuildNow(doc, rollbackIndex) });
-    },
-  );
-  return placeholder;
-}
 export const initialRebuild = rebuildNow(initialSolve.doc, null);
 
 /** the default decal image: a Phlippo badge */
@@ -1405,6 +1374,8 @@ export const useStore = create<State>((set, get) => ({
     setTimeout(() => set({ messages: get().messages.filter((m) => m.id !== id) }), 6000);
   },
 }));
+// every write of an option, from whatever path (Material dialog, favourites, Options), reaches the store (P2-1)
+onPrefsChanged((prefs) => { if (useStore.getState().prefs !== prefs) useStore.setState({ prefs }); });
 
 /** A command or selection is active: the Property Panel replaces the design tree. */
 export const isCommandActive = (s: Pick<State, 'activeSketchId' | 'selection' | 'selectedConstraint' | 'tool' | 'planePick' | 'featureEdit' | 'mateEdit' | 'insertingComponent' | 'drawingEdit' | 'planeEdit' | 'configEdit' | 'sheetMetalEdit' | 'sectionEdit' | 'explodeEdit' | 'patternEdit' | 'sketch3dEdit' | 'analysis' | 'sensorEdit'> & Partial<Pick<State, 'curveColorEdit' | 'motorEdit' | 'motionEdit' | 'fastenerEdit' | 'sceneEdit' | 'refEdit' | 'offsetSurfEdit' | 'decalEdit'>>): boolean =>

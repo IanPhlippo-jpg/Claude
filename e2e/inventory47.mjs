@@ -6,6 +6,7 @@ import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track, skip, dontSave } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -38,16 +39,16 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 
 // ---- status bar: the Smart Dimension prompt in a sketch, Total Length of two lines
 await S(() => window.__phlippoStore.getState().editSketch('s1'));
-await page.waitForTimeout(300);
+await settle(page);
 await S(() => window.__phlippoStore.getState().setTool('dimension'));
-await page.waitForTimeout(150);
+await settle(page);
 check('Smart Dimension prompts "Pick one or two edges or points, then click where the dimension goes."', (await status()).includes('Pick one or two edges or points, then click where the dimension goes.'));
 await S(() => { const s = window.__phlippoStore.getState(); s.setTool('select'); const sk = s.doc.sketches.s1; s.setSelection(sk.entityOrder.slice(0, 2).map((id) => ({ kind: 'entity', id }))); });
-await page.waitForTimeout(150);
+await settle(page);
 check('two lines selected: Total Length 140mm in the status bar', (await status()).includes('Total Length: 140mm'), await status());
 
 // ---- a left-click on a line shows the relations toolbar beside the pointer ("Make Horizontal")
@@ -81,7 +82,7 @@ await S(() => window.__phlippoStore.getState().setTool('select'));
 
 // ---- Modify ▸ Reverse the sense of the dimension: the second point goes to the other side of the first
 await S((id) => window.__phlippoStore.getState().setModify({ id, x: 600, y: 400 }), dimId);
-await page.waitForTimeout(250);
+await settle(page);
 const pointX = () => S(() => { const sk = window.__phlippoStore.getState().doc.sketches.s1; const c = Object.values(sk.constraints).find((k) => k.kind === 'hDistance'); return sk.points[c.refs[1]].x; });
 const xBefore = await pointX();
 await page.locator('[data-testid="modify-reverse"]').click();
@@ -89,11 +90,11 @@ await page.waitForTimeout(300);
 const xAfter = await pointX();
 check('Reverse the sense moves the point to the other side (80 → -80)', Math.round(xBefore) === 80 && Math.round(xAfter) === -80, `${xBefore} → ${xAfter}`);
 await S(() => { const s = window.__phlippoStore.getState(); s.setModify(null); s.undo(); });
-await page.waitForTimeout(200);
+await settle(page);
 // ---- Segment: the top line cut into three segments through the Property Panel
 const linesBefore = await S(() => { const sk = window.__phlippoStore.getState().doc.sketches.s1; return sk.entityOrder.filter((id) => sk.entities[id].kind === 'line').length; });
 await S(() => window.__phlippoStore.getState().setTool('segment'));
-await page.waitForTimeout(200);
+await settle(page);
 const topMid = await S(() => window.__phlippoProject({ x: 40, y: 60 }));
 await page.mouse.click(topMid.x, topMid.y);
 await page.waitForTimeout(200);
@@ -106,7 +107,7 @@ const linesAfter = await S(() => { const sk = window.__phlippoStore.getState().d
 check('Segment cuts the top line into three segments', linesAfter === linesBefore + 2, `${linesBefore} → ${linesAfter}`);
 await S(() => { const s = window.__phlippoStore.getState(); s.undo(); s.setTool('select'); });
 await S(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(400);
+await settle(page);
 
 // ---- the context toolbar of a tree item: shown after a short rest, Suppress through it
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().click();
@@ -122,21 +123,21 @@ if (bb) {
 }
 check('Suppress on the context toolbar suppresses the feature', await S(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'e1').suppressed));
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- bodies: [n] when one feature makes several
 await S(() => { const s = window.__phlippoStore.getState(); s.startMoveBody(); s.updateFeatureDraft({ copy: true, copies: 2, translate: [100, 0, 0] }); s.commitFeature(); });
-await page.waitForTimeout(600);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click();
 await page.waitForTimeout(150);
 const names = await page.locator('.k-tree-row[data-id^="body-"]').allInnerTexts();
 check('two bodies of one feature are named Body-Move/Copy1[1] and [2]', names.some((n) => n.includes('Body-Move/Copy1[1]')) && names.some((n) => n.includes('Body-Move/Copy1[2]')), JSON.stringify(names));
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- Equations ▸ Features: a suppression equation
 await S(() => window.__phlippoStore.getState().setDialog('equations'));
-await page.waitForTimeout(300);
+await settle(page);
 await page.selectOption('[data-testid="eq-add-suppression"]', { label: '"Boss-Extrude1"' });
 await page.waitForTimeout(150);
 check('Equations ▸ Features: "Boss-Extrude1" evaluates to Suppressed', (await page.locator('.k-eq-table tr:has-text("Boss-Extrude1")').first().innerText()).includes('Suppressed'));
@@ -145,14 +146,14 @@ await page.waitForTimeout(400);
 check('OK suppresses Boss-Extrude1 through the equation', await S(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'e1').suppressed));
 await S(() => window.__phlippoStore.getState().setEquations([]));
 await S(() => window.__phlippoStore.getState().toggleSuppress('e1'));
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- Section View: Offset perpendicular to; View ▸ Tangent Edges as three choices
 await S(() => window.__phlippoStore.getState().startSectionView());
-await page.waitForTimeout(300);
+await settle(page);
 check('Section View offers Offset perpendicular to and Section by Body', (await page.locator('[data-testid="section-offset-selected"]').count()) === 1 && (await page.locator('[data-testid="section-pm"]').innerText()).includes('Section by Body'));
 await S(() => window.__phlippoStore.getState().cancelSectionView());
-await page.waitForTimeout(200);
+await settle(page);
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
 await page.waitForTimeout(150);
@@ -174,7 +175,7 @@ await S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await dontSave(page); // Save changes? → Don't Save, when it asks
-await page.waitForTimeout(400);
+await settle(page);
 await S(() => window.__phlippoStore.getState().setDialog('importDiagnostics'));
 await page.waitForSelector('[data-testid="import-diagnostics"]', { timeout: 5000 }).catch(skip('inventory47.mjs:174'));
 const gapsOf = () => page.locator('[data-testid="import-diagnostics"] tbody td').nth(2).innerText().catch(skip('inventory47.mjs:175', ''));
@@ -200,7 +201,7 @@ await S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await dontSave(page); // Save changes? → Don't Save, when it asks
-await page.waitForTimeout(500);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Base-Flange1") .caret').first().click();
 await page.waitForTimeout(200);
 check('Base-Flange1 holds BaseBend1 and BaseBend2', (await page.locator('.k-tree-row:has-text("BaseBend1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("BaseBend2")').count()) === 1);

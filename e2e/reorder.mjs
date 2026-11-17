@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -43,7 +44,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 const row = (id) => page.locator(`.k-tree-row[data-depth="1"][data-id="${id}"]`);
 const start = await order();
 check('the part opens without errors', JSON.stringify(await S(() => window.__phlippoStore.getState().rebuild.errors)) === '{}');
@@ -57,7 +58,7 @@ check('the moved part still rebuilds without errors', JSON.stringify(await S(() 
 check('the document has unsaved changes', await S(() => window.__phlippoStore.getState().dirty));
 // Undo puts the order back
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(400);
+await settle(page);
 check('Undo puts the order back', (await order()) === start, await order());
 
 // 2. the pattern above the feature it copies, the cut below the pattern of it: not allowed, nothing moves

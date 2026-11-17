@@ -20,7 +20,7 @@ import { draftEquations, withFieldEquations } from './fieldEquations'; import { 
 import { activateConfiguration, activeConfiguration, addConfiguration as addConfig, configurations, deleteConfiguration as deleteConfig, setConfigurationDimension as setCfgDim, setConfigurationSuppressed as setCfgSup, updateConfiguration } from '../../core/document/configurations';
 import { sketchChains } from '../../core/features/thin';
 import { sketchRegions } from '../../core/features/regions';
-import { applyColorScheme, DEFAULT_PREFS, getPref, loadPrefs, savePrefs, type PrefValue } from '../prefs';
+import { applyColorScheme, changedPrefs, DEFAULT_PREFS, documentProperties, getPref, patchPrefs, setDocumentProperties } from '../prefs';
 import { cylinderAxis, localRef } from '../../core/assembly/assembly';
 import { curveEndNormal, referencePlane, resolvePlaneDef } from '../../core/features/planes';
 import { DEFAULT_SHEET_METAL } from '../../core/features/sheetmetal';
@@ -100,7 +100,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
   selectedFaces: [],
   hoverPlane: null,
   selectedPlane: null,
-  prefs: typeof localStorage !== 'undefined' ? { ...loadPrefs(), ...(initialDoc.properties ?? {}) } : { ...DEFAULT_PREFS },
+  prefs: setDocumentProperties(initialDoc.properties),
   dialogFeatureId: null,
   rollbackIndex: null,
   startFeature(type, op, boundary = false) {
@@ -1232,7 +1232,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
   commitSectionView() {
     const se = get().sectionEdit;
     if (!se) return;
-    savePrefs({ ...loadPrefs(), 'section.capColor': se.keepCapColor && se.capColor ? se.capColor : '' });
+    patchPrefs({ 'section.capColor': se.keepCapColor && se.capColor ? se.capColor : '' });
     set({ sectionView: { ...se, pickBodies: false }, sectionEdit: null });
   },
   saveSectionView() {
@@ -1574,10 +1574,10 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     }
     if (get().selectedPlane !== selectedPlane) set({ selectedPlane });
   },
-  setPrefs(prefs) {
-    const system: Record<string, PrefValue> = {}, docProps: Record<string, PrefValue> = {};
-    for (const [k, v] of Object.entries(prefs)) (k.startsWith('doc.') ? docProps : system)[k] = v;
-    savePrefs({ ...system, ...docProps });
+  setPrefs(next, base) {
+    // only what changed is written, on top of what is stored now (P2-1); doc.* goes into the document (P2-2)
+    const changed = changedPrefs(next, base ?? get().prefs), prefs = patchPrefs(changed);
+    const docProps = documentProperties(Object.fromEntries(Object.entries(prefs).filter(([k, v]) => k.startsWith('doc.') && v !== DEFAULT_PREFS[k])));
     // options that drive existing settings
     const theme = prefs['colors.background'] === 'Dark' ? 'dark' : 'light';
     if (theme !== get().theme) get().setTheme(theme);
@@ -1590,7 +1590,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     if (String(prefs['doc.unitSystem']).startsWith('Custom') && lenUnit && lenUnit !== get().doc.units) get().setUnits(lenUnit);
     const doc = get().doc;
     const d: Document = { ...doc, properties: docProps };
-    set({ prefs, doc: d, gridSize: Math.max(0.1, Number(prefs['doc.gridMajor']) || 10), show: { ...get().show, grid: !!prefs['doc.displayGrid'] }, dirty: get().dirty || JSON.stringify(docProps) !== JSON.stringify(doc.properties ?? {}) });
+    set({ prefs, doc: d, gridSize: Math.max(0.1, Number(prefs['doc.gridMajor']) || 10), show: { ...get().show, grid: !!prefs['doc.displayGrid'] }, dirty: get().dirty || Object.keys(changed).some((k) => k.startsWith('doc.')) });
     autosave(d);
   },
 });

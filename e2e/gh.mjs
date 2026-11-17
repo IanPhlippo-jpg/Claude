@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -42,7 +43,7 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Path', sketchId: 'p1', suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 
 // ---- the Frames tab and the Frame feature
 check('Command Ribbon has a Frames tab', (await page.locator('.k-cm-tab:has-text("Frames")').count()) === 1);
@@ -65,7 +66,7 @@ await page.waitForTimeout(800);
 check('preview: two members along the path', /2 member\(s\)/.test(await page.locator('[data-testid="sm-groups"]').innerText()), await page.locator('[data-testid="sm-groups"]').innerText());
 await shot('gh1-structural-member-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const area = 40 * 40 - 32 * 32 - (4 - Math.PI) * (64 - 16); // EN 10219-2 corner radii ro 8, ri 4
 const v1 = await vol();
 check('Structural Member1: two mitered tubes, volume = area × (300 + 200)', Math.abs(v1 - area * 500) < area * 500 * 0.03 && (await nBodies()) === 2 && !Object.keys(await errs()).length, `${v1.toFixed(0)} vs ${area * 500} ${JSON.stringify(await errs())}`);
@@ -74,7 +75,7 @@ await page.locator('.k-tree-row[data-id="bodies"] .caret').click();
 await page.waitForTimeout(200);
 check('Cut-List-Item1 and Cut-List-Item2 folders', (await page.locator('.k-tree-row[data-id^="cutitem:"]').count()) === 2);
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('gh2-members');
 
 // ---- End Cap on the free end of the horizontal member (x = 0, normal -x)
@@ -89,7 +90,7 @@ await page.locator('[data-testid="ec-ratio"]').uncheck();
 await page.waitForTimeout(500);
 await shot('gh3-endcap-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const v2 = await vol();
 // offset 2 on each side: (40 - 4) x (40 - 4) with the R8 corners of the tube come in to R6, 5 thick
 check('End Cap1: a plate of 36 x 36 (R6 corners) x 5 as a new body', Math.abs(v2 - v1 - (36 * 36 - (4 - Math.PI) * 36) * 5) < 60 && (await nBodies()) === 3 && !Object.keys(await errs()).length, `${(v2 - v1).toFixed(0)} ${JSON.stringify(await errs())}`);
@@ -105,7 +106,7 @@ await page.waitForTimeout(500);
 check('two supporting faces picked', (await page.locator('[data-testid="wg-faces"] .k-selbox-row').count()) === 2);
 await shot('gh4-gusset-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const v3 = await vol();
 check('Gusset1: a 30 x 30 x 5 triangular plate', Math.abs(v3 - v2 - 0.5 * 30 * 30 * 5) < 60 && (await nBodies()) === 4 && !Object.keys(await errs()).length, `${(v3 - v2).toFixed(0)} ${JSON.stringify(await errs())}`);
 
@@ -127,7 +128,7 @@ await waitSettled(page);
 await page.locator('.k-tree-row:has-text("Cut list(4)")').waitFor({ timeout: 15000 }).catch(() => undefined);
 check('Weld Bead1: Weld Folder(1) in the tree, the cut list counts the 4 other bodies', (await nBodies()) === 5 && (await page.locator('.k-tree-row:has-text("Weld Folder(1)")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Cut list(4)")').count()) === 1 && !Object.keys(await errs()).length, JSON.stringify(await errs()));
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('gh6-frame');
 
 // ---- Cut list properties
@@ -156,7 +157,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(900);
+await settle(page);
 check('T frame: two crossing members', (await nBodies()) === 2);
 const vT0 = await vol();
 await page.click('.k-cm-tab:has-text("Frames")');
@@ -172,11 +173,11 @@ await page.waitForTimeout(500);
 check('bodies to trim and trimming body filled in', (await page.locator('[data-testid="te-bodies"] .k-selbox-row').count()) === 1 && (await page.locator('[data-testid="te-trimming"] .k-selbox-row').count()) === 1);
 await shot('gh8-trimextend-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 const vT1 = await vol();
 check('Trim/Extend1 removes the upright inside the beam', vT0 - vT1 > 2000 && (await nBodies()) === 2 && !Object.keys(await errs()).length, `${(vT0 - vT1).toFixed(0)} ${JSON.stringify(await errs())}`);
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 await shot('gh9-trimextend');
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');

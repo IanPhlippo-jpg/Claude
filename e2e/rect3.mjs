@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -35,7 +36,7 @@ const len = (l) => Math.hypot(l.b.x - l.a.x, l.b.y - l.a.y);
 
 // the Property Panel offers all five rectangle types, none greyed out
 await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'));
-await page.waitForTimeout(200);
+await settle(page);
 const types = await page.evaluate(() => [...document.querySelectorAll('.k-pm-recttypes .k-pm-typebtn')].map((b) => ({ t: b.title, d: b.disabled })));
 check('Rectangle Type shows 5 types, all enabled', types.length === 5 && types.every((x) => !x.d), JSON.stringify(types));
 

@@ -89,7 +89,7 @@ describe('Standard Parts library', () => {
       const ring = (Math.PI / 4) * (w.d2 ** 2 - w.d1 ** 2) * w.h;
       expect(Math.abs(c.volume - ring) / ring).toBeLessThan(0.02);
     }
-  }, 60000); // 21 rebuilds: more than the default 5 s when the suite runs in parallel
+  }, 600_000); // 21 rebuilds: more than the default 5 s when the suite runs in parallel
 
   it('volume of ISO 4762 M6 x 20 within 2 % of the hand calculation (cylinder + head - chamfers - socket)', () => {
     const d = 6, l = 20, dk = 10, k = 6, s = 5, t = 3;

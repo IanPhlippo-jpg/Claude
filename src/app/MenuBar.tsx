@@ -6,18 +6,19 @@ import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { Menu, nestMenu, type MenuItem } from '../ui/components';
 import { Icon } from '../ui/icons';
-import { FILE_EXTENSION, MAX_FILE_BYTES, parseDocument, serializeDocument } from '../core/document/persistence';
+import { FILE_EXTENSION, MAX_FILE_BYTES, readDocument, serializeDocument } from '../core/document/persistence';
 import { exportStl, parseStl } from '../core/document/stl';
 import { backupPolicy, importScale, warnSaveWithErrors } from './prefsEffects';
 import { confirmExport } from './exportGate';
-import { desktop, getDocumentHandle, setDocumentHandle } from './desktop';
+import { desktop, getDocumentHandle, handleFor, setDocumentHandle } from './desktop';
+import { documentToSave } from './editContext';
 import { viewerHtml } from '../core/document/viewerExport';
 import { applyUpAxis as setUpAxis } from './viewport/camera';
 import { getPref, loadPrefs } from './prefs';
 import { clearAutoRecover, discardAutoRecover } from './autoRecover';
 // the sheet exporter loads when a drawing is saved as DXF or PDF (QA 0.5.11 F174)
 const exportSheet = (kind: 'dxf' | 'pdf') => import('./drawing/sheetExport').then((m) => m.exportSheet(kind));
-import { isDrawing } from '../core/document/types';
+import { isDrawing, type Document } from '../core/document/types';
 import { getCamera } from './viewport/Viewport';
 
 /** the version from package.json (vite define) */
@@ -46,8 +47,11 @@ function withDescription(m: MenuItem): MenuItem {
 }
 
 export async function saveDocument(forceAsk = false, confirmedErrors = false): Promise<boolean> {
-  const { doc, pushMessage, hasDocument } = useStore.getState();
+  const { pushMessage, hasDocument } = useStore.getState();
   if (!hasDocument) return false;
+  // Edit Component: the file is the assembly; it is written with the edited part in it, the edit stays open (P1-1)
+  const open = useStore.getState().doc;
+  const { doc, inContext } = documentToSave(useStore.getState());
   // a model with rebuild errors (a damaged or half-repaired file) is only written after a confirmation (F40)
   const errs = Object.keys(useStore.getState().rebuild.errors);
   if (errs.length && !confirmedErrors && warnSaveWithErrors()) {
@@ -64,25 +68,41 @@ export async function saveDocument(forceAsk = false, confirmedErrors = false): P
   if (api) {
     const data = new TextEncoder().encode(text).buffer as ArrayBuffer;
     const previous = getDocumentHandle();
-    const known = forceAsk ? undefined : previous ?? undefined;
+    const known = forceAsk ? undefined : handleFor(doc.id) ?? undefined;
     const r = await api.saveFile({ defaultPath: `${doc.name}${FILE_EXTENSION}`, filters: KCAD_FILTERS, data, handle: known, backup: backupPolicy() });
     if (!r) return false;
     if (r.error) {
       pushMessage(`${r.name} could not be saved: ${r.error}. The previous file is unchanged.`, 'error');
       return false;
     }
-    setDocumentHandle(r.handle);
+    setDocumentHandle(r.handle, doc.id);
     if (r.warning) pushMessage(`${r.name} saved, but: ${r.warning}`, 'warn');
     const name = r.name.replace(/\.kcad$/i, '');
-    if (name !== doc.name) useStore.getState().renameDocument(name);
-    useStore.setState({ dirty: false });
+    markSaved(open, doc, inContext, name);
     clearAutoRecover(doc, [previous, r.handle]);
-    pushMessage(`${r.name} saved.`);
+    pushMessage(inContext ? `${r.name} saved, with ${open.name}.` : `${r.name} saved.`);
     return true;
   }
   download(`${doc.name}${FILE_EXTENSION}`, text, 'application/json');
-  useStore.setState({ dirty: false });
+  markSaved(open, doc, inContext, doc.name);
   return true;
+}
+
+/**
+ * After a write: the saved name goes to the document that was written (the assembly during Edit Component, never the
+ * part), and the document only counts as saved when nothing changed while the file was written (P3-5).
+ */
+function markSaved(open: Document, written: Document, inContext: boolean, name: string) {
+  const st = useStore.getState();
+  const unchanged = st.doc === open;
+  if (inContext && st.editContext) {
+    const assembly = name !== written.name ? { ...written, name } : written;
+    useStore.setState({ editContext: { ...st.editContext, assembly, savedPart: open }, ...(unchanged ? { dirty: false } : {}) });
+    return;
+  }
+  if (!unchanged) return;
+  if (name !== written.name) st.renameDocument(name);
+  useStore.setState({ dirty: false });
 }
 
 /** Don't Save: the auto-recover copies of the discarded changes go first (closing the window may follow at once) */
@@ -126,14 +146,13 @@ export const saveDocumentAs = () => saveDocument(true);
 /** Save As (browser): the file name and the Save as copy options of the dialog */
 export function saveDocumentWith(opts: { name: string; copy: boolean; includeRefs: boolean }): void {
   const st = useStore.getState();
-  const doc = opts.name && opts.name !== st.doc.name ? { ...st.doc, name: opts.name } : st.doc;
+  // Edit Component: the assembly (with the edited part) is what gets a file, as with Save (P1-1)
+  const target = documentToSave(st);
+  const doc = opts.name && opts.name !== target.doc.name ? { ...target.doc, name: opts.name } : target.doc;
   const text = serializeDocument(doc);
   download(`${doc.name}${FILE_EXTENSION}`, text, 'application/json');
-  if (!opts.copy) {
-    if (doc.name !== st.doc.name) st.renameDocument(doc.name);
-    useStore.setState({ dirty: false });
-  }
-  st.pushMessage(opts.copy ? `${doc.name}${FILE_EXTENSION} saved as a copy; ${st.doc.name} stays open.` : `${doc.name}${FILE_EXTENSION} saved.`);
+  if (!opts.copy) markSaved(st.doc, target.doc, target.inContext, doc.name);
+  st.pushMessage(opts.copy ? `${doc.name}${FILE_EXTENSION} saved as a copy; ${target.doc.name} stays open.` : `${doc.name}${FILE_EXTENSION} saved.`);
 }
 
 /** File ▸ Publish to Phlippo Viewer: a standalone HTML viewer of the bodies (the Phlippo Viewer equivalent) */
@@ -191,6 +210,13 @@ function openStep(name: string, data: ArrayBuffer) {
     .catch((err: Error) => useStore.getState().pushMessage(`Cannot open ${name}: ${err.message}`, 'error'));
 }
 
+/** a .kcad read with its warnings shown (a file of a newer program or format opens, with a warning: P2-7) */
+function readKcad(data: ArrayBuffer) {
+  const { doc, warnings } = readDocument(new TextDecoder().decode(data));
+  for (const w of warnings) useStore.getState().pushMessage(w, 'warn');
+  return doc;
+}
+
 /** Open a file: a loaded document (.kcad), an imported mesh (.stl) or a STEP file (.step, .stp). */
 export function openFileData(name: string, data: ArrayBuffer, handle: string | null) {
   const st = useStore.getState();
@@ -199,22 +225,22 @@ export function openFileData(name: string, data: ArrayBuffer, handle: string | n
     if (/\.(step|stp)$/i.test(name)) return openStep(name, data);
     if (/\.stl$/i.test(name)) st.importMesh(name, importScale(parseStl(data)));
     else if (st.doc.kind === 'drawing' && st.drawingEdit?.mode === 'modelView' && !st.drawingEdit.model) {
-      const model = parseDocument(new TextDecoder().decode(data));
+      const model = readKcad(data);
       if (model.kind === 'drawing') st.pushMessage('Choose a part or assembly file for the view.', 'warn');
       else st.setModelViewSource(model);
     } else if (st.insertingComponent || (st.doc.kind === 'assembly' && st.tab === 'assembly' && st.mateEdit === null && st.dialog === null && st.doc.components?.length === 0)) {
       // Insert Component: the chosen part becomes a component of the open assembly
-      const part = parseDocument(new TextDecoder().decode(data));
+      const part = readKcad(data);
       if (part.kind === 'drawing') st.pushMessage('A drawing cannot be inserted; choose a part or assembly file.', 'warn');
       // with the Insert Component PM open the part follows the pointer until a click or OK places it, by design
       else if (st.insertingComponent) st.setInsertGhost({ part, rotation: [0, 0, 0, 1] });
       else st.insertComponent(part);
     } else {
       // parsed and checked before anything changes: a damaged file leaves the open document as it is
-      const doc = parseDocument(new TextDecoder().decode(data));
+      const doc = readKcad(data);
       withUnsavedCheck(() => {
         useStore.getState().openDocument(doc);
-        setDocumentHandle(handle);
+        setDocumentHandle(handle, useStore.getState().doc.id);
         useStore.getState().setDialog(null);
       });
       return;
@@ -287,7 +313,7 @@ export function MenuBar() {
       { label: 'Close', shortcut: 'Ctrl+W', onSelect: () => withUnsavedCheck(() => useStore.setState({ hasDocument: false, dialog: null })) },
       { separator: true },
       { label: 'Save', icon: <Icon.Save />, shortcut: 'Ctrl+S', onSelect: () => saveDocument() },
-      { label: 'Save As…', shortcut: 'Ctrl+Shift+S', onSelect: () => (desktop() ? saveDocumentAs() : st.setDialog('saveAs')) },
+      { label: 'Save As…', onSelect: () => (desktop() ? saveDocumentAs() : st.setDialog('saveAs')) },
       { label: 'Publish to Phlippo Viewer (*.html)…', icon: <Icon.Eye />, disabled: !st.rebuild.bodies.length, onSelect: () => publishViewer() },
       { label: 'Save As ▸ STL (*.stl)…', onSelect: () => { useStore.setState({ exportFormat: 'stl' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ 3MF (*.3mf)…', onSelect: () => { useStore.setState({ exportFormat: '3mf' }); st.setDialog('exportOptions'); } },
@@ -430,7 +456,7 @@ export function MenuBar() {
       { label: 'Evaluate ▸ Quick Beam Estimate…', icon: <Icon.Simulation />, onSelect: () => st.setDialog('beamEstimate') },
       { separator: true },
       { label: 'Customize…', icon: <Icon.Keyboard />, onSelect: () => st.setDialog('customize') },
-      { label: 'Customize ▸ Keyboard', icon: <Icon.Keyboard />, shortcut: '?', onSelect: () => st.setPanel('shortcuts', { visible: true }) },
+      { label: 'Customize ▸ Keyboard', icon: <Icon.Keyboard />, onSelect: () => st.setPanel('shortcuts', { visible: true }) },
       { label: 'Options…', icon: <Icon.Options />, onSelect: () => st.setDialog('options') },
     ],
     Window: [

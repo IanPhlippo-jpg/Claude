@@ -1,5 +1,5 @@
 /** Property Panel building blocks shared by the feature families (split from PropertyPanel.tsx, QA F103). */
-import { getPref, loadPrefs, savePrefs } from '../../prefs';
+import { getPref, patchPrefs } from '../../prefs';
 import { isRoundFeature, type HoleFeature } from '../../../core/document/types';
 import { useState, type ReactNode } from 'react';
 import { useStore } from '../../store';
@@ -308,7 +308,7 @@ export function dimFavs(): Record<string, Partial<Constraint>> {
   try { return JSON.parse(String(getPref('sketch.dimFavorites') ?? '{}')) ?? {}; } catch { return {}; }
 }
 export function saveDimFavs(f: Record<string, unknown>): void {
-  savePrefs({ ...loadPrefs(), 'sketch.dimFavorites': JSON.stringify(f) });
+  patchPrefs({ 'sketch.dimFavorites': JSON.stringify(f) });
 }
 
 /** the equation that drives a dimension of the feature being edited (typed in its field, or in Tools ▸ Equations) */

@@ -5,7 +5,7 @@
 //
 //   node tools/bewijs.mjs                 the local gate (the commands of the CI job "checks") on this computer
 //                                         -> qa-logs/<version>/local-<platform>-<sha>/
-//   node tools/bewijs.mjs --voorbeelden   also runs the example tests (npm run test:voorbeelden, ~30 min)
+//   node tools/bewijs.mjs --voorbeelden   also runs the example and library tests (test:voorbeelden, test:bibliotheek)
 //   node tools/bewijs.mjs --e2e           also copies the regression logs in e2e-out/ that were made from this commit
 //   node tools/bewijs.mjs --ci <run-id>   a GitHub Actions run: every job log, the artifacts and the run itself
 //                                         -> qa-logs/<version>/actions-<run-id>-<sha>/
@@ -71,7 +71,7 @@ function skipReasons(vitestJson) {
       if (t.status !== 'skipped' && t.status !== 'pending' && t.status !== 'todo') continue;
       const line = src.findIndex((l) => l.includes(t.title.slice(0, 40)));
       const m = line >= 0 ? /\.(skipIf|runIf|skip|todo)\s*\(([^)]*(?:\([^)]*\))?[^)]*)\)/.exec(src[line]) : null;
-      // a whole file can be left out by vite.config (VOORBEELD_TESTS); a describe-level skip sits above the test
+      // a whole file can be left out by vite.config (tools/test-groups.json); a describe-level skip sits above the test
       const above = line >= 0 ? src.slice(0, line).reverse().find((l) => /describe\.(skipIf|runIf|skip)/.test(l)) : undefined;
       skips.push({
         file: relative(ROOT, file.name).replace(/\\/g, '/'),
@@ -111,11 +111,13 @@ function local(withE2e, withVoorbeelden) {
     step(dir, '1-typecheck', 'npm run typecheck'),
     step(dir, '2-unit', 'npx vitest run --reporter=default --reporter=json --outputFile=qa-logs/.vitest.json'),
     step(dir, '3-mutation', 'node tools/mutation-check.cjs'),
-    step(dir, '4-text', 'node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs'),
+    step(dir, '4-text', 'node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs && node tools/line-length.cjs'),
+    step(dir, '4b-audit', 'npm audit --omit=dev --audit-level=high'),
     step(dir, '5-build', 'npm run build'),
     step(dir, '6-budgets', 'node tools/bundle-budget.cjs && node tools/doc-counts.cjs'),
   ];
-  if (withVoorbeelden) steps.push(step(dir, '7-voorbeelden', 'npm run test:voorbeelden -- --testTimeout=1800000 --reporter=default --reporter=json --outputFile=qa-logs/.voorbeelden.json'));
+  if (withVoorbeelden) steps.push(step(dir, '7-voorbeelden', 'npm run test:voorbeelden -- --testTimeout=1800000 --reporter=default --reporter=json --outputFile=qa-logs/.voorbeelden.json'),
+    step(dir, '8-bibliotheek', 'npm run test:bibliotheek -- --testTimeout=1800000 --reporter=default --reporter=json --outputFile=qa-logs/.bibliotheek.json'));
   let unit = {};
   const vj = join(ROOT, 'qa-logs', '.vitest.json');
   if (existsSync(vj)) {
@@ -124,16 +126,17 @@ function local(withE2e, withVoorbeelden) {
     writeFileSync(join(dir, '2-unit.json'), JSON.stringify(j, null, 1));
     rmSync(vj);
   }
-  // the example tests are not skipped but left out of `npm test` (vite.config.ts, VOORBEELD_TESTS): say so, and with
-  // --voorbeelden give their own counts and skip reasons
-  const cfg = readFileSync(join(ROOT, 'vite.config.ts'), 'utf8');
-  unit.excluded = { files: [...(/VOORBEELD_TESTS = \[([^\]]*)\]/.exec(cfg)?.[1].matchAll(/'([^']+)'/g) ?? [])].map((m) => m[1]),
-    reason: 'vite.config.ts leaves them out unless VOORBEELDEN=1 (slow: they rebuild the example models); run by `npm run test:voorbeelden` and the CI job "voorbeelden"' };
-  const vv = join(ROOT, 'qa-logs', '.voorbeelden.json');
-  if (existsSync(vv)) {
+  // the example and library tests are not skipped but left out of `npm test` (tools/test-groups.json, read by
+  // vite.config.ts): say so, and with --voorbeelden give their own counts and skip reasons
+  const groups = JSON.parse(readFileSync(join(ROOT, 'tools', 'test-groups.json'), 'utf8'));
+  unit.excluded = { files: Object.entries(groups).filter(([k]) => !k.startsWith('_')).flatMap(([, v]) => v),
+    reason: 'tools/test-groups.json (read by vite.config.ts) leaves them out unless VOORBEELDEN=1 (slow: they rebuild the example models and the libraries); run by `npm run test:voorbeelden` / `npm run test:bibliotheek` and the CI jobs of the same name' };
+  for (const [name, n] of [['voorbeelden', 7], ['bibliotheek', 8]]) {
+    const vv = join(ROOT, 'qa-logs', `.${name}.json`);
+    if (!existsSync(vv)) continue;
     const j = JSON.parse(readFileSync(vv, 'utf8'));
-    unit.voorbeelden = { tests: j.numTotalTests, passed: j.numPassedTests, failed: j.numFailedTests, skipped: j.numPendingTests + (j.numTodoTests ?? 0), skips: skipReasons(j) };
-    writeFileSync(join(dir, '7-voorbeelden.json'), JSON.stringify(j, null, 1));
+    unit[name] = { tests: j.numTotalTests, passed: j.numPassedTests, failed: j.numFailedTests, skipped: j.numPendingTests + (j.numTodoTests ?? 0), skips: skipReasons(j) };
+    writeFileSync(join(dir, `${n}-${name}.json`), JSON.stringify(j, null, 1));
     rmSync(vv);
   }
   const regression = [];

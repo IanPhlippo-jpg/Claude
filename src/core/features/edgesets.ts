@@ -1,6 +1,6 @@
 import { FACE_TAG } from './faceNames';
 import * as THREE from 'three';
-import { TOL } from './tolerance';
+import { referenceTol } from './tolerance';
 
 /** One crease segment of a body with the normals of the two faces it joins. */
 export interface CreaseSegment {
@@ -302,7 +302,7 @@ function sameNormals(e: BodyEdge, ref: EdgeRef): boolean {
 }
 
 /** Find the edge of a body that a reference points to (after a rebuild). */
-export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.reference): BodyEdge | null {
+export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = referenceTol(ref.length)): BodyEdge | null {
   let best: BodyEdge | null = null, bestD = Infinity;
   const c = new THREE.Vector3(...ref.centroid);
   // by name first (F47): the edge between the same two named faces; where they meet more than once (a pattern, a
@@ -339,7 +339,7 @@ export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.ref
  * and the fillet silently rounded one piece). The same edge of another pattern instance does not overlap the old one.
  * Otherwise the one edge `matchEdge` finds.
  */
-export function matchEdges(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.reference): BodyEdge[] {
+export function matchEdges(edges: BodyEdge[], ref: EdgeRef, tol: number = referenceTol(ref.length)): BodyEdge[] {
   const pieces = splitPieces(edges, ref);
   if (pieces.length > 1) return pieces.map((e) => alongRef(e, ref));
   const e = matchEdge(edges, ref, tol);

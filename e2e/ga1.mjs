@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -84,7 +85,7 @@ await S(() => window.__phlippoStore.getState().setSketchTool({ addDimensions: fa
 // ---- Control Vertex Parameters on a selected point
 const pid = await S(() => { const K = window.__phlippoKit; const st = window.__phlippoStore.getState(); let id = null; st.commit('Point', (k) => { const [k2, pt] = K.addPoint(k, { x: 10, y: 60 }); id = pt.p; return k2; }); return id; });
 await S((pid) => window.__phlippoStore.setState({ selection: [{ kind: 'point', id: pid }] }), pid);
-await page.waitForTimeout(200);
+await settle(page);
 check('a selected point shows Control Vertex Parameters', (await page.locator('[data-testid="point-x"]').count()) === 1);
 await page.locator('[data-testid="point-x"] input.k-num').fill('55');
 await page.keyboard.press('Enter');
@@ -101,7 +102,7 @@ const arcs = await S(() => {
   return ids;
 });
 await S((ids) => window.__phlippoStore.setState({ selection: ids.map((id) => ({ kind: 'entity', id })) }), arcs);
-await page.waitForTimeout(250);
+await settle(page);
 check('two arcs offer Coradial and Equal Curve Length', (await page.locator('.k-pm-relbtn:has-text("Coradial")').count()) === 1 && (await page.locator('.k-pm-relbtn:has-text("Equal Curve Length")').count()) === 1);
 await page.click('.k-pm-relbtn:has-text("Coradial")');
 await page.waitForTimeout(300);
@@ -113,19 +114,19 @@ check('the relation shows its glyph in Existing Relations', (await page.locator(
 // ---- Dimension All uppercase
 const dimId = await S(() => { const s = window.__phlippoStore.getState(); const k = s.doc.sketches[s.activeSketchId]; return k.constraintOrder.find((id) => k.constraints[id].kind === 'length'); });
 await S((id) => window.__phlippoStore.getState().selectConstraint(id), dimId);
-await page.waitForTimeout(250);
+await settle(page);
 check('Dimension PM has All uppercase', (await page.locator('[data-testid="dim-uppercase"]').count()) === 1);
 await page.locator('[data-testid="dim-uppercase"]').check();
 await page.waitForTimeout(200);
 check('All uppercase stored on the dimension', (await S((id) => { const s = window.__phlippoStore.getState(); return s.doc.sketches[s.activeSketchId].constraints[id].uppercase; }, dimId)) === true);
 await S(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(300);
+await settle(page);
 
 // ---- Zebra Stripes (Evaluate) on a body
 await S(() => { window.__phlippoStore.setState({ selectedFeatureId: window.__phlippoStore.getState().doc.features[0].id }); window.__phlippoStore.getState().startFeature('extrude', 'boss'); });
-await page.waitForTimeout(300);
+await settle(page);
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(600);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Evaluate")');
 await page.click('.k-cm-small:has-text("Zebra Stripes")');
 await page.waitForTimeout(500);
@@ -136,7 +137,7 @@ await page.click('.k-cm-small:has-text("Zebra Stripes")');
 
 // ---- Equations: Automatic solve order
 await S(() => window.__phlippoStore.getState().setDialog('equations'));
-await page.waitForTimeout(300);
+await settle(page);
 check('Equations dialog has Automatic solve order', (await page.locator('[data-testid="eq-autosolve"]').count()) === 1);
 await page.keyboard.press('Escape');
 

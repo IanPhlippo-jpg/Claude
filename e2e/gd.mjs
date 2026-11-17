@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -53,7 +54,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(900);
+await settle(page);
 const v0 = await vol();
 check('block 48000 with three planar surfaces', Math.abs(v0 - 48000) < 1 && (await nSurf()) === 3, `${v0} surfaces ${await nSurf()} ${JSON.stringify(await errs())}`);
 await page.click('.k-cm-tab:has-text("Surfaces")');
@@ -63,10 +64,10 @@ await page.screenshot({ path: `${OUT}/gd-surfaces-tab.png` });
 
 const run = async (kind, patch) => {
   await S((kind) => window.__phlippoStore.getState().startSurface(kind), kind);
-  await page.waitForTimeout(200);
+  await settle(page);
   if (patch) await S((p) => window.__phlippoStore.getState().updateFeatureDraft(p), patch);
   await S(() => window.__phlippoStore.getState().commitFeature());
-  await page.waitForTimeout(700);
+  await settle(page);
 };
 const undo = async () => { await S(() => window.__phlippoStore.getState().undo()); await page.waitForTimeout(400); };
 
@@ -96,11 +97,11 @@ await S(() => {
   const top = b.faces.find((f) => !f.curved && f.normal[1] > 0.99);
   s.setSelectedFace({ bodyId: b.id, faceId: top.id });
 });
-await page.waitForTimeout(300);
+await settle(page);
 check('Replace Face lists the picked face', (await page.locator('[data-testid="replace-faces"]').innerText()).includes('Face<'));
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ target: 'sf15' }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(800);
+await settle(page);
 const v4 = await vol();
 check('Replace Face trims the block to the surface (36000)', Math.abs(v4 - 36000) < 10, `${v4} ${JSON.stringify(await errs())}`);
 await undo();
@@ -139,11 +140,11 @@ await S(() => {
   const e = b.edges.find((x) => x.straight && Math.abs(x.points[0].y - 20) < 1e-6 && Math.abs(x.points[x.points.length - 1].y - 20) < 1e-6);
   s.toggleSelectedEdge(e.id);
 });
-await page.waitForTimeout(300);
+await settle(page);
 check('Ruled Surface takes the picked edge', (await page.locator('[data-testid="ruled-edge"]').innerText()).includes('Edge<1>'));
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ distance: 8, ruledMode: 'tangent' }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(700);
+await settle(page, { quiet: 300 });
 const ar = await surfArea(3);
 check('the ruled strip is 8 wide along the edge (480 or 320 mm²)', Math.abs(ar - 480) < 1 || Math.abs(ar - 320) < 1, `${ar} ${JSON.stringify(await errs())}`);
 await page.screenshot({ path: `${OUT}/gd-ruled.png` });

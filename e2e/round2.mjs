@@ -3,6 +3,7 @@
 // rectangle Parameters show 0.00, a feature right-click has its header and no doubled items.
 import { chromium } from 'playwright';
 import { checks, exitCode } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 const { results, check } = checks();
 const URL = process.env.E2E_URL ?? 'http://127.0.0.1:4173/';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -56,7 +57,7 @@ const darkStrip = await page.evaluate(() => {
 });
 check('dark theme: the tab strip is see-through and the heads-up toolbar can be clicked', /rgba\(0, 0, 0, 0\)|transparent/.test(darkStrip.strip) && darkStrip.onHud, JSON.stringify(darkStrip));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 // feature right-click: toolbar with Edit Feature, menu with the header and Configure Feature once
 await page.click('.k-tree-row:has-text("Boss-Extrude1")', { button: 'right' });
 await page.waitForTimeout(200);

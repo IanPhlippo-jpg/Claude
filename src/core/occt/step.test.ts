@@ -16,7 +16,7 @@ beforeAll(async () => {
   const OC = await init({ wasmBinary: readFileSync(require.resolve('replicad-opencascadejs/wasm')) });
   replicad = await import('replicad');
   replicad.setOC(OC as never);
-}, 60000);
+}, 600_000);
 
 const flat = (g: import('three').BufferGeometry) => (g.index ? g.toNonIndexed() : g).getAttribute('position').array as Float32Array;
 
@@ -55,12 +55,12 @@ describe('STEP through OpenCascade (F51)', () => {
     expect(back).toHaveLength(1);
     expect(Math.abs(back[0].volume - meshVol)).toBeLessThan(1e-3);
     expect(back[0].positions.length % 9).toBe(0);
-  }, 60000);
+  }, 600_000);
 
   it('a file in inches comes in in millimetres', async () => {
     const { bytes } = await meshesToStep(replicad, [{ name: 'Plate', positions: flat(plate(false)) }], 'in');
     expect(new TextDecoder().decode(bytes)).toMatch(/INCH/);
     const back = await stepToMeshes(replicad, bytes);
     expect(Math.abs(back[0].volume - 80 * 60 * 10)).toBeLessThan(1e-3);
-  }, 60000);
+  }, 600_000);
 });

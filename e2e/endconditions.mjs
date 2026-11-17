@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -35,12 +36,12 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 const v0 = await volume();
 check('plate built', v0 > 0);
 
@@ -49,7 +50,7 @@ await page.keyboard.press('Escape');
 await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
 await page.waitForTimeout(700);
 await page.evaluate(() => window.__phlippoZoomFit());
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
 await page.mouse.click(cx - 40, cy - 40);
 await page.mouse.click(cx + 40, cy + 40);
@@ -75,7 +76,7 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(400);
 await shot('u1-offset-from-surface');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const v1 = await volume();
 check('Offset From Surface 3 mm cuts 7 mm deep (area x 7)', Math.abs(v0 - v1 - area * 7) < area * 0.05, `${(v0 - v1).toFixed(1)} vs ${(area * 7).toFixed(1)}`);
 check('no rebuild errors', (await page.evaluate(() => Object.keys(window.__phlippoStore.getState().rebuild.errors).length)) === 0);
@@ -88,7 +89,7 @@ await page.locator('.k-section:has-text("Direction 1") select.k-input').first().
 await page.waitForTimeout(300);
 check('Up To Next hides the depth field (by design)', (await page.locator('.k-section:has-text("Direction 1") .k-pm-valuerow input.k-num').count()) === 1);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page, { quiet: 300 });
 const v2 = await volume();
 check('Up To Next cuts through the plate (area x 10)', Math.abs(v0 - v2 - area * 10) < area * 0.05, `${(v0 - v2).toFixed(1)} vs ${(area * 10).toFixed(1)}`);
 await shot('u2-up-to-next');
@@ -115,7 +116,7 @@ await page.locator('.k-section:has-text("Direction 1") select.k-input').first().
 await page.locator('.k-section:has-text("Direction 1") .k-pm-valuerow input.k-num').first().fill('3');
 await page.locator('.k-section:has-text("Direction 1") .k-pm-valuerow input.k-num').first().press('Tab');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(700);
+await settle(page);
 check('Blind 3 cut', Math.abs(v0 - (await volume()) - area * 3) < area * 0.05);
 await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click({ button: 'right' });
 await page.click('[data-testid="ctx-edit-feature"]');
@@ -128,7 +129,7 @@ await page.mouse.click(corner.x, corner.y);
 await page.waitForTimeout(500);
 check('the clicked corner becomes Vertex<1>', (await page.locator('.k-selbox-row:has-text("Vertex<1>")').count()) === 1);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 check('Up To Vertex cuts up to the top of the plate (area x 10)', Math.abs(v0 - (await volume()) - area * 10) < area * 0.05, `${(v0 - (await volume())).toFixed(1)} vs ${(area * 10).toFixed(1)}`);
 
 // Sensors: Add Sensor ▸ Mass shows the mass in the tree

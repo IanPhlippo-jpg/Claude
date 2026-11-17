@@ -1,42 +1,34 @@
-import { deleteFaces } from './deleteface';
 import { circleSegments } from '../sketch/geometry';
 import * as THREE from 'three';
-import { TOL } from './tolerance';
-import { isRoundFeature, isSketchBased, type Document, type ExtrudeFeature, type Feature, type RoundFeature, type SketchBasedFeature, type SolidFeature } from '../document/types';
+import { isSketchBased, type Document, type ExtrudeFeature, type Feature, type RoundFeature, type SketchBasedFeature, type SolidFeature } from '../document/types';
+import type { DraftFeature, RevolveFeature, PlaneDef } from '../document/types';
 import type { Id } from '../sketch/types';
 import { isReferencePlane, resolvePlaneDef } from './planes';
-import { sketchRegions } from './regions';
-import { clipToSurface, csg, extrudeGeometry, meshPieces, meshVolume, mergeGeometries, piecesTouchingPlane, planarFaces, planeMatrix, revolveGeometry, THROUGH_ALL, type PlanarFace } from './solid';
+import { sketchRegions, type Region } from './regions';
+import { clipToSurface, csg, extrudeGeometry, piecesTouchingPlane, planarFaces, planeMatrix, revolveGeometry, THROUGH_ALL, type PlanarFace } from './solid';
 import { MeshBVH } from 'three-mesh-bvh';
-import type { Region } from './regions';
-import { bodyEdges, matchEdge, matchEdges, subEdgeAt, type BodyEdge } from './edgesets';
-import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts, vertexChamferTool, holdLineRadius } from './round';
-import { holeTool, mirrorGeometry, patternInstances, translated } from './pattern';
-import { curveInstances, fillInstances, tableInstances } from './patterns2';
-import { solveSketch } from '../solver/solver';
-import { splitFaces, type SplitRegions } from './splitline';
+import { bodyEdges, matchEdges, subEdgeAt, type BodyEdge } from './edgesets';
+import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts } from './round';
+import { splitFaces } from './splitline';
 import { brepKernel, type BrepKernel, type BrepShape } from './brepKernel';
-import { sketchContourRegions, polyArea, type ContourRegion } from './regions';
-import { applyShellFromHistory, applyShellOutward, type BuildHistory } from './shell';
-import { helixPath, loftGeometry, sketch3DChains, sketchPath, sweepGeometry } from './sweep';
-import { loftProfileIds, loftShape, loftThroughFeature } from './loftThrough';
-import { compositePath, curveThroughPoints, sweepPathOf } from './compositeCurve';
-import { fitPlane } from './surfaces';
-import { geometryFromPositions } from '../document/stl';
+import { loftGeometry, sketchPath, sweepGeometry } from './sweep';
+import { loftProfileIds, loftThroughFeature } from './loftThrough';
+import { sweepPathOf } from './compositeCurve';
 import { sketchChains, thinRegions } from './thin';
-import { ribGeometry } from './rib';
-import { threadSweeps, threadTool } from './thread';
-import type { DraftFeature, PatternFeature, RevolveFeature, PlaneDef } from '../document/types';
 import { copyFaceNames, FACE_TAG, nameFeatureFaces } from './faceNames';
-import { pointDeform } from './deform';
 import { buildFastening, isFasteningFeature } from './fasteningBuild';
-import type { BuildContext } from './buildContext';
 import { buildSheetMetal } from './sheetMetalBuild';
 import { buildFrame } from './frameBuild';
 import { buildSurfaceFeature } from './surfaceBuild';
-import { brepHoleTool, planarToolOf, threadSpecOf } from './rebuildTools';
 export { threadSpecOf } from './rebuildTools';
 import { faceOutline, findFaceOnBodies } from './weldments';
+import { brepTool } from './brepTool';
+import { createRebuildCtx, RebuildStopped, type RebuildCtx } from './rebuildState';
+import { planRebuild } from './rebuildCache';
+import { buildCombine, buildCompositeCurve, buildDeform, buildDeleteBody, buildDeleteFace, buildDraft, buildHelix, buildImported, buildIntersect, buildMirror,
+  buildMoveBody, buildRib, buildShell, buildSketch3d, buildThread } from './buildBodyOps';
+import { buildHole, buildRound } from './buildHoleRound';
+import { buildPattern } from './buildPatterns';
 
 export interface Body {
   id: Id;
@@ -446,40 +438,8 @@ function guideNormalToProfiles(pts: THREE.Vector3[], n1: THREE.Vector3, n2: THRE
 }
 
 
-/** the rigid transform an instance function applies (read off three probe points) */
-function instanceMatrix(inst: (g: THREE.BufferGeometry) => THREE.BufferGeometry): THREE.Matrix4 {
-  const probe = new THREE.BufferGeometry();
-  probe.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1], 3));
-  const a = inst(probe).getAttribute('position');
-  const p = (i: number) => new THREE.Vector3().fromBufferAttribute(a, i);
-  const o = p(0);
-  return new THREE.Matrix4().makeBasis(p(1).sub(o), p(2).sub(o), p(3).sub(o)).setPosition(o);
-}
-
-/** the pattern as patternInstances takes it: Up to reference turns into a spacing, Instance spacing into a total angle */
-function patternSpec(doc: Document, f: PatternFeature, seed: SketchBasedFeature | undefined): PatternFeature {
-  let out = f;
-  if (f.type === 'linearPattern' && f.upTo1 && f.dir1 && seed) {
-    const sk = doc.sketches[seed.sketchId];
-    const rg = sk ? sketchRegions(sk) : [];
-    if (sk && rg.length) {
-      const cs = regionCentre(rg[0]);
-      const c0 = new THREE.Vector3(cs.x, cs.y, 0).applyMatrix4(planeMatrix(resolvePlaneDef(doc, sk.plane)));
-      const pl = resolvePlaneDef(doc, f.upTo1.plane);
-      const n = new THREE.Vector3(...pl.n), ax = new THREE.Vector3(...f.dir1.axis).normalize();
-      const den = n.dot(ax);
-      if (Math.abs(den) > 1e-6) {
-        const dist = n.dot(new THREE.Vector3(...pl.origin).sub(c0)) / den - f.upTo1.offset;
-        const cnt = Math.max(2, f.dir1.count);
-        if (dist > 1e-6) out = { ...out, dir1: { ...f.dir1, spacing: dist / (cnt - 1) } };
-      }
-    }
-  }
-  return out;
-}
-
 /** Centre of a region (mean of its outer polygon). */
-function regionCentre(r: Region): { x: number; y: number } {
+export function regionCentre(r: Region): { x: number; y: number } {
   let x = 0, y = 0;
   for (const p of r.outer) { x += p.x; y += p.y; }
   const n = r.outer.length || 1;
@@ -521,395 +481,107 @@ export function applyRoundFeature(geometry: THREE.BufferGeometry, f: RoundFeatur
   }
 }
 
-/** Evaluate the feature history in order (up to the rollback index) into solid bodies. */
 /** wall-clock budget of one rebuild (ms); the features after it are marked instead of computed */
 export let rebuildBudgetMs = 45_000;
 export function setRebuildBudget(ms: number): void {
   rebuildBudgetMs = Math.max(0, ms);
 }
 
+/** the builder of one feature type: it builds f into ctx (an error goes into ctx.errors); false = not handled here */
+type Builder = (f: Feature, body: Body | undefined, ctx: RebuildCtx) => boolean | void;
+const builder = <F extends Feature>(b: (f: F, body: Body | undefined, ctx: RebuildCtx) => boolean | void) => b as Builder;
 
-/** a fillet or chamfer the B-rep kernel builds: one constant size on picked edges (the other options: mesh kernel) */
-function brepRoundable(f: RoundFeature): boolean {
-  const plainType = !f.roundType || f.roundType === 'constant' || (f.type === 'chamfer' && f.roundType === 'angleDistance' && (f.angle ?? 45) === 45);
-  // multi radius and variable size (fillets): one radius per edge, or a linear change along the edge
-  const perEdge = f.type === 'fillet' && (!!f.radii?.length || (f.roundType === 'variable' && !!f.variable));
-  return (plainType || perEdge) && !f.size2 && (!f.profile || f.profile === 'circular') && (f.type === 'fillet' || (!f.radii?.length && !f.variable)) && !f.partial && !f.setback && (!f.overflow || f.overflow === 'default') && !f.internalOnly && f.tangentPropagation !== false && f.edges.length > 0 && f.size > 0;
-}
+const surface = builder((f, body, ctx) => buildSurfaceFeature(f, body, ctx));
+const sheetMetal = builder((f, body, ctx) => buildSheetMetal(f, body, ctx));
+const frame = builder((f, _body, ctx) => buildFrame(f, ctx));
+const fastening = builder((f, body, ctx) => {
+  const { doc, bodies, visibleBodies, errors, curves, K, addMaterial, removeMaterial, addBoss, exactOf, setExact } = ctx;
+  const c = { doc, bodies, body, visibleBodies, errors, curves, K, addMaterial, removeMaterial, addBoss, exactOf, setExact };
+  if (isFasteningFeature(f)) buildFastening(f, c);
+});
+const pattern = builder(buildPattern);
 
 /**
- * The tool of a sketch-based feature as a B-rep solid, for the cases the B-rep kernel builds; null for the rest
- * (the feature is then built by the mesh kernel). The extents are those of extrudeGeometry, without the overhang that
- * the mesh kernel needs against coplanar faces.
+ * The builder of every feature type (QA 0.5.14 P2-14); a type that is not listed is a sketch-based solid (extrude,
+ * revolve, sweep, loft: buildSketched). Sketches are skipped by the loop itself.
  */
-function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, meshTool?: THREE.BufferGeometry, bodyGeom?: THREE.BufferGeometry | null, targetShape?: (bodyId: Id) => BrepShape | null): BrepShape | null {
-  if (f.type === 'sweep') {
-    // a sketch profile along a sketch path, following it (no twist, guides, tangency or circular profile yet)
-    if (f.profileType === 'circular' || f.twist || f.guides?.length || f.orientation === 'keepNormal' || f.alignEnd || (f.startTangency && f.startTangency !== 'none') || (f.endTangency && f.endTangency !== 'none')) return null;
-    const prof = doc.sketches[f.sketchId], path = doc.sketches[f.pathSketchId];
-    if (!prof || !path) return null;
-    const regions = sketchContourRegions(prof);
-    if (!regions.length) return null;
-    const shape = K.sweep(prof, resolvePlaneDef(doc, prof.plane), regions, path, resolvePlaneDef(doc, path.plane));
-    // the B-rep sweep must agree with the mesh kernel's (orientation conventions): else the mesh kernel builds it
-    if (shape && meshTool) {
-      const mv = Math.abs(meshVolume(meshTool)), bv = Math.abs(K.volume(shape));
-      if (!(mv > 0) || Math.abs(bv - mv) / mv > 0.03) return null;
-    }
-    return shape;
-  }
-  if (f.type === 'loft') {
-    // a loft through single-region profiles (./loftThrough.ts); guides, centerline, end constraints and boundary: mesh kernel
-    const shape = loftShape(K, doc, f);
-    if (shape && meshTool) {
-      const mv = Math.abs(meshVolume(meshTool)), bv = Math.abs(K.volume(shape));
-      if (!(mv > 0) || Math.abs(bv - mv) / mv > 0.03) return null;
-    }
-    return shape;
-  }
-  if (f.type !== 'extrude' && f.type !== 'revolve') return null;
-  const sketch = doc.sketches[f.sketchId];
-  if (!sketch) return null;
-  let regions: ContourRegion[];
-  if (f.thin) {
-    // Thin Feature: the wall around the open (or closed) profile; exact when the profile is made of lines only
-    if ((f.type === 'extrude' && f.thin.autoFillet)) return null;
-    if (Object.values(sketch.entities).some((e) => !e.construction && e.kind !== 'line' && e.kind !== 'point')) return null;
-    let chains = sketchChains(sketch);
-    if (f.type === 'revolve') {
-      // the axis is not part of the wall (as featureGeometry)
-      const ax = sketch.entities[f.axisEntityId];
-      const axPts = ax && ax.kind === 'line' ? [sketch.points[ax.p1], sketch.points[ax.p2]] : null;
-      const onAxis = (p: { x: number; y: number }) => !!axPts && Math.abs((axPts[1].x - axPts[0].x) * (p.y - axPts[0].y) - (axPts[1].y - axPts[0].y) * (p.x - axPts[0].x)) < 1e-6 * Math.hypot(axPts[1].x - axPts[0].x, axPts[1].y - axPts[0].y);
-      chains = chains.filter((c) => !c.points.every(onAxis));
-    }
-    if (!chains.length) return null;
-    regions = thinRegions(chains, f.thin).map((r) => ({ outer: { points: r.outer, area: Math.abs(polyArea(r.outer)), entityIds: [] }, holes: r.holes.map((h) => ({ points: h, area: Math.abs(polyArea(h)), entityIds: [] })) }));
-  } else {
-    regions = sketchContourRegions(sketch);
-    if (f.contours && f.contours.length) regions = regions.filter((_, i) => f.contours!.includes(i));
-  }
-  if (!regions.length) return null;
-  const plane = resolvePlaneDef(doc, sketch.plane);
-  if (f.type === 'revolve') {
-    const ax = sketch.entities[f.axisEntityId];
-    if (!ax || ax.kind !== 'line') return null;
-    const axis: [{ x: number; y: number }, { x: number; y: number }] = [sketch.points[ax.p1], sketch.points[ax.p2]];
-    const a1 = Math.max(0.1, Math.min(360, f.angle)), a2 = f.direction2 ? Math.max(0, f.direction2.angle) : 0;
-    if (a1 + a2 >= 360 - 1e-9 && !(f.end === 'midPlane')) return K.revolve(sketch, plane, regions, axis, 360, 0);
-    // a partial turn: the side the mesh kernel turns to (start angle and sense), found by the centre of its tool
-    const cands = f.end === 'midPlane' ? [{ s: -a1 / 2, a: a1 }] : f.direction2 ? [{ s: -a2, a: a1 + a2 }, { s: -a1, a: a1 + a2 }] : [{ s: 0, a: a1 }, { s: -a1, a: a1 }];
-    if (cands.length === 1 || !meshTool) return K.revolve(sketch, plane, regions, axis, cands[0].a, cands[0].s);
-    meshTool.computeBoundingBox();
-    const target = meshTool.boundingBox!.getCenter(new THREE.Vector3());
-    let best: BrepShape | null = null, bd = Infinity;
-    for (const c of cands) {
-      const sh = K.revolve(sketch, plane, regions, axis, c.a, c.s);
-      if (!sh) continue;
-      const g = K.tessellate(sh);
-      g.computeBoundingBox();
-      const d = g.boundingBox!.getCenter(new THREE.Vector3()).distanceTo(target);
-      if (d < bd) { bd = d; best = sh; }
-    }
-    return best;
-  }
-  if (f.normalCut) return null;
-  // Up To Body: through the target body, minus the body; the piece that starts at the sketch plane ends on its near side
-  if (f.end === 'upToBody') {
-    const target = f.upToBody && targetShape ? targetShape(f.upToBody.bodyId) : null;
-    if (!target || f.draft || f.direction2 || f.flipSide || f.fromOffset) return null;
-    const through = K.extrude(sketch, plane, regions, f.reverse ? -extent : 0, extent);
-    if (!through) return null;
-    const dir = f.reverse ? -1 : 1;
-    return K.cutKeepTouching(through, target, plane.origin, [plane.n[0] * dir, plane.n[1] * dir, plane.n[2] * dir]);
-  }
-  // the model-dependent ends (Up To Next, Up To Vertex, Direction 2 up to …) as blind depths, as the mesh kernel has them
-  let polyRegions = sketchRegions(sketch);
-  if (f.contours && f.contours.length) polyRegions = polyRegions.filter((_, i) => f.contours!.includes(i));
-  const ends = resolveExtrudeEnds(f, polyRegions, plane, bodyGeom ?? null);
-  if ('error' in ends) return null;
-  const fe = ends.fe;
-  const surfaceEnd = (fe.end === 'upToSurface' || fe.end === 'offsetFromSurface') && !!fe.surface;
-  if ((fe.end === 'upToSurface' || fe.end === 'offsetFromSurface') && !fe.surface) return null;
-  // Draft On/Off: one-sided extrusions only (the mesh kernel tapers both sides away from the sketch plane)
-  if (fe.draft && (fe.end === 'midPlane' || fe.end === 'throughAllBoth' || fe.direction2 || fe.flipSide || surfaceEnd || !(fe.draft.angle > 0 && fe.draft.angle < 89))) return null;
-  if (fe.direction2 && !['blind', 'throughAll'].includes(fe.direction2.end)) return null;
-  const d1 = fe.end === 'throughAll' || fe.end === 'throughAllBoth' || surfaceEnd ? extent : Math.max(0, fe.depth);
-  const d2 = fe.end === 'throughAllBoth' ? extent : fe.direction2 ? (fe.direction2.end === 'blind' ? Math.max(0, fe.direction2.depth) : extent) : 0;
-  let zStart: number, total: number;
-  if (fe.end === 'midPlane') {
-    zStart = -d1 / 2;
-    total = d1;
-  } else {
-    const a = fe.reverse ? -d1 : d1;
-    const b = fe.reverse ? d2 : -d2;
-    zStart = Math.min(0, a, b);
-    total = Math.max(0, a, b) - zStart;
-  }
-  if (total <= 1e-9) return null;
-  // From ▸ Offset: the extrusion starts at this distance from the sketch plane
-  if (fe.fromOffset) zStart += fe.fromReverse ? -fe.fromOffset : fe.fromOffset;
-  let shape = K.extrude(sketch, plane, regions, zStart, total);
-  if (!shape) return null;
-  if (fe.draft) {
-    const dirSign = fe.reverse ? -1 : 1;
-    const pull: [number, number, number] = [plane.n[0] * dirSign, plane.n[1] * dirSign, plane.n[2] * dirSign];
-    const neutral = { origin: plane.origin, normal: plane.n };
-    const prism = shape;
-    return pickByVolume(K, [fe.draft.angle, -fe.draft.angle].map((a) => () => K.draft(prism, 'sides', pull, a, neutral)), meshTool ? Math.abs(meshVolume(meshTool)) : 0, 0.1);
-  }
-  // Flip side to cut: the slab of the same depth minus the profile prism
-  if (fe.op === 'cut' && fe.flipSide) {
-    const c = polyRegions.length ? polyRegions[0].outer.reduce((acc, p) => ({ x: acc.x + p.x / polyRegions[0].outer.length, y: acc.y + p.y / polyRegions[0].outer.length }), { x: 0, y: 0 }) : { x: 0, y: 0 };
-    const big = extent * 2;
-    const sq = [{ x: c.x - big, y: c.y - big }, { x: c.x + big, y: c.y - big }, { x: c.x + big, y: c.y + big }, { x: c.x - big, y: c.y + big }];
-    const slabRegion = { outer: { points: sq, area: 4 * big * big, entityIds: [] }, holes: [] };
-    const slab = K.extrude(sketch, plane, [slabRegion], zStart, total);
-    if (!slab) return null;
-    shape = K.cut(slab, shape);
-  }
-  // Up To Surface / Offset From Surface: through all, cut back at the (offset) face plane
-  if (surfaceEnd && fe.surface) {
-    const n = new THREE.Vector3(...fe.surface.normal).normalize();
-    const p = new THREE.Vector3(...fe.surface.point);
-    if (new THREE.Vector3(...plane.origin).sub(p).dot(n) > 0) n.negate();
-    let off = fe.end === 'offsetFromSurface' ? fe.offset ?? 0 : 0;
-    if (off && fe.translateSurface) off *= Math.abs(new THREE.Vector3(...fe.surface.normal).normalize().dot(new THREE.Vector3(...plane.n).normalize()));
-    p.addScaledVector(n, fe.reverseOffset ? off : -off);
-    shape = K.clipByPlane(shape, [p.x, p.y, p.z], [n.x, n.y, n.z]);
-  }
-  return shape;
-}
+const BUILDERS: Partial<Record<Feature['type'], Builder>> = {
+  imported: builder(buildImported), sketch3d: builder(buildSketch3d), compositeCurve: builder(buildCompositeCurve),
+  curvePoints: builder(buildCompositeCurve), helix: builder(buildHelix), draft: builder(buildDraft), rib: builder(buildRib),
+  mirror: builder(buildMirror), shell: builder(buildShell), thread: builder(buildThread), deleteFace: builder(buildDeleteFace),
+  moveBody: builder(buildMoveBody), deleteBody: builder(buildDeleteBody), deform: builder(buildDeform), hole: builder(buildHole),
+  fillet: builder(buildRound), chamfer: builder(buildRound), intersect: builder(buildIntersect), combine: builder(buildCombine),
+  weldment: () => {},
+  linearPattern: pattern, circularPattern: pattern, sketchPattern: pattern, curvePattern: pattern, tablePattern: pattern, fillPattern: pattern,
+  variablePattern: pattern,
+  splitLine: surface, projectedCurve: surface, wrap: surface, surface,
+  structuralMember: frame, trimExtend: frame, endCap: frame, weldGusset: frame, weldBead: frame,
+  stud: fastening, dome: fastening, indent: fastening, mountingBoss: fastening, snapHook: fastening, lipGroove: fastening,
+};
+for (const t of ['baseFlange', 'miterFlange', 'jog', 'sketchedBend', 'edgeFlange', 'hem', 'unfold', 'fold', 'flatPattern', 'crossBreak', 'closedCorner',
+  'cornerRelief', 'loftedBend', 'vent', 'formTool', 'gusset', 'tabSlot', 'rip', 'sweptFlange', 'convertSheet'] as const) BUILDERS[t] = sheetMetal;
 
-/** of candidate B-rep results, the one whose volume is nearest the mesh kernel's (within the tolerance); null if none */
-function pickByVolume(K: BrepKernel, makers: (() => BrepShape)[], meshVol: number, tol: number): BrepShape | null {
-  if (!(meshVol > 0)) return null;
-  let best: BrepShape | null = null, bd = Infinity;
-  for (const make of makers) {
+/** a sketch-based solid (extrude, revolve, sweep, loft …): its tool, added to or cut from the bodies */
+function buildSketched(f: Feature, body: Body | undefined, ctx: RebuildCtx): void {
+  const { doc, bodies, errors, history, K, addMaterial, removeMaterial, addBoss, exactOf, allVisible } = ctx;
+  let extent = THROUGH_ALL;
+  const all = allVisible();
+  if (all) {
+    all.computeBoundingSphere();
+    extent = Math.max(10, (all.boundingSphere?.radius ?? 0) * 3 + 10);
+  }
+  // sheet metal cut: Link to thickness makes the depth the sheet thickness (a normal cut through one sheet)
+  const linked = f.type === 'extrude' && f.op === 'cut' && f.linkToThickness && doc.sheetMetal;
+  const fx: Feature = linked ? { ...f, end: 'blind', depth: doc.sheetMetal!.thickness } : f;
+  const r = featureGeometry(doc, fx as SketchBasedFeature, extent, all, bodies);
+  if (!r.geometry) {
+    errors[f.id] = r.error ?? 'Could not build the feature.';
+    return;
+  }
+  // the same tool as a B-rep solid, for the features the B-rep kernel builds (null: mesh kernel only)
+  let toolShape: BrepShape | null = null;
+  if (K) {
     try {
-      const sh = make();
-      const d = Math.abs(Math.abs(K.volume(sh)) - meshVol) / meshVol;
-      if (d < bd) { bd = d; best = sh; }
+      toolShape = brepTool(K, doc, fx, extent, r.geometry, all, (id) => exactOf(bodies.find((b) => b.id === id)));
     } catch {
-      /* this candidate failed */
+      toolShape = null;
     }
   }
-  return bd <= tol ? best : null;
-}
-
-export function rebuildDocument(doc: Document, upTo: number | null = null): RebuildResult {
-  const bodies: Body[] = [];
-  const errors: Record<Id, string> = {};
-  const consumedSketches = new Set<Id>();
-  const curves: { id: Id; name: string; points: THREE.Vector3[]; dashed?: boolean; color?: string }[] = [];
-  const extraAppearances: NonNullable<Document['faceAppearances']> = [];
-  // Split Lines per body: the faces are split after the faces are found
-  const splits = new Map<Id, SplitRegions[]>();
-  const surfaceBodies: Body[] = [];
-  const n = upTo === null ? doc.features.length : Math.min(upTo, doc.features.length);
-  // what the body is made of, for the shell (added material and the tools of every cut)
-  const history: BuildHistory = { boss: null, cuts: [] };
-  const addBoss = (g: THREE.BufferGeometry) => {
-    // the union of all boss tools is bookkeeping (feature history); when that boolean fails the feature itself stays
-    // built, the history keeps its previous state
-    try {
-      history.boss = history.boss ? csg(history.boss, g, 'union') : g;
-    } catch {
-      /* the feature is fine; only its share in the boss history is left out */
-    }
-  };
-  // ---- multi-body helpers (Merge result, Feature Scope, hidden bodies), by design
-  const hiddenIds = new Set(doc.hiddenBodies ?? []);
-  const autoHidden: Id[] = [];
-  let bodySeq = 0;
-  const newBody = (g: THREE.BufferGeometry, fid: Id, shape?: BrepShape | null): Body => {
-    const b: Body = { id: `body${++bodySeq}`, geometry: g, faces: [], edges: [], featureIds: [fid] };
-    bodies.push(b);
-    if (shape) setExact(b, shape);
-    return b;
-  };
-  // ---- B-rep kernel (docs/14): a body keeps its B-rep solid while every feature that changes it has a B-rep
-  // version; a feature without one works on the tessellation (mesh kernel) and the body is a mesh from then on
-  const K: BrepKernel | null = brepKernel();
-  const shapes = new Map<Body, { shape: BrepShape; geometry: THREE.BufferGeometry; version: number }>();
-  const posVersion = (g: THREE.BufferGeometry) => (g.getAttribute('position') as THREE.BufferAttribute | undefined)?.version ?? -1;
-  /** the B-rep solid of a body, when its geometry is still the tessellation of that solid */
-  const exactOf = (b: Body | undefined): BrepShape | null => {
-    if (!b) return null;
-    const e = shapes.get(b);
-    return e && e.geometry === b.geometry && e.version === posVersion(b.geometry) ? e.shape : null;
-  };
-  const approxBodies = new Set<Body>(); // exact shapes with a faceted part (a wrapped patch): kept for STEP, not called exact
-  function setExact(b: Body, shape: BrepShape) {
-    b.geometry = K!.tessellate(shape);
-    shapes.set(b, { shape, geometry: b.geometry, version: posVersion(b.geometry) });
-  }
-  /** the B-rep tool of a feature, or null (no kernel, not supported, or the kernel failed) */
-  const toolOf = (feature: Feature, ext: number, meshTool?: THREE.BufferGeometry | null): BrepShape | null => {
-    if (!K) return null;
-    try {
-      return brepTool(K, doc, feature, ext, meshTool ?? undefined, allVisible());
-    } catch {
-      return null;
-    }
-  };
-  const moved = (shape: BrepShape | null, m: THREE.Matrix4): BrepShape | null => {
-    if (!K || !shape) return null;
-    try {
-      return K.transform(shape, m.elements);
-    } catch {
-      return null;
-    }
-  };
-  const visibleBodies = () => bodies.filter((b) => !hiddenIds.has(b.id));
-  const boxOf = (g: THREE.BufferGeometry) => {
-    g.computeBoundingBox();
-    return g.boundingBox!.clone().expandByScalar(TOL.plane);
-  };
-  const touching = (tool: THREE.BufferGeometry, candidates: Body[]) => {
-    const tb = boxOf(tool);
-    return candidates.filter((b) => boxOf(b.geometry).intersectsBox(tb));
-  };
-  const scoped = (scope?: Id[]) => (scope && scope.length ? bodies.filter((b) => scope.includes(b.id)) : visibleBodies());
-  const isEmpty = (g: THREE.BufferGeometry) => !g.getAttribute('position') || g.getAttribute('position').count < 3;
-  /** boss material: merge into the bodies it touches (several touching bodies become one), else a new body */
-  /** a tool without a B-rep version whose faces are all planar becomes an exact solid (gussets, vents, slots …) */
-  const planarTool = (tool: THREE.BufferGeometry): BrepShape | null => planarToolOf(K, tool);
-  const addMaterial = (tool: THREE.BufferGeometry, fid: Id, merge: boolean, scope?: Id[], toolShape?: BrepShape | null) => {
-    featureTools.push(tool);
-    const hits = merge ? touching(tool, scoped(scope)) : [];
-    if (K && toolShape === undefined && (hits.length ? hits.every((b) => exactOf(b)) : bodies.some((b) => exactOf(b)))) toolShape = planarTool(tool);
-    if (!hits.length) {
-      newBody(tool, fid, toolShape);
-      return;
-    }
-    // B-rep: every touched body is exact, so the union is exact too
-    if (K && toolShape && hits.every((b) => exactOf(b))) {
-      try {
-        let u = K.fuse(exactOf(hits[0])!, toolShape);
-        for (const other of hits.slice(1)) u = K.fuse(u, exactOf(other)!);
-        const main = hits[0];
-        setExact(main, u);
-        main.featureIds.push(fid);
-        for (const other of hits.slice(1)) {
-          main.featureIds.push(...other.featureIds);
-          bodies.splice(bodies.indexOf(other), 1);
-        }
+  const sf = f as SolidFeature & { op: 'boss' | 'cut'; merge?: boolean; scope?: Id[] };
+  try {
+    if (sf.op === 'boss') {
+      // Merge result (default on): join the bodies the new material touches; off: a separate body
+      addMaterial(r.geometry, f.id, sf.merge !== false, sf.scope, toolShape ?? undefined);
+      addBoss(r.geometry);
+    } else {
+      if (!body) {
+        errors[f.id] = 'A cut needs an existing solid body.';
         return;
-      } catch {
-        /* the mesh kernel below */
       }
-    }
-    // all booleans first, then the bodies change: a failure leaves every body as it was (F48)
-    const main = hits[0];
-    let g = csg(main.geometry, tool, 'union');
-    for (const other of hits.slice(1)) g = csg(g, other.geometry, 'union');
-    main.geometry = g;
-    main.featureIds.push(fid);
-    for (const other of hits.slice(1)) {
-      main.featureIds.push(...other.featureIds);
-      bodies.splice(bodies.indexOf(other), 1);
-    }
-  };
-  /** cut material: subtract from the bodies the tool touches (Feature Scope, else Auto-select) */
-  const removeMaterial = (tool: THREE.BufferGeometry, fid: Id, scope?: Id[], toolShape?: BrepShape | null): boolean => {
-    featureTools.push(tool);
-    const hits = touching(tool, scoped(scope));
-    if (!hits.length) return false;
-    if (K && toolShape === undefined && hits.some((b) => exactOf(b))) toolShape = planarTool(tool);
-    // every cut is computed before any body changes: when the second body fails, the first is not left half cut (F48)
-    // an exact body is cut by the B-rep tool (falling back to the mesh kernel when that fails)
-    const results = hits.map((b): { shape: BrepShape } | { mesh: THREE.BufferGeometry } => {
-      const ex = exactOf(b);
-      if (K && toolShape && ex) {
-        try {
-          return { shape: K.cut(ex, toolShape) };
-        } catch {
-          /* mesh kernel */
-        }
+      if (!removeMaterial(r.geometry, f.id, sf.scope, toolShape ?? undefined)) {
+        errors[f.id] = 'The cut does not touch any body (check the Feature Scope).';
+        return;
       }
-      return { mesh: csg(b.geometry, tool, 'subtract') };
-    });
-    // Bodies to Keep: a cut that splits a body makes a body of every piece (largest first); the feature may keep some
-    const keep = (doc.features.find((x) => x.id === fid) as { keepBodies?: number[] } | undefined)?.keepBodies;
-    hits.forEach((b, k) => {
-      const r = results[k];
-      if ('shape' in r) {
-        if (K!.volume(r.shape) < 1e-9) { bodies.splice(bodies.indexOf(b), 1); return; }
-        const parts = K!.solids(r.shape);
-        if (parts.length > 1) { splitInto(b, parts.map((s) => ({ shape: s, geometry: K!.tessellate(s) })), fid, keep); return; }
-        setExact(b, r.shape);
-      } else {
-        const parts = meshPieces(r.mesh);
-        if (parts.length > 1) { splitInto(b, parts.map((g) => ({ shape: null, geometry: g })), fid, keep); return; }
-        b.geometry = r.mesh;
-      }
-      b.featureIds.push(fid);
-      if (isEmpty(b.geometry)) bodies.splice(bodies.indexOf(b), 1);
-    });
-    return true;
-  };
-  /** the pieces of a split body: the first kept piece stays this body, every other kept piece becomes a body */
-  const splitInto = (b: Body, parts: { shape: BrepShape | null; geometry: THREE.BufferGeometry }[], fid: Id, keep?: number[]) => {
-    splitCounts[fid] = Math.max(splitCounts[fid] ?? 0, parts.length);
-    const kept = parts.filter((_, i) => !keep || !keep.length || keep.includes(i));
-    if (!kept.length) { bodies.splice(bodies.indexOf(b), 1); return; }
-    const [first, ...rest] = kept;
-    if (first.shape) setExact(b, first.shape);
-    else b.geometry = first.geometry;
-    b.featureIds.push(fid);
-    for (const p of rest) {
-      const nb = newBody(p.geometry, fid, p.shape);
-      nb.featureIds = [...b.featureIds];
+      history.cuts.push(r.geometry);
     }
-  };
-  /** all visible bodies as one geometry (ray casts, extents) */
-  const allVisible = (): THREE.BufferGeometry | null => {
-    const v = visibleBodies();
-    if (!v.length) return null;
-    return v.length === 1 ? v[0].geometry : mergeGeometries(v.map((b) => b.geometry));
-  };
-  const times: Record<Id, number> = {};
-  const warnings: Record<Id, string> = {};
-  const bendCounts: Record<Id, number> = {};
-  /** Face Fillet ▸ Hold line: the fillet with the radius that ends it on the hold line */
-  const holdLineErrors: Record<Id, string> = {};
-  const sizedByHoldLine = (x: Feature): Feature => {
-    if (x.type !== 'fillet' || x.roundType !== 'face' || !x.holdLine || x.suppressed) return x;
-    const b = visibleBodies()[0] ?? bodies[0];
-    if (!b) return x;
-    const edges = bodyEdges(b.geometry, b.id);
-    const hold = matchEdge(edges, x.holdLine);
-    const edge = x.edges.length ? matchEdge(edges, x.edges[0]) : null;
-    const r = !hold ? 'The hold line is no longer on the body.' : !edge ? 'Select the two faces to fillet.' : holdLineRadius(edge, hold);
-    if (typeof r === 'string') { holdLineErrors[x.id] = r; return x; }
-    return { ...x, size: r };
-  };
-  /** the tools of the feature being built (the sources of the face names of its result) */
-  const featureTools: THREE.BufferGeometry[] = [];
-  /** Bodies to Keep: the number of pieces a cut split a body into */
-  const splitCounts: Record<Id, number> = {};
-  const bodyMeta: NonNullable<RebuildResult['bodyMeta']> = {};
-  const clock = typeof performance !== 'undefined' ? () => performance.now() : () => Date.now();
-  const started = clock();
-  let outOfTime = false;
-  // the helpers the feature modules take (sheetMetalBuild, frameBuild, surfaceBuild; QA 0.5.11 F134) and the sheet metal state
-  const ctx: BuildContext = { doc, bodies, errors, warnings, consumedSketches, curves, surfaceBodies, splits, history, bodyMeta, bendCounts, hiddenIds, autoHidden, approxBodies, K, addMaterial, removeMaterial, addBoss, newBody, exactOf, setExact, visibleBodies, isEmpty, sheet: null, unfolded: false };
-  for (let i = 0; i < n; i++) {
-    const f: Feature = sizedByHoldLine(doc.features[i]);
-    if (f.type === 'sketch') continue;
-    // the rebuild never blocks the window for minutes: past the budget the rest is marked and skipped (F46)
-    if (outOfTime || clock() - started >= rebuildBudgetMs) {
-      outOfTime = true;
-      if (!f.suppressed) errors[f.id] = `Not rebuilt: the rebuild stopped after ${Math.round(rebuildBudgetMs / 1000)} s. Reduce the pattern counts or suppress heavy features, then rebuild.`;
-      continue;
-    }
-    const t0 = clock();
-    const before = new Map(bodies.map((b) => [b, b.geometry]));
-    const exactBefore = new Set(bodies.filter((b) => exactOf(b)));
-    featureTools.length = 0;
-    // one feature failing never takes the whole rebuild down: it is marked and the rest goes on
-    try {
+  } catch (err) {
+    errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+  }
+}
+
+const stopMessage = () =>
+  `Not rebuilt: the rebuild stopped after ${Math.round(rebuildBudgetMs / 1000)} s. Reduce the pattern counts or suppress heavy features, then rebuild.`;
+
+/** one feature built into ctx, with the bookkeeping around it (time, face names, exactness and openings) */
+function runFeature(f: Feature, ctx: RebuildCtx, clock: () => number): void {
+  const { bodies, errors, warnings, consumedSketches, K, exactOf, featureTools } = ctx;
+  const t0 = clock();
+  const before = new Map(bodies.map((b) => [b, b.geometry]));
+  const exactBefore = new Set(bodies.filter((b) => exactOf(b)));
+  featureTools.length = 0;
+  const undo = ctx.checkpoint();
+  // one feature failing never takes the whole rebuild down: it is marked and the rest goes on
+  try {
     if (isSketchBased(f)) consumedSketches.add(f.sketchId);
     if (f.type === 'sweep') consumedSketches.add(f.pathSketchId);
     if (f.type === 'edgeFlange' && f.profileSketchId) consumedSketches.add(f.profileSketchId);
@@ -917,975 +589,95 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       for (const id of loftProfileIds(f)) consumedSketches.add(id);
       for (const g of f.guides ?? []) consumedSketches.add(g);
     }
-    if (f.suppressed) continue;
-    const body = visibleBodies()[0] ?? bodies[0];
-    if (f.type === 'imported') {
-      if (f.positions.length < 9) {
-        errors[f.id] = 'The imported file has no triangles.';
-        continue;
-      }
-      const g = geometryFromPositions(f.positions);
-      try {
-        // an imported mesh is its own body (merge it with Combine)
-        newBody(g, f.id);
-        addBoss(g);
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
+    if (f.suppressed) return;
+    const body = ctx.visibleBodies()[0] ?? bodies[0];
+    const build = BUILDERS[f.type];
+    if (!build || build(f, body, ctx) === false) buildSketched(f, body, ctx);
+  } catch (err) {
+    if (err instanceof RebuildStopped) {
+      // the budget ran out inside this feature (a long pattern): it is left out as a whole, like the ones after it
+      undo();
+      errors[f.id] = stopMessage();
+      throw err;
     }
-    if (buildSurfaceFeature(f, body, ctx)) continue;
-    if (f.type === 'sketch3d') {
-      for (const [i, chain] of sketch3DChains(f.segments, f.fillets).entries()) curves.push({ id: i ? `${f.id}:${i}` : f.id, name: f.name, points: chain });
-      continue;
+    // an internal error (missing data) is said in words; the technical text stays in brackets for a bug report
+    const inWords = err instanceof TypeError || err instanceof RangeError;
+    const msg = (err as Error).message;
+    const why = inWords ? `its data is incomplete or refers to geometry that no longer exists (${msg}).` : msg;
+    if (!errors[f.id]) errors[f.id] = `${f.name} could not be built: ${why}`;
+  } finally {
+    ctx.times[f.id] = (ctx.times[f.id] ?? 0) + (clock() - t0);
+    // face names (F47): a body this feature rebuilt without them (a B-rep tessellation, a fillet) takes them from
+    // the body before and the feature's tools
+    for (const b of bodies) {
+      if (b.geometry === before.get(b) || b.geometry.getAttribute(FACE_TAG)) continue;
+      const prev = before.get(b);
+      copyFaceNames(prev ? [prev, ...featureTools] : featureTools, b.geometry);
     }
-    if (f.type === 'compositeCurve' || f.type === 'curvePoints') {
-      const cp = f.type === 'curvePoints' ? curveThroughPoints(doc, f) : compositePath(doc, f, bodies);
-      if (cp.points) curves.push({ id: f.id, name: f.name, points: cp.points });
-      else errors[f.id] = cp.error!;
-      if (f.type === 'compositeCurve') for (const id of f.sketches) consumedSketches.add(id);
-      continue;
+    // a body that was exact and is faceted from this feature on (no B-rep version of it): said once, here (QA F51)
+    const last = (b: Body) => b.featureIds[b.featureIds.length - 1] === f.id;
+    if (K && !errors[f.id] && !warnings[f.id] && bodies.some((b) => last(b) && !exactOf(b) && exactBefore.has(b))) {
+      const faceted = 'from here on this body is a faceted mesh (Faceted in the status bar); its mass properties and STEP are approximate.';
+      warnings[f.id] = `${f.name} has no exact (B-rep) version: ${faceted}`;
     }
-    if (f.type === 'helix') {
-      const sketch = doc.sketches[f.sketchId];
-      if (!sketch) {
-        errors[f.id] = 'The sketch of this helix no longer exists.';
-        continue;
-      }
-      const pts = helixPath(sketch, resolvePlaneDef(doc, sketch.plane), f);
-      if (!pts) errors[f.id] = 'The helix needs a circle in its sketch and a pitch, height or number of revolutions above zero.';
-      else curves.push({ id: f.id, name: f.name, points: pts });
-      continue;
-    }
-    if (buildSheetMetal(f, body, ctx)) continue;
-    if (f.type === 'draft') {
-      const target = visibleBodies().find((b) => f.faces.length && planarFaces(b.geometry, b.id).some((fc) => Math.hypot(fc.centroid[0] - f.faces[0].point[0], fc.centroid[1] - f.faces[0].point[1], fc.centroid[2] - f.faces[0].point[2]) < 1e-2)) ?? body;
-      if (!target) {
-        errors[f.id] = 'A draft needs a solid body.';
-        continue;
-      }
-      try {
-        const r = draftOnBody(target.geometry, f);
-        if (!r.geometry) {
-          errors[f.id] = r.error ?? 'Could not build the draft.';
-          continue;
-        }
-        // B-rep draft about the neutral plane: the side of the angle that agrees with the mesh kernel
-        const exD = exactOf(target);
-        let drafted: BrepShape | null = null;
-        if (K && exD && f.neutral && (!f.draftType || f.draftType === 'neutral') && (!f.propagation || f.propagation === 'none')) {
-          const nn = f.neutral.normal;
-          // direction of pull: into the part from the neutral face (Reverse flips it), as draftOnBody
-          const pull: [number, number, number] = f.reverse ? [nn[0], nn[1], nn[2]] : [-nn[0], -nn[1], -nn[2]];
-          drafted = pickByVolume(K, [f.angle, -f.angle].map((a) => () => K.draft(exD, f.faces, pull, a, { origin: f.neutral!.point, normal: nn })), Math.abs(meshVolume(r.geometry)), 0.03);
-        }
-        if (drafted) setExact(target, drafted);
-        else target.geometry = r.geometry;
-        target.featureIds.push(f.id);
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (f.type === 'rib') {
-      const sketch = doc.sketches[f.sketchId];
-      if (!body) {
-        errors[f.id] = 'A rib needs an existing solid body.';
-        continue;
-      }
-      if (!sketch) {
-        errors[f.id] = 'The sketch of this rib no longer exists.';
-        continue;
-      }
-      const r = ribGeometry(sketch, resolvePlaneDef(doc, sketch.plane), allVisible() ?? body.geometry, f);
-      if (!r.geometry) {
-        errors[f.id] = r.error ?? 'The rib could not be built.';
-        continue;
-      }
-      // B-rep: a rib of straight lines has planar faces only; its solid joins an exact body exactly
-      let ribShape: BrepShape | null = null;
-      if (K && !Object.values(sketch.entities).some((e) => !e.construction && e.kind !== 'line' && e.kind !== 'point')) {
-        try { ribShape = K.fromMesh(r.geometry); } catch { ribShape = null; }
-      }
-      try {
-        addMaterial(r.geometry, f.id, true, undefined, ribShape ?? undefined);
-        addBoss(r.geometry);
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (f.type === 'mirror') {
-      if (!body) {
-        errors[f.id] = 'A mirror needs an existing solid body.';
-        continue;
-      }
-      const pl = resolvePlaneDef(doc, f.plane);
-      try {
-        // Faces to Mirror: the picked faces, mirrored, as a surface body (knit onto the body's own surface when asked)
-        if (f.faces?.length) {
-          const tris: number[] = [];
-          for (const ref of f.faces) {
-            const p = new THREE.Vector3(...ref.point);
-            for (const b of visibleBodies()) {
-              const fc = planarFaces(b.geometry, b.id).find((x) => new THREE.Vector3(...x.centroid).distanceTo(p) < 0.5);
-              if (!fc) continue;
-              const src = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry;
-              const pos = src.getAttribute('position');
-              for (const t of fc.triangles) for (let k = 0; k < 3; k++) tris.push(pos.getX(t * 3 + k), pos.getY(t * 3 + k), pos.getZ(t * 3 + k));
-              break;
-            }
-          }
-          if (tris.length) {
-            const g0 = new THREE.BufferGeometry();
-            g0.setAttribute('position', new THREE.Float32BufferAttribute(tris, 3));
-            const mirrored = mirrorGeometry(g0, pl.origin, pl.n);
-            const knit = f.knitSurfaces ? surfaceBodies.find((s) => s.featureIds.some((id) => f.faces!.some((x) => x.label.includes(id)))) : undefined;
-            if (knit) {
-              knit.geometry = mergeGeometries([knit.geometry.index ? knit.geometry.toNonIndexed() : knit.geometry, mirrored].map((g) => { const x = g.clone(); for (const k of Object.keys(x.attributes)) if (k !== 'position') x.deleteAttribute(k); return x; })) ?? knit.geometry;
-              knit.featureIds.push(f.id);
-            } else surfaceBodies.push({ id: `surf${surfaceBodies.length + 1}`, geometry: mirrored, faces: [], edges: [], featureIds: [f.id] });
-          }
-          // Propagate visual properties: the face appearances come along
-          if (f.propagateVisual !== false) for (const fa of doc.faceAppearances ?? []) {
-            const p = new THREE.Vector3(...fa.point), n = new THREE.Vector3(...fa.normal);
-            const o = new THREE.Vector3(...pl.origin), nn = new THREE.Vector3(...pl.n).normalize();
-            const mp = p.clone().sub(o).addScaledVector(nn, -2 * p.clone().sub(o).dot(nn)).add(o), mn = n.clone().addScaledVector(nn, -2 * n.dot(nn));
-            extraAppearances.push({ normal: [mn.x, mn.y, mn.z], point: [mp.x, mp.y, mp.z], color: fa.color });
-          }
-          continue;
-        }
-        // Features to Mirror: only those features' tool geometry, added (boss) or taken away (cut)
-        if (f.featureIds?.length) {
-          for (const fid of f.featureIds) {
-            const src = doc.features.find((x) => x.id === fid);
-            if (!src || !isSketchBased(src) || src.type === 'sketch') continue;
-            const tool = featureGeometry(doc, src, THROUGH_ALL, body?.geometry, bodies).geometry;
-            if (!tool) continue;
-            const m = mirrorGeometry(tool, pl.origin, pl.n);
-            const cut = (src as { op?: string }).op === 'cut';
-            // the mirrored B-rep tool, for the bodies that are exact
-            const srcShape = toolOf(src, THROUGH_ALL, tool);
-            let mShape: BrepShape | null = null;
-            if (K && srcShape) { try { mShape = K.mirror(srcShape, pl.origin, pl.n); } catch { mShape = null; } }
-            for (const b of visibleBodies()) {
-              if (f.bodies?.length && !f.bodies.includes(b.id)) continue;
-              const ex = exactOf(b);
-              if (K && ex && mShape) {
-                try {
-                  setExact(b, cut ? K.cut(ex, mShape) : K.fuse(ex, mShape));
-                  b.featureIds.push(f.id);
-                  continue;
-                } catch {
-                  /* the mesh kernel below */
-                }
-              }
-              b.geometry = csg(b.geometry, m, cut ? 'subtract' : 'union');
-              b.featureIds.push(f.id);
-            }
-            if (cut) history.cuts.push(m); else if (history.boss) addBoss(m);
-          }
-          if (f.propagateVisual !== false) for (const fa of doc.faceAppearances ?? []) {
-            const p = new THREE.Vector3(...fa.point), n = new THREE.Vector3(...fa.normal);
-            const o = new THREE.Vector3(...pl.origin), nn = new THREE.Vector3(...pl.n).normalize();
-            const mp = p.clone().sub(o).addScaledVector(nn, -2 * p.clone().sub(o).dot(nn)).add(o), mn = n.clone().addScaledVector(nn, -2 * n.dot(nn));
-            extraAppearances.push({ normal: [mn.x, mn.y, mn.z], point: [mp.x, mp.y, mp.z], color: fa.color });
-          }
-          continue;
-        }
-        for (const b of visibleBodies()) {
-          // Bodies to Mirror: only the listed bodies (absent: every body)
-          if (f.bodies?.length && !f.bodies.includes(b.id)) continue;
-          // Merge solids off: the mirrored half becomes a body of its own
-          const ex = exactOf(b);
-          let mirrored: BrepShape | null = null;
-          if (K && ex) { try { mirrored = K.mirror(ex, pl.origin, pl.n); } catch { mirrored = null; } }
-          if (f.mergeSolids === false) newBody(mirrorGeometry(b.geometry, pl.origin, pl.n), f.id, mirrored);
-          else {
-            let done = false;
-            if (K && ex && mirrored) {
-              try { setExact(b, K.fuse(ex, mirrored)); done = true; } catch { done = false; }
-            }
-            if (!done) b.geometry = csg(b.geometry, mirrorGeometry(b.geometry, pl.origin, pl.n), 'union');
-          }
-          b.featureIds.push(f.id);
-        }
-        if (f.propagateVisual !== false) for (const fa of doc.faceAppearances ?? []) {
-          const p = new THREE.Vector3(...fa.point), n = new THREE.Vector3(...fa.normal);
-          const o = new THREE.Vector3(...pl.origin), nn = new THREE.Vector3(...pl.n).normalize();
-          const mp = p.clone().sub(o).addScaledVector(nn, -2 * p.clone().sub(o).dot(nn)).add(o), mn = n.clone().addScaledVector(nn, -2 * n.dot(nn));
-          extraAppearances.push({ normal: [mn.x, mn.y, mn.z], point: [mp.x, mp.y, mp.z], color: fa.color });
-        }
-        if (history.boss) addBoss(mirrorGeometry(history.boss, pl.origin, pl.n));
-        history.cuts = [...history.cuts, ...history.cuts.map((c) => mirrorGeometry(c, pl.origin, pl.n))];
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (f.type === 'linearPattern' || f.type === 'circularPattern' || f.type === 'sketchPattern' || f.type === 'curvePattern' || f.type === 'tablePattern' || f.type === 'fillPattern' || f.type === 'variablePattern') {
-      if (!body) {
-        errors[f.id] = 'A pattern needs an existing solid body.';
-        continue;
-      }
-      const seeds = f.featureIds.map((id) => doc.features.find((x) => x.id === id)).filter((x): x is SketchBasedFeature => !!x && isSketchBased(x) && x.type !== 'sketch');
-      const patBodies = (f.bodies ?? []).map((id) => bodies.find((b) => b.id === id)).filter((b): b is Body => !!b);
-      if (!seeds.length && !patBodies.length) {
-        errors[f.id] = 'Select the features or bodies to pattern.';
-        continue;
-      }
-      // Bodies to pattern: copies of whole bodies (linear / circular), then the features (if any)
-      if (patBodies.length && (f.type === 'linearPattern' || f.type === 'circularPattern')) {
-        const insts = patternInstances(patternSpec(doc, f, seeds[0]));
-        for (const b of patBodies) for (const [k, inst] of insts.entries()) if (!f.skip?.includes(k)) newBody(inst(b.geometry), f.id, moved(exactOf(b), instanceMatrix(inst)));
-        if (!seeds.length) continue;
-      }
-      body.geometry.computeBoundingSphere();
-      const extent = Math.max(10, (body.geometry.boundingSphere?.radius ?? 0) * 3 + 10);
-      let instances: ((g: THREE.BufferGeometry) => THREE.BufferGeometry)[];
-      if (f.type === 'sketchPattern') {
-        // every point of the reference sketch gets an instance, moved from the centroid of the seed's profile
-        const ref = f.sketchId ? doc.sketches[f.sketchId] : undefined;
-        if (!ref) {
-          errors[f.id] = 'Select the reference sketch with the points.';
-          continue;
-        }
-        const seedSketch = doc.sketches[seeds[0].sketchId];
-        const seedRegions = seedSketch ? sketchRegions(seedSketch) : [];
-        if (!seedSketch || !seedRegions.length) {
-          errors[f.id] = 'The seed feature has no profile.';
-          continue;
-        }
-        const cs = regionCentre(seedRegions[0]);
-        // Reference point: the seed's centroid, or the selected point
-        const c0 = f.refPoint ? new THREE.Vector3(...f.refPoint) : new THREE.Vector3(cs.x, cs.y, 0).applyMatrix4(planeMatrix(resolvePlaneDef(doc, seedSketch.plane)));
-        const rm = planeMatrix(resolvePlaneDef(doc, ref.plane));
-        const pts = ref.entityOrder.map((id) => ref.entities[id]).filter((e) => e.kind === 'point').map((e) => {
-          const q = ref.points[(e as { p: string }).p];
-          return new THREE.Vector3(q.x, q.y, 0).applyMatrix4(rm);
-        });
-        instances = pts
-          .map((p) => p.clone().sub(c0))
-          .filter((v) => v.length() > 1e-6)
-          .map((v) => (g: THREE.BufferGeometry) => { const c = g.clone(); c.translate(v.x, v.y, v.z); return c; });
-      } else if (f.type === 'curvePattern' || f.type === 'tablePattern' || f.type === 'fillPattern' || f.type === 'variablePattern') {
-        // the seed's position: the centroid of its first profile
-        const seedSketch = doc.sketches[seeds[0].sketchId];
-        const seedRegions = seedSketch ? sketchRegions(seedSketch) : [];
-        if (!seedSketch || !seedRegions.length) {
-          errors[f.id] = 'The seed feature has no profile.';
-          continue;
-        }
-        const cs = regionCentre(seedRegions[0]);
-        const c0 = new THREE.Vector3(cs.x, cs.y, 0).applyMatrix4(planeMatrix(resolvePlaneDef(doc, seedSketch.plane)));
-        if (f.type === 'curvePattern') {
-          const r = curveInstances(doc, f, c0);
-          if (r.error) {
-            errors[f.id] = r.error;
-            continue;
-          }
-          instances = r.instances;
-        } else if (f.type === 'tablePattern') instances = tableInstances(doc, f, seedSketch.plane);
-        else if (f.type === 'fillPattern') {
-          if (!f.fill) {
-            errors[f.id] = 'Select the fill boundary (a planar face).';
-            continue;
-          }
-          instances = fillInstances(f, c0);
-        } else {
-          // Variable Pattern: every row is the seed rebuilt with its own dimension values, moved along the direction
-          const rows = f.variable?.rows ?? [];
-          const dir = new THREE.Vector3(...(f.variable?.dir ?? [1, 0, 0])).normalize();
-          try {
-            for (const seed of seeds) {
-              for (const [k, row] of rows.entries()) {
-                if (f.skip?.includes(k)) continue;
-                const sk = doc.sketches[seed.sketchId];
-                let vdoc = doc;
-                if (sk && Object.keys(row.values).length) {
-                  const constraints = { ...sk.constraints };
-                  for (const [cid, val] of Object.entries(row.values)) if (constraints[cid]) constraints[cid] = { ...constraints[cid], value: val };
-                  const solved = solveSketch({ ...sk, constraints }).sketch;
-                  vdoc = { ...doc, sketches: { ...doc.sketches, [sk.id]: solved } };
-                }
-                if (seed.type === 'helix') continue;
-                const g = featureGeometry(vdoc, seed, extent, body?.geometry).geometry;
-                if (!g) continue;
-                const ig = translated(g, dir.clone().multiplyScalar(row.offset));
-                const boss = seed.type === 'rib' || seed.type === 'baseFlange' || seed.op === 'boss';
-                if (boss) {
-                  addMaterial(ig, f.id, true);
-                  addBoss(ig);
-                } else {
-                  removeMaterial(ig, f.id);
-                  history.cuts.push(ig);
-                }
-              }
-            }
-            body.featureIds.push(f.id);
-          } catch (err) {
-            errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-          }
-          continue;
-        }
-      } else instances = patternInstances(patternSpec(doc, f, seeds[0]));
-      if (!instances.length) {
-        errors[f.id] = 'The pattern needs at least two instances.';
-        continue;
-      }
-      // Propagate visual properties: appearances on the seed's faces are copied to every instance
-      if (f.propagateVisual !== false && doc.faceAppearances?.length) {
-        for (const seed of seeds) {
-          const sg = featureGeometry(doc, seed, extent, body?.geometry).geometry;
-          if (!sg) continue;
-          sg.computeBoundingBox();
-          const box = sg.boundingBox!.clone().expandByScalar(0.05);
-          for (const fa of doc.faceAppearances) {
-            if (!box.containsPoint(new THREE.Vector3(...fa.point))) continue;
-            for (const [k, inst] of instances.entries()) {
-              if (f.skip?.includes(k)) continue;
-              const m = instanceMatrix(inst);
-              const p = new THREE.Vector3(...fa.point).applyMatrix4(m);
-              const n = new THREE.Vector3(...fa.normal).transformDirection(m);
-              extraAppearances.push({ ...fa, point: [p.x, p.y, p.z], normal: [n.x, n.y, n.z] });
-            }
-          }
-        }
-      }
-      try {
-        for (const seed of seeds) {
-          const g = featureGeometry(doc, seed, extent, body?.geometry).geometry;
-          if (!g) continue;
-          // the seed's tool as a B-rep solid: every instance is that solid moved (exact patterns)
-          const seedShape = toolOf(seed, extent, g);
-          const sk = doc.sketches[seed.sketchId];
-          const bodyBound = seed.type === 'extrude' && ['upToNext', 'upToSurface', 'offsetFromSurface', 'upToBody', 'upToVertex'].includes(seed.end);
-          const perInstance = !!sk && (f.varySketch || !!f.varyDims?.length || (!f.geometryPattern && bodyBound));
-          // mesh kernel: the cut tools of the instances are gathered and, when no two overlap, cut as one tool (one
-          // boolean instead of one per instance: a 8 × 8 hole pattern went from 30 s to about a second, QA F46)
-          const batch: THREE.BufferGeometry[] = [];
-          for (const [k, inst] of instances.entries()) {
-            if (f.skip?.includes(k)) continue;
-            let ig: THREE.BufferGeometry | null = null;
-            let ish: BrepShape | null = null;
-            if (perInstance && sk) {
-              // the instance's own sketch: dimensions varied, moved (and solved again) to the instance place
-              const m = instanceMatrix(inst);
-              const pl = resolvePlaneDef(doc, sk.plane);
-              const o = new THREE.Vector3(...pl.origin).applyMatrix4(m), u = new THREE.Vector3(...pl.u).transformDirection(m), v = new THREE.Vector3(...pl.v).transformDirection(m), n = new THREE.Vector3(...pl.n).transformDirection(m);
-              let isk = sk;
-              if (f.varyDims?.length) {
-                const constraints = { ...isk.constraints };
-                for (const vd of f.varyDims) { const c = constraints[vd.constraintId]; if (c && c.value !== undefined) constraints[vd.constraintId] = { ...c, value: c.value + vd.increment * (k + 1) }; }
-                isk = solveSketch({ ...isk, constraints }).sketch;
-              }
-              let idoc: Document;
-              if (f.varySketch) {
-                // Vary sketch: the free points move with the instance, points fixed to the origin / Fix stay: solve again
-                const t = new THREE.Vector3(...pl.origin).applyMatrix4(m).sub(new THREE.Vector3(...pl.origin));
-                const du = t.dot(new THREE.Vector3(...pl.u)), dv = t.dot(new THREE.Vector3(...pl.v));
-                const fixed = new Set<Id>([isk.origin, ...Object.values(isk.constraints).filter((c) => c.kind === 'fix').flatMap((c) => c.refs)]);
-                for (const c of Object.values(isk.constraints)) if (c.kind === 'coincident' && c.refs.includes(isk.origin)) for (const r of c.refs) fixed.add(r);
-                const points = Object.fromEntries(Object.entries(isk.points).map(([id, p]) => [id, fixed.has(id) ? p : { ...p, x: p.x + du, y: p.y + dv }]));
-                isk = solveSketch({ ...isk, points }).sketch;
-                idoc = { ...doc, sketches: { ...doc.sketches, [sk.id]: isk } };
-              } else {
-                const pid = `${sk.plane}@${f.id}:${k}`;
-                idoc = { ...doc, planes: { ...doc.planes, [pid]: { id: pid, name: pid, origin: [o.x, o.y, o.z], u: [u.x, u.y, u.z], v: [v.x, v.y, v.z], n: [n.x, n.y, n.z], kind: 'face' } }, sketches: { ...doc.sketches, [sk.id]: { ...isk, plane: pid } } };
-              }
-              ig = featureGeometry(idoc, seed, extent, body?.geometry).geometry;
-            } else {
-              ig = inst(g);
-              ish = moved(seedShape, instanceMatrix(inst));
-            }
-            if (!ig) continue;
-            if (seed.type === 'helix') continue;
-            const boss = seed.type === 'rib' || seed.type === 'baseFlange' || seed.op === 'boss';
-            if (boss) {
-              addMaterial(ig, f.id, true, undefined, ish ?? undefined);
-              addBoss(ig);
-            } else {
-              if (!K) batch.push(ig);
-              else removeMaterial(ig, f.id, undefined, ish ?? undefined);
-              history.cuts.push(ig);
-            }
-          }
-          if (batch.length) {
-            const boxes = batch.map((g) => { g.computeBoundingBox(); return g.boundingBox!.clone().expandByScalar(1e-4); });
-            const apart = boxes.every((a, i) => boxes.every((b, j) => j <= i || !a.intersectsBox(b)));
-            if (apart && batch.length > 1) removeMaterial(mergeGeometries(batch.map((g) => (g.index ? g.toNonIndexed() : g))), f.id);
-            else for (const g of batch) removeMaterial(g, f.id);
-          }
-        }
-        body.featureIds.push(f.id);
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (f.type === 'shell') {
-      if (!body) {
-        errors[f.id] = 'A shell needs an existing solid body.';
-        continue;
-      }
-      if (f.thickness <= 0) {
-        errors[f.id] = 'The wall thickness must be larger than zero.';
-        continue;
-      }
-      try {
-        let target = body;
-        if (f.faces.length && bodies.length > 1) {
-          const p = new THREE.Vector3(...f.faces[0].point);
-          let best = Infinity;
-          for (const b of visibleBodies()) {
-            for (const face of planarFaces(b.geometry, b.id)) {
-              const d = p.distanceTo(new THREE.Vector3(...face.centroid));
-              if (d < best) { best = d; target = b; }
-            }
-          }
-        }
-        const exShell = exactOf(target);
-        const meshShell = f.outward ? applyShellOutward(target.geometry, f.thickness, f.faces) : applyShellFromHistory(target.geometry, f.thickness, f.faces, history, f.multi ?? []);
-        // B-rep shell (offset surfaces, true inner rounds): kept when it agrees with the mesh kernel's wall
-        let brepShell: BrepShape | null = null;
-        if (K && exShell && !f.multi?.length) {
-          try {
-            const sh = K.shell(exShell, f.faces, f.thickness, !!f.outward);
-            const mv = Math.abs(meshVolume(meshShell)), bv = Math.abs(K.volume(sh));
-            if (mv > 0 && Math.abs(bv - mv) / mv < 0.03) brepShell = sh;
-          } catch {
-            /* the mesh shell */
-          }
-        }
-        if (brepShell) setExact(target, brepShell);
-        else target.geometry = meshShell;
-        // later features work on the shelled body
-        history.boss = target.geometry;
-        history.cuts = [];
-        target.featureIds.push(f.id);
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (f.type === 'thread') {
-      if (!body || !f.edge) {
-        errors[f.id] = !body ? 'A thread needs a solid body.' : 'Select a circular edge of a cylinder or hole.';
-        continue;
-      }
-      const spec = threadSpecOf(f)!;
-      const ax = new THREE.Vector3(...spec.axis).normalize();
-      const c0 = new THREE.Vector3(...spec.center);
-      const length = spec.length;
-      let tool = threadTool(spec);
-      // Trim with start / end face: only the part between the faces (a slab across the axis)
-      if (f.trimStart || f.trimEnd) {
-        const big = f.diameter * 4 + 20;
-        const from = f.trimStart ? 0 : -length, to = f.trimEnd ? length : 2 * length;
-        const slab = new THREE.CylinderGeometry(big, big, to - from, 48, 1, false);
-        slab.translate(0, (to + from) / 2, 0);
-        const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), ax);
-        slab.applyQuaternion(q);
-        slab.translate(c0.x, c0.y, c0.z);
-        try { tool = csg(tool, slab.toNonIndexed(), 'intersect'); } catch { /* keep the untrimmed tool */ }
-      }
-      // B-rep: the V profile swept along a true helix (every start), trimmed like the mesh tool; kept when it agrees
-      let threadShape: BrepShape | null = null;
-      if (K && body && exactOf(body)) {
-        try {
-          let sh: BrepShape | null = null;
-          for (const sw of threadSweeps(spec)) {
-            const one = K.helixSweep(sw.center, sw.axis, sw.xdir, sw.radius, sw.lead, sw.length, sw.sign, sw.startAngle, sw.profile);
-            if (!one) { sh = null; break; }
-            sh = sh ? K.fuse(sh, one) : one;
-          }
-          if (sh && (f.trimStart || f.trimEnd)) {
-            const big = f.diameter * 4 + 20;
-            const from = f.trimStart ? 0 : -length, to = f.trimEnd ? length : 2 * length;
-            const ref = Math.abs(ax.x) < 0.9 ? new THREE.Vector3(1, 0, 0).cross(ax).normalize() : new THREE.Vector3(0, 1, 0).cross(ax).normalize();
-            sh = K.common(sh, K.axisymmetric([c0.x, c0.y, c0.z], [ax.x, ax.y, ax.z], [ref.x, ref.y, ref.z], [{ t0: from, t1: to, r0: big, r1: big }]));
-          }
-          if (sh) {
-            const mv = Math.abs(meshVolume(tool)), bv = Math.abs(K.volume(sh));
-            if (mv > 0 && Math.abs(bv - mv) / mv < 0.05) threadShape = sh;
-          }
-        } catch {
-          threadShape = null;
-        }
-      }
-      try {
-        if (f.method === 'cut') {
-          if (!removeMaterial(tool, f.id, undefined, threadShape)) errors[f.id] = 'The thread does not touch the body.';
-        } else addMaterial(tool, f.id, true, undefined, threadShape);
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (f.type === 'deleteFace') {
-      if (!f.faces.length) {
-        errors[f.id] = 'Select the faces to delete.';
-        continue;
-      }
-      // the body holding the first face (its centroid on that body's surface)
-      const p0 = new THREE.Vector3(...f.faces[0].point);
-      const target = visibleBodies().find((b) => planarFaces(b.geometry, b.id).some((fc) => new THREE.Vector3(...fc.centroid).distanceTo(p0) < 0.5)) ?? body;
-      if (!target) {
-        errors[f.id] = 'Delete Face needs a body.';
-        continue;
-      }
-      const r = deleteFaces(target.geometry, f.faces, f.option);
-      if (!r.geometry) {
-        errors[f.id] = r.error ?? 'Could not delete the faces.';
-        continue;
-      }
-      target.geometry = r.geometry;
-      target.featureIds.push(f.id);
-      continue;
-    }
-    if (f.type === 'moveBody') {
-      const targets = bodies.filter((b) => f.bodies.includes(b.id));
-      if (!targets.length) {
-        errors[f.id] = 'Select the bodies to move or copy.';
-        continue;
-      }
-      // one step: rotate about X, then Y, then Z through the origin point, then translate
-      const o = new THREE.Vector3(...f.origin);
-      const rot = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(...(f.rotate.map((a) => (a * Math.PI) / 180) as [number, number, number]), 'XYZ'));
-      const step = new THREE.Matrix4().makeTranslation(...f.translate).multiply(new THREE.Matrix4().makeTranslation(o.x, o.y, o.z)).multiply(rot).multiply(new THREE.Matrix4().makeTranslation(-o.x, -o.y, -o.z));
-      for (const b of targets) {
-        const ex = exactOf(b);
-        if (f.copy) {
-          const m = new THREE.Matrix4();
-          for (let k = 0; k < Math.max(1, Math.min(250, Math.round(f.copies))); k++) {
-            m.premultiply(step);
-            const nb = newBody(b.geometry.clone().applyMatrix4(m), f.id, moved(ex, m));
-            nb.featureIds = [...b.featureIds, f.id];
-          }
-        } else {
-          const sh = moved(ex, step);
-          if (sh) setExact(b, sh);
-          else b.geometry = b.geometry.clone().applyMatrix4(step);
-          b.featureIds.push(f.id);
-        }
-      }
-      continue;
-    }
-    if (f.type === 'deleteBody') {
-      const before = bodies.length;
-      if (f.keep) { // Keep Bodies: every body that is not listed goes
-        if (!f.bodies.some((id) => bodies.some((b) => b.id === id))) errors[f.id] = 'The bodies to keep are no longer there.';
-        else for (let i = bodies.length - 1; i >= 0; i--) if (!f.bodies.includes(bodies[i].id)) bodies.splice(i, 1);
-        continue;
-      }
-      for (const id of f.bodies) {
-        const i = bodies.findIndex((b) => b.id === id);
-        if (i >= 0) bodies.splice(i, 1);
-      }
-      if (bodies.length === before) errors[f.id] = 'The bodies to delete are no longer there.';
-      continue;
-    }
-    if (f.type === 'weldment') continue;
-    if (f.type === 'deform') {
-      if (!f.point) {
-        errors[f.id] = 'Select the face of the deform point.';
-        continue;
-      }
-      const p0 = new THREE.Vector3(...f.point);
-      const target = visibleBodies().find((b) => planarFaces(b.geometry, b.id).some((fc) => new THREE.Vector3(...fc.centroid).distanceTo(p0) < 0.5)) ?? body;
-      if (!target) {
-        errors[f.id] = 'Deform needs a solid body.';
-        continue;
-      }
-      try {
-        // the push goes into the body (against the face normal) unless reversed
-        const dir = f.direction.map((x) => (f.reverse ? x : -x)) as [number, number, number];
-        target.geometry = pointDeform(target.geometry, { point: f.point, direction: dir, distance: f.distance, radius: f.radius, stiffness: f.stiffness });
-        target.featureIds.push(f.id);
-        history.boss = target.geometry;
-        history.cuts = [];
-      } catch (err) {
-        errors[f.id] = `Could not deform the body: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (buildFrame(f, ctx)) continue;
-    if (isFasteningFeature(f)) {
-      buildFastening(f, { doc, bodies, body, visibleBodies, errors, curves, K, addMaterial, removeMaterial, addBoss, exactOf, setExact });
-      continue;
-    }
-    if (f.type === 'hole') {
-      if (!body) {
-        errors[f.id] = 'A hole needs an existing solid body.';
-        continue;
-      }
-      if (!f.points.length) {
-        errors[f.id] = 'Place at least one hole position.';
-        continue;
-      }
-      const pl = resolvePlaneDef(doc, f.plane);
-      body.geometry.computeBoundingSphere();
-      const extent = Math.max(10, (body.geometry.boundingSphere?.radius ?? 0) * 3 + 10);
-      try {
-        for (const [i, pt] of f.points.entries()) {
-          // Advanced Hole: where the hole leaves the body (before cutting), for the far side element
-          let exit: THREE.Vector3 | null = null;
-          if (f.farSide || f.farCs) {
-            const n = new THREE.Vector3(...pl.n).normalize();
-            const start = new THREE.Vector3(...pl.origin).addScaledVector(new THREE.Vector3(...pl.u), pt.x).addScaledVector(new THREE.Vector3(...pl.v), pt.y);
-            const ray = new THREE.Raycaster(start.clone().addScaledVector(n, 1e-3), n.clone().negate());
-            const hits = ray.intersectObject(new THREE.Mesh(body.geometry, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })), false);
-            const out = hits.find((h) => h.distance > 0.01 && h.face && h.face.normal.dot(n) < 0);
-            if (out) exit = out.point.clone();
-          }
-          const tool = holeTool(f, pl, pt, extent);
-          removeMaterial(tool, f.id, undefined, K && !f.farSide && !f.farCs ? brepHoleTool(K, f, pl, pt, extent) : null);
-          history.cuts.push(tool);
-          // Far side countersink (Options): the same as an Advanced Hole far side countersink
-          const far = f.farSide ?? (f.farCs ? { kind: 'countersink' as const, diameter: f.farCs.diameter, depth: 0, angle: f.farCs.angle } : undefined);
-          if (far && exit) {
-            const fs = far;
-            const fpl = { ...pl, origin: [exit.x, exit.y, exit.z] as [number, number, number], v: pl.v.map((x) => -x) as [number, number, number], n: pl.n.map((x) => -x) as [number, number, number] };
-            const ft = holeTool({ holeType: fs.kind, diameter: f.diameter, depth: Math.max(0.1, fs.kind === 'counterbore' ? fs.depth : 0.1), cbDiameter: fs.diameter, cbDepth: fs.depth, csDiameter: fs.diameter, csAngle: fs.angle }, fpl, { x: 0, y: 0 }, extent);
-            removeMaterial(ft, f.id);
-            history.cuts.push(ft);
-          } else if (far) errors[f.id] = 'The hole does not come out of the body: the far side element is left out.';
-          // Straight Tap: the cosmetic thread (major diameter) is shown as a dashed circle at the hole entry
-          if (f.holeType === 'tap' && f.threadDiameter && f.cosmeticThread !== false) {
-            const o = new THREE.Vector3(...pl.origin), u = new THREE.Vector3(...pl.u), v = new THREE.Vector3(...pl.v);
-            const ring: THREE.Vector3[] = [];
-            for (let k = 0; k <= 48; k++) {
-              const a = (k / 48) * Math.PI * 2;
-              ring.push(o.clone().addScaledVector(u, pt.x + (f.threadDiameter / 2) * Math.cos(a)).addScaledVector(v, pt.y + (f.threadDiameter / 2) * Math.sin(a)));
-            }
-            curves.push({ id: `${f.id}:thread${i}`, name: 'Cosmetic Thread', points: ring, dashed: true });
-          }
-        }
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (isRoundFeature(f)) {
-      if (!body) {
-        errors[f.id] = 'A fillet or chamfer needs an existing solid body.';
-        continue;
-      }
-      // Face Fillet ▸ Hold line: the size came from the hold line (sizedByHoldLine); a hold line that failed is said
-      if (holdLineErrors[f.id]) { errors[f.id] = holdLineErrors[f.id]; continue; }
-      // Chamfer ▸ Vertex: a tetrahedron at the corner, its three distances along the edges that meet there
-      if (f.type === 'chamfer' && f.roundType === 'vertex') {
-        if (!f.vertex) { errors[f.id] = 'Select the vertex to chamfer.'; continue; }
-        const vt = vertexChamferTool(body.geometry, new THREE.Vector3(...f.vertex.point), f.size, f.equalDistance === false ? f.size2 ?? f.size : f.size, f.equalDistance === false ? f.size3 ?? f.size : f.size);
-        if (!vt) { errors[f.id] = 'The vertex is no longer a corner of three edges (dangling reference).'; continue; }
-        try {
-          body.geometry = csg(body.geometry, vt, 'subtract');
-          body.featureIds.push(f.id);
-        } catch (err) {
-          errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-        }
-        continue;
-      }
-      // B-rep fillet / chamfer with a constant size on an exact body: the faces of the round are true surfaces
-      if (K && brepRoundable(f)) {
-        let done = false;
-        for (const b of [body, ...visibleBodies().filter((x) => x !== body)]) {
-          const ex = exactOf(b);
-          if (!b || !ex) continue;
-          const edges = bodyEdges(b.geometry, b.id);
-          const found = f.edges.map((ref) => matchEdges(edges, ref)), matched = found.flat();
-          const radii = found.flatMap((x, i) => x.map(() => f.radii?.[i] ?? f.size));
-          if (!matched.length) continue;
-          try {
-            const perEdge = f.type === 'fillet' && (!!f.radii?.length || (f.roundType === 'variable' && !!f.variable));
-            const shape = perEdge
-              ? K.filletEach(ex, matched.map((e, ei) => (f.roundType === 'variable' && f.variable ? { edge: e, r1: Math.max(0.01, f.variable.start), r2: Math.max(0.01, f.variable.end) } : { edge: e, r1: radii[ei] })))
-              : f.type === 'fillet' ? K.fillet(ex, matched, f.size) : K.chamfer(ex, matched, f.size);
-            setExact(b, shape);
-            b.featureIds.push(f.id);
-            const lost = found.filter((x) => !x.length).length;
-            if (lost) errors[f.id] = `Warning: ${lost} of the ${f.edges.length} edge references could not be found after the rebuild; the feature uses the rest.`;
-            // the edge choice checked independently on the exact topology (F179): same wrong pick, same wrong bodies
-            else { const other = K.checkEdges?.(ex, found, f.edges); if (other) errors[f.id] = other; }
-            done = true;
-          } catch {
-            /* the mesh kernel below */
-          }
-          break;
-        }
-        if (done) continue;
-      }
-      // the body that owns the selected edges (the first one where they match)
-      let target = body;
-      let r = applyRoundFeature(target.geometry, f);
-      if (!r.geometry && bodies.length > 1) {
-        for (const b of visibleBodies()) {
-          if (b === body) continue;
-          const rb = applyRoundFeature(b.geometry, f);
-          if (rb.geometry) { target = b; r = rb; break; }
-        }
-      }
-      if (!r.geometry) errors[f.id] = r.error ?? 'Could not build the feature.';
-      else {
-        // dangling references: the feature builds with the edges that are left and says so (yellow in the tree)
-        if (r.lost) errors[f.id] = `Warning: ${r.lost} of the ${f.edges.length} edge references could not be found after the rebuild; the feature uses the rest.`;
-        // Keep features (default on): earlier cuts that a fillet would fill are cut again, unless the cut owns the
-        // filleted edges. Only material the fillet added (a concave round) can fill a cut: a fillet that only takes
-        // material away leaves every cut as it was, and cutting again with a tool whose faceted walls coincide with
-        // the body's own broke the body (a stadium slot: a 10 mm spike and 21 mm³ too little, QA 0.5.11 F173)
-        if (f.keepFeatures !== false && r.tools && r.tools.adders.length && history.cuts.length) {
-          const toolBox = new THREE.Box3();
-          for (const t of r.tools.adders) { t.computeBoundingBox(); if (t.boundingBox) toolBox.union(t.boundingBox); }
-          // a cut owns an edge when its tool passes through the edge itself: points along the edge, not its centroid
-          // (the centroid of the rim of a hole is the hole's axis, and the hole was cut again through its own
-          // fillet, which broke the body, QA 0.5.10 F139)
-          const samples = f.edges.flatMap((ref) => matchEdges(r.edges, ref)).map((e) => { const n = Math.min(12, e.points.length); return Array.from({ length: n }, (_, i) => e.points[Math.floor((i * (e.points.length - 1)) / Math.max(1, n - 1))]); });
-          for (const c of history.cuts) {
-            c.computeBoundingBox();
-            if (!c.boundingBox || !c.boundingBox.intersectsBox(toolBox)) continue;
-            const bvh = new MeshBVH(c.index ? c.toNonIndexed() : c);
-            const owns = samples.some((pts) => pts.filter((m) => { const h = bvh.closestPointToPoint(m); return !!h && h.distance < 1e-2; }).length >= Math.ceil(pts.length * 0.8));
-            if (owns) continue;
-            // the cut is only kept when the boolean gives a closed body that did not grow: a tool whose faces
-            // coincide with the rounded body now and then breaks the boolean, and the fillet stays as it is then
-            try {
-              const again = csg(r.geometry, c, 'subtract');
-              if (!again.userData.openArea && Math.abs(meshVolume(again)) <= Math.abs(meshVolume(r.geometry)) + 1e-6) r.geometry = again;
-            } catch { /* keep the fillet as it is */ }
-          }
-        }
-        target.geometry = r.geometry;
-        for (const c of r.tools?.cutters ?? []) history.cuts.push(c);
-        for (const a of r.tools?.adders ?? []) addBoss(a);
-        target.featureIds.push(f.id);
-      }
-      continue;
-    }
-    if (f.type === 'intersect') {
-      // Cap planar openings: a flat surface in the selection splits the solid into two closed regions
-      const surfPick = f.bodies.map((id) => surfaceBodies.find((s) => s.id === id)).find((s): s is Body => !!s);
-      if (surfPick) {
-        const solid = f.bodies.map((id) => bodies.find((b) => b.id === id)).find((b): b is Body => !!b);
-        const pl = fitPlane(surfPick.geometry);
-        if (!solid || !pl) {
-          errors[f.id] = !solid ? 'Select a solid body and a surface.' : 'The surface must be flat to cap the openings.';
-          continue;
-        }
-        if (!f.capPlanar) {
-          errors[f.id] = 'Choose Cap planar openings to split a solid with a surface.';
-          continue;
-        }
-        try {
-          const big = 1e4;
-          const n = new THREE.Vector3(...pl.n), o = new THREE.Vector3(...pl.origin);
-          const half = (s: number) => {
-            const box = new THREE.BoxGeometry(big, big, big).toNonIndexed();
-            box.translate(0, 0, (s * big) / 2);
-            box.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), n));
-            box.translate(o.x, o.y, o.z);
-            return box;
-          };
-          const regions: { key: 'common' | 'a' | 'b'; g: THREE.BufferGeometry }[] = [
-            { key: 'a', g: csg(solid.geometry, half(1), 'intersect') },
-            { key: 'b', g: csg(solid.geometry, half(-1), 'intersect') },
-          ];
-          const kept = regions.filter((r) => !f.exclude.includes(r.key) && !isEmpty(r.g));
-          if (!kept.length) { errors[f.id] = 'All regions are excluded.'; continue; }
-          bodies.splice(bodies.indexOf(solid), 1);
-          if (f.consumeSurfaces) surfaceBodies.splice(surfaceBodies.indexOf(surfPick), 1);
-          if (f.merge) {
-            let g = kept[0].g;
-            for (const r of kept.slice(1)) g = csg(g, r.g, 'union');
-            const nb = newBody(g, f.id);
-            nb.featureIds = [...solid.featureIds, f.id];
-          } else for (const r of kept) newBody(r.g, f.id);
-        } catch (err) {
-          errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-        }
-        continue;
-      }
-      const picked = f.bodies.map((id) => bodies.find((b) => b.id === id)).filter((b): b is Body => !!b);
-      if (picked.length !== 2) {
-        errors[f.id] = 'Select two solid bodies to intersect.';
-        continue;
-      }
-      // B-rep: two exact bodies give exact regions
-      if (K && exactOf(picked[0]) && exactOf(picked[1])) {
-        try {
-          const [A, B] = picked;
-          const ea = exactOf(A)!, eb = exactOf(B)!;
-          const regs: { key: 'common' | 'a' | 'b'; s: BrepShape }[] = [
-            { key: 'common', s: K.common(ea, eb) },
-            { key: 'a', s: K.cut(ea, eb) },
-            { key: 'b', s: K.cut(eb, ea) },
-          ];
-          const kept = regs.filter((r) => !f.exclude.includes(r.key) && K.volume(r.s) > 1e-9);
-          if (!kept.length) { errors[f.id] = 'All regions are excluded.'; continue; }
-          // every OpenCascade step first: a failure leaves the bodies as they were (mesh kernel below)
-          const merged = f.merge ? kept.slice(1).reduce((u, r) => K.fuse(u, r.s), kept[0].s) : null;
-          const tess = kept.map((r) => K.tessellate(r.s));
-          bodies.splice(bodies.indexOf(A), 1);
-          bodies.splice(bodies.indexOf(B), 1);
-          if (merged) {
-            const nb = newBody(tess[0], f.id, merged);
-            nb.featureIds = [...A.featureIds, ...B.featureIds, f.id];
-          } else kept.forEach((r, i) => newBody(tess[i], f.id, r.s));
-          continue;
-        } catch {
-          /* the mesh kernel below */
-        }
-      }
-      try {
-        const [A, B] = picked;
-        const regions: { key: 'common' | 'a' | 'b'; g: THREE.BufferGeometry }[] = [
-          { key: 'common', g: csg(A.geometry, B.geometry, 'intersect') },
-          { key: 'a', g: csg(A.geometry, B.geometry, 'subtract') },
-          { key: 'b', g: csg(B.geometry, A.geometry, 'subtract') },
-        ];
-        const kept = regions.filter((r) => !f.exclude.includes(r.key) && !isEmpty(r.g));
-        if (!kept.length) {
-          errors[f.id] = 'All regions are excluded.';
-          continue;
-        }
-        bodies.splice(bodies.indexOf(A), 1);
-        bodies.splice(bodies.indexOf(B), 1);
-        if (f.merge) {
-          let g = kept[0].g;
-          for (const r of kept.slice(1)) g = csg(g, r.g, 'union');
-          const nb = newBody(g, f.id);
-          nb.featureIds = [...A.featureIds, ...B.featureIds, f.id];
-        } else for (const r of kept) newBody(r.g, f.id);
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    if (f.type === 'combine') {
-      const picked = f.bodies.map((id) => bodies.find((b) => b.id === id)).filter((b): b is Body => !!b);
-      if (picked.length < (f.op === 'subtract' ? 1 : 2) || (f.op === 'subtract' && !f.mainBody)) {
-        errors[f.id] = f.op === 'subtract' ? 'Select a main body and the bodies to subtract.' : 'Select at least two bodies to combine.';
-        continue;
-      }
-      // B-rep: every picked body exact → the combination is exact
-      if (K && picked.every((b) => exactOf(b)) && (f.op !== 'subtract' || exactOf(bodies.find((b) => b.id === f.mainBody)))) {
-        try {
-          if (f.op === 'subtract') {
-            const main = bodies.find((b) => b.id === f.mainBody)!;
-            let sh = exactOf(main)!;
-            for (const b of picked) if (b !== main) sh = K.cut(sh, exactOf(b)!);
-            const gone = picked.filter((b) => b !== main);
-            setExact(main, sh);
-            for (const b of gone) { history.cuts.push(b.geometry); bodies.splice(bodies.indexOf(b), 1); }
-            main.featureIds.push(f.id);
-          } else {
-            const main = picked[0];
-            let sh = exactOf(main)!;
-            for (const b of picked.slice(1)) sh = f.op === 'add' ? K.fuse(sh, exactOf(b)!) : K.common(sh, exactOf(b)!);
-            const empty = K.volume(sh) < 1e-9;
-            for (const b of picked.slice(1)) bodies.splice(bodies.indexOf(b), 1);
-            if (empty) { bodies.splice(bodies.indexOf(main), 1); errors[f.id] = 'The bodies have nothing in common.'; }
-            else { setExact(main, sh); main.featureIds.push(f.id); }
-          }
-          continue;
-        } catch {
-          /* the mesh kernel below */
-        }
-      }
-      try {
-        if (f.op === 'subtract') {
-          const main = bodies.find((b) => b.id === f.mainBody);
-          if (!main) { errors[f.id] = 'The main body no longer exists.'; continue; }
-          for (const b of picked) {
-            if (b === main) continue;
-            main.geometry = csg(main.geometry, b.geometry, 'subtract');
-            history.cuts.push(b.geometry);
-            bodies.splice(bodies.indexOf(b), 1);
-          }
-          main.featureIds.push(f.id);
-        } else {
-          const main = picked[0];
-          for (const b of picked.slice(1)) {
-            main.geometry = csg(main.geometry, b.geometry, f.op === 'add' ? 'union' : 'intersect');
-            bodies.splice(bodies.indexOf(b), 1);
-          }
-          main.featureIds.push(f.id);
-          if (isEmpty(main.geometry)) { bodies.splice(bodies.indexOf(main), 1); errors[f.id] = 'The bodies have nothing in common.'; }
-        }
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
-      continue;
-    }
-    let extent = THROUGH_ALL;
-    const all = allVisible();
-    if (all) {
-      all.computeBoundingSphere();
-      extent = Math.max(10, (all.boundingSphere?.radius ?? 0) * 3 + 10);
-    }
-    // sheet metal cut: Link to thickness makes the depth the sheet thickness (a normal cut through one sheet)
-    const fx: Feature = f.type === 'extrude' && f.op === 'cut' && f.linkToThickness && doc.sheetMetal ? { ...f, end: 'blind', depth: doc.sheetMetal.thickness } : f;
-    const r = featureGeometry(doc, fx as SketchBasedFeature, extent, all, bodies);
-    if (!r.geometry) {
-      errors[f.id] = r.error ?? 'Could not build the feature.';
-      continue;
-    }
-    // the same tool as a B-rep solid, for the features the B-rep kernel builds (null: mesh kernel only)
-    let toolShape: BrepShape | null = null;
-    if (K) {
-      try {
-        toolShape = brepTool(K, doc, fx, extent, r.geometry, all, (id) => exactOf(bodies.find((b) => b.id === id)));
-      } catch {
-        toolShape = null;
-      }
-    }
-    const sf = f as SolidFeature & { op: 'boss' | 'cut'; merge?: boolean; scope?: Id[] };
-    try {
-      if (sf.op === 'boss') {
-        // Merge result (default on): join the bodies the new material touches; off: a separate body
-        addMaterial(r.geometry, f.id, sf.merge !== false, sf.scope, toolShape ?? undefined);
-        addBoss(r.geometry);
-      } else {
-        if (!body) {
-          errors[f.id] = 'A cut needs an existing solid body.';
-          continue;
-        }
-        if (!removeMaterial(r.geometry, f.id, sf.scope, toolShape ?? undefined)) {
-          errors[f.id] = 'The cut does not touch any body (check the Feature Scope).';
-          continue;
-        }
-        history.cuts.push(r.geometry);
-      }
-    } catch (err) {
-      errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-    }
-    } catch (err) {
-      // an internal error (missing data) is said in words; the technical text stays in brackets for a bug report
-      if (!errors[f.id]) errors[f.id] = err instanceof TypeError || err instanceof RangeError ? `${f.name} could not be built: its data is incomplete or refers to geometry that no longer exists (${(err as Error).message}).` : `${f.name} could not be built: ${(err as Error).message}`;
-    } finally {
-      times[f.id] = (times[f.id] ?? 0) + (clock() - t0);
-      // face names (F47): a body this feature rebuilt without them (a B-rep tessellation, a fillet) takes them from
-      // the body before and the feature's tools
-      for (const b of bodies) {
-        if (b.geometry === before.get(b) || b.geometry.getAttribute(FACE_TAG)) continue;
-        const prev = before.get(b);
-        copyFaceNames(prev ? [prev, ...featureTools] : featureTools, b.geometry);
-      }
-      // a body that was exact and is faceted from this feature on (no B-rep version of it): said once, here (QA F51)
-      if (K && !errors[f.id] && !warnings[f.id]) for (const b of bodies) if (b.featureIds[b.featureIds.length - 1] === f.id && !exactOf(b) && exactBefore.has(b)) warnings[f.id] = `${f.name} has no exact (B-rep) version: from here on this body is a faceted mesh (Faceted in the status bar); its mass properties and STEP are approximate.`;
-      // the manifold gate (F48): a boolean of this feature left an opening in a body
-      const open = bodies.filter((b) => b.featureIds[b.featureIds.length - 1] === f.id && b.geometry.userData.openArea);
-      if (open.length && !errors[f.id]) warnings[f.id] = `The faceted result is not closed (an opening of about ${Math.max(...open.map((b) => b.geometry.userData.openArea as number)).toFixed(2)} mm²): mass properties and STEP of this body are approximate.`;
+    // the manifold gate (F48): a boolean of this feature left an opening in a body
+    const open = bodies.filter((b) => last(b) && b.geometry.userData.openArea);
+    if (open.length && !errors[f.id]) {
+      const area = Math.max(...open.map((b) => b.geometry.userData.openArea as number)).toFixed(2);
+      warnings[f.id] = `The faceted result is not closed (an opening of about ${area} mm²): mass properties and STEP of this body are approximate.`;
     }
   }
+}
+
+/** Evaluate the feature history in order (up to the rollback index) into solid bodies. */
+export function rebuildDocument(doc: Document, upTo: number | null = null): RebuildResult {
+  const n = upTo === null ? doc.features.length : Math.min(upTo, doc.features.length);
+  const K: BrepKernel | null = brepKernel();
+  const clock = typeof performance !== 'undefined' ? () => performance.now() : () => Date.now();
+  const started = clock();
+  const overBudget = () => clock() - started >= rebuildBudgetMs;
+  // incremental rebuild (P2-5a): go on from the state after the longest unchanged start of the tree (rebuildCache.ts)
+  const plan = planRebuild(doc, n, K, !overBudget());
+  const ctx = createRebuildCtx(doc, K, overBudget, plan.seed);
+  const { bodies, errors, curves, approxBodies, splits } = ctx;
+  let outOfTime = false, built = 0;
+  for (let i = plan.start; i < n; i++) {
+    const f: Feature = ctx.sizedByHoldLine(doc.features[i]);
+    if (f.type === 'sketch') {
+      plan.record(i, ctx, true);
+      continue;
+    }
+    // the rebuild never blocks the window for minutes: past the budget the rest is marked and skipped (F46)
+    if (!outOfTime && overBudget()) {
+      outOfTime = true;
+      plan.stop();
+    }
+    if (outOfTime) {
+      if (!f.suppressed) errors[f.id] = stopMessage();
+      continue;
+    }
+    built++;
+    try {
+      runFeature(f, ctx, clock);
+    } catch (err) {
+      if (!(err instanceof RebuildStopped)) throw err;
+      outOfTime = true;
+      plan.stop();
+      continue;
+    }
+    plan.record(i, ctx, false);
+  }
+  plan.finish(built);
   const brep: Record<Id, BrepShape> = {};
   for (const b of bodies) {
-    const ex = exactOf(b);
+    const ex = ctx.exactOf(b);
     if (ex && K) {
       b.exact = !approxBodies.has(b);
       brep[b.id] = ex;
       try { b.exactVolume = K.volume(ex); } catch { /* the tessellation's volume is used */ }
     }
   }
+  // the solids the rebuild cache keeps are kept as well (pinnedShapes)
   K?.release(Object.values(brep));
   for (const b of bodies) {
     const sp = splits.get(b.id) ?? [];
@@ -1905,5 +697,11 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     curves.push({ id: 'bbox:top', name: 'Bounding Box', points: top, dashed: true, color: '#5a5a5a' });
     for (let i = 0; i < 4; i++) curves.push({ id: `bbox:v${i}`, name: 'Bounding Box', points: [bottom[i], top[i]], dashed: true, color: '#5a5a5a' });
   }
-  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta, ...(K ? { brep } : {}), ...(Object.keys(splitCounts).length ? { splitCounts } : {}), ...(outOfTime ? { stopped: true } : {}), ...(Object.keys(warnings).length ? { warnings } : {}), ...(Object.keys(bendCounts).length ? { bendCounts } : {}) };
+  const { splitCounts, warnings, bendCounts } = ctx;
+  return {
+    bodies, errors, consumedSketches: ctx.consumedSketches, curves, surfaceBodies: ctx.surfaceBodies, extraAppearances: ctx.extraAppearances,
+    autoHidden: ctx.autoHidden, times: ctx.times, bodyMeta: ctx.bodyMeta, ...(K ? { brep } : {}),
+    ...(Object.keys(splitCounts).length ? { splitCounts } : {}), ...(outOfTime ? { stopped: true } : {}),
+    ...(Object.keys(warnings).length ? { warnings } : {}), ...(Object.keys(bendCounts).length ? { bendCounts } : {}),
+  };
 }

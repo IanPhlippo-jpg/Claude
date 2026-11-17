@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -46,7 +47,7 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(400);
 await shot('hm0-base-flange-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 let s = await S();
 const t = 3, r = 3, depth = 60;
 const expectedBase = ((40 - (r + t)) * t + (30 - (r + t)) * t + (Math.PI / 4) * ((r + t) ** 2 - r ** 2)) * depth;
@@ -55,7 +56,7 @@ check('Base-Flange1 built: L sheet with the bend (3 mm, radius 3, 60 wide)', Mat
 check('tree: Sheet-Metal1, Base-Flange1 and a suppressed Flat-Pattern1', s.sm && s.sm.thickness === 3 && s.features.includes('Base-Flange1') && s.features.includes('Flat-Pattern1(s)'), JSON.stringify(s));
 check('Sheet-Metal1 row in the Feature Tree', (await page.locator('.k-tree-row:has-text("Sheet-Metal")').count()) === 1);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('hm1-base-flange');
 
 // Hem on the top edge of the vertical leg
@@ -77,7 +78,7 @@ await page.locator('.k-section:has-text("Type and Size") input.k-num').first().p
 await page.waitForTimeout(500);
 await shot('hm2-hem-preview');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await settle(page);
 s = await S();
 const v2 = await volume();
 const rr = 0.01;
@@ -85,7 +86,7 @@ const expectedHem = ((Math.PI / 2) * ((rr + t) ** 2 - rr ** 2) + 10 * t - (rr + 
 check('Hem1 (closed, Material Inside): sheet shortened by r + t, 180 degree fold and a 10 mm leg', Math.abs(v2 - v1 - expectedHem) < Math.abs(expectedHem) * 0.04 && Object.keys(s.errors).length === 0, `${(v2 - v1).toFixed(0)} vs ${expectedHem.toFixed(0)} ${JSON.stringify(s.errors)}`);
 check('tree lists Hem1 before Flat-Pattern1', s.features.indexOf('Hem1') >= 0 && s.features.indexOf('Hem1') < s.features.indexOf('Flat-Pattern1(s)'), s.features.join(','));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('hm3-hem');
 // Flatten: the developed length grows by leg + bend allowance (180) - setback
 await page.click('.k-cm-tab:has-text("Sheet Metal")');

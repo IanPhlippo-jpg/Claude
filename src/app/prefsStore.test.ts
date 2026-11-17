@@ -72,8 +72,9 @@ describe('Assemblies', () => {
     st().newDocument('assembly');
     st().insertComponent(part(), { fixMode: 'first' });
     expect(st().doc.components![0].fixed).toBe(true);
-    use({ 'doc.mateMakeFirstFixed': false });
+    // a Document Property belongs to the open document (QA 0.5.14 P2-2): set after the new document is made
     st().newDocument('assembly');
+    use({ 'doc.mateMakeFirstFixed': false });
     st().insertComponent(part(), { fixMode: 'first' });
     expect(st().doc.components![0].fixed).toBe(false);
   });

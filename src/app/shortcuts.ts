@@ -37,6 +37,7 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: 'Alt+arrow keys', label: 'Rotate parallel to the screen (roll)', group: 'View' },
   { keys: 'Ctrl+arrow keys', label: 'Pan', group: 'View' },
   { keys: 'F', label: 'Zoom to Fit', group: 'View' },
+  { keys: 'Tab / Shift+Tab', label: 'Hide the component under the pointer / show it again (assemblies)', group: 'View' },
   { keys: 'G', label: 'Magnified Selection (G or Esc closes it)', group: 'View' },
   { keys: 'Z / Shift+Z', label: 'Zoom Out / Zoom In', group: 'View' },
   { keys: 'Ctrl+1 … 6', label: 'Front / Back / Left / Right / Top / Bottom', group: 'View' },
@@ -58,6 +59,9 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: 'Wheel', label: 'Zoom at the pointer (towards you = zoom in, reversible in Options)', group: 'Mouse' },
   { keys: 'Right mouse', label: 'Context toolbar and shortcut menu', group: 'Mouse' },
 ];
+
+/** components hidden with Tab, most recent last: Shift+Tab shows them again in reverse order */
+const tabHidden: string[] = [];
 
 export function useShortcuts(handlers: { save: () => void; open: () => void; shortcutBar: () => void }) {
   useEffect(() => {
@@ -121,6 +125,24 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
         e.preventDefault();
         if (document.fullscreenElement) document.exitFullscreen();
         else document.documentElement.requestFullscreen();
+        return;
+      }
+      // Tab / Shift+Tab in an assembly: hide the component under the pointer, show the last one hidden that way again
+      if (e.key === 'Tab' && !ctrl && !e.altKey && st.hasDocument && st.doc.kind === 'assembly' && !st.dialog && !st.ask) {
+        const comps = st.doc.components ?? [];
+        if (!e.shiftKey) {
+          const c = st.hoverFace && comps.find((x) => x.id === st.hoverFace!.bodyId && !x.hidden);
+          if (!c) return;
+          e.preventDefault();
+          tabHidden.push(c.id);
+          st.setComponentHidden(c.id, true);
+          return;
+        }
+        let id: string | undefined;
+        while ((id = tabHidden.pop()) && !comps.some((x) => x.id === id && x.hidden));
+        if (!id) return;
+        e.preventDefault();
+        st.setComponentHidden(id, false);
         return;
       }
       if (ctrl && e.shiftKey && key === 's') {

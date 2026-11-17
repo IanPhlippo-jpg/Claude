@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -29,7 +30,7 @@ await page.evaluate(() => {
   const d = { ...K.createDocument('Plate'), sketches: { s }, features: [{ id: 'k', type: 'sketch', name: 'Sketch1', sketchId: 's', suppressed: false }, { id: 'e', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }] };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 
 // Geometry Analysis
 await page.click('.k-cm-tab:has-text("Evaluate")');
@@ -62,15 +63,15 @@ await page.waitForTimeout(500);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => !x.curved && x.normal[1] > 0.99); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
 await page.click('.k-cm-tab:has-text("Render Tools")');
 await page.click('.k-cm-big:has-text("Edit Decal")');
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="decal-tab-mapping"]');
 check('Edit Decal takes the selected face', /Face/.test((await page.locator('[data-testid="decal-face"]').textContent()) ?? ''));
 await page.click('[data-testid="decal-ok"]');
-await page.waitForTimeout(800);
+await settle(page);
 check('Decal1 is stored on the document', await page.evaluate(() => (window.__phlippoStore.getState().doc.decals ?? []).length === 1));
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(800);
+await settle(page, { quiet: 300 });
 const decalMeshes = await page.evaluate(() => { let n = 0; window.__phlippoStore; return n; });
 void decalMeshes;
 await page.screenshot({ path: `${OUT}/er2-decal.png` });
@@ -90,9 +91,9 @@ await page.evaluate(() => window.__phlippoStore.getState().setScene({ background
 // Ambient Occlusion is on by default (as the reference); off and on again
 check('Ambient Occlusion is on by default', await page.evaluate(() => window.__phlippoStore.getState().show.ambientOcclusion));
 await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
-await page.waitForTimeout(800);
+await settle(page, { quiet: 300 });
 await page.screenshot({ path: `${OUT}/er2-ao.png` });
 check('Ambient Occlusion is on and the page keeps working', await page.evaluate(() => window.__phlippoStore.getState().show.ambientOcclusion) && errors.length === 0, JSON.stringify(errors));
 

@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -38,7 +39,7 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 const V = async () => { await waitSettled(page); return page.evaluate(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, vols: s.rebuild.bodies.map((b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const a = g.getAttribute('position'); let v = 0; for (let i = 0; i < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } return v; }) }; }); };
 let v = await V();
 check('start: cylinder and a separate 20 mm block', v.vols.length === 2 && Object.keys(v.errors).length === 0, JSON.stringify(v));
@@ -48,7 +49,7 @@ await page.locator('.k-section:has-text("Direction 1") select.k-input').first().
 await page.waitForTimeout(200);
 check('Up To Body selection box', (await page.locator('[data-testid="up-to-body"]').count()) === 1);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page);
 const q = await page.evaluate(() => window.__phlippoProjectWorld(40, 70, -70));
 await page.mouse.click(q.x, q.y);
 await page.waitForTimeout(500);
@@ -56,7 +57,7 @@ const label = await page.locator('[data-testid="up-to-body"]').innerText();
 check('clicking the cylinder picks its body', label.includes('Boss-Extrude1'), label);
 await shot('utb1-preview');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 v = await V();
 const blk = v.vols.find((x) => x < 30000);
 const expected = 16 * (960 - 2 * (24 + 50 * Math.asin(0.8)));

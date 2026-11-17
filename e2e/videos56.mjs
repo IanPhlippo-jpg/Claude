@@ -6,6 +6,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -39,7 +40,7 @@ await S(() => {
   d.material = { name: 'Plain Carbon Steel', density: 7800, color: '#888888' };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 
 // ---- = in the Depth field of Boss-Extrude1
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().dblclick();
@@ -64,7 +65,7 @@ await page.waitForTimeout(600);
 let r = await S(() => { const s = window.__phlippoStore.getState(); return { depth: s.doc.features.find((f) => f.id === 'e1').depth, eqs: s.doc.equations.map((e) => `${e.target}=${e.expression}`) }; });
 check('the Depth is driven by the equation: D1@Boss-Extrude1 = "Width" / 2 (20 mm)', r.depth === 20 && r.eqs.includes('D1@Boss-Extrude1="Width" / 2'), JSON.stringify(r));
 await S(() => { const s = window.__phlippoStore.getState(); s.setEquations(s.doc.equations.map((e) => (e.target === 'Width' ? { ...e, expression: '60' } : e))); });
-await page.waitForTimeout(500);
+await settle(page);
 r = await S(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'e1').depth);
 check('changing "Width" to 60 makes the depth 30', r === 30, String(r));
 // a file property: Density of the material (g/mm³)
@@ -73,7 +74,7 @@ check('File Properties: "Density" is the material density (7.8 g/cm³)', Math.ab
 
 // ---- status bar readouts on model geometry: a face (Area + Perimeter)
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => x.normal[1] > 0.999); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
-await page.waitForTimeout(200);
+await settle(page);
 const ro = await page.locator('[data-testid="status-readout"]').innerText().catch(skip('videos56.mjs:77', ''));
 check('a face shows "Area: 4800mm^2   Perimeter: 280mm"', /Area: 4800mm\^2\s+Perimeter: 280mm/.test(ro), ro);
 await S(() => window.__phlippoStore.getState().setSelectedFace(null));
@@ -110,7 +111,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Rib1")').last().dblclick();
 await page.waitForTimeout(400);
 check('Rib1 ▸ status prompt "Set the direction and the thickness of the rib."', (await status()).includes('Set the direction and the thickness of the rib.'), await status());
@@ -124,13 +125,13 @@ await page.click('[data-testid="rib-natural"]');
 await page.waitForTimeout(300);
 await page.screenshot({ path: `${OUT}/videos56-rib.png` });
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 r = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.id === 'r1'); return { t: f.thicknessAt, type: f.ribType, draft: f.draft, errors: s.rebuild.errors, bodies: s.rebuild.bodies.length }; });
 check('Rib1 stored with At wall interface, Natural and 1° draft; it builds', r.t === 'wall' && r.type === 'natural' && r.draft === 1 && !Object.keys(r.errors).length && r.bodies === 1, JSON.stringify(r));
 
 // ---- Delete Face: Show selection toolbar and Show preview
 await S(() => window.__phlippoStore.getState().startDeleteFace());
-await page.waitForTimeout(300);
+await settle(page);
 check('Delete Face ▸ Show selection toolbar and Show preview', (await page.locator('[data-testid="deleteface-seltoolbar"]').count()) === 1 && (await page.locator('[data-testid="deleteface-preview"]').count()) === 1);
 await page.click('[data-testid="deleteface-preview"]');
 await page.waitForTimeout(200);
@@ -140,7 +141,7 @@ await S(() => window.__phlippoStore.getState().cancelFeature());
 
 // ---- the mass sensor: 9 significant digits
 await S(() => window.__phlippoStore.getState().addSensor?.('mass'));
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click();
 await page.waitForTimeout(200);
 const tree = await page.locator('.k-tree').first().innerText();

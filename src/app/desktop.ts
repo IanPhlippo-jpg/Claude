@@ -56,6 +56,8 @@ export interface DesktopApi {
   setDirty?(value: boolean): void;
   openFile(filters: { name: string; extensions: string[] }[]): Promise<DesktopFile | null>;
   saveFile(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer; handle?: string; /** Options ▸ Backup/Recover */ backup?: { copies: number; removeDays: number } }): Promise<DesktopSaveResult | null>;
+  /** Package Files: the user picks one folder, the files are written there (null: cancelled) */
+  savePackage?(files: { name: string; data: ArrayBuffer }[]): Promise<{ folder: string; count: number; skipped: string[] } | null>;
   saveFileAs(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer }): Promise<DesktopSaveResult | null>;
   /**
    * Auto-Recover (Options ▸ Backup/Recover): copies of the open documents in the auto-recover folder. The shell decides
@@ -73,7 +75,8 @@ export interface DesktopApi {
   /** software OpenGL (SwiftShader): this run's state (and what turned it on) and the choice for the next start */
   gpuStatus?(): Promise<{ software: boolean; source?: 'argument' | 'environment' | 'options' | null; next: boolean } | null>;
   setSoftwareGL?(on: boolean): Promise<boolean>;
-  restartApp?(): Promise<void>;
+  /** refused (false) while the document has unsaved changes, unless `force`: the user answered the Save question */
+  restartApp?(opts?: { force?: boolean }): Promise<boolean>;
 }
 
 export function desktop(): DesktopApi | null {
@@ -84,7 +87,12 @@ export const isDesktop = () => desktop() !== null;
 
 /** handle of the document on disk (desktop only), kept per session so Save writes without asking again */
 let currentHandle: string | null = null;
+/** the id of the document the handle belongs to: a handle is never used to write another document (P1-1) */
+let handleOwner: string | null = null;
 export const getDocumentHandle = () => currentHandle;
-export const setDocumentHandle = (h: string | null) => {
+export const setDocumentHandle = (h: string | null, owner?: string | null) => {
   currentHandle = h;
+  handleOwner = h ? owner ?? null : null;
 };
+/** the handle to write document `id` to, or null when the handle belongs to another document */
+export const handleFor = (id: string | undefined): string | null => (currentHandle && (!handleOwner || !id || handleOwner === id) ? currentHandle : null);

@@ -1,6 +1,7 @@
 // Dimension Property Panel by design: value of the selected dimension, OK only, Dimension Text with symbols.
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 const results = [];
 const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); if (!ok) console.log('FAIL', name, info); };
 const errors = [];
@@ -37,9 +38,9 @@ await page.evaluate(() => {
   const st = window.__phlippoStore.getState();
   st.openDocument(d);
 });
-await page.waitForTimeout(500);
+await settle(page);
 await page.evaluate(() => { const st = window.__phlippoStore.getState(); st.editSketch?.('s2') ?? st.openSketch?.('s2'); });
-await page.waitForTimeout(500);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.setState({ selectedConstraint: 'dimA' }));
 await page.keyboard.press('Control+7');
 await page.waitForTimeout(500);

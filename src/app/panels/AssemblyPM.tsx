@@ -6,7 +6,7 @@ import { Icon } from '../../ui/icons';
 import type { Document, MateType } from '../../core/document/types';
 import { configurations } from '../../core/document/configurations';
 import { openFileDialog } from '../MenuBar';
-import { getPref, loadPrefs, savePrefs } from '../prefs';
+import { getPref, loadPrefs, patchPrefs } from '../prefs';
 import { MATE_OPTION_KEYS } from '../prefsEffects';
 /** a box of the Mate Options is also the document setting (Document Properties ▸ Mates) for the next mate */
 const keepMateOpt = (k: keyof typeof MATE_OPTION_KEYS, v: boolean) => useStore.getState().setPrefs({ ...loadPrefs(), [MATE_OPTION_KEYS[k]]: v });
@@ -196,7 +196,7 @@ export function MatePM() {
         <label className="k-check"><input type="checkbox" data-testid="mate-popup-opt" checked={st.mateOpts.popup} onChange={(e) => { useStore.setState({ mateOpts: { ...st.mateOpts, popup: e.target.checked } }); keepMateOpt('popup', e.target.checked); }} /> Show popup dialog</label>
         <label className="k-check"><input type="checkbox" data-testid="mate-preview-opt" checked={st.mateOpts.preview} onChange={(e) => { useStore.setState({ mateOpts: { ...st.mateOpts, preview: e.target.checked } }); keepMateOpt('preview', e.target.checked); st.updateMateDraft({}); }} /> Show preview</label>
         <label className="k-check"><input type="checkbox" data-testid="mate-positiononly" checked={st.mateOpts.positionOnly} onChange={(e) => { useStore.setState({ mateOpts: { ...st.mateOpts, positionOnly: e.target.checked } }); keepMateOpt('positionOnly', e.target.checked); }} /> Use for positioning only</label>
-        <label className="k-check"><input type="checkbox" data-testid="mate-transparent" checked={firstTransparent} onChange={(e) => { setFirstTransparent(e.target.checked); savePrefs({ ...loadPrefs(), 'assembly.mateFirstTransparent': e.target.checked }); useStore.setState({ mateEdit: st.mateEdit ? { ...st.mateEdit } : null }); }} /> Make first selection transparent</label>
+        <label className="k-check"><input type="checkbox" data-testid="mate-transparent" checked={firstTransparent} onChange={(e) => { setFirstTransparent(e.target.checked); patchPrefs({ 'assembly.mateFirstTransparent': e.target.checked }); useStore.setState({ mateEdit: st.mateEdit ? { ...st.mateEdit } : null }); }} /> Make first selection transparent</label>
       </Section>
     </div>
   );
@@ -219,7 +219,7 @@ export function InsertComponentPM() {
   const [envelope, setEnvelope] = useState(false);
   // options kept between sessions (System Options ▸ Assemblies in the intended design)
   const [opt, setOptState] = useState(() => ({ startInsert: getPref<boolean>('assembly.startInsert') !== false, autoBrowse: getPref<boolean>('assembly.autoBrowse') !== false, graphicsPreview: getPref<boolean>('assembly.graphicsPreview') !== false }));
-  const setOpt = (k: keyof typeof opt, v: boolean) => { setOptState((o) => ({ ...o, [k]: v })); savePrefs({ ...loadPrefs(), ['assembly.' + k]: v }); if (k === 'graphicsPreview' && ghost) st.setInsertGhost({ ...ghost }); };
+  const setOpt = (k: keyof typeof opt, v: boolean) => { setOptState((o) => ({ ...o, [k]: v })); patchPrefs({ ['assembly.' + k]: v }); if (k === 'graphicsPreview' && ghost) st.setInsertGhost({ ...ghost }); };
   // the chosen part follows the pointer (graphics preview); the PM options travel with it
   const ghost = st.insertGhost;
   useEffect(() => {
@@ -278,7 +278,7 @@ export function InsertComponentPM() {
         <label className="k-check"><input type="checkbox" data-testid="insert-preview" checked={opt.graphicsPreview} onChange={(e) => setOpt('graphicsPreview', e.target.checked)} /> Graphics preview</label>
         <label className="k-check"><input type="checkbox" data-testid="insert-virtual" checked={virtual} onChange={(e) => setVirtual(e.target.checked)} /> Make virtual</label>
         <label className="k-check"><input type="checkbox" data-testid="insert-envelope" checked={envelope} onChange={(e) => setEnvelope(e.target.checked)} /> Envelope</label>
-        <label className="k-check"><input type="checkbox" data-testid="insert-rotbar-opt" checked={rotBar} onChange={(e) => { setRotBar(e.target.checked); savePrefs({ ...loadPrefs(), 'assembly.rotateToolbar': e.target.checked }); if (ghost) st.setInsertGhost({ ...ghost }); }} /> Show Rotate context toolbar</label>
+        <label className="k-check"><input type="checkbox" data-testid="insert-rotbar-opt" checked={rotBar} onChange={(e) => { setRotBar(e.target.checked); patchPrefs({ 'assembly.rotateToolbar': e.target.checked }); if (ghost) st.setInsertGhost({ ...ghost }); }} /> Show Rotate context toolbar</label>
         <div className="k-pm-label" style={{ marginTop: 6 }}>Fix / float component on insert:</div>
         <div className="k-pm-radios" data-testid="insert-fixmode">
           <label className="k-check"><input type="radio" name="fixmode" checked={fixMode === 'first'} onChange={() => setFixMode('first')} /> Only fix first component</label>

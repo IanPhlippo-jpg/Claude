@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, dontSave } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -45,7 +46,7 @@ await page.mouse.click(cx + 150, cy + 80);
 await page.waitForTimeout(200);
 await page.locator('.k-modify input.k-num').fill('80');
 await page.locator('.k-modify input.k-num').press('Enter');
-await page.waitForTimeout(200);
+await settle(page);
 await page.mouse.click(cx, cy - 150);
 await page.mouse.click(cx - 80, cy - 150);
 await page.waitForTimeout(200);
@@ -68,9 +69,9 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().renameDocument('Plate'));
 const plateFile = await page.evaluate(() => JSON.stringify({ format: 'phlippo-cad', ...window.__phlippoStore.getState().doc }));
 check('plate part built', plateFile.includes('"Boss-Extrude1"'));
@@ -79,11 +80,11 @@ check('plate part built', plateFile.includes('"Boss-Extrude1"'));
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
 await page.click('.k-menu-item:has-text("New")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-doctype:has-text("Assembly")');
 await page.click('.k-dialog-actions button:has-text("OK")');
 await dontSave(page); // Save changes? → Don't Save, when it asks
-await page.waitForTimeout(500);
+await settle(page, { quiet: 300 });
 let a = await A();
 check('assembly document with the Assembly tab and Insert Component open', a.kind === 'assembly' && a.tab === 'assembly' && a.inserting, JSON.stringify({ kind: a.kind, tab: a.tab, inserting: a.inserting }));
 await shot('e30-assembly-new');
@@ -107,7 +108,7 @@ await page.waitForTimeout(500);
   await page.click('[data-testid="rotbar-x"]');
   await page.click('[data-testid="rotbar-x"]');
   await page.click('.k-pm-ok');
-  await page.waitForTimeout(600);
+  await settle(page);
 }
 a = await A();
 check('first component inserted and fixed', a.components.length === 1 && a.components[0].fixed && a.components[0].name === 'Plate<1>', JSON.stringify(a.components));
@@ -130,7 +131,7 @@ check('second instance Plate<2> placed next to the first', a.components.length =
 check('two world bodies, no errors', a.bodies.length === 2 && Object.keys(a.errors).length === 0, JSON.stringify(a.errors));
 check('tree shows (f) Plate<1> and (-) Plate<2>', (await page.locator('.k-tree-row:has-text("(f) Plate<1>")').count()) === 1 && (await page.locator('.k-tree-row:has-text("(-) Plate<2>")').count()) === 1);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('e31-assembly-inserted');
 
 // ---- coincident mate: top face of Plate<1> with top face of Plate<2> (anti-aligned: Plate<2> flips onto Plate<1>)
@@ -148,7 +149,7 @@ a = await A();
 check('two mate references selected, Coincident proposed', a.mateEdit && a.mateEdit.refs.length === 2 && a.mateEdit.type === 'coincident', JSON.stringify(a.mateEdit));
 await shot('e32-mate-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 a = await A();
 check('Coincident1 added', a.mates.length === 1 && a.mates[0].type === 'coincident');
 const top2 = a.bodies.find((b) => b.id === a.components[1].id);
@@ -169,14 +170,14 @@ await page.waitForTimeout(300);
 a = await A();
 check('two cylindrical references, Concentric proposed', a.mateEdit && a.mateEdit.refs.length === 2 && a.mateEdit.type === 'concentric', JSON.stringify(a.mateEdit));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 a = await A();
 const c2b = a.bodies.find((b) => b.id === a.components[1].id);
 check('Concentric1 aligns the holes (Plate<2> centred on Plate<1>)', a.mates.length === 2 && c2b && Math.abs((c2b.min[0] + c2b.max[0]) / 2 - 40) < 0.1 && Math.abs((c2b.min[2] + c2b.max[2]) / 2 + 40) < 0.1, JSON.stringify(c2b));
 await expandTree();
 check('Mates folder lists both mates', (await page.locator('.k-tree-row:has-text("Coincident1 (Plate<1>,Plate<2>)")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Concentric1")').count()) === 1);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('e33-assembly-mated');
 
 // ---- Bill of Materials and Interference Detection

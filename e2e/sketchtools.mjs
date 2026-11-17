@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -99,7 +100,7 @@ await page.locator('.k-section:has-text("Parameters") input.k-num').first().pres
 await page.click('[data-testid="offset-chain"]');
 const linesBefore = await count('line');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(300);
+await settle(page);
 check('Offset Entities adds an offset line', (await count('line')) === linesBefore + 1, String(await count('line')));
 
 // Linear Sketch Pattern of a small circle: 3 instances 15 apart
@@ -116,7 +117,7 @@ await page.locator('.k-section:has-text("Direction 1") input.k-num').first().fil
 await page.locator('.k-section:has-text("Direction 1") input.k-num').nth(1).fill('3');
 await page.locator('.k-section:has-text("Direction 1") input.k-num').nth(1).press('Tab');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(300);
+await settle(page);
 check('Linear Sketch Pattern: 3 circles', (await count('circle')) === 3, String(await count('circle')));
 
 // Move Entities: move the first circle by (0, 10)
@@ -129,7 +130,7 @@ await page.locator('.k-section:has-text("Parameters") input.k-num').first().fill
 await page.locator('.k-section:has-text("Parameters") input.k-num').nth(1).fill('10');
 await page.locator('.k-section:has-text("Parameters") input.k-num').nth(1).press('Tab');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 const moved = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return sk.entityOrder.map((id) => sk.entities[id]).filter((e) => e.kind === 'circle').map((e) => sk.points[e.center].y); });
 check('Move Entities moved one circle up by 10', moved.some((y) => Math.abs(y - 50) < 0.5) && moved.filter((y) => Math.abs(y - 40) < 0.5).length === 2, JSON.stringify(moved));
 await shot('t2-offset-pattern-move');
@@ -145,16 +146,16 @@ await page.waitForTimeout(200);
 check('Appearance with the standard palette (40 colours)', (await page.locator('[data-testid="appearance-dialog"]').count()) === 1 && (await page.locator('.k-appearance-palette .k-swatch').count()) === 40);
 await page.click('.k-swatch[title="#e60000"]');
 await page.click('[data-testid="appearance-ok"]');
-await page.waitForTimeout(200);
+await settle(page);
 check('appearance stored on the document', (await page.evaluate(() => window.__phlippoStore.getState().doc.appearance)) === '#e60000');
 await page.click('.k-cm-tab:has-text("Sketch")');
 
 // Convert Entities: extrude, then a new sketch on the Top plane converts a model edge
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 const bodies = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies.length);
 check('sketch extrudes to solid bodies', bodies >= 1, String(bodies));
 await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });

@@ -2,9 +2,13 @@
  * B-rep refinement (docs/14, step 2): after every rebuild of a part, the OpenCascade worker builds the same document
  * with the B-rep kernel; the bodies that stay exact replace the mesh bodies (true cylinders and rounds, exact volume).
  * The mesh result shows at once, the exact one follows; a rebuild in between makes the late result void.
- * Selected faces and edges are carried over to the new body by their place, not by their number.
+ * Selected faces and edges are carried over to the new body by their name or place, not by their number.
+ * A newer rebuild stops a stale exact rebuild when that is cheaper than waiting; every failure is said (docs/32 P2-4).
  */
 import * as THREE from 'three';
+import { transferFace } from './faceTransfer';
+import { kernelNotice } from '../core/occt/kernelPolicy';
+import { rebuildBudgetMs } from '../core/features/rebuild';
 import { copyFaceNames } from '../core/features/faceNames';
 import { useStore, rebuildNow, type FaceRef } from './store';
 import { partRebuild, setPartRebuild } from '../core/assembly/assembly';
@@ -23,6 +27,8 @@ const refined = new WeakSet<RebuildResult>();
 let timer: number | null = null;
 let busy = false;
 let again = false;
+// e2e: settle() in e2e/lib/wait.mjs waits until no exact rebuild is queued or running
+if (TEST_HOOKS && typeof window !== 'undefined') (window as unknown as Record<string, unknown>).__phlippoRefine = { busy: () => busy || timer !== null };
 
 /** on by default; off in Tools ▸ Options ▸ Performance. The e2e builds use the mesh kernel unless a test asks for it
  * (localStorage phlippo.kernel = brep, or ?kernel=brep in the address). */
@@ -39,16 +45,10 @@ export function brepEnabled(): boolean {
   return true;
 }
 
-function nearestFace(body: Body, old: { normal: [number, number, number]; centroid: [number, number, number] }): string | null {
-  const n = new THREE.Vector3(...old.normal), c = new THREE.Vector3(...old.centroid);
-  let best: string | null = null, bd = Infinity;
-  for (const f of body.faces) {
-    if (new THREE.Vector3(...f.normal).dot(n) < 0.95) continue;
-    const d = new THREE.Vector3(...f.centroid).distanceTo(c);
-    if (d < bd) { bd = d; best = f.id; }
-  }
-  return best;
-}
+/** per document: how long its last exact rebuild took in the worker (ms), to judge whether a stale one is stopped */
+const exactMs = new Map<string, number>();
+/** the failures said so far (each once) */
+const said = new Set<string>();
 
 /** the mesh result with its exact bodies swapped in (null when the worker's bodies do not line up) */
 function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.worker').RefinedBody[], doc?: Document): RebuildResult | null {
@@ -122,7 +122,10 @@ async function refineAssembly(doc: Document): Promise<boolean> {
     if (part.features.some((f) => f.type === 'splitLine' && !f.suppressed)) continue;
     const mesh = partRebuild(part);
     if (!mesh.bodies.length) continue;
-    const r = refinedResult(mesh, await refineRebuild(part, null), part);
+    // a part whose exact rebuild failed or was stopped is tried again with the next rebuild
+    const exact = await refineRebuild(part, null, rebuildBudgetMs).catch((err: unknown) => { refinedParts.delete(part); throw err; });
+    if (exact.stopped) { stoppedOnBudget(); continue; }
+    const r = refinedResult(mesh, exact.bodies, part);
     if (r) { setPartRebuild(part, r); changed = true; }
   }
   return changed;
@@ -138,7 +141,7 @@ function carrySelection(from: RebuildResult, to: RebuildResult) {
     const ob = oldB.get(f.bodyId), nb = newB.get(f.bodyId);
     const of = ob?.faces.find((x) => x.id === f.faceId);
     if (!ob || !nb || !of || ob === nb) return f;
-    const id = nearestFace(nb, of);
+    const id = transferFace(ob, of, nb);
     return id ? { bodyId: f.bodyId, faceId: id } : null;
   };
   const mapEdge = (id: string): string | null => {
@@ -158,13 +161,26 @@ function carrySelection(from: RebuildResult, to: RebuildResult) {
   };
 }
 
-/** a kernel call that hung: say so once, the faceted (mesh) result stays shown */
-function timedOut(err: unknown) {
-  if (err instanceof Error && err.name === 'KernelTimeout') useStore.getState().pushMessage('Exact geometry timed out; showing the faceted (mesh) result.', 'warn');
+/** a kernel call that failed or hung: said (a failure once), the faceted (mesh) result stays shown */
+function failed(err: unknown) {
+  const text = kernelNotice(err, said);
+  if (text) useStore.getState().pushMessage(text, 'warn');
+}
+
+/** the exact rebuild stopped at the rebuild budget: its bodies lack the features after it, the mesh result stays */
+function stoppedOnBudget() {
+  failed(new Error(`the exact rebuild stopped after ${Math.round(rebuildBudgetMs / 1000)} s`));
 }
 
 async function run() {
-  if (busy) { again = true; return; }
+  if (busy) {
+    again = true;
+    // the running exact rebuild is stale: stop it when finishing it would take longer than loading the kernel again
+    const { cancelStaleRebuild } = await import('../core/occt/occtClient');
+    const d = useStore.getState().doc;
+    cancelStaleRebuild(exactMs.get(d?.id ?? d?.name));
+    return;
+  }
   const st = useStore.getState();
   const sent = st.rebuild;
   if (refined.has(sent) || sent.pending || !st.hasDocument || isDrawing(st.doc) || !sent.bodies.length) return;
@@ -180,7 +196,7 @@ async function run() {
         }
       }
     } catch (err) {
-      timedOut(err); /* the mesh parts stay */
+      failed(err); /* the mesh parts stay */
     } finally {
       busy = false;
       if (again) { again = false; schedule(); }
@@ -193,10 +209,13 @@ async function run() {
   busy = true;
   try {
     const { refineRebuild } = await import('../core/occt/occtClient');
-    const bodies = await refineRebuild(st.doc, st.rollbackIndex);
-    apply(sent, bodies);
+    const exact = await refineRebuild(st.doc, st.rollbackIndex, rebuildBudgetMs);
+    exactMs.set(st.doc.id ?? st.doc.name, exact.ms);
+    // a B-rep stopped on the budget is not the whole part: no swap and no cross-check (no false kernel mismatch)
+    if (exact.stopped) stoppedOnBudget();
+    else apply(sent, exact.bodies);
   } catch (err) {
-    timedOut(err); /* the mesh bodies stay */
+    failed(err); /* the mesh bodies stay */
   } finally {
     busy = false;
     if (again) { again = false; schedule(); }

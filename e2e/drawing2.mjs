@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -68,9 +69,9 @@ check('Predefined View ▸ Insert Model fills the view', !st.views.some((v) => v
 // notes: place two, Format Painter, Linear Note Pattern, Spell Checker
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.startNote(); s.placeNote([40, 120]); });
-await page.waitForTimeout(200);
+await settle(page);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sh = s.doc.sheets[0]; const n = sh.notes[sh.notes.length - 1]; s.applyDocument('style', { ...s.doc, sheets: [{ ...sh, notes: sh.notes.map((x) => (x.id === n.id ? { ...x, text: 'MATERAIL: ALUMINIUM', fontSize: 5, bold: true } : x)) }] }); s.startNote(); s.placeNote([40, 100]); s.cancelDrawingEdit(); });
-await page.waitForTimeout(300);
+await settle(page);
 st = await sheet();
 const [srcNote, dstNote] = st.notes.slice(-2);
 await page.click('.k-cm-big:has-text("Format Painter")');
@@ -81,9 +82,9 @@ st = await sheet();
 const painted = st.notes.find((n) => n.id === dstNote.id);
 check('Format Painter copies the text height and bold', painted && painted.fs === 5 && painted.bold === true, JSON.stringify({ srcNote, painted }));
 await page.click('.k-cm-big:has-text("Linear Note Pattern")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="np-ok"]');
-await page.waitForTimeout(300);
+await settle(page);
 const nNotes = (await sheet()).notes.length;
 check('Linear Note Pattern makes the copies (3 in X)', nNotes === st.notes.length + 2, `${st.notes.length} -> ${nNotes}`);
 await page.click('.k-cm-big:has-text("Spell Checker")');
@@ -118,7 +119,7 @@ await page.screenshot({ path: `${OUT}/drw2-sheet.png` });
 // Edit Sheet Format: zone labels off
 await page.click('.k-cm-tab:has-text("Sheet Format")');
 await page.click('.k-cm-big:has-text("Edit Sheet Format")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="fmt-zones"]').uncheck();
 await page.waitForTimeout(200);
 check('Edit Sheet Format switches the zone labels off', (await sheet()).zones === false);

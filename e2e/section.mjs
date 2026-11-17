@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -39,14 +40,14 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('20');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(700);
+await settle(page);
 await page.keyboard.press('f');
-await page.waitForTimeout(300);
+await settle(page);
 const full = await drawnBox();
 check('plate with a hole drawn', !!full && full.max[0] - full.min[0] > 70, JSON.stringify(full));
 
@@ -70,7 +71,7 @@ cut = await drawnBox();
 check('Flip keeps the other side (x >= 10)', !!cut && Math.abs(cut.min[0] - 10) < 0.5, JSON.stringify(cut));
 await shot('sec1-section-view');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(400);
+await settle(page);
 const st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { view: s.sectionView, edit: s.sectionEdit, tab: s.managerTab }; });
 check('OK keeps the section and closes the PM', !!st.view && st.view.plane === 'right' && st.view.offset === 10 && st.view.flip && !st.edit, JSON.stringify(st));
 check('heads-up Section View button is active', (await page.locator('[data-tip="Section View"].active').count()) === 1);

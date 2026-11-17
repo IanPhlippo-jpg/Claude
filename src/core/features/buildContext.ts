@@ -9,6 +9,7 @@ import type { Body, RebuildResult } from './rebuild';
 import type { BuildHistory } from './shell';
 import type { SplitRegions } from './splitline';
 import type { resolvePlaneDef } from './planes';
+import type { BodyNamer } from './bodyIds';
 
 export interface BuildContext {
   doc: Document;
@@ -35,6 +36,8 @@ export interface BuildContext {
   removeMaterial: (tool: THREE.BufferGeometry, fid: Id, scope?: Id[], toolShape?: BrepShape | null) => boolean;
   addBoss: (g: THREE.BufferGeometry) => void;
   newBody: (g: THREE.BufferGeometry, fid: Id, shape?: BrepShape | null) => Body;
+  /** the stable ids of the bodies (bodyIds.ts); surface bodies take nameBody.surface */
+  nameBody: BodyNamer;
   /** the B-rep solid of a body, when its geometry is still the tessellation of that solid */
   exactOf: (b: Body | undefined) => BrepShape | null;
   setExact: (b: Body, shape: BrepShape) => void;

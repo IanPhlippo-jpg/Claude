@@ -18,7 +18,8 @@ import type { BuildContext } from './buildContext';
 
 /** Split Line, Projected Curve, Wrap and the surface features: true when f is one of them (built, or marked with an error); false lets rebuild.ts go on */
 export function buildSurfaceFeature(f: Feature, body: Body | undefined, ctx: BuildContext): boolean {
-  const { errors, doc, splits, consumedSketches, curves, bodies, visibleBodies, addBoss, history, K, exactOf, addMaterial, removeMaterial, approxBodies, warnings, surfaceBodies, newBody } = ctx;
+  const { errors, doc, splits, consumedSketches, curves, bodies, visibleBodies, addBoss, history, K, exactOf, addMaterial, removeMaterial, approxBodies } = ctx;
+  const { warnings, surfaceBodies, newBody, nameBody } = ctx;
   if (f.type === 'splitLine' && (f.splitType === 'silhouette' || f.splitType === 'intersection')) {
     // Silhouette (direction of pull = the plane normal) / Intersection (the plane cuts the faces)
     if (!body) { errors[f.id] = 'A split line needs an existing solid body.'; return true; }
@@ -442,7 +443,7 @@ export function buildSurfaceFeature(f: Feature, body: Body | undefined, ctx: Bui
         errors[f.id] = f.kind === 'sweep' ? 'Select the profile sketch and the path sketch.' : f.kind === 'loft' || f.kind === 'boundary' ? 'Select two profile sketches.' : f.kind === 'revolve' ? 'Draw a centerline as the axis of revolution and a curve to revolve.' : f.kind === 'offset' ? 'Select the face to offset.' : f.kind === 'planar' ? 'The sketch needs a closed contour.' : 'Select a sketch with curves.';
         return true;
       }
-      surfaceBodies.push({ id: `surf${surfaceBodies.length + 1}`, geometry: g, faces: [], edges: [], featureIds: [f.id] });
+      surfaceBodies.push({ id: nameBody.surface(f.id, surfaceBodies.length), geometry: g, faces: [], edges: [], featureIds: [f.id] });
     } catch (err) {
       errors[f.id] = `Could not build the surface: ${(err as Error).message}`;
     }

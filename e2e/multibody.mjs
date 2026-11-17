@@ -4,6 +4,7 @@ import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -87,7 +88,7 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
   if (!merge) await page.locator('.k-check:has-text("Merge result") input').uncheck();
   await page.waitForTimeout(300);
   await page.click('.k-pm-ok');
-  await page.waitForTimeout(700);
+  await settle(page);
 };
 
 // body 1 at the left, body 2 at the right (no contact)
@@ -97,7 +98,7 @@ let b = await B();
 check('two separate bosses give Solid Bodies(2)', b.bodies.length === 2 && Object.keys(b.errors).length === 0, JSON.stringify(b));
 check('tree shows Solid Bodies(2)', (await page.locator('.k-tree-row:has-text("Solid Bodies(2)")').count()) === 1);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('m1-two-bodies');
 
 await expandTree();
@@ -118,7 +119,7 @@ check('Show Body', (await B()).hidden.length === 0);
 // Material per body: 1060 Alloy on body 2
 await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2")').first().click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Material")');
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('.k-material-cat:has-text("Aluminium Alloys")');
 await page.click('.k-material-item:has-text("1060 Alloy")');
 await page.click('.k-material .k-dialog-actions button:has-text("Apply")');
@@ -153,11 +154,11 @@ for (let i = 0; i < n; i++) {
 }
 await shot('m4-combine-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 b = await B();
 check('Combine1 adds body1 + body3 -> two bodies left, no errors', b.bodies.length === 2 && Object.keys(b.errors).length === 0 && b.features.includes('Combine1'), JSON.stringify(b));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('m5-combined');
 
 // Feature Scope: a cut through everything only touches the body it reaches
@@ -165,7 +166,7 @@ await page.keyboard.press('Escape');
 await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
 await page.waitForTimeout(600);
 await page.evaluate(() => window.__phlippoZoomFit());
-await page.waitForTimeout(300);
+await settle(page);
 const cc = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 0 }));
 const cr = await page.evaluate(() => window.__phlippoProject({ x: 45, y: 0 }));
 await page.click('.k-cm-iconbtn[data-tip="Circle"]');
@@ -179,7 +180,7 @@ await page.waitForTimeout(400);
 await page.locator('.k-section:has-text("Direction 1") select.k-input').first().selectOption('throughAll');
 check('Feature Scope section appears with several bodies', (await page.locator('.k-section:has-text("Feature Scope")').count()) === 1);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 b = await B();
 check('cut applied without errors; bodies unchanged', b.bodies.length === 2 && Object.keys(b.errors).length === 0, JSON.stringify(b.errors));
 

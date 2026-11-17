@@ -1,10 +1,20 @@
 import type { Document } from './types';
 import { newId } from '../sketch/model';
 import { ENTITY_POINT_FIELDS, ENTITY_SCALAR_FIELDS, FEATURE_TYPES } from './featureTypes';
+import { featureProblem, MAX_INSTANCES } from './validateFeatures';
+import { encodePositions } from './positionCodec';
+import { migrateBodyIds } from './migrate';
 
 export const FILE_EXTENSION = '.kcad';
-/** the file format this build writes; older files pass through MIGRATIONS, newer ones are refused */
-export const FILE_VERSION = 2;
+/**
+ * The file format this build writes; older files pass through MIGRATIONS, a newer one opens with a warning.
+ * 3 (0.5.15): stable body ids (`<featureId>#<k>`, migrated from `body<N>`), imported mesh positions in base64,
+ * and the program version (`app`, `commit`) that wrote the file.
+ */
+export const FILE_VERSION = 3;
+/** the program version written into every file (vite define; 'dev' where the define is absent) */
+export const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';
+const APP_COMMIT: string = typeof __APP_COMMIT__ === 'string' ? __APP_COMMIT__ : '';
 const AUTOSAVE_KEY = 'phlippo.autosave';
 const AUTOSAVE_INDEX = 'phlippo.autosave.index';
 const AUTOSAVE_DOC_PREFIX = 'phlippo.autosave.doc.';
@@ -23,9 +33,21 @@ export class DocumentFormatError extends Error {
   }
 }
 
-/** Own file format: versioned JSON. */
-export function serializeDocument(doc: Document): string {
-  return JSON.stringify({ format: 'phlippo-cad', ...doc }, null, 2);
+/** imported mesh positions are written compactly (positionCodec.ts), in nested parts too */
+function compactPositions(this: unknown, key: string, value: unknown): unknown {
+  const list = Array.isArray(value) || ArrayBuffer.isView(value);
+  return key === 'positions' && list && isObj(this) && this.type === 'imported' ? encodePositions(value as ArrayLike<number>) : value;
+}
+
+/**
+ * Own file format: versioned JSON with the program version that wrote it. `pretty` indents the text (files the
+ * user saves); the autosave writes it without indentation.
+ */
+export function serializeDocument(doc: Document, pretty = true): string {
+  const { version: _v, ...rest } = doc;
+  void _v;
+  const head = { format: 'phlippo-cad', version: FILE_VERSION, app: APP_VERSION, ...(APP_COMMIT ? { commit: APP_COMMIT } : {}) };
+  return JSON.stringify({ ...head, ...rest }, compactPositions, pretty ? 2 : undefined);
 }
 
 type Raw = Record<string, unknown>;
@@ -54,7 +76,9 @@ export function checkStructure(raw: unknown): void {
     if (typeof v === 'number') {
       if (!Number.isFinite(v) || Math.abs(v) > MAX_FILE_NUMBER) throw new DocumentFormatError(`${where} holds a number out of range (${String(v)}).`);
     } else if (typeof v === 'string') {
-      if (v.length > 16 * 1024 * 1024) throw new DocumentFormatError(`${where} holds a text that is too long.`);
+      // a compact imported mesh is one long text; any other text stays below 16 MB
+      const max = where.endsWith('.positions') ? MAX_FILE_BYTES : 16 * 1024 * 1024;
+      if (v.length > max) throw new DocumentFormatError(`${where} holds a text that is too long.`);
     } else if (Array.isArray(v)) {
       for (let i = 0; i < v.length; i++) walk(v[i], depth + 1, `${where}[${i}]`);
     } else if (v && typeof v === 'object') {
@@ -126,6 +150,9 @@ const MIGRATIONS: Record<number, (raw: Raw) => Raw> = {
   0: (raw) => ({ ...raw, version: 1 }),
   // format 2 (0.3.6): the tolerancing data has a neutral field name; validateDocument renames it, in nested parts too
   1: (raw) => ({ ...raw, version: 2 }),
+  // format 3 (0.5.15): validateDocument rewrites old body names (migrate.ts) and reads plain position lists, in
+  // nested parts too, so a format 2 file needs nothing more here
+  2: (raw) => ({ ...raw, version: 3 }),
 };
 
 /** the field names of format 1 that format 2 renamed (QA F50) */
@@ -134,7 +161,7 @@ function renameOldFields(d: Raw): void {
     if (d.autoTolerance === undefined) d.autoTolerance = d.dimxpert;
     delete d.dimxpert;
   }
-  if (d.version === 1) d.version = FILE_VERSION;
+  if (typeof d.version !== 'number' || d.version < FILE_VERSION) d.version = FILE_VERSION;
   // QA v0.5.10 F165: files of 0.5.1 wrote the density file property with a vendor prefix; the equations are rewritten
   if (Array.isArray(d.equations)) for (const e of d.equations) if (isObj(e) && typeof e.expression === 'string') e.expression = e.expression.replace(/\bSW-Density\b/g, 'Density');
   // QA v0.5.10 F50: the frame feature had a program-specific default name; a name the user typed stays
@@ -189,6 +216,9 @@ export function validateDocument(raw: unknown, depth = 0): Document {
     const known = (id: string, orFeature: boolean) => (isObj(d.sketches) && id in (d.sketches as Raw)) || (orFeature && (d.features as Raw[]).some((x) => isObj(x) && x.id === id));
     for (const k of ['sketchId', 'sketchId2', 'pathSketchId'] as const) if (typeof f[k] === 'string' && !known(f[k] as string, k === 'pathSketchId')) throw new DocumentFormatError(`Feature "${f.name}" refers to a sketch that does not exist.`);
     if (Array.isArray(f.guides)) for (const g of f.guides) if (typeof g === 'string' && !known(g, true)) throw new DocumentFormatError(`Feature "${f.name}" refers to a guide sketch that does not exist.`);
+    // counts, lists and meshes per feature type (P2-7); compact mesh positions are decoded here
+    const problem = featureProblem(f);
+    if (problem) throw new DocumentFormatError(`Feature "${f.name}": ${problem}.`);
   });
   const ids = new Set<string>();
   for (const f of d.features as Raw[]) {
@@ -203,6 +233,11 @@ export function validateDocument(raw: unknown, depth = 0): Document {
     d.components.forEach((c, i) => validateComponent(c, i, depth));
     const ids = new Set((d.components as Raw[]).map((c) => c.id as string));
     d.mates.forEach((m, i) => validateMate(m, i, ids));
+    const badCount = (c: unknown) => c !== undefined && (!isNum(c) || (c as number) < 0 || (c as number) > MAX_INSTANCES);
+    const patterns = d.componentPatterns;
+    if (patterns !== undefined && (!Array.isArray(patterns) || patterns.some((p) => !isObj(p) || badCount(p.count) || badCount(p.count2)))) {
+      throw new DocumentFormatError(`A component pattern has no valid instance count (at most ${MAX_INSTANCES}).`);
+    }
   } else if (d.components !== undefined && d.components !== null && (!Array.isArray(d.components) || d.components.length)) throw new DocumentFormatError('Only an assembly has components.');
   if (d.kind === 'drawing') {
     if (!Array.isArray(d.sheets) || !d.sheets.length) throw new DocumentFormatError('The drawing has no sheet.');
@@ -216,10 +251,30 @@ export function validateDocument(raw: unknown, depth = 0): Document {
   if (d.scene !== undefined && !isObj(d.scene)) throw new DocumentFormatError('The scene is damaged.');
   // decals: only embedded images (data:) are allowed; a file:// or http URL would read other files or call home
   if (Array.isArray(d.decals)) d.decals = d.decals.filter((x) => isObj(x) && typeof x.image === 'string' && /^data:image\//i.test(x.image));
+  // body references of format 2 and older (body1, body2 …) point to the same bodies under their stable ids (P1-3)
+  migrateBodyIds(d);
   return d as unknown as Document;
 }
 
+/** true when version a (0.5.16) is newer than b (0.5.15); a version that is not dotted numbers ('dev') compares as not newer */
+export function isNewerVersion(a: string, b: string): boolean {
+  const parse = (v: string) => (/^\d+(\.\d+)*$/.test(v) ? v.split('.').map(Number) : null);
+  const x = parse(a), y = parse(b);
+  if (!x || !y) return false;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] ?? 0) !== (y[i] ?? 0)) return (x[i] ?? 0) > (y[i] ?? 0);
+  return false;
+}
+
 export function parseDocument(text: string): Document {
+  return readDocument(text).doc;
+}
+
+/**
+ * Reads a file. A file of a newer format or a newer program opens with a warning (P2-7): fields this version does
+ * not know are left out, so the model may differ; an unknown feature type is still refused. `appVersion` is the
+ * running program (a parameter for the tests).
+ */
+export function readDocument(text: string, appVersion = APP_VERSION): { doc: Document; warnings: string[] } {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
@@ -230,19 +285,27 @@ export function parseDocument(text: string): Document {
   let r: Raw = raw;
   if (r.format !== 'phlippo-cad') throw new DocumentFormatError('Unknown file format: expected a Phlippo CAD (.kcad) file.');
   let v = isNum(r.version) ? (r.version as number) : 0;
-  if (v > FILE_VERSION) throw new DocumentFormatError(`The file was saved by a newer Phlippo CAD (format ${v}); this version reads format ${FILE_VERSION}.`);
+  const warnings: string[] = [];
+  const by = typeof r.app === 'string' ? ` by Phlippo CAD ${r.app}` : ' by a newer Phlippo CAD';
+  const unknown = 'Data this version does not know is left out, so the model may differ; save it under another name.';
+  if (v > FILE_VERSION) {
+    warnings.push(`The file was saved in format ${v}${by}; this version (${appVersion}) writes format ${FILE_VERSION}. ${unknown}`);
+  }
+  else if (typeof r.app === 'string' && isNewerVersion(r.app, appVersion)) {
+    warnings.push(`The file was saved${by}, newer than this version (${appVersion}). ${unknown}`);
+  }
   while (v < FILE_VERSION) {
     const m = MIGRATIONS[v];
     if (!m) throw new DocumentFormatError(`No upgrade path from format ${v}.`);
     r = m(r);
     v = isNum(r.version) ? (r.version as number) : FILE_VERSION;
   }
-  const { format: _f, ...doc } = r;
-  void _f;
+  const { format: _f, app: _a, commit: _c, ...doc } = r;
+  void [_f, _a, _c];
   // fields added in later phases default when missing (files saved by phase 1); every document gets an id
   const d = validateDocument({ planes: {}, variables: {}, equations: [], ...doc });
   if (!d.id) d.id = newId('doc');
-  return d;
+  return { doc: d, warnings };
 }
 
 // ---- autosave: the main copy after every change, plus a per-document copy for Document Recovery ----
@@ -271,9 +334,79 @@ function readIndex(): AutosaveEntry[] {
   }
 }
 
+/** the autosave waits this long after the last change (P2-6: one write per pause, not one per edit or drag step) */
+export const AUTOSAVE_DELAY = 2000;
+/** … but never longer than this while changes keep coming */
+const AUTOSAVE_MAX_WAIT = 10_000;
+let pending: Document | null = null;
+let timer: ReturnType<typeof setTimeout> | null = null;
+let pendingSince = 0;
+/** the stored copy when the wait began: when something else replaced it meanwhile (another window, a test that
+ * puts the user's own autosave back, Clear autosave) the waiting copy does not overwrite it */
+let storedAtStart: string | null = null;
+let pageHooked = false;
+
+/**
+ * Schedules the autosave of `doc`: written ≈2 s after the last change (when the page is idle, where the browser
+ * says so), at once when the page is hidden or closed. Returns false when there is no storage at all.
+ */
 export function autosave(doc: Document): boolean {
+  if (typeof localStorage === 'undefined') return false;
+  const now = Date.now();
+  if (!pending) {
+    pendingSince = now;
+    try {
+      storedAtStart = localStorage.getItem(AUTOSAVE_KEY);
+    } catch {
+      storedAtStart = null;
+    }
+  }
+  pending = doc;
+  hookPage();
+  if (timer !== null) clearTimeout(timer);
+  const wait = Math.max(0, Math.min(AUTOSAVE_DELAY, pendingSince + AUTOSAVE_MAX_WAIT - now));
+  timer = setTimeout(() => {
+    const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o: { timeout: number }) => number }).requestIdleCallback;
+    if (idle) idle(() => flushAutosave(), { timeout: AUTOSAVE_DELAY });
+    else flushAutosave();
+  }, wait);
+  return true;
+}
+
+function hookPage(): void {
+  if (pageHooked || typeof window === 'undefined' || typeof document === 'undefined') return;
+  pageHooked = true;
+  window.addEventListener('pagehide', () => flushAutosave());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushAutosave();
+  });
+}
+
+/** writes a waiting autosave now; false when nothing was waiting or the write failed */
+export function flushAutosave(): boolean {
+  if (timer !== null) clearTimeout(timer);
+  timer = null;
+  const doc = pending;
+  pending = null;
+  if (!doc) return false;
   try {
-    const text = serializeDocument(doc);
+    if (localStorage.getItem(AUTOSAVE_KEY) !== storedAtStart) return false;
+  } catch {
+    /* the write below reports it */
+  }
+  return writeAutosave(doc);
+}
+
+/** a waiting autosave is dropped (the document was closed, or the autosave cleared) */
+export function cancelAutosave(): void {
+  if (timer !== null) clearTimeout(timer);
+  timer = null;
+  pending = null;
+}
+
+function writeAutosave(doc: Document): boolean {
+  try {
+    const text = serializeDocument(doc, false);
     localStorage.setItem(AUTOSAVE_KEY, text);
     if (text.length <= AUTOSAVE_COPY_MAX) {
       const id = doc.id ?? doc.name;
@@ -298,6 +431,7 @@ export function autosave(doc: Document): boolean {
 }
 
 export function loadAutosave(): Document | null {
+  flushAutosave();
   try {
     const t = localStorage.getItem(AUTOSAVE_KEY);
     return t ? parseDocument(t) : null;
@@ -308,10 +442,12 @@ export function loadAutosave(): Document | null {
 
 /** the recovery copies, newest first */
 export function listAutosaves(): AutosaveEntry[] {
+  flushAutosave();
   return readIndex().sort((a, b) => b.time - a.time);
 }
 
 export function loadAutosaveEntry(key: string): Document | null {
+  flushAutosave();
   try {
     const t = localStorage.getItem(key);
     return t ? parseDocument(t) : null;
@@ -321,6 +457,7 @@ export function loadAutosaveEntry(key: string): Document | null {
 }
 
 export function clearAutosave(): void {
+  cancelAutosave();
   try {
     localStorage.removeItem(AUTOSAVE_KEY);
     for (const e of readIndex()) localStorage.removeItem(e.key);

@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -43,7 +44,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(1200);
+await settle(page);
 const vol = async () => { await waitSettled(page); return S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0); }); };
 await page.click('.k-tree-row[data-id="e1"] .caret');
 await page.waitForTimeout(200);
@@ -58,10 +59,10 @@ await S(() => {
   s.setSelectedFace({ bodyId: b.id, faceId: f.id });
   s.startDeleteFace();
 });
-await page.waitForTimeout(300);
+await settle(page);
 check('Delete Face PM with the picked face', (await page.locator('[data-testid="deleteface-faces"]').innerText()).includes('Face<'));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(800);
+await settle(page, { quiet: 300 });
 const v1 = await vol();
 check('Delete and Patch fills the hole (volume grows by about π·5²·15)', v1 - v0 > 1000 && v1 - v0 < 1300, `${v0} -> ${v1}`);
 await page.screenshot({ path: `${OUT}/blockf-deleteface.png` });
@@ -72,7 +73,7 @@ await S(() => {
   const s = window.__phlippoStore.getState();
   s.newSketch('top');
 });
-await page.waitForTimeout(300);
+await settle(page);
 const sid = await S(() => window.__phlippoStore.getState().activeSketchId);
 const pid = await S((sid) => {
   const K = window.__phlippoKit;
@@ -82,14 +83,14 @@ const pid = await S((sid) => {
   return id;
 }, sid);
 await S((pid) => window.__phlippoStore.setState({ selection: [{ kind: 'point', id: pid }] }), pid);
-await page.waitForTimeout(300);
+await settle(page);
 check('Pierce offered for one point', (await page.locator('[data-testid="rel-pierce"]').count()) === 1);
 await page.click('[data-testid="rel-pierce"]');
 await page.waitForTimeout(300);
 const px = await S(({ sid, pid }) => window.__phlippoStore.getState().doc.sketches[sid].points[pid], { sid, pid });
 check('Pierce moves the point onto the path (x = 12)', Math.abs(px.x - 12) < 1e-3, JSON.stringify(px));
 await S(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(300);
+await settle(page);
 
 // Sketch Color
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Sketch Color', { ...s.doc, sketches: { ...s.doc.sketches, s2: { ...s.doc.sketches.s2, color: '#d0342c' } } }); });

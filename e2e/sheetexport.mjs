@@ -6,6 +6,7 @@ import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -28,7 +29,7 @@ await page.waitForTimeout(2500);
 const info = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sh = s.doc.sheets[0]; return { views: sh.views.length, dims: sh.dimensions.length, size: sh.size, landscape: sh.landscape }; });
 // a view selected: its blue frame must not end up in the file
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.selectDrawingView(s.doc.sheets[0].views[0].id); });
-await page.waitForTimeout(200);
+await settle(page);
 
 const save = async (label) => {
   await page.hover('.k-brand');

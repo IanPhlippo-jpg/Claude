@@ -5,6 +5,7 @@ import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { menuPath } from './lib/menu.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -82,7 +83,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(900);
+await settle(page);
 const v0 = (await volumes())[0];
 check('the part opens: plate and round pad', Math.abs(v0 - (48000 + Math.PI * 225 * 5)) < 30, String(v0));
 const up = await S(() => { const fs = window.__phlippoStore.getState().rebuild.bodies[0].faces.filter((x) => !x.curved).sort((a, b) => b.area - a.area).slice(0, 2); const d = (f) => f.centroid.reduce((s, c, k) => s + c * f.normal[k], 0); return (d(fs[0]) > d(fs[1]) ? fs[0] : fs[1]).normal.map((x) => Math.round(x)); });
@@ -105,7 +106,7 @@ check('Dome1 adds the sphere segment (Ø30, 6 high)', Math.abs(v1 - v0 - cap) / 
 check('Dome1 is in the tree with its icon', (await page.locator('.k-tree-row:has-text("Dome1")').count()) === 1);
 // edit: Reverse makes it a dimple
 await S(() => { const st = window.__phlippoStore.getState(); const f = st.doc.features.find((x) => x.type === 'dome'); st.editFeature(f.id); });
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('[data-testid="dome-reverse"]').click();
 await page.waitForTimeout(400);
 await ok();
@@ -154,14 +155,14 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(900);
+await settle(page);
 check('plate and block are two bodies', (await volumes()).length === 2, JSON.stringify(await volumes()));
 await insert('Features ▸ Indent…');
 check('the Indent panel asks for the target body first', (await page.locator('[data-testid="indent-target"]').getAttribute('class')).includes('focus'));
 await S(() => { const st = window.__phlippoStore.getState(); const b = st.rebuild.bodies.find((x) => x.featureIds.includes('e1')); st.setSelectedFace({ bodyId: b.id, faceId: b.faces[0].id }); });
-await page.waitForTimeout(200);
+await settle(page);
 await S(() => { const st = window.__phlippoStore.getState(); const b = st.rebuild.bodies.find((x) => x.featureIds.includes('e2')); st.setSelectedFace({ bodyId: b.id, faceId: b.faces[0].id }); });
-await page.waitForTimeout(400);
+await settle(page);
 check('target Plate and tool Block are filled in', (await page.locator('[data-testid="indent-target"]').innerText()).includes('Plate') && (await page.locator('[data-testid="indent-tool"]').innerText()).includes('Block'));
 await field('indent-thickness', 1);
 await field('indent-clearance', 0.5);
@@ -193,7 +194,7 @@ await S(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(900);
+await settle(page);
 const lv0 = await volumes();
 check('the two halves are two bodies', lv0.length === 2, JSON.stringify(lv0));
 const rim = (featureId, sign) => S(({ featureId, sign, n }) => {

@@ -5,6 +5,7 @@
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { exitCode } from './lib/check.mjs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -63,12 +64,12 @@ await setPref('snaps.tangent', true);
 
 // Name feature on creation: OK opens the new feature's name for typing
 await S(() => window.__phlippoStore.getState().exitSketch());
-await page.waitForTimeout(300);
+await settle(page);
 await setPref('fm.nameOnCreation', true);
 await S(() => window.__phlippoStore.getState().startFeature('extrude', 'boss'));
-await page.waitForTimeout(500);
+await settle(page);
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 const box = page.locator('.k-tree input.k-input');
 const focused = await S(() => document.activeElement?.tagName === 'INPUT' && /Extrude/.test(document.activeElement.value));
 check('Name feature on creation: the new feature name is open for typing', (await box.count()) === 1 && focused, String(await box.count()));
@@ -81,10 +82,10 @@ check('the typed name is the feature name', names.includes('Plaat'), JSON.string
 // off (the default): no name box after OK
 await setPref('fm.nameOnCreation', false);
 await S(() => window.__phlippoStore.getState().startFeature('extrude', 'boss'));
-await page.waitForTimeout(300);
+await settle(page);
 const before = (await S(() => window.__phlippoStore.getState().doc.features.length));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(600);
+await settle(page);
 const after = (await S(() => window.__phlippoStore.getState().doc.features.length));
 check('Name feature on creation off: no name box', (await box.count()) === 0, JSON.stringify({ before, after }));
 

@@ -4,6 +4,7 @@ import { exitCode } from './lib/check.mjs';
 // Balloon shape, Break line style, Auxiliary arrow, Sheet Properties next view label, custom sheet size.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -28,7 +29,7 @@ await page.evaluate(() => { const p = JSON.parse(localStorage.getItem('phlippo.p
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.evaluate(() => window.__phlippoStore.getState().setDialog('sheetFormat'));
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-dialog label:has-text("Custom sheet size") input');
 await page.fill('[data-testid="sf-width"]', '400');
 await page.fill('[data-testid="sf-height"]', '250');
@@ -41,10 +42,10 @@ check('Start command when creating new drawing off: no Model View', !de0, JSON.s
 
 // Model View: preview off shows only the frame; import annotations; auto-start projected off
 await page.evaluate(() => window.__phlippoStore.getState().startModelView());
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="mv-autoprojected"]');
 await page.evaluate((m) => window.__phlippoStore.getState().setModelViewSource(m), part);
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="mv-preview"]');
 await page.click('.k-section-title:has-text("Import Options")');
 await page.click('[data-testid="mv-import"]');
@@ -55,7 +56,7 @@ check('Preview off: only the view frame follows the pointer', (await page.locato
 // the reload above reset the pref module; set it in the running app as well
 await page.evaluate(() => { /* prefs are read when the view is placed */ });
 await page.evaluate(() => window.__phlippoStore.getState().placeView([120, 160]));
-await page.waitForTimeout(800);
+await settle(page);
 sh = await sheet();
 const de1 = await page.evaluate(() => window.__phlippoStore.getState().drawingEdit);
 check('Import annotations: the model dimensions come with the view', sh.dimensions.length > 0, String(sh.dimensions.length));
@@ -64,10 +65,10 @@ const front = sh.views[0];
 
 // Projected View with Arrow
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startProjectedView(); }, front.id);
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="pv-arrow"]');
 await page.evaluate((id) => window.__phlippoStore.getState().placeProjectedView('right', [240, 160], id), front.id);
-await page.waitForTimeout(800);
+await settle(page);
 sh = await sheet();
 const pv = sh.views[sh.views.length - 1];
 check('Projected view with arrow label', !!pv.arrowLabel && (await page.locator('[data-testid="view-arrow-label"]').count()) === 1, pv.arrowLabel);
@@ -75,11 +76,11 @@ await page.evaluate(() => window.__phlippoStore.getState().cancelDrawingEdit());
 
 // Detail view: Profile (rectangle) with Connected style
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDetailView(); }, front.id);
-await page.waitForTimeout(200);
+await settle(page);
 await page.selectOption('[data-testid="dv-style"]', 'connected');
 await page.click('[data-testid="dv-profile"]');
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.setDetailCircle(id, [10, 10], Math.hypot(8, 5), [8, 5]); s.placeDetailView([320, 80]); }, front.id);
-await page.waitForTimeout(900);
+await settle(page);
 sh = await sheet();
 const dv = sh.views[sh.views.length - 1];
 check('Detail profile is a rectangle, style connected', dv.detail && dv.detail.rect && dv.detail.style === 'connected', JSON.stringify(dv.detail));
@@ -87,7 +88,7 @@ check('detail view bounds follow the rectangle', await page.evaluate((v) => { re
 
 // Note with leader, box border and centred text
 await page.evaluate(() => window.__phlippoStore.getState().startNote?.());
-await page.waitForTimeout(200);
+await settle(page);
 const noteOpen = await page.evaluate(() => window.__phlippoStore.getState().drawingEdit?.mode === 'note');
 if (!noteOpen) await page.evaluate(() => window.__phlippoStore.setState({ drawingEdit: { mode: 'note', orientation: 'front', multiple: false, displayStyle: 'hiddenRemoved', useCustomScale: false, scale: [1, 1] } }));
 await page.waitForTimeout(200);
@@ -97,7 +98,7 @@ await page.click('[data-testid="note-align-center"]');
 await page.click('.k-section-title:has-text("Border")');
 await page.selectOption('[data-testid="note-border"]', 'box');
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.placeNote([120, 150]); s.placeNote([170, 60]); });
-await page.waitForTimeout(400);
+await settle(page);
 sh = await sheet();
 const note = sh.notes[sh.notes.length - 1];
 check('Note with leader, box border, centred', note && note.anchor && note.border === 'box' && note.align === 'center', JSON.stringify(note));
@@ -105,24 +106,24 @@ check('note box drawn', (await page.locator('g.k-note[data-border="box"] rect').
 
 // Break with curve style
 await page.evaluate((id) => window.__phlippoStore.getState().setViewBreak(id, { axis: 'x', a: -5, b: 5, gap: 4, style: 'curve' }), front.id);
-await page.waitForTimeout(500);
+await settle(page);
 check('Break line style curve', (await page.locator('g.k-break-lines[data-style="curve"]').count()) === 1);
 await page.evaluate(() => window.__phlippoStore.getState().undo());
 
 // Draft quality and Projected / True dimension type on the view
 await page.evaluate((id) => window.__phlippoStore.getState().updateDrawingView(id, { draftQuality: true, threadDraft: true }), front.id);
-await page.waitForTimeout(600);
+await settle(page);
 sh = await sheet();
 check('Draft quality stored on the view', sh.views[0].draftQuality === true && sh.views[0].threadDraft === true);
 
 // Sheet Properties: next view label
 await page.evaluate(() => window.__phlippoStore.getState().setDialog('sheetProperties'));
-await page.waitForTimeout(200);
+await settle(page);
 await page.fill('[data-testid="sp-viewlabel"]', 'K');
 await page.click('.k-dialog button:has-text("Apply Changes")');
 await page.waitForTimeout(300);
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDetailView(); s.setDetailCircle(id, [0, 0], 6); s.placeDetailView([330, 200]); }, front.id);
-await page.waitForTimeout(800);
+await settle(page, { quiet: 300 });
 sh = await sheet();
 check('Next view label K is used', sh.views[sh.views.length - 1].detail?.label === 'K', sh.views[sh.views.length - 1].detail?.label);
 await page.screenshot({ path: `${OUT}/dwgopts.png` });

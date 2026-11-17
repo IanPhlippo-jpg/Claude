@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -43,7 +44,7 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Loft1")').last().dblclick();
 await page.waitForTimeout(400);
 // the top face of the block, selected
@@ -53,12 +54,12 @@ await page.evaluate(() => {
   const f = b.faces.find((f) => f.normal[1] > 0.999 && Math.abs(f.centroid[1] - 20) < 1e-6);
   window.__phlippoStore.setState({ selectedFace: { bodyId: b.id, faceId: f.id } });
 });
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="loft-face2"]');
 await page.waitForTimeout(400);
 check('Profiles: Sketch2 and Face<1>', (await page.locator('[data-testid="loft-profiles"]').innerText()).includes('Face<1>'), await page.locator('[data-testid="loft-profiles"]').innerText());
 await page.click('.k-section-title:has-text("Start/End Constraints")');
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="loft-end"]').selectOption('curvature');
 await page.waitForTimeout(300);
 check('End constraint offers Curvature To Face with Next Face', (await page.locator('[data-testid="loft-end-nextface"]').count()) === 1);
@@ -66,7 +67,7 @@ await page.click('[data-testid="loft-end-nextface"]');
 await page.waitForTimeout(300);
 await page.screenshot({ path: `${OUT}/loftface-pm.png` });
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 let r = await page.evaluate(() => {
   const s = window.__phlippoStore.getState();
   const f = s.doc.features.find((x) => x.id === 'l1');
@@ -77,7 +78,7 @@ let r = await page.evaluate(() => {
 check('Loft1 runs from the circle onto the face: one body up to y = 60, no errors', r.face2 && r.sketchId2 === '' && r.bodies === 1 && Math.abs(r.maxY - 60) < 0.5 && Object.keys(r.errors).length === 0, JSON.stringify(r));
 check('Curvature To Face with Next Face stored', r.endType === 'curvature' && r.endFace === 1, JSON.stringify(r));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await page.screenshot({ path: `${OUT}/loftface-model.png` });
 
 // ---- Face Fillet ▸ Hold line in its panel: the method select shows the hold line box
@@ -92,9 +93,9 @@ await page.evaluate(() => {
   window.__phlippoStore.getState().openDocument(d);
   window.__phlippoStore.getState().startRound('fillet');
 });
-await page.waitForTimeout(400);
+await settle(page);
 await page.click('[data-testid="fillet-type-face"]');
-await page.waitForTimeout(200);
+await settle(page);
 await page.locator('[data-testid="fillet-method"]').selectOption('hold');
 await page.waitForTimeout(200);
 check('Face Fillet ▸ Hold line: the hold line box asks for an edge', (await page.locator('[data-testid="fillet-holdline"]').innerText()).includes('Select the hold line'));
@@ -108,10 +109,10 @@ await page.evaluate(() => {
   const hold = b.edges.find((e) => e.straight && Math.abs(e.centroid.y - 20) < 1e-6 && Math.abs(e.centroid.z) < 1e-6);
   window.__phlippoStore.getState().toggleSelectedEdge(hold.id);
 });
-await page.waitForTimeout(300);
+await settle(page);
 check('the picked edge is the hold line', (await page.locator('[data-testid="fillet-holdline"]').innerText()).includes('Edge<1>'));
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 await waitSettled(page);
 r = await page.evaluate(() => {
   const s = window.__phlippoStore.getState();

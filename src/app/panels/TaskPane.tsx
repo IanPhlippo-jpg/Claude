@@ -11,7 +11,7 @@ import { relationLabel } from '../../core/sketch/relations';
 import { round, Kbd } from '../../ui/components';
 import { SHORTCUTS } from '../shortcuts';
 import { openFileDialog, withUnsavedCheck } from '../MenuBar';
-import { listAutosaves, loadAutosaveEntry, parseDocument } from '../../core/document/persistence';
+import { listAutosaves, loadAutosaveEntry, readDocument } from '../../core/document/persistence';
 import { listDiskRecovery, readDiskRecovery } from '../autoRecover';
 import { setDocumentHandle, type RecoverEntry } from '../desktop';
 import { explorerRecent, recentDocuments } from '../prefsEffects';
@@ -345,7 +345,9 @@ function RecoveryPane() {
     void readDiskRecovery(name).then((text) => {
       try {
         if (!text) throw new Error('empty');
-        recover(parseDocument(text));
+        const read = readDocument(text);
+        recover(read.doc);
+        for (const w of read.warnings) useStore.getState().pushMessage(w, 'warn');
       } catch {
         useStore.getState().pushMessage('The recovered document could not be read.', 'error');
       }

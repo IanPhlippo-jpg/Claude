@@ -76,25 +76,92 @@ export function renameOldKeys(p: Record<string, PrefValue>): Record<string, Pref
   return out;
 }
 
-export function loadPrefs(): Record<string, PrefValue> {
+/**
+ * Two layers (QA 0.5.14 advice P2-1, P2-2): the System Options of the user (localStorage, never `doc.*`) and the
+ * Document Properties of the open document (`doc.*`, stored in the document). `current` is both together; getPref reads
+ * it, so the viewport and the dimensions use the open document's properties at once.
+ */
+let docProps: Record<string, PrefValue> = {};
+const listeners = new Set<(p: Record<string, PrefValue>) => void>();
+/** the store follows every write, from whatever path it comes (Options, Material dialog, favourites …) */
+export function onPrefsChanged(cb: (p: Record<string, PrefValue>) => void): () => void {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+const isDocKey = (k: string) => k.startsWith('doc.');
+
+function readStored(): Record<string, PrefValue> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) current = { ...DEFAULT_PREFS, ...renameOldKeys(JSON.parse(raw) as Record<string, PrefValue>) };
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, PrefValue>;
+    const out: Record<string, PrefValue> = {};
+    // doc.* in an older profile came from the documents of an earlier session: they are not system options
+    for (const [k, v] of Object.entries(renameOldKeys(parsed))) if (!isDocKey(k)) out[k] = v;
+    return out;
   } catch {
-    /* storage unavailable */
+    return {};
   }
+}
+
+function recompute(stored: Record<string, PrefValue>): Record<string, PrefValue> {
+  current = { ...DEFAULT_PREFS, ...stored, ...docProps };
+  for (const cb of listeners) cb(current);
   return current;
 }
 
-export function savePrefs(prefs: Record<string, PrefValue>): void {
-  current = prefs;
-  try {
-    const changed: Record<string, PrefValue> = {};
-    for (const [k, v] of Object.entries(prefs)) if (v !== DEFAULT_PREFS[k]) changed[k] = v;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(changed));
-  } catch {
-    /* ignore */
+export function loadPrefs(): Record<string, PrefValue> {
+  return recompute(readStored());
+}
+
+/**
+ * The Document Properties a file may set: only `doc.*` keys that exist, with the type of their default. A file never
+ * sets system options (rebuild worker, Auto-Recover, keyboard shortcuts …).
+ */
+export function documentProperties(raw: unknown): Record<string, PrefValue> {
+  const out: Record<string, PrefValue> = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (isDocKey(k) && k in DEFAULT_PREFS && typeof v === typeof DEFAULT_PREFS[k]) out[k] = v as PrefValue;
   }
+  return out;
+}
+
+/** a document was opened or made: its properties replace those of the previous one (nothing leaks between documents) */
+export function setDocumentProperties(raw: unknown): Record<string, PrefValue> {
+  docProps = documentProperties(raw);
+  return recompute(readStored());
+}
+
+/**
+ * Write some options on top of what is stored now (one write path for every caller): keys saved elsewhere since the
+ * session started are kept. `doc.*` keys only change the open document's layer; the caller stores them in the document.
+ */
+export function patchPrefs(patch: Record<string, PrefValue>): Record<string, PrefValue> {
+  const stored = readStored();
+  for (const [k, v] of Object.entries(patch)) {
+    if (isDocKey(k)) docProps[k] = v;
+    else if (v === DEFAULT_PREFS[k]) delete stored[k];
+    else stored[k] = v;
+  }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  } catch {
+    /* storage unavailable */
+  }
+  return recompute(stored);
+}
+
+/** the keys of `next` that differ from `base` (Options ▸ OK writes only what the user changed in the dialog) */
+export function changedPrefs(next: Record<string, PrefValue>, base: Record<string, PrefValue>): Record<string, PrefValue> {
+  const out: Record<string, PrefValue> = {};
+  for (const [k, v] of Object.entries(next)) if (v !== (base[k] ?? DEFAULT_PREFS[k])) out[k] = v;
+  return out;
+}
+
+/** @deprecated kept for older callers: writes the given set as a patch (never drops keys saved elsewhere) */
+export function savePrefs(prefs: Record<string, PrefValue>): void {
+  patchPrefs(prefs);
 }
 
 /** Read an option from anywhere (viewport, scene, shortcuts). */

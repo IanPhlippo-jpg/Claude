@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -31,11 +32,11 @@ const top = (await sheet()).views.find((v) => v.type === 'top');
 
 const section = async (opts, pos) => {
   await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDrawingSection('v'); }, top.id);
-  await page.waitForTimeout(200);
+  await settle(page);
   for (const o of opts) await page.click(`[data-testid="${o}"]`);
   await page.evaluate((id) => window.__phlippoStore.getState().setSectionLine(id, 0), top.id);
   await page.evaluate((p) => window.__phlippoStore.getState().placeSectionView(p), pos);
-  await page.waitForTimeout(1200);
+  await settle(page);
   const s = await sheet();
   return s.views[s.views.length - 1];
 };
@@ -51,7 +52,7 @@ await page.evaluate(() => window.__phlippoStore.getState().undo());
 // Slice section + custom scale
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView(null));
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDrawingSection('v'); }, top.id);
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-section-title:has-text("Section View")');
 await page.click('[data-testid="sv-slice"]');
 await page.click('.k-section-title:has-text("Scale")');
@@ -59,7 +60,7 @@ await page.click('[data-testid="sv-customscale"]');
 await page.selectOption('[data-testid="sv-scale"]', '2:1');
 await page.evaluate((id) => window.__phlippoStore.getState().setSectionLine(id, 0), top.id);
 await page.evaluate(() => window.__phlippoStore.getState().placeSectionView([300, 208]));
-await page.waitForTimeout(1000);
+await settle(page);
 let s = await sheet();
 let sv = s.views[s.views.length - 1];
 check('Slice section with custom scale 2 : 1', sv.section?.slice === true && sv.scale?.[0] === 2 && sv.scale?.[1] === 1, JSON.stringify({ sec: sv.section, scale: sv.scale }));
@@ -71,7 +72,7 @@ await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm
 await page.waitForTimeout(2500);
 const afront = (await sheet()).views.find((v) => v.type === 'front');
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDrawingSection('h'); }, afront.id);
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-section-title:has-text("Section View")');
 await page.click('[data-testid="sv-autohatch"]');
 await page.click('[data-testid="sv-partial"]');
@@ -89,13 +90,13 @@ await page.screenshot({ path: `${OUT}/drawopts-autohatch.png` });
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), drw);
 await page.waitForTimeout(2000);
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDetailView(); }, front.id);
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('.k-section-title:has-text("Detail View")');
 await page.click('[data-testid="dv-jagged"]');
 await page.click('[data-testid="dv-pin"]');
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.setDetailCircle(id, [0, 0], 12); s.setDetailCircle(id, [0, 0], 12); }, front.id);
 await page.evaluate(() => window.__phlippoStore.getState().placeDetailView([330, 90]));
-await page.waitForTimeout(1000);
+await settle(page);
 s = await sheet();
 const det = s.views[s.views.length - 1];
 check('Detail View: Jagged outline drawn, not pinned', det.detail?.outline === 'jagged' && det.detail?.pinned === false && (await page.locator('.k-detail-outline').count()) === 1, JSON.stringify(det.detail));
@@ -154,12 +155,12 @@ check('Delete removes the selected dimension', !(await sheet()).dimensions.some(
 
 // Model Items without the sketch placement: the texts go outside the view outline
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), { ...drw, sheets: [{ ...drw.sheets[0], dimensions: [] }] });
-await page.waitForTimeout(1500);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().startModelItems());
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="mi-placement"]');
 await page.evaluate(() => window.__phlippoStore.getState().insertModelItems());
-await page.waitForTimeout(500);
+await settle(page);
 const outside = await page.evaluate(() => {
   const sh = window.__phlippoStore.getState().doc.sheets[0];
   return sh.dimensions.filter((d) => d.kind === 'linear').map((d) => { const b = window.__phlippoSheet.bounds(d.viewId); const p = window.__phlippoSheet.viewToSheet(d.viewId, d.label); const o = p[0] < b.x || p[0] > b.x + b.w || p[1] < b.y || p[1] > b.y + b.h; return o ? true : JSON.stringify({ or: d.orientation, a: d.a, b: d.b, l: d.label, p, bx: b }); });
@@ -170,7 +171,7 @@ check('Model Items ▸ no sketch placement: linear dimension texts outside the v
 const fv = (await sheet()).views.find((v) => v.type === 'front');
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startBrokenOut(); }, fv.id);
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.addBrokenOutPoint(id, [-10, -10], false); s.addBrokenOutPoint(id, [10, -10], false); s.addBrokenOutPoint(id, [10, 10], false); s.addBrokenOutPoint(id, [-10, 10], false); s.addBrokenOutPoint(id, [-10, -10], true); }, fv.id);
-await page.waitForTimeout(200);
+await settle(page);
 const before = await page.locator('.k-bo-outline').count();
 await page.click('[data-testid="bo-preview"]');
 await page.waitForTimeout(1200);
@@ -179,13 +180,13 @@ await page.evaluate(() => window.__phlippoStore.getState().cancelDrawingEdit());
 
 // Weld contour and balloon attached to an edge
 await page.evaluate(() => window.__phlippoStore.getState().startSymbol('weld'));
-await page.waitForTimeout(150);
+await settle(page);
 await page.selectOption('[data-testid="weld-contour"]', 'vgroove');
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.addSymbol({ kind: 'weld', position: [200, 120], anchor: [190, 110], text: '5', contour: s.drawingEdit.weldContour }); });
-await page.waitForTimeout(150);
+await settle(page);
 check('Weld Symbol ▸ Contour V-groove', (await page.locator('[data-contour="vgroove"]').count()) === 1);
 await page.evaluate(() => window.__phlippoStore.getState().startSymbol('autoBalloon'));
-await page.waitForTimeout(150);
+await settle(page);
 await page.click('[data-testid="balloon-edges"]');
 await page.click(`[data-testid="balloon-layout-top"]`);
 const ab = await page.evaluate((id) => window.__phlippoSheet.toPx((window.__phlippoStore.getState().doc.sheets[0].views.find((v) => v.id === id).position)), fv.id);
@@ -196,11 +197,11 @@ check('Auto Balloon ▸ Leader attachment Edges: arrow on an edge', heads.length
 
 // Use parent scale of a section view
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDrawingSection('v'); s.setDrawingEdit({ useCustomScale: true, scale: [2, 1] }); s.setSectionLine(id, 0); s.placeSectionView([300, 150]); }, fv.id);
-await page.waitForTimeout(1000);
+await settle(page);
 const secId = await page.evaluate(() => { const v = window.__phlippoStore.getState().doc.sheets[0].views; return v[v.length - 1].id; });
 await page.evaluate((id) => window.__phlippoStore.getState().selectDrawingView(id), secId);
 await page.evaluate(() => window.__phlippoStore.getState().setManagerTab('properties'));
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="dv-parentscale"]');
 await page.waitForTimeout(300);
 const secScale = await page.evaluate((id) => window.__phlippoStore.getState().doc.sheets[0].views.find((v) => v.id === id).scale, secId);

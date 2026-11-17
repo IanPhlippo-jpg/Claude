@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -35,7 +36,7 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await settle(page);
 const v0 = await volume();
 // the circular edge at the end of the shank (y = -40)
 await page.evaluate(() => {
@@ -45,7 +46,7 @@ await page.evaluate(() => {
   window.__phlippoStore.setState({ selectedEdges: [e.id] });
   s.startThread();
 });
-await page.waitForTimeout(300);
+await settle(page);
 const pm = await page.evaluate(() => { const d = window.__phlippoStore.getState().featureEdit?.draft; return d && { size: d.size, internal: d.edge?.internal, label: d.edge?.label, name: d.name }; });
 check('Thread PM takes the shank edge and proposes M14x2.0 (Metric Die)', pm && pm.size === 'M14x2.0' && pm.internal === false && /Edge</.test(pm.label), JSON.stringify(pm));
 await page.locator('.k-pm-host input.k-num').nth(1).fill('30');

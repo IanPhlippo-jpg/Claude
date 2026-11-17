@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -23,7 +24,7 @@ await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 tek.sheets[0].views = tek.sheets[0].views.filter((v) => !v.section && !v.detail);
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
-await page.waitForTimeout(1200);
+await settle(page);
 const toPx = (p) => page.evaluate((q) => window.__phlippoSheet.toPx(q), p);
 const click = async (p) => { const q = await toPx(p); await page.mouse.click(q.x, q.y); await page.waitForTimeout(200); };
 const v2s = (id, p) => page.evaluate(([vid, q]) => window.__phlippoSheet.viewToSheet(vid, q), [id, p]);
@@ -65,7 +66,7 @@ await page.evaluate(() => {
   d.sheets[0].views = [{ id: 'p1', name: 'Drawing View1', type: 'front', position: [150, 160], displayStyle: 'hiddenRemoved', model: part, modelName: 'Plaat<1>' }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(1000);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-small:has-text("Area Hatch/Fill")');
 await click([150 - 30, 160 + 20]);

@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -22,7 +23,7 @@ await page.waitForTimeout(500);
 await page.click('.k-doctype:has-text("Part")');
 const tek = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk-tekening.kcad', 'utf8')); delete tek.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), tek);
-await page.waitForTimeout(1200);
+await settle(page);
 const toPx = (p) => page.evaluate((q) => window.__phlippoSheet.toPx(q), p);
 const views = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.map((v) => ({ id: v.id, type: v.type, pos: v.position, section: !!v.section, detail: !!v.detail })));
 const front = views.find((v) => v.type === 'front' && !v.section && !v.detail);
@@ -59,7 +60,7 @@ await page.evaluate((model) => {
   d.sheets[0].views = [{ id: 'v1', name: 'Drawing View1', type: 'isometric', position: [200, 160], displayStyle: 'hiddenRemoved', model: { ...model, kind: 'assembly' }, modelName: 'Deurkruk' }];
   window.__phlippoStore.getState().openDocument(d);
 }, asm);
-await page.waitForTimeout(1500);
+await settle(page);
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-small:has-text("Auto Balloon")');
 q = await toPx([200, 160]); await page.mouse.click(q.x, q.y);

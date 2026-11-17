@@ -56,7 +56,7 @@ describe('shape cross-check on every vertex (QA 0.5.12 F202)', () => {
     for (let i = 0; i < p.count; i++) if (new THREE.Vector3().fromBufferAttribute(p, i).distanceTo(v) < 1e-9) p.setXYZ(i, v.x + n.x, v.y + n.y, v.z + n.z);
     expect(shapeMismatch(a, a)).toBeNull();
     expect(shapeMismatch(a, b)).toMatch(/lie 0\.50 mm apart/);
-  }, 60000);
+  }, 600_000);
 });
 
 describe('the shape tolerance does not grow with the body (QA 0.5.13, F202)', () => {

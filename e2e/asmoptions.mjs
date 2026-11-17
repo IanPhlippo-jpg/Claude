@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -51,7 +52,7 @@ await page.click('.k-cm-tab:has-text("Assembly")');
 
 // ---- Mate: preview moves the component before OK; Show popup dialog off hides the popup
 await page.evaluate(() => window.__phlippoStore.getState().startMate());
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="mate-popup-opt"]');
 const x0 = (await centre('c2'))[0];
 await pick('c1', [1, 0, 0]);
@@ -69,7 +70,7 @@ await page.locator('[data-testid="mate-newfolder"]').check();
 let mopt = await page.evaluate(() => window.__phlippoStore.getState().mateOpts);
 check('Add to new folder sets the mate option', mopt.newFolder === true, JSON.stringify(mopt));
 await page.evaluate(() => window.__phlippoStore.getState().commitMate());
-await page.waitForTimeout(400);
+await settle(page);
 let mates = await page.evaluate(() => window.__phlippoStore.getState().doc.mates);
 check('mate in MateGroup1 with friction', mates.length === 1 && mates[0].folder === 'MateGroup1' && mates[0].analysis?.friction === 0.2, JSON.stringify(mates.map((m) => [m.folder, m.analysis])));
 if ((await page.locator('.k-tree-row:has-text("MateGroup1")').count()) === 0) await page.click('.k-tree-row[data-id="mates"] .caret');
@@ -78,14 +79,14 @@ check('tree shows MateGroup1', (await page.locator('.k-tree-row:has-text("MateGr
 await shot('ao1b-mategroup');
 // Use for positioning only: no mate is stored, the component is moved
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.openDocument({ ...s.doc, mates: [] }); });
-await page.waitForTimeout(300);
+await settle(page);
 await page.evaluate(() => window.__phlippoStore.getState().startMate());
 // the box in the Mate PM (a new mate starts from Document Properties ▸ Mates, so the option is set after Start)
 await page.evaluate(() => window.__phlippoStore.setState({ mateOpts: { newFolder: false, popup: true, preview: true, positionOnly: true } }));
 await pick('c1', [0, 1, 0]);
 await pick('c2', [0, -1, 0]);
 await page.evaluate(() => window.__phlippoStore.getState().commitMate());
-await page.waitForTimeout(300);
+await settle(page);
 mates = await page.evaluate(() => window.__phlippoStore.getState().doc.mates ?? []);
 const yPos = (await centre('c2'))[1];
 check('Use for positioning only: moved, no mate', mates.length === 0 && Math.abs(yPos) > 1, JSON.stringify({ n: mates.length, yPos }));
@@ -95,19 +96,19 @@ await page.evaluate(() => window.__phlippoStore.setState({ mateOpts: { newFolder
 await open([[0, 0, 0], [60, 0, 0], [120, 0, 0]]);
 await page.waitForTimeout(400);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.startExplode?.(); });
-await page.waitForTimeout(200);
+await settle(page);
 const hasPM = (await page.locator('[data-testid="explode-pm"]').count()) === 1;
 check('Explode PM open', hasPM);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.selectComponent('c2'); s.selectComponent('c3'); });
 await page.click('[data-testid="explode-pm"] .k-section-title:has-text("Options")');
 await page.waitForTimeout(150);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); window.__phlippoStore.setState({ explodeEdit: { ...s.explodeEdit, autoSpace: true, rings: true } }); s.updateExplodeDraft({ distance: 30, angle: 90 }); });
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 const rings = await page.evaluate(() => (window.__phlippoStore.getState().rebuild.curves ?? []).filter((c) => c.id.startsWith('explode-ring-')).length);
 check('Show rotation rings: a ring per selected component', rings === 2, String(rings));
 await shot('ao2-explode-rings');
 await page.evaluate(() => window.__phlippoStore.getState().commitExplode());
-await page.waitForTimeout(400);
+await settle(page);
 const c2 = await centre('c2'), c3 = await centre('c3');
 const step = await page.evaluate(() => window.__phlippoStore.getState().doc.explodeSteps?.[0]);
 check('Explode step stores angle and auto-space', step && step.angle === 90 && step.autoSpace === true, JSON.stringify(step));
@@ -126,16 +127,16 @@ await page.click('.k-tree-row:has-text("Vierkantstift<1>")');
 await page.click('.k-cm-big:has-text("Linear Component Pattern") .k-cm-main');
 await page.waitForTimeout(300);
 await page.evaluate(() => window.__phlippoStore.getState().updatePatternDraft({ spacing: 20, count: 4 }));
-await page.waitForTimeout(300);
+await settle(page);
 await page.click('[data-testid="component-pattern-pm"] .k-section-title:has-text("Instances to Skip")');
 await page.click('[data-testid="pattern-skip"]');
 const pid = await page.evaluate(() => window.__phlippoStore.getState().patternEdit.draft.id);
 await page.evaluate((pid) => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies.find((x) => x.id.startsWith(pid + '~') && x.id.endsWith('~2')); s.setSelectedFace({ bodyId: b.id, faceId: b.faces[0].id }); }, pid);
-await page.waitForTimeout(300);
+await settle(page, { quiet: 300 });
 check('Instances to Skip lists (3, 1)', (await page.locator('[data-testid="pattern-skip"]').innerText()).includes('(3, 1)'), await page.locator('[data-testid="pattern-skip"]').innerText());
 await shot('ao4-skip');
 await page.click('[data-testid="component-pattern-pm"] .k-pm-ok');
-await page.waitForTimeout(400);
+await settle(page);
 const nb = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies.length);
 check('pattern with one skipped instance: 3 bodies', nb === 3, String(nb));
 
@@ -143,7 +144,7 @@ check('pattern with one skipped instance: 3 bodies', nb === 3, String(nb));
 await open([[0, 0, 0]]);
 await page.waitForTimeout(300);
 await page.evaluate((part) => { const s = window.__phlippoStore.getState(); s.insertComponent(part, { virtual: true, position: [0, 0, 50] }); s.insertComponent(part, { envelope: true, position: [0, 0, -50] }); }, pin);
-await page.waitForTimeout(400);
+await settle(page);
 check('virtual component named [Vierkantstift^Asm]<2>', (await page.locator('.k-tree-row:has-text("[Vierkantstift^Asm]<2>")').count()) === 1);
 check('envelope component marked', (await page.locator('.k-tree-row:has-text("(envelope)")').count()) === 1);
 const sub = await page.evaluate((part) => {

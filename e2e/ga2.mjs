@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -50,23 +51,23 @@ check('block volume 24000', Math.abs(v0 - 24000) < 1, String(v0));
 
 // ---- Chamfer ▸ Vertex: the corner (20, 20, 15) cut off with D = 6 → a tetrahedron of 6³/6 = 36
 await S(() => window.__phlippoStore.getState().startRound('chamfer'));
-await page.waitForTimeout(200);
+await settle(page);
 check('Chamfer Type shows five types', (await page.locator('[data-testid="chamfer-vertex"]').count()) === 1 && (await page.locator('[data-testid="chamfer-offsetface"]').count()) === 1 && (await page.locator('[data-testid="chamfer-faceface"]').count()) === 1);
 await page.click('[data-testid="chamfer-vertex"]');
 await page.waitForTimeout(150);
 check('Vertex type shows the vertex box and D1/D2/D3 with Equal distance', (await page.locator('[data-testid="chamfer-vertex-box"]').count()) === 1 && (await page.locator('[data-testid="chamfer-equal"]').isChecked()) === true);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ size: 6, vertex: { point: [20, 20, 15], label: 'Vertex<1>' } }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(600);
+await settle(page, { quiet: 300 });
 const v1 = await vol();
 check('vertex chamfer removes a 36 mm³ corner', Math.abs(v0 - v1 - 36) < 1.5, `${v0} -> ${v1} (${JSON.stringify(await errs())})`);
 await page.screenshot({ path: `${OUT}/ga2-vertexchamfer.png` });
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(400);
+await settle(page);
 
 // ---- Chamfer ▸ Face Face: top face and +x face → the chamfer runs along their common edge (D 5 → 5²/2 × 30 = 375)
 await S(() => window.__phlippoStore.getState().startRound('chamfer'));
-await page.waitForTimeout(200);
+await settle(page);
 await page.click('[data-testid="chamfer-faceface"]');
 await S(() => {
   const s = window.__phlippoStore.getState();
@@ -75,39 +76,39 @@ await S(() => {
   s.setSelectedFace({ bodyId: b.id, faceId: top.id });
   s.setSelectedFace({ bodyId: b.id, faceId: side.id }, true);
 });
-await page.waitForTimeout(300);
+await settle(page);
 const ff = await S(() => { const d = window.__phlippoStore.getState().featureEdit.draft; return { edges: d.edges.length, type: d.roundType }; });
 check('Face Face picks the common edge of the two faces', ff.edges === 1 && ff.type === 'faceFace', JSON.stringify(ff));
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ size: 5 }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(600);
+await settle(page);
 const v2 = await vol();
 check('face-face chamfer removes 375 mm³', Math.abs(v0 - v2 - 375) < 4, `${v0} -> ${v2}`);
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(400);
+await settle(page);
 
 // ---- Sweep ▸ Circular Profile along the arc path (Ø6 → π·9·(π/2·30) ≈ 1332)
 await S(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k2' }); window.__phlippoStore.getState().startFeature('sweep', 'boss'); });
-await page.waitForTimeout(300);
+await settle(page);
 check('Sweep PM offers Sketch Profile / Circular Profile', (await page.locator('[data-testid="sweep-profile"] label').count()) === 2);
 await page.locator('[data-testid="sweep-profile"] label:has-text("Circular Profile") input').check();
 await page.waitForTimeout(150);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ diameter: 6, pathSketchId: 's2', sketchId: 's2', merge: false }));
 check('Options list Profile orientation and Profile Twist', (await page.locator('[data-testid="sweep-orientation"]').count()) === 1 && (await page.locator('[data-testid="sweep-twist"]').count()) === 1);
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(800);
+await settle(page);
 const v3 = await vol();
 const tube = Math.PI * 9 * (Math.PI / 2) * 30;
 check('the circular-profile sweep adds a tube of about 1332 mm³', Math.abs(v3 - v0 - tube) < tube * 0.08, `${v3 - v0} vs ${tube} (${JSON.stringify(await errs())})`);
 await page.screenshot({ path: `${OUT}/ga2-sweep-circular.png` });
 // twist and keep normal: the volume stays, no error
 await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'sweep'); s.applyDocument('Twist', { ...s.doc, features: s.doc.features.map((x) => (x.id === f.id ? { ...x, twist: 1, orientation: 'keepNormal' } : x)) }); });
-await page.waitForTimeout(800);
+await settle(page);
 const v4 = await vol();
 check('Keep normal constant + one revolution twist still builds', Math.abs(v4 - v3) < tube * 0.5 && !Object.keys(await errs()).length, `${v4}`);
 await S(() => window.__phlippoStore.getState().undo());
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(400);
+await settle(page);
 
 // ---- Loft with a centerline: two squares on Top and an offset plane? (use the arc path as the centerline between two profiles on parallel planes)
 await S(() => {
@@ -123,27 +124,27 @@ await S(() => {
   const d = { ...s.doc, sketches: { ...s.doc.sketches, s3: p2, s4: cl }, features: [...s.doc.features, { id: 'k3', type: 'sketch', name: 'Profile2', sketchId: 's3', suppressed: false }, { id: 'k4', type: 'sketch', name: 'Centerline', sketchId: 's4', suppressed: false }] };
   s.applyDocument('Sketches', d);
 });
-await page.waitForTimeout(300);
+await settle(page);
 await S(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k1' }); window.__phlippoStore.getState().startFeature('loft', 'boss'); });
-await page.waitForTimeout(300);
+await settle(page);
 check('Loft PM has Centerline Parameters and Options (Merge tangent faces, Close loft, Drag Sketch)', (await page.getByText('Centerline Parameters').count()) >= 1 && (await page.locator('[data-testid="loft-dragsketch"]').count()) === 1);
 await S(() => window.__phlippoStore.getState().updateFeatureDraft({ sketchId2: 's3', centerline: 's4', merge: false }));
 await S(() => window.__phlippoStore.getState().commitFeature());
-await page.waitForTimeout(800);
+await settle(page);
 check('the loft with a centerline builds without error', !Object.keys(await errs()).length, JSON.stringify(await errs()));
 await S(() => window.__phlippoStore.getState().undo());
-await page.waitForTimeout(400);
+await settle(page);
 
 // ---- Fill Pattern: circular and polygon layouts, Validate Count, Create seed cut
 await S(() => { const s = window.__phlippoStore.getState(); window.__phlippoStore.setState({ selectedFeatureId: 'e1' }); s.startPattern('fillPattern'); });
-await page.waitForTimeout(200);
+await settle(page);
 await S(() => {
   const s = window.__phlippoStore.getState();
   const b = s.rebuild.bodies[0];
   const top = b.faces.find((f) => !f.curved && f.normal[1] > 0.99);
   s.setSelectedFace({ bodyId: b.id, faceId: top.id });
 });
-await page.waitForTimeout(300);
+await settle(page);
 const fillState = await S(() => { const d = window.__phlippoStore.getState().featureEdit.draft; return { hasFill: !!d.fill, layout: d.fill?.layout }; });
 check('the top face becomes the fill boundary', fillState.hasFill, JSON.stringify(fillState));
 check('Pattern Layout offers Circular and Polygon', (await page.locator('[data-testid="fill-circular"]').count()) === 1 && (await page.locator('[data-testid="fill-polygon"]').count()) === 1);

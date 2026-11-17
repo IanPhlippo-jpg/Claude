@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -62,7 +63,7 @@ await page.evaluate(() => {
 await waitSettled(page);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
-await page.waitForTimeout(500);
+await settle(page);
 // the view transitions move on with each drawn frame: with software GL the camera was still turning while the body was
 // clicked, and Select Other cast its ray from the pointer through a view that had moved on, with no face under it
 // (CI on Windows: the selection stayed the same)
@@ -90,18 +91,18 @@ await page.keyboard.press('Escape');
 
 const bodies = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies.map((b) => b.id));
 await page.evaluate((id) => window.__phlippoStore.getState().setIsolated([id]), bodies[0]);
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 check('Isolate shows the Exit Isolate bar', (await page.locator('[data-testid="isolate-bar"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/m7-isolate.png` });
 await page.click('[data-testid="isolate-bar"] button');
 await page.evaluate((id) => window.__phlippoStore.getState().deleteBodies([id]), bodies[1]);
-await page.waitForTimeout(600);
+await settle(page);
 const left = await page.evaluate(() => ({ n: window.__phlippoStore.getState().rebuild.bodies.length, f: window.__phlippoStore.getState().doc.features.map((f) => f.name) }));
 check('Delete Body adds Body-Delete/Keep1 and leaves one body', left.n === 1 && left.f.includes('Body-Delete/Keep1'), JSON.stringify(left));
 
 // Sensor with a notification
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.addSensor('mass'); const sn = s.doc.sensors?.[0] ?? window.__phlippoStore.getState().doc.sensors[0]; const st2 = window.__phlippoStore.getState(); st2.applyDocument('n', { ...st2.doc, sensors: st2.doc.sensors.map((x) => ({ ...x, alert: { op: '>', value: 1 } })) }); });
-await page.waitForTimeout(400);
+await settle(page);
 await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click();
 await page.waitForTimeout(200);
 check('a sensor above its notification limit shows the alarm', (await page.locator('.k-sensor-alarm').count()) === 1);
@@ -113,7 +114,7 @@ check('Add Derived Configuration makes a child of Default', cfg.some((c) => c.n 
 
 // Viewport ▸ Four View
 await page.evaluate(() => window.__phlippoStore.getState().setViewportLayout('four'));
-await page.waitForTimeout(1500);
+await settle(page, { quiet: 300 });
 check('Four View shows three extra panes beside the main viewport', (await page.locator('.k-viewpane').count()) === 3 && (await page.locator('.k-viewport').count()) === 1);
 await page.screenshot({ path: `${OUT}/m7-fourview.png` });
 await page.evaluate(() => window.__phlippoStore.getState().setViewportLayout('single'));

@@ -22,6 +22,8 @@ export function OptionsDialog() {
   const [cat, setCat] = useState<string>('general');
   const [query, setQuery] = useState('');
   const [draft, setDraft] = useState<Record<string, PrefValue>>(() => ({ ...st.prefs }));
+  // what the dialog started from: OK writes only the keys changed here, never older copies of others (P2-1)
+  const [base] = useState(() => st.prefs);
   const [schemeName, setSchemeName] = useState<string | null>(null);
   const [resetMenu, setResetMenu] = useState(false);
   const cats = tab === 'system' ? SYSTEM_CATEGORIES : DOCUMENT_CATEGORIES;
@@ -49,7 +51,7 @@ export function OptionsDialog() {
     return hit;
   }, [q]);
   const ok = () => {
-    st.setPrefs(draft);
+    st.setPrefs(draft, base);
     void applySoftwareGL(draft['perf.softwareOpenGL'] === true);
     st.setDialog(null);
   };

@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { readFileSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: 1.5 });
 let errs = [];
@@ -37,7 +38,7 @@ const run = async (label) => {
 };
 const part = load('voorbeelden/deurkruk/Kruk.kcad');
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), part);
-await page.waitForTimeout(1500);
+await settle(page);
 // expected effects
 await page.locator('.k-viewport').click({ position: { x: 300, y: 300 } });
 await page.keyboard.press('Control+1');
@@ -53,7 +54,7 @@ await page.keyboard.press('Escape');
 await run('part');
 await page.evaluate(() => window.__phlippoStore.getState().openDocument(window.__phlippoStore.getState().doc));
 await page.evaluate(() => window.__phlippoStore.getState().newSketch('front'));
-await page.waitForTimeout(800);
+await settle(page);
 await run('sketch');
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); if (s.activeSketchId) s.exitSketch(); });
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), load('voorbeelden/deurkruk/Deurkruk.kcad'));

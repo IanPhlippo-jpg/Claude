@@ -18,7 +18,7 @@ function twoBoxes(exclude: IntersectFeature['exclude'], merge = true) {
     { id: 'f2', type: 'extrude', name: 'Boss-Extrude1', sketchId: 'a', suppressed: false, op: 'boss', end: 'blind', depth: 40, reverse: false } as ExtrudeFeature,
     { id: 'f3', type: 'sketch', name: 'Sketch2', sketchId: 'b', suppressed: false } as SketchFeature,
     { id: 'f4', type: 'extrude', name: 'Boss-Extrude2', sketchId: 'b', suppressed: false, op: 'boss', end: 'blind', depth: 40, reverse: false, merge: false } as ExtrudeFeature,
-    { id: 'f5', type: 'intersect', name: 'Intersect1', suppressed: false, bodies: ['body1', 'body2'], exclude, merge } as IntersectFeature,
+    { id: 'f5', type: 'intersect', name: 'Intersect1', suppressed: false, bodies: ['f2#0', 'f4#0'], exclude, merge } as IntersectFeature,
   ];
   const r = rebuildDocument(doc, null);
   expect(r.errors).toEqual({});

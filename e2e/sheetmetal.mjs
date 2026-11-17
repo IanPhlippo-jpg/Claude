@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
+import { settle } from './lib/wait.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -46,7 +47,7 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(400);
 await shot('sm1-base-flange-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 let s = await S();
 const t = 3, r = 3, depth = 60;
 const expectedBase = ((40 - (r + t)) * t + (30 - (r + t)) * t + (Math.PI / 4) * ((r + t) ** 2 - r ** 2)) * depth;
@@ -55,7 +56,7 @@ check('Base-Flange1 built: L sheet with the bend (3 mm, radius 3, 60 wide)', Mat
 check('tree: Sheet-Metal1, Base-Flange1 and a suppressed Flat-Pattern1', s.sm && s.sm.thickness === 3 && s.features.includes('Base-Flange1') && s.features.includes('Flat-Pattern1(s)'), JSON.stringify(s));
 check('Sheet-Metal1 row in the Feature Tree', (await page.locator('.k-tree-row:has-text("Sheet-Metal")').count()) === 1);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('sm2-base-flange');
 
 // Edge Flange on the top edge of the vertical leg (the straight edge at y = 30 on the outer face)
@@ -80,7 +81,7 @@ await page.locator('.k-section:has-text("Flange Length") input.k-num').first().p
 await page.waitForTimeout(500);
 await shot('sm3-edge-flange-preview');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 s = await S();
 const v2 = await volume();
 const leg = 32 - (r + t);
@@ -88,7 +89,7 @@ const expectedFlange = ((Math.PI / 4) * ((r + t) ** 2 - r ** 2) + leg * t) * dep
 check('Edge-Flange1 adds the bend + a 28 mm leg (outer virtual sharp 32)', Math.abs(v2 - v1 - expectedFlange) < expectedFlange * 0.05 && Object.keys(s.errors).length === 0, `${(v2 - v1).toFixed(0)} vs ${expectedFlange.toFixed(0)} ${JSON.stringify(s.errors)}`);
 check('tree lists Edge-Flange1 before Flat-Pattern1', s.features.indexOf('Edge-Flange1') < s.features.indexOf('Flat-Pattern1(s)'), s.features.join(','));
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('sm4-edge-flange');
 
 // Flatten: the sheet unfolds to a flat plate of the developed length
@@ -102,7 +103,7 @@ const flatLen = 70 - 2 * sb + ba + (leg + ba);
 check('Flat-Pattern1 unsuppressed: one flat body', s.features.includes('Flat-Pattern1') && s.bodies === 1 && Object.keys(s.errors).length === 0, JSON.stringify(s));
 check('flat volume = developed length x width x thickness', Math.abs(v3 - flatLen * depth * t) < flatLen * depth * t * 0.03, `${v3.toFixed(0)} vs ${(flatLen * depth * t).toFixed(0)}`);
 await page.keyboard.press('f');
-await page.waitForTimeout(400);
+await settle(page, { quiet: 300 });
 await shot('sm5-flat-pattern');
 await page.click('.k-cm-small:has-text("Flatten")');
 await page.waitForTimeout(800);
@@ -115,7 +116,7 @@ check('Sheet-Metal1 PM with Bend Parameters', (await page.locator('.k-pm-title:h
 await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().fill('2');
 await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().press('Tab');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await settle(page);
 check('thickness 2 gives a thinner sheet', (await volume()) < v2 * 0.8, String(await volume()));
 
 // reload keeps everything
