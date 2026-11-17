@@ -33,7 +33,8 @@ Alle coördinaten zijn pixels van `achtergrond.jpg`: oorsprong linksboven, x naa
 ```jsonc
 {
   "achtergrond": "achtergrond.jpg", "breedte": 1718, "hoogte": 724,
-  "schaal": { "px_per_m": 5.0, "aanname": true },      // AANNAME, zie onder
+  "schaal": { "px_per_m": 7.8, "aanname": true },      // AANNAME, zie onder
+  "mm_op_de_baan_per_px": 1.47, "mm_op_de_baan_aanname": true,   // H0 1:87, te meten (sensoradvies)
   "noord_graden": 26.8,                                  // noord = 26,8° met de klok mee vanaf 'boven'
   "rijbanen": [
     { "id": "autolus", "soort": "auto", "gesloten": true,
@@ -52,7 +53,9 @@ Alle coördinaten zijn pixels van `achtergrond.jpg`: oorsprong linksboven, x naa
                         "rechtdoor": "autolus", "afbuigen": "busbaan" }, ...],
   "stoppunten":      [{ "id": "STOP_lijnbus3", "baan": "halte_lijnbus3", "afstand_px": .., "x": .., "y": .. }, ...],
   "ir_leds":         [{ "id": "IR5", "naam": "IR LED 5", "stoppunt": "STOP_lijnbus3", "baan": "halte_lijnbus3", "x": .., "y": .. }, ...],
-  "hallsensoren":    [{ "id": "HALL1", "baan": "autolus", "afstand_px": .., "x": .., "y": .. }],
+  "hallsensoren":    [{ "id": "HALL1", "baan": "autolus", "afstand_px": .., "x": .., "y": .. },
+                    { "id": "HW1", ..., "advies": true, "alleen_bus": true }, ...],   // + het sensoradvies
+  "ir_sensoren":     [{ "id": "IRRX1", "sensor": "ir", ... }, { "id": "FTR_lijnbus3", "sensor": "ftr", ... }, ...],
   "verkeerslichten": [{ "id": "VL_lijnbus3", "baan": "halte_lijnbus3", "afstand_px": .., "x": .., "y": .. }, ...],
   "lantaarns": [], "lichtgroepen": [], "speakers": [], "servos": [], "seinen": [],
   "metingen": { ... }                                    // de gemeten maten hierboven
@@ -113,9 +116,12 @@ situatieplan.zetBron('simulatie');               // terug naar de demo
 
 ## Aannames
 
-- **Schaal:** 1 m = 5 px. Het hotel is in de Google-foto ± 100 m lang (50 m = 243 px; die maat is ook een aanname
-  uit de screenshot, gecontroleerd met spoorwijdte en autolengte). In dit beeld is het hotel ± 500 px lang.
-  Te controleren met een echte maat van de modelbaan.
+- **Schaal** (Fable 5.2 VN2, 2026-11-17): 1 m = 7,8 px. De 2 rijstroken van de Stationstraat liggen 25,5 px uit elkaar
+  (y = 562,0 en 587,5); een rijstrook is 3 tot 3,5 m: 25,5 / 3,25 = 7,8. Vroeger 1 m = 5 px (het hotel ± 100 m in de
+  Google-foto, ± 500 px in dit beeld): dan was een strook 5,1 m breed. In H0 1:87 is 1 px 1,47 mm op de baan
+  (`mm_op_de_baan_per_px`). Te controleren met een echte maat van de modelbaan (de breedte van een rijstrook).
+- **Sensoren uit het advies** (VN3): `docs/sensoradvies.py` schrijft `docs/sensoradvies.json`, `maak-plan.py` zet die
+  punten in `hallsensoren` en `ir_sensoren` met `"advies": true` (op een busstrook ook `"alleen_bus": true`).
 - **Hall sensor 1:** ligt 75 px (± 15 m) rechts van de meest rechtse invoeging, op de noordstrook.
   In de rijrichting komt de sensor dus vóór de invoegingen; zo bewaakt hij het verkeer dat naar de haltes komt.
 - **Stoppunten** liggen op y = 468. Verkeerslichten staan rechts naast het einde van elke strook.

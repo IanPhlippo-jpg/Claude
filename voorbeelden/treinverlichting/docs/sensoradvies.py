@@ -11,9 +11,11 @@ Regels (Ian, 2026-11-15: "Ik moet hierop kunnen zien hoe de bussen of auto's aan
 - op de lange stukken om de ± 50 cm op de modelbaan (daartussen schat de tv met de gemeten snelheid);
 - vlak voor wissel 1 een IR-ontvanger die de bus herkent (zijn code): zo weet de doos welke bus de busbaan op rijdt;
 - hallsensoren (SS441A of A3144, magneet onder het voertuig) waar alleen "er reed iets voorbij" nodig is; een
-  reflexsensor met fototransistor ("FTR", TCRT5000-module) aan de stoppunten: die ziet ook een stilstaande bus.
-AANNAMES: schaal van het plan 1 m = 5 px (situatieplan/README.md) en de modelbaan in H0, 1:87: 50 cm op de baan is dan
-43,5 m in het echt = 217,5 px.
+  reflexsensor met fototransistor ("FTR", TCRT5000-module) vlak voor de invoegingen: die ziet ook een stilstaande auto
+  (Fable 5.2 S2, TN5; aan de stoppunten een hallsensor).
+AANNAMES: "mm_op_de_baan_per_px" uit plan.json (Fable 5.2 VN2: 1,47 mm per px, uit 7,8 px/m en H0 1:87; te meten): 50 cm
+op de baan is dan ± 340 px. Zonder die sleutel: px_per_m x 87 x 0,5.
+Daarna: python situatieplan/maak-plan.py zet de geadviseerde sensoren in plan.json (Fable 5.2 VN3).
 """
 import json
 import math
@@ -50,7 +52,8 @@ def maak():
     # op de echte baan opgemeten), dan rekent het advies daarmee; anders met de schaal van de foto en H0 (AANNAME)
     if plan.get('mm_op_de_baan_per_px'):
         stap = STAP_M * 1000 / plan['mm_op_de_baan_per_px']
-        bron_schaal = f"gemeten: {plan['mm_op_de_baan_per_px']} mm op de baan per px"
+        bron_schaal = (f"{'AANNAME' if plan.get('mm_op_de_baan_aanname') else 'gemeten'}: "
+                       f"{str(plan['mm_op_de_baan_per_px']).replace('.', ',')} mm op de baan per px = {stap:.0f} px")
     else:
         pxm = plan['schaal']['px_per_m']
         stap = STAP_M * SCHAAL_MODEL * pxm  # px tussen 2 sensoren op een lang stuk
@@ -68,7 +71,7 @@ def maak():
                          'bestaat': bestaand})
 
     # vaste punten: de bestaande hallsensor, de stoppunten, de wissels, de invoegingen en de herkenning voor W1
-    for h in plan['hallsensoren']:
+    for h in [h for h in plan['hallsensoren'] if not h.get('advies')]:  # VN3: de geadviseerde in het plan niet meetellen
         zet('hall', h['baan'], h['afstand_px'], 'bestaat al (hallsensor 1)', h['id'], True)
     w1 = next(w for w in plan['wissels'] if w['id'] == 'W1')
     zet('ir', w1['baan'], w1['afstand_px'] - 60, 'IR-ontvanger voor wissel 1: herkent de bus (zijn code)', 'IRRX1')

@@ -810,6 +810,13 @@ void test_toegang_f6() {
   TEST_ASSERT_EQUAL(403, toegang("192.168.4.23", "", "http://kwaad.example", "192.168.4.1", "", ww));
   TEST_ASSERT_EQUAL(403, toegang("192.168.1.30", ww, "null", "treinbaan.local", "192.168.1.50", ww));
   TEST_ASSERT_EQUAL(403, toegang("192.168.1.30", ww, "https://treinbaan.local.example", "treinbaan.local", "", ww));
+  // FN5: DNS-rebinding: Origin en Host zijn allebei de naam van de aanvaller (2.1.0 gaf hier 0 = toegang)
+  TEST_ASSERT_EQUAL(403, toegang("192.168.4.23", "", "http://kwaad.example", "kwaad.example", "", ww));
+  TEST_ASSERT_EQUAL(403, toegang("192.168.4.23", "", "", "kwaad.example", "", ww)); // ook zonder Origin
+  TEST_ASSERT_EQUAL(403, toegang("192.168.4.23", "", "", "192.168.4.10", "", ww));
+  TEST_ASSERT_EQUAL(0, toegang("192.168.4.23", "", "http://192.168.4.1:80", "192.168.4.1:80", "", ww));
+  TEST_ASSERT_EQUAL(0, toegang("192.168.4.23", "", "", "", "", ww)); // geen Host (HTTP/1.0): zoals vroeger
+  TEST_ASSERT_EQUAL(403, toegang("192.168.1.30", ww, "", "192.168.1.50", "", ww)); // niet (meer) op het thuisnet
   TEST_ASSERT_EQUAL(401, geweigerd(401).code);
   TEST_ASSERT_EQUAL(403, geweigerd(403).code);
 }

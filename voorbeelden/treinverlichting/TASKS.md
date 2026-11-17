@@ -103,3 +103,13 @@
 - [x] T3: revisie 6 en wijzigingsregel in tekeningenTrein; TRN-08 "Proefstuk"
 - [x] Q3: test dat TRN-20 en de bestellijst in README elke module van MODULES noemen
 - [x] Rebuild per helft, volledige qaTrein, tekeningen + PDF, tsc, graphify update, foto's in scratchpad/trein-v6c
+
+## Advies Fable 5.2, tweede ronde (v7): 23 nieuwe punten en 14 deels (2026-11-17)
+- [x] Firmware en dashboard (agent): EN1-waarschuwing, EN3, FN1 wachtLeds, FN2 + strikte nep-bus, FN3, FN4-FN7, TN3, VN1 (node --test)
+- [x] EN1: 470 Ω voor continu-systemen in rekenblad (met assert), README, TRN-22, schema
+- [x] EN2: B3V3 met MF-R030, -Q4 VCC terug op 3,3 V, veldkabels en -R22..-R31 in opbouw.mjs en TRN-15, -F20 op blad 6, rekenblad
+- [x] TN1-TN3: stappen A, D en H van TRN-22; TN4: schema (kruisverwijzingen, -Q4 als blok, -E21..-E28, -F1 8 A); TN5 en EN5: README, schema, bestellijst
+- [x] DN1 bouwschema (kabelbinders vooraf), DN2 zekeringhouders (steek 22, hoger, 10 A, vlaksteekhulzen)
+- [x] VN2 schaal (7,8 px/m, mm_op_de_baan_per_px in plan.json), VN3 sensoren in het plan
+- [x] Negatieve tests per P1/P2, pio native, qaTrein, tekeningenTrein + schemaNorm, npm run typecheck, rebuild alleen
+- [x] Status docs/Fable-5.2-v7-status.md, app, foto's in scratchpad/trein-v7

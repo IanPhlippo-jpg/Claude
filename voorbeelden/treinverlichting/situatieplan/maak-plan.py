@@ -96,7 +96,16 @@ def strook_x(k, y):
     return STR[k]["a"] + STR[k]["b"] * y
 
 
-PX_PER_M = 5.0          # AANNAME: hotel ± 100 m lang (gemeten in de Google-foto) = ± 500 px in dit beeld
+# Fable 5.2 VN2 (2026-11-17): de schaal uit de rijstroken. De 2 stroken van de Stationstraat liggen 25,5 px uit elkaar
+# (y_noord 562,0 en y_zuid 587,5, gemeten hieronder); een rijstrook is 3 tot 3,5 m, midden 3,25 m: 25,5 / 3,25 = 7,8 px/m.
+# Vroeger 5 px/m (hotel ± 100 m in de Google-foto = ± 500 px): dan was een strook 5,1 m breed, te breed. AANNAME tot er een
+# maat van de echte baan is.
+STROOK_M = 3.25
+PX_PER_M = 7.8          # AANNAME: 25,5 px tussen de strookassen / 3,25 m
+# H0 1:87: 1 px = 1000 / (7,8 x 87) = 1,47 mm op de modelbaan; een strook is dan 25,5 x 1,47 = 37,5 mm (Car System ± 40 mm:
+# dan 40 / 25,5 = 1,57). Het sensoradvies rekent hiermee (om de 50 cm op de baan); vervangen door een gemeten waarde.
+MM_OP_DE_BAAN_PER_PX = round(1000 / (PX_PER_M * 87), 2)
+ADVIES = os.path.join(HIER, "..", "docs", "sensoradvies.json")
 
 # ----------------------------------------------------------------------------------------------
 # 2. Rijbanen opbouwen (rechte stukken + bogen) en herbemonsteren
@@ -260,6 +269,23 @@ def maak_json():
     hall = [{"id": "HALL1", "naam": "Hall sensor 1", "x": r1(HALL[0]), "y": r1(HALL[1]), "baan": "autolus",
              "afstand_px": op("autolus", HALL),
              "opmerking": "op de noordstrook, net stroomopwaarts van de invoegingen: bewaakt het verkeer naar de haltes"}]
+    # Fable 5.2 VN3: de geadviseerde sensoren (docs/sensoradvies.py -> sensoradvies.json) in het plan, zodat de tv hun
+    # meldingen kent. Volgorde: sensoradvies.py, dan maak-plan.py. "advies": true (het sensoradvies telt ze niet als bestaand).
+    ir_sens = []
+    if os.path.exists(ADVIES):
+        with open(ADVIES, encoding="utf-8") as f:
+            adv = json.load(f)
+        for s in adv["sensoren"]:
+            if s.get("bestaat"):
+                continue
+            e = {"id": s["id"], "naam": s["id"], "x": s["x"], "y": s["y"], "baan": s["baan"], "afstand_px": s["afstand_px"],
+                 "advies": True, "opmerking": s["waarom"]}
+            if banen[s["baan"]]["soort"] == "bus":
+                e["alleen_bus"] = True
+            if s["soort"] == "hall":
+                hall.append(e)
+            else:
+                ir_sens.append({**e, "sensor": s["soort"]})
     lichten = [{"id": k, "naam": "Verkeerslicht " + TITELS[k[3:]], "x": r1(x), "y": r1(y), "baan": "halte_" + k[3:],
                 "afstand_px": op("halte_" + k[3:], (x - 34, y))} for k, (x, y) in LICHTEN.items()]
     plan = {
@@ -269,8 +295,15 @@ def maak_json():
         "breedte": IW, "hoogte": IH,
         "coordinaten": "pixels van achtergrond.jpg, oorsprong linksboven, x naar rechts, y naar beneden",
         "schaal": {"px_per_m": PX_PER_M, "aanname": True,
-                   "uitleg": "AANNAME: het hotel is in de Google-foto ± 100 m lang (50 m = 243 px) en in dit beeld "
-                             "± 500 px; 1 m = 5 px. Nadien te controleren met een gemeten maat van de modelbaan."},
+                   "uitleg": f"AANNAME (Fable 5.2 VN2): de 2 rijstroken van de Stationstraat liggen {MAAT['y_zuid'] - MAAT['y_noord']:.1f} px "
+                             f"uit elkaar, een rijstrook is 3 tot 3,5 m: {MAAT['y_zuid'] - MAAT['y_noord']:.1f} / {STROOK_M} = "
+                             f"{(MAAT['y_zuid'] - MAAT['y_noord']) / STROOK_M:.1f} px/m. Vroeger 5 px/m (hotel ± 100 m in de "
+                             "Google-foto): dan was een strook 5,1 m breed. Te controleren met een gemeten maat van de modelbaan."},
+        "mm_op_de_baan_per_px": MM_OP_DE_BAAN_PER_PX,
+        "mm_op_de_baan_aanname": True,
+        "mm_op_de_baan_uitleg": f"AANNAME: H0 1:87 bij {PX_PER_M} px/m: 1000 / ({PX_PER_M} x 87) = {MM_OP_DE_BAAN_PER_PX} mm per px; "
+                                "een strook is dan ± 37,5 mm. Meten: de breedte van een rijstrook op de echte baan in mm "
+                                f"gedeeld door {MAAT['y_zuid'] - MAAT['y_noord']:.1f} px, hier invullen en aanname op false.",
         "noord_graden": 26.8,
         "noord_uitleg": "noord wijst 26,8 graden met de klok mee vanaf 'boven' (sporen liggen horizontaal)",
         "rijbanen": rij,
@@ -278,6 +311,7 @@ def maak_json():
         "stoppunten": stops,
         "ir_leds": irs,
         "hallsensoren": hall,
+        "ir_sensoren": ir_sens,
         "verkeerslichten": lichten,
         "lantaarns": [], "lichtgroepen": [], "speakers": [], "servos": [], "seinen": [],
         "metingen": {k: (round(v, 2) if isinstance(v, float) else v) for k, v in MAAT.items()},
@@ -562,10 +596,10 @@ def noordpijl(d, cx, cy, L):
 
 
 def schaalbalk(d, x, y):
-    L = 100 * PX_PER_M * S
+    L = 40 * PX_PER_M * S
     for i in range(4):
         d.rrect(x + i * L / 4, y, L / 4, 20, 0, fill="#1d1d1d" if i % 2 == 0 else "#ffffff", stroke="#1d1d1d", sw=2.5)
-    for i, t in enumerate(["0", "25", "50", "75", "100 m"]):
+    for i, t in enumerate(["0", "10", "20", "30", "40 m"]):
         d.tekst(x + i * L / 4 + (22 if i == 4 else 0), y - 26, t, 28, "#1d1d1d", True, "mm")
     return L
 
@@ -612,7 +646,7 @@ def band(d):
     d.lijn([(rx - 30, y0 + 24), (rx - 30, y0 + h - 24)], "#d0d0d0", 2, cap="butt")
     noordpijl(d, rx + 70, y0 + h / 2 + 6, 130)
     schaalbalk(d, rx + 190, y0 + 92)
-    d.tekst(rx + 190, y0 + 150, f"Schaal: 1 m = {PX_PER_M:.0f} px in het beeld (AANNAME, zie README)", 26,
+    d.tekst(rx + 190, y0 + 150, f"Schaal: 1 m = {str(PX_PER_M).replace('.', ',')} px in het beeld (AANNAME uit de rijstroken, zie README)", 26,
             "#4a4a4a", False, "lm")
     for i, t in enumerate(["Rechts rijden. Auto's rijden alleen op het autoparcours; bussen slaan bij wissel 1 af,",
                            "stoppen in hun haltestrook en voegen weer in op de Stationstraat als hall sensor 1 vrij is.",

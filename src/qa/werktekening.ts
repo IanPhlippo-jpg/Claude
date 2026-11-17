@@ -86,9 +86,11 @@ export function iso5457(b: Blad) {
   }
 }
 
-/** projectiesymbool Europese projectie (ISO 5456-2, eerste hoek): afgeknotte kegel links, cirkels rechts */
+/** projectiesymbool Europese projectie (ISO 5456-2, eerste hoek): afgeknotte kegel links met de smalle kant links en de
+ *  brede kant naar de cirkels, cirkels rechts (het zijaanzicht van de smalle kant staat aan de overkant: eerste hoek).
+ *  Tot 2026-11-17 stond de kegel gespiegeld (brede kant links), wat de derde hoek is (Fable 5.2, afzuiging P2-17). */
 export function projectieSymbool(b: Blad, sx: number, sy: number, k = 1) {
-  b.lijn([sx, sy - 3 * k], [sx + 9 * k, sy - 1.5 * k], 0.3); b.lijn([sx, sy + 3 * k], [sx + 9 * k, sy + 1.5 * k], 0.3); b.lijn([sx, sy - 3 * k], [sx, sy + 3 * k], 0.3); b.lijn([sx + 9 * k, sy - 1.5 * k], [sx + 9 * k, sy + 1.5 * k], 0.3);
+  b.lijn([sx, sy - 1.5 * k], [sx + 9 * k, sy - 3 * k], 0.3); b.lijn([sx, sy + 1.5 * k], [sx + 9 * k, sy + 3 * k], 0.3); b.lijn([sx, sy - 1.5 * k], [sx, sy + 1.5 * k], 0.3); b.lijn([sx + 9 * k, sy - 3 * k], [sx + 9 * k, sy + 3 * k], 0.3);
   b.lijn([sx - 1.5 * k, sy], [sx + 10.5 * k, sy], 0.13, 'stroke-dasharray="3 0.8 0.6 0.8"');
   b.cirkel([sx + 17 * k, sy], 3 * k, 0.3); b.cirkel([sx + 17 * k, sy], 1.5 * k, 0.3);
 }

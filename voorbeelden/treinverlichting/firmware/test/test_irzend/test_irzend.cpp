@@ -28,7 +28,9 @@ struct NepIr : IrZendHw {
   bool zendOk = true;
   uint8_t leds = 0;
   bool continuAan = false;
+  bool kiesOk = true; // FN7: false = de MCP23017 antwoordt niet
   bool kiesLeds(uint8_t l) override {
+    if (!kiesOk) return false;
     leds = l;
     log.push_back({tick, 'L', l});
     return true;
@@ -159,7 +161,8 @@ void test_continu_en_een_code_ertussen() {
 }
 
 // E4: de IR-zelftest. -B1 leest de testcode met draaggolf 38 kHz terug: ok. Negatieve proeven: geen antwoord (fout na
-// 3 s), licht zonder draaggolf (ongemoduleerd), een andere code.
+// 3 s), een flank zonder draaggolf (ongemoduleerd), een andere code. TN3 (2.2.0): -B1 (TSMP58000, 20-60 kHz) ziet licht
+// zonder draaggolf nooit; de teksten zeggen dat nu, en beweren niet meer dat "de led brandt maar niet moduleert".
 void test_zelftest_via_b1() {
   Baan b;
   TEST_ASSERT_EQUAL(200, ir(b, R"({"actie":"zelftest","led":5})").code);
@@ -186,6 +189,7 @@ void test_zelftest_via_b1() {
   TEST_ASSERT_FALSE(b.zelftest.loopt);
   TEST_ASSERT_FALSE(b.zelftest.ok);
   TEST_ASSERT_TRUE(strstr(b.zelftest.fout, "zag niets") != nullptr);
+  TEST_ASSERT_TRUE(strstr(b.zelftest.fout, "20-60 kHz") != nullptr); // TN3
   // licht zonder draaggolf (een gedemoduleerd signaal: de tijden zelf)
   TEST_ASSERT_EQUAL(200, ir(b, R"({"actie":"zelftest","led":1})", 5000).code);
   std::vector<uint32_t> plat = {9000000, 4500000, 560000, 560000, 560000, 1690000, 560000};
@@ -193,7 +197,8 @@ void test_zelftest_via_b1() {
   TEST_ASSERT_TRUE(b.zelftest.ongemoduleerd);
   for (uint32_t t = 5000; t <= 5000 + ZELFTEST_MS; t += 5) b.tick(t, 0);
   TEST_ASSERT_FALSE(b.zelftest.ok);
-  TEST_ASSERT_TRUE(strstr(b.zelftest.fout, "zonder draaggolf") != nullptr);
+  TEST_ASSERT_TRUE(strstr(b.zelftest.fout, "zonder herkenbare draaggolf") != nullptr);
+  TEST_ASSERT_TRUE(strstr(b.zelftest.fout, "de IR-led brandt") == nullptr); // TN3: dat kan -B1 niet weten
   deserializeJson(d, apiStaat(b, 9000, true));
   TEST_ASSERT_TRUE(d["zelftest"]["ongemoduleerd"].as<bool>());
   // een andere code, of een draaggolf die meer dan 1 kHz afwijkt
@@ -283,12 +288,106 @@ void test_leren_te_lang() {
   TEST_ASSERT_FALSE(b.cfg.ir[0].gebruikt);
 }
 
+// TN3: het niveau van de ontvangerpinnen is zichtbaar in /api/staat ("ontvangerLaag"): een fototransistor of
+// TCRT5000 op GPIO11 (ontvanger 2) toont zo IR-licht, ook zonder draaggolf
+void test_ontvanger_niveau_zichtbaar() {
+  Baan b;
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, true));
+  TEST_ASSERT_EQUAL(4, (int)d["ontvangerLaag"].size());
+  TEST_ASSERT_FALSE(d["ontvangerLaag"][1].as<bool>());
+  b.ontvangerNiveau(1, true, 5);
+  deserializeJson(d, apiStaat(b, 5, true));
+  TEST_ASSERT_TRUE(d["ontvangerLaag"][1].as<bool>());
+  TEST_ASSERT_FALSE(d["ontvangerBezet"][1].as<bool>()); // nog geen 50 ms
+  b.ontvangerNiveau(1, false, 10);
+  deserializeJson(d, apiStaat(b, 10, true));
+  TEST_ASSERT_FALSE(d["ontvangerLaag"][1].as<bool>());
+}
+
+// FN6: tijdens het bewaren (LittleFS) wacht een lange code (> 144 RMT-items, met bijvullen) in KIEZEN; een korte NEC-code
+// gaat gewoon door. Negatieve proef: zonder de vlag start de lange code midden in het bewaren.
+void test_lange_code_wacht_op_bewaren() {
+  IrCode lang;
+  lang.gebruikt = true;
+  lang.soort = IR_RAW;
+  lang.nRaw = 200;
+  for (int i = 0; i < 200; i++) lang.raw[i] = 560;
+  lang.herhaal = 2; // 2 x 100 items + pauze: meer dan 144
+  TEST_ASSERT_TRUE(irPast(lang));
+  TEST_ASSERT_TRUE(irLang(lang));
+  TEST_ASSERT_FALSE(irLang(nec(1)));
+  for (bool metVlag : {true, false}) {
+    NepIr hw;
+    IrZender z;
+    Rij rij;
+    rij.r.push_back({IrZend{0, 1}, lang});
+    z.bewaarBezig = metVlag;
+    for (; hw.tick < 40; hw.tick++) z.stap(hw, rij, 0);
+    if (metVlag) {
+      TEST_ASSERT_EQUAL(-1, hw.eerste('Z')); // wacht
+      TEST_ASSERT_EQUAL(IrZender::KIEZEN, z.fase);
+      TEST_ASSERT_TRUE(z.bezig());
+      TEST_ASSERT_TRUE(z.uitgesteld > 0);
+      z.bewaarBezig = false;
+      z.stap(hw, rij, 0);
+      TEST_ASSERT_EQUAL(hw.tick, hw.eerste('Z')); // en zendt meteen na het bewaren
+    } else {
+      TEST_ASSERT_EQUAL(IR_WACHT_TICKS, hw.eerste('Z')); // negatieve proef: zonder vlag gewoon gezonden
+    }
+  }
+  // een korte code wacht niet op het bewaren
+  NepIr hw;
+  IrZender z;
+  Rij rij;
+  rij.r.push_back({IrZend{0, 1}, nec(7)});
+  z.bewaarBezig = true;
+  for (; hw.tick < 10; hw.tick++) z.stap(hw, rij, 0);
+  TEST_ASSERT_EQUAL(IR_WACHT_TICKS, hw.eerste('Z'));
+  TEST_ASSERT_EQUAL(0, (int)z.uitgesteld);
+}
+
+// FN7: kiesLeds mislukt (MCP23017 weg): de code wordt niet "verzonden" zonder led, nietVerzonden telt (één keer per code;
+// voor de continu-leds één keer tot het weer lukt). Een volle rij van de Baan telt in irRijVol.
+void test_kiesleds_mislukt_en_volle_rij() {
+  NepIr hw;
+  hw.kiesOk = false;
+  IrZender z;
+  Rij rij;
+  rij.r.push_back({IrZend{0, 1}, nec(1)});
+  rij.r.push_back({IrZend{0, 2}, nec(2)});
+  for (; hw.tick < 30; hw.tick++) z.stap(hw, rij, 0);
+  TEST_ASSERT_EQUAL(-1, hw.eerste('Z'));
+  TEST_ASSERT_EQUAL(2, (int)z.nietVerzonden);
+  TEST_ASSERT_TRUE(strstr(z.laatsteFout, "MCP23017") != nullptr);
+  for (; hw.tick < 60; hw.tick++) z.stap(hw, rij, 0x10); // continu: één keer geteld
+  TEST_ASSERT_EQUAL(3, (int)z.nietVerzonden);
+  TEST_ASSERT_FALSE(hw.continuAan);
+  hw.kiesOk = true;
+  for (; hw.tick < 70; hw.tick++) z.stap(hw, rij, 0x10);
+  TEST_ASSERT_TRUE(hw.continuAan);
+  TEST_ASSERT_EQUAL(0x10, hw.leds);
+  // de Baan: een halte zet een code in een volle rij
+  Baan b;
+  b.cfg.ir[0] = nec(1);
+  for (int i = 0; i < MAX_IR_RIJ; i++) TEST_ASSERT_TRUE(b.irRij(0, 1));
+  b.halteIr(0, 1, 0);
+  b.halteIr(-1, 1, 0); // geen code: telt niet
+  TEST_ASSERT_EQUAL(1, (int)b.irRijVol);
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, true));
+  TEST_ASSERT_EQUAL(1, d["ir"]["rijVol"].as<int>());
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_leds_kiezen_wachten_zenden);
   RUN_TEST(test_niet_verzonden_wordt_geteld);
   RUN_TEST(test_continu_en_een_code_ertussen);
   RUN_TEST(test_zelftest_via_b1);
+  RUN_TEST(test_ontvanger_niveau_zichtbaar);
+  RUN_TEST(test_lange_code_wacht_op_bewaren);
+  RUN_TEST(test_kiesleds_mislukt_en_volle_rij);
   RUN_TEST(test_lang_niveau_op_ontvanger_geeft_melding);
   RUN_TEST(test_ir_api_continu_en_te_lang);
   RUN_TEST(test_leren_te_lang);

@@ -30,6 +30,7 @@
 //     melding "ftr" op het punt van die ontvanger (aanwezigheid), weer hoog = einde (ontvangerBezet);
 //   - IR: continu-codes (F1, continuLeds), de zelftest via -B1 (E4, zelftestStart), "code te lang" bij leren (F17);
 //   - servo's wachten zolang meer dan 12 lichtgroepen aan staan (E14) en gaan bij het opstarten één voor één (E8);
+//     (2.2.0: de rem standaard uit en instelbaar, één tegelijk in plaats van stil; servoMaxBewegend, FN3 en EN3)
 //   - haltes: meldingen van de haltes (F12) in logicaMelding().
 #pragma once
 #include <string>
@@ -42,17 +43,18 @@
 
 namespace trein {
 
-constexpr const char *FW_VERSIE = "2.1.0";
+constexpr const char *FW_VERSIE = "2.2.0";
 constexpr uint32_t LEER_MS = 10000;   // zo lang wacht leren op een code
 constexpr int MAX_IR_RIJ = 8;
-constexpr int SERVO_REM_GROEPEN = 12; // E14: meer lichtgroepen aan = de servo's wachten
 constexpr uint32_t ZELFTEST_MS = 3000; // E4: zo lang wacht de IR-zelftest op -B1
 constexpr uint16_t ZELFTEST_ADRES = 0x7E, ZELFTEST_COMMANDO = 0x5A;
 
 /** E4: IR-zelftest: een NEC-testcode via één IR-led, -B1 (de leerontvanger) leest mee */
 struct IrZelftest {
   bool loopt = false, ok = false, gedaan = false;
-  bool ongemoduleerd = false; // -B1 zag licht zonder draaggolf (F1)
+  // TN3 (2.2.0): -B1 is een TSMP58000 en laat alleen 20-60 kHz door. Licht ZONDER draaggolf geeft geen uitgang; dit
+  // vlagje betekent alleen "een flank zonder herkenbare draaggolf" (toeval, storing), niet "de led brandt continu".
+  bool ongemoduleerd = false;
   int8_t led = -1;
   uint32_t start = 0;
   int khzTiende = 0;
@@ -116,8 +118,10 @@ class Baan : public Uitvoerder, public HalteUit {
   IngangMasker ingangAanwezig = INGANGEN_GPIO | INGANGEN_MCP1; // 25..38 pas als de tweede MCP23017 er is
   IrZelftest zelftest;
   NiveauWacht niveau[IR_ONTVANGERS]; // E2: lang laag op een ontvangerpin
+  bool ontvangerLaag[IR_ONTVANGERS] = {false, false, false, false}; // TN3: het niveau nu (laag = licht of signaal)
   // IR zenden: main.cpp vult dit in (IrZender)
   uint32_t irNietVerzonden = 0;
+  uint32_t irRijVol = 0;   // FN7: een halte kon een code niet in de rij zetten (8 vol)
   const char *irLaatsteFout = "";
   uint32_t msNu = 0;       // de tijd van de laatste tick
   uint32_t cfgRev = 1, standRev = 1;
@@ -181,7 +185,9 @@ class Baan : public Uitvoerder, public HalteUit {
     seq.stap(cfg.functie, *this, nu);
     dagnachtStap(nu);
     haltes.stap(cfg.halte, ingangen.actiefMasker(), *this, nu);
-    servos.geremd = telBits(lampen.uitgang) > SERVO_REM_GROEPEN; // E14 (de stand van de vorige tick)
+    // E14/FN3: standaard uit; aan = boven zoveel groepen één servo tegelijk (de stand van de vorige tick). EN3.
+    servos.geremd = cfg.inst.servoRemGroepen && telBits(lampen.uitgang) > cfg.inst.servoRemGroepen;
+    servos.maxBewegend = cfg.inst.servoMaxBewegend;
     servos.stap(cfg.servo, nu);
     if (leren.loopt && nu - leren.start >= LEER_MS) {
       leren.loopt = false;
@@ -190,9 +196,12 @@ class Baan : public Uitvoerder, public HalteUit {
     if (zelftest.loopt && nu - zelftest.start >= ZELFTEST_MS) {
       zelftest.loopt = false;
       zelftest.gedaan = true;
+      // TN3: licht zonder draaggolf kan -B1 niet zien (TSMP58000: alleen 20-60 kHz)
       zelftest.fout = zelftest.ongemoduleerd
-                          ? "-B1 zag licht zonder draaggolf: de IR-led brandt, maar de modulatie (-Q3, GPIO47) werkt niet."
-                          : "-B1 zag niets: houd IR-led n voor het venster van -B1 en kijk -Q3, -Q4 en de draden na.";
+                          ? "-B1 zag een flank zonder herkenbare draaggolf (storing of toeval): kijk -Q3 (GPIO47) en "
+                            "-Q4 na en probeer opnieuw, of zet de duty op 50 %."
+                          : "-B1 zag niets: houd de IR-led voor het venster van -B1 en kijk -Q3, -Q4 en de draden na. "
+                            "Licht zonder draaggolf ziet -B1 nooit (TSMP58000: 20-60 kHz).";
     }
     lampen.stap(nu);
     if (testSoort != TEST_GEEN) {
@@ -232,18 +241,29 @@ class Baan : public Uitvoerder, public HalteUit {
     }
     return irRij(code, leds);
   }
-  /** de IR-leds die nu zonder draaggolf moeten branden: haltes met een continu-stopcode die een bus vasthouden, en
-   *  een continu-code die met de hand gezonden werd */
+  /** de IR-leds die nu zonder draaggolf moeten branden: haltes met een continu-stopcode die een bus vasthouden (de
+   *  eerste via stopLeds, een wachtende via wachtLeds: FN1), en een continu-code die met de hand gezonden werd */
   uint8_t continuLeds(uint32_t nu) const {
     uint8_t m = 0;
     for (int h = 0; h < MAX_HALTES; h++) {
       const HalteCfg &c = cfg.halte[h];
-      if (c.gebruikt && c.stopCode >= 0 && cfg.ir[c.stopCode].gebruikt && cfg.ir[c.stopCode].soort == IR_CONTINU &&
-          haltes.houdt(h))
-        m |= c.stopLeds ? c.stopLeds : 0xFF;
+      if (!continuHalte(h)) continue;
+      if (haltes.continuMag(h, c, nu, false)) m |= c.stopLeds ? c.stopLeds : 0xFF; // EN1: met een tijdsgrens
+      if (haltes.continuMag(h, c, nu, true)) m |= c.wachtLeds;
     }
     if (proefLeds_ && !voorbij(nu, proefTot_)) m |= proefLeds_;
     return m;
+  }
+  /** heeft halte h een stopcode "continu"? */
+  bool continuHalte(int h) const {
+    const HalteCfg &c = cfg.halte[h];
+    return c.gebruikt && c.stopCode >= 0 && cfg.ir[c.stopCode].gebruikt && cfg.ir[c.stopCode].soort == IR_CONTINU;
+  }
+  /** EN1: is er een continu-code in gebruik (bewaard)? Dan toont het dashboard de waarschuwing over de 470 Ω */
+  bool continuGebruikt() const {
+    for (int i = 0; i < MAX_IR_CODES; i++)
+      if (cfg.ir[i].gebruikt && cfg.ir[i].soort == IR_CONTINU) return true;
+    return false;
   }
   /** de code bij een opdracht uit de rij (ook de testcode van de zelftest) */
   bool irCodeVoor(const IrZend &z, IrCode &c) const {
@@ -267,13 +287,27 @@ class Baan : public Uitvoerder, public HalteUit {
   /** E2: het niveau van ontvangerpin o (0..3), elke tick: laag langer dan 50 ms = een ftr-melding (aanwezigheid) */
   void ontvangerNiveau(int o, bool laag, uint32_t nu) {
     if (o < 0 || o >= IR_ONTVANGERS) return;
+    ontvangerLaag[o] = laag; // TN3: zichtbaar in /api/staat (fototransistor op GPIO11: laag = IR-licht)
     if (niveau[o].stap(laag, nu) != 1) return;
     const Melding *m = volg.ontvangen(o, "", cfg.punt, cfg.bus, nu);
     if (m) haltes.melding(cfg.halte, m->punt, m->bus, *this, nu);
   }
-  /** meldingen van de logica voor het dashboard (F12: een halte gaf toch groen) */
+  /** meldingen van de logica voor het dashboard (F12: een halte gaf toch groen; FN3: een servo wacht > 5 s) */
   std::string logicaMelding() const {
     std::string m;
+    int s = servos.langWachtend(msNu);
+    if (s >= 0)
+      m = "Servo \"" + std::string(cfg.servo[s].naam) + "\" wacht al langer dan 5 s om te bewegen" +
+          (servos.geremd ? " (meer dan " + std::to_string(cfg.inst.servoRemGroepen) +
+                               " lichtgroepen aan: de servo's gaan één voor één)."
+                         : " (er bewegen al " + std::to_string(servos.limiet()) + " servo's tegelijk).");
+    for (int h = 0; h < MAX_HALTES; h++) { // EN1: een continu-stopled die op haar grens uit ging
+      if (!continuHalte(h) || !haltes.continuTeLang(h, cfg.halte[h], msNu)) continue;
+      if (!m.empty()) m += " ";
+      m += "Halte \"" + std::string(cfg.halte[h].naam) + "\": de continu-stopled brandde " +
+           std::to_string(Haltes::continuGrensMs(cfg.halte[h], haltes.houdtWacht(h)) / 1000) +
+           " s en is uit gezet om de serieweerstand te sparen. " + IR_CONTINU_WAARSCHUWING;
+    }
     for (int h = 0; h < MAX_HALTES; h++) {
       if (!cfg.halte[h].gebruikt || !haltes.t[h].teLang) continue;
       if (!m.empty()) m += " ";
@@ -368,8 +402,9 @@ class Baan : public Uitvoerder, public HalteUit {
   // HalteUit
   void halteIr(int code, uint8_t leds, uint32_t) override {
     // een continu-code brandt via continuLeds zolang de halte vasthoudt (F1)
-    if (code >= 0 && code < MAX_IR_CODES && cfg.ir[code].gebruikt && cfg.ir[code].soort == IR_CONTINU) return;
-    irZenden(code, leds);
+    if (code < 0 || code >= MAX_IR_CODES || !cfg.ir[code].gebruikt) return; // geen code gekozen
+    if (cfg.ir[code].soort == IR_CONTINU) return;
+    if (!irZenden(code, leds)) irRijVol++; // FN7: de rij was vol (de stopcode komt 400 ms later opnieuw)
   }
   void halteLicht(int g, bool aan, uint32_t nu) override {
     if (g >= 0 && g < N_GROEPEN && lampen.stand[g].aan != aan) zetAan(g, aan, nu);

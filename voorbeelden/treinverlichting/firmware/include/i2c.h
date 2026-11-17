@@ -1,4 +1,4 @@
-// De drivers van de I2C-chips (firmware 2.1.0): PCA9685 (lichtgroepen, 0x40/0x41), PCA9685 op 50 Hz (servo's, 0x42) en
+// De drivers van de I2C-chips (firmware 2.2.0): PCA9685 (lichtgroepen, 0x40/0x41), PCA9685 op 50 Hz (servo's, 0x42) en
 // MCP23017 (IR-leds en ingangen, 0x20/0x21). Zonder Arduino: elke driver is een template op de I2C-klasse W, met
 // dezelfde functies als TwoWire (beginTransmission, write, endTransmission, requestFrom, read). Op de doos is W =
 // TwoWire (src/hw.h); in de tests een nep-bus met een model van de chips (test/nep/nepwire.h, test/test_hw).
@@ -17,6 +17,12 @@
 //       dan 5 ms op een ANDERE pin van dezelfde poort in dezelfde tick wordt niet gezien (een langere wel, via GPIO).
 //       Voor hallsensoren (± 17 ms bij 6 m/s) geen probleem; hang de snelste sensoren aan ingang 1..16 (GPIO's met een
 //       eigen interrupt).
+// Fable 5.2, tweede ronde (firmware 2.2.0):
+//   FN2 begin() van beide PCA9685's zet MODE1 eerst op 0x30 (slapen MET adres ophogen, AI): anders landen de 4 bytes
+//       "alle kanalen uit" alle vier in ALL_LED_ON_L en wordt ALL_LED_OFF_H nooit geschreven. Na een warme reset
+//       (watchdog, update) gingen de kanalen die aan waren dan weer branden zodra OE laag ging.
+//   QN1 i2cSchrijf weigert een overdracht die niet in de buffer van Wire past (128 bytes met het registeradres): Wire
+//       zou ze stil afkappen en de helft schrijven. Het grootste wat de drivers schrijven is 1 + 64 bytes.
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
@@ -33,13 +39,15 @@ constexpr uint8_t ADRES_MCP1 = 0x20, ADRES_MCP2 = 0x21, ADRES_PCA1 = 0x40, ADRES
  *  actief hoog: niet omgekeerd, OUTNE = 00 (met OE hoog alle uitgangen 0 = uit) */
 constexpr uint8_t pcaMode2(bool actiefLaag) { return actiefLaag ? 0x15 : 0x04; }
 
+constexpr size_t I2C_BUFFER = 128; // de zendbuffer van Wire (ESP32 Arduino 2.x), registeradres inbegrepen
+
 namespace detail {
 template <class W>
 bool i2cSchrijf(W *w, uint8_t adres, uint8_t reg, const uint8_t *data, size_t n) {
+  if (n + 1 > I2C_BUFFER) return false; // QN1: niet beginnen (Wire zou afkappen)
   w->beginTransmission(adres);
-  w->write(reg);
-  if (n) w->write(data, n);
-  return w->endTransmission() == 0;
+  bool heel = w->write(reg) == 1 && (!n || w->write(data, n) == n);
+  return w->endTransmission() == 0 && heel;
 }
 template <class W>
 bool i2cLees(W *w, uint8_t adres, uint8_t reg, uint8_t *v, uint8_t n) {
@@ -72,14 +80,15 @@ class Pca9685T {
  public:
   static constexpr uint8_t MODE1 = 0x00, MODE2 = 0x01, LED0_ON_L = 0x06, ALL_LED_ON_L = 0xFA, PRESCALE = 0xFE;
   static constexpr uint8_t PRESCALE_1KHZ = 5;
+  static constexpr uint8_t MODE1_SLAAP_AI = 0x30; // SLEEP (bit 4) + AI (bit 5)
 
   /** instellen met ALLE kanalen uit; true = de chip antwoordt en staat goed */
   bool begin(W &w, uint8_t adres, WachtUs wacht = nullptr) {
     wire_ = &w;
     adres_ = adres;
     laatst_ = NOG_NIETS; // de volgende zet() schrijft alles
-    if (!schrijf(MODE1, 0x10)) return false;             // slapen: dan mag de prescaler veranderen
-    const uint8_t allesUit[4] = {0x00, 0x00, 0x00, 0x10}; // ALL_LED_OFF_H bit 4 = volledig uit
+    if (!schrijf(MODE1, MODE1_SLAAP_AI)) return false;  // slapen (prescaler mag veranderen) met AI (FN2)
+    const uint8_t allesUit[4] = {0x00, 0x00, 0x00, 0x10}; // ALL_LED_OFF_H bit 4 = volledig uit (4 registers: AI nodig)
     if (!detail::i2cSchrijf(wire_, adres_, ALL_LED_ON_L, allesUit, 4)) return false;
     schrijf(PRESCALE, PRESCALE_1KHZ);
     schrijf(MODE2, pcaMode2(UITGANG_ACTIEF_LAAG)); // totem-pole; omgekeerd bij modules die actief laag schakelen
@@ -152,12 +161,13 @@ class PcaServoT {
  public:
   static constexpr uint8_t MODE1 = 0x00, MODE2 = 0x01, LED0_ON_L = 0x06, ALL_LED_ON_L = 0xFA, PRESCALE = 0xFE;
   static constexpr uint8_t PRESCALE_50HZ = 121;
+  static constexpr uint8_t MODE1_SLAAP_AI = 0x30;
 
   bool begin(W &w, uint8_t adres, WachtUs wacht = nullptr) {
     wire_ = &w;
     adres_ = adres;
     vergeet();
-    if (!schrijf(MODE1, 0x10)) return false;
+    if (!schrijf(MODE1, MODE1_SLAAP_AI)) return false; // FN2: met AI, anders landt "alles uit" in één register
     const uint8_t allesUit[4] = {0x00, 0x00, 0x00, 0x10};
     if (!detail::i2cSchrijf(wire_, adres_, ALL_LED_ON_L, allesUit, 4)) return false;
     schrijf(PRESCALE, PRESCALE_50HZ);

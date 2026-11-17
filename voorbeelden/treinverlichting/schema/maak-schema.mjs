@@ -75,7 +75,7 @@ function voeding() {
   i.push(L([[326, 155], [RECHTS, 155]], { w: 0.35 }), onderbreking(RECHTS, 155, 'L5', ref(B.besturing, X0), 'rechts'));
   // +12 V voor de ingangen en de sensoren: eigen polyfuse
   i.push(punt(370, yp), L([[370, yp], [370, 80.8]]), klem(370, 82, '-X1', '7'), L([[370, 83.2], [370, 90]]), ptc(370, 90, '-F18', 'MF-R050'), L([[370, 110], [370, 118.8]]), klem(370, 120, '-X3', '1'), L([[370, 121.2], [370, 130]]), onderbreking(370, 130, 'S12', ref(B.in, X0), 'onder'));
-  i.push(T(25, 236, 'Stroom: hoogstens 16 x 0,32 A + 0,32 A (regelaar, ingangen) = 5,4 A (bordjes van 0 Ω), met 1K-bordjes 2,7 A. -F1 7,5 A beschermt de draden tot de verdeelklemmen -X1/-X2;', { size: 2.4 }));
+  i.push(T(25, 236, 'Stroom: hoogstens 16 x 0,32 A + 0,32 A (regelaar, ingangen) = 5,4 A (bordjes van 0 Ω), met 1K-bordjes 2,7 A. -F1 T 8 A beschermt de draden tot de verdeelklemmen -X1/-X2;', { size: 2.4 }));
   i.push(T(25, 241, 'elke groep heeft een eigen polyfuse 0,5 A (-F2..-F17, blad 4), de ingangen en sensoren -F18 (0,5 A). -X1, -X2, -X3: WAGO 221-415 (2 x 5 klemmen voor -X1 en -X2: klem 1-5 en 6-10, brug 5-6).', { size: 2.4 }));
   return { titel: ['Voeding', '12 V en 5 V'], inhoud: i };
 }
@@ -152,6 +152,11 @@ function besturing() {
   i.push(T(26, 52, '-T2 VOUT', { size: 2.0 }));
   i.push(L([[160, 60], [175, 60], [175, 40], [218.8, 40]], { w: 0.35 }), klem(220, 40, '-X7', '1'), L([[221.2, 40], [RECHTS, 40]], { w: 0.35 }), onderbreking(RECHTS, 40, 'L3', `${ref(B.uit, 30)}  ${ref(B.in, 30)}`, 'rechts'));
   i.push(T(230, 37.5, '3,3 V (WAGO 221-415): VCC van -K2 (uit J1:2), -Q1, -Q2, -K3, -K4', { size: 2.2 }));
+  // Fable 5.2 E11/EN2: de 3,3 V naar de baan (B3V3) achter de polyfuse -F20 (MF-R030): pootjes in -X7:5 en -X12:1
+  i.push(punt(350, 40), L([[350, 40], [350, 46]]), ptc(350, 46, '-F20', 'MF-R030'), L([[350, 66], [350, 70.8]]), klem(350, 72, '-X12', '1'),
+    L([[350, 73.2], [350, 78], [RECHTS, 78]], { w: 0.35 }), onderbreking(RECHTS, 78, 'B3V3', `${ref(B.ir, 300)}  ${ref(B.servo, 93)}`, 'rechts'));
+  i.push(T(308, 90, 'B3V3: ontvangers -B2..-B4 (-X12:3..5) en via -W40', { size: 1.9 }), T(308, 93.5, 'en -X17 onder de baan de reflexsensoren -B5..-B8.', { size: 1.9 }),
+    T(308, 97, '0 V naar de baan: -X13 (aan M). Belasting ± 0,1 A (Berekeningen).', { size: 1.9 }));
   i.push(L([[160, 85], [300, 85]]), L([[160, 95], [300, 95]]), onderbreking(300, 85, 'SDA', ref(B.uit, 30)), onderbreking(300, 95, 'SCL', ref(B.uit, 30)));
   i.push(L([[160, 110], [300, 110]]), onderbreking(300, 110, 'OE (actief laag)', ref(B.uit, 30)));
   i.push(punt(260, 40), L([[260, 40], [260, 62]]), weerstand(260, 62, '-R1', '1 kΩ'), L([[260, 82], [260, 110]]), punt(260, 110));

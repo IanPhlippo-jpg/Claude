@@ -16,6 +16,10 @@
 //   of wordt ze een nieuwe auto;
 //   rijdt er net een bus over het punt, dan alleen tellen. Een auto die na 2 x zijn verwachte rijtijd het volgende
 //   meetpunt niet haalde, verdwijnt.
+// - VN1 (firmware 2.2.0): "een bus rijdt over het punt" is niet meer "binnen 4 m van de getekende bus": de grens groeit
+//   met de onzekerheid (de helft van de afstand van het vorige meetpunt van die bus tot dit punt, minimum 4 m), en een
+//   bus die volgens de doos naar dit punt rijdt en op de tekening nog vóór het punt staat, telt altijd. De beslissing
+//   zelf staat in ui/tv-logica.js (busOverPunt, getest met node --test ui/test/*.test.mjs).
 // - Tijden van de doos (millis) lopen na 49,7 dagen over: verschillen altijd modulo 2^32 (V4).
 (() => {
   'use strict';
@@ -174,13 +178,16 @@
     const gem = Object.values(D.hist).filter(h => h.snel > 0 && !!h.bus === !!bus).map(h => h.snel);
     return gem.length ? gem.reduce((a, b) => a + b) / gem.length : null;
   }
-  /** rijdt er nu een live bus over dit punt (binnen 4 m ervoor of erna)? */
-  function busOver(plek) {
-    return SP.voertuigen.some(v => {
-      if (!v.live || !v.busNr || !v.benen[v.li]) return false;
-      const hier = { baan: v.benen[v.li].baan, s: v.s }, a = weg(hier, plek), b = weg(plek, hier);
-      return (a && a.d < 4 * pxm()) || (b && b.d < 4 * pxm());
+  /** VN1: rijdt er nu een live bus over dit punt? (de beslissing: TvLogica.busOverPunt in ui/tv-logica.js) */
+  function busOver(plek, punt) {
+    const bussen = SP.voertuigen.filter(v => v.live && v.busNr && v.benen[v.li]).map(v => {
+      const hier = { baan: v.benen[v.li].baan, s: v.s }, a = weg(hier, plek), b = weg(plek, hier), h = D.hist[v.id];
+      const vorig = h && h.plek ? weg(h.plek, plek) : null;
+      const k = D.kort && (D.kort.bussen || []).find(x => x && x.nr === v.busNr);
+      return { voor: a ? a.d : null, na: b ? b.d : null, vorig: vorig ? vorig.d : null,
+        doosHier: !!(k && k.naar === punt && hier.baan === plek.baan && a) }; // volgens de doos nog niet voorbij
     });
+    return window.TvLogica.busOverPunt(bussen, pxm());
   }
   /** V1/V2: wie hoort bij een melding zonder buscode? { id, bus } of null (alleen tellen, geen nieuw voertuig) */
   function wie(m, plek) {
@@ -195,7 +202,7 @@
     // de voorste auto die hier verwacht wordt en al minstens de helft van zijn weg reed; anders is het een andere auto
     const a = verwacht(v => v.soort === 'auto' && !v.busNr && v.rest <= 0.5 * (v.routeL || 0))[0];
     if (a) return { id: a.id, bus: 0 };
-    if (busOver(plek)) return null; // de magneet van een bus op de gedeelde strook: geen nieuwe auto
+    if (busOver(plek, m.punt)) return null; // de magneet van een bus op de gedeelde strook: geen nieuwe auto
     return { id: 'auto' + (++D.autoNr), bus: 0 };
   }
   function verwerk(m, msNu) {
@@ -362,8 +369,9 @@
       }
       labelTekst(p.x, p.y + 30, p.naam || p.id, { fs: 10 });
     }
-    for (const p of lijst('ir_sensoren').concat(lijst('hallsensoren').slice(1))) { // de eerste hallsensor tekent de pagina zelf
-      const f = Math.max(0, 1 - (nu - (D.flits[p.id] || -1e9)) / 900), ir = !p.id.startsWith('HALL');
+    // de eerste hallsensor tekent de pagina zelf; de soort volgt uit de lijst (VN3: ook HW1, HS_... uit het sensoradvies)
+    for (const [p, ir] of lijst('ir_sensoren').map(q => [q, true]).concat(lijst('hallsensoren').slice(1).map(q => [q, false]))) {
+      const f = Math.max(0, 1 - (nu - (D.flits[p.id] || -1e9)) / 900);
       if (f > 0) { // een melding: een duidelijke gloed (ook als ze aan geen voertuig toegewezen werd, V1)
         const k = ir ? '40,170,255' : '255,200,0', g = cx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 34);
         g.addColorStop(0, `rgba(${k},${f})`); g.addColorStop(0.5, `rgba(${k},${0.65 * f})`); g.addColorStop(1, `rgba(${k},0)`);

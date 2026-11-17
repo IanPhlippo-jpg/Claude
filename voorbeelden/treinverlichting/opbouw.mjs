@@ -173,10 +173,11 @@ export const MODULES = {
   // versie 6 fase B
   '-K7': pcaMod(true),
   '-T3': xl,
-  // Fable 5.2 E11: de 3,3 V naar de baan (ontvangers, reflexsensoren) achter de polyfuse -F20 (0,1 A): net B3V3
+  // Fable 5.2 E11/EN2: de 3,3 V naar de baan (ontvangers, reflexsensoren) achter de polyfuse -F20 (MF-R030): net B3V3
   '-X12': wago('B3V3'),
   '-X13': wago('M'),
-  '-Q4': (() => { const q = mosfet('Q4', 0, (i) => `GPA${i}`, 'Q3D'); return { ...q, naam: '8-kanaals MOSFET-module met optocouplers (IR-leds kiezen)', nets: { ...q.nets, VCC: 'B3V3' } }; })(),
+  // Fable 5.2 EN2: de stuurkant van -Q4 weer uit de 3,3 V in de doos (niet uit B3V3)
+  '-Q4': { ...mosfet('Q4', 0, (i) => `GPA${i}`, 'Q3D'), naam: '8-kanaals MOSFET-module met optocouplers (IR-leds kiezen)' },
   '-Q3': aod,
   '-K5': mcp('0x20'),
   '-K8': { ...mcp('0x21'), optioneel: true },
@@ -395,8 +396,21 @@ export const DRADEN = [
   { van: ['-T3', 'OUT−'], naar: ['-K7', 'GNDt'], net: 'M', mm2: 0.75, kleur: 'zwart', wat: '0 V voor de servo\'s' },
   // 3,3 V en 0 V voor de IR-driver en de ontvangers op de baan (-X12, -X13; klem 3..5 naar de ontvangers -B2..-B4)
   { van: ['-X2b', '2'], naar: ['-X13', '1'], net: 'M', mm2: 0.5, kleur: 'zwart', wat: '0 V naar de verdeelklem van de uitbreiding' },
-  { van: ['-X12', '2'], naar: ['-Q4', 'VCC'], net: 'B3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V ingangskant IR-driver (over de naad)' },
-  { van: ['-X13', '2'], naar: ['-Q4', 'GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V ingangskant IR-driver (over de naad)' },
+  { van: ['-K4', 'VCCo'], naar: ['-Q4', 'VCC'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V ingangskant IR-driver (dupont female-male 50 cm, over de naad; Fable 5.2 EN2)' },
+  { van: ['-X6', 'J3:1'], naar: ['-Q4', 'GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V ingangskant IR-driver (dupont female-male 50 cm, over de naad)' },
+  // ---- Fable 5.2 EN2: de veldkabels naar de baan (ontvangers -B2..-B4 en reflexsensoren -B5..-B8) en hun klemmen
+  ...[2, 3, 4].flatMap((b, k) => [
+    { van: ['-X12', String(3 + k)], naar: [`-B${b}`, 'Vs'], net: 'B3V3', mm2: 0.14, kleur: 'oranje', wat: `veldkabel -W${29 + b} (getwist, ± 3 m): 3,3 V naar IR-ontvanger -B${b}`, veld: true },
+    { van: ['-X13', String(3 + k)], naar: [`-B${b}`, 'GND'], net: 'M', mm2: 0.14, kleur: 'zwart', wat: `veldkabel -W${29 + b}: 0 V naar IR-ontvanger -B${b}`, veld: true },
+    { van: [`-B${b}`, 'OUT'], naar: ['-X14', String(1 + k)], net: `B${b}OUT`, mm2: 0.14, kleur: 'geel', wat: `veldkabel -W${29 + b}: uitgang van -B${b} naar -X14 (WAGO 221-2411, daar -R${20 + b} 1 kΩ naar de ESP)`, veld: true },
+  ]),
+  { van: ['-X12', '2'], naar: ['-X17', '1'], net: 'B3V3', mm2: 0.25, kleur: 'oranje', wat: 'veldkabel -W40 (± 3 m): 3,3 V naar de verdeelklem -X17 onder de baan (de 4 reflexsensoren)', veld: true },
+  { van: ['-X13', '2'], naar: ['-X18', '1'], net: 'M', mm2: 0.25, kleur: 'zwart', wat: 'veldkabel -W40: 0 V naar de verdeelklem -X18 onder de baan', veld: true },
+  ...[5, 6, 7, 8].flatMap((b, k) => [
+    { van: ['-X17', String(2 + k)], naar: [`-B${b}`, 'VCC'], net: 'B3V3', mm2: 0.14, kleur: 'oranje', wat: `onder de baan: 3,3 V naar reflexsensor -B${b}`, veld: true },
+    { van: ['-X18', String(2 + k)], naar: [`-B${b}`, 'GND'], net: 'M', mm2: 0.14, kleur: 'zwart', wat: `onder de baan: 0 V naar reflexsensor -B${b}`, veld: true },
+    { van: [`-B${b}`, 'DO'], naar: ['-X15', String(1 + k)], net: `B${b}DO`, mm2: 0.14, kleur: 'wit', wat: `veldkabel -W${36 + b}: uitgang van -B${b} naar -X15 (WAGO 221-2411, daar -R${23 + b} 1 kΩ naar -K5 GPB${k})`, veld: true },
+  ]),
   // de IR-driver: L+ voor de IR-leds (via de klemmen n+), VIN− door de AOD4184 naar 0 V, de draaggolf van GPIO47
   { van: ['-X1b', '5'], naar: ['-Q4', 'VIN+'], net: 'L+', mm2: 0.5, kleur: 'rood', wat: '12 V voor de IR-leds (over de naad)' },
   { van: ['-Q4', 'VIN−'], naar: ['-Q3', 'OUT−'], net: 'Q3D', mm2: 0.5, kleur: 'zwart', wat: 'terugweg van de IR-leds door de AOD4184 (piek 0,7 A)' },
@@ -416,7 +430,9 @@ export const IN_KLEMMEN = [
   { ref: '-R2', wat: 'Schottkydiode SB560 (ompoolbeveiliging): kathode (ring) aan L+, anode aan 0 V', a: ['-X1b', '3'], b: ['-X2b', '3'] },
   { ref: '-F18', wat: 'polyfuse Bourns MF-R050 (knoppen en sensoren)', a: ['-X1b', '2'], b: ['-X3', '1'] },
   { ref: '-C5', wat: 'elco 1000 µF 25 V (servovoeding): + aan V+, − aan GND van de servoprint', a: ['-K7', 'V+t'], b: ['-K7', 'GNDt'] },
-  { ref: '-F20', wat: 'polyfuse 0,1 A (Bourns MF-R010): de 3,3 V naar de baan (Fable 5.2 E11)', a: ['-X7', '5'], b: ['-X12', '1'] },
+  { ref: '-F20', wat: 'polyfuse 0,3 A (Bourns MF-R030): de 3,3 V naar de baan (Fable 5.2 E11, EN2)', a: ['-X7', '5'], b: ['-X12', '1'] },
+  ...[2, 3, 4].map((b, k) => ({ ref: `-R${20 + b}`, wat: `weerstand 1 kΩ in de lijn van ontvanger -B${b} (EN2)`, a: gpioKlem([11, 39, 42][k]), b: ['-X14', String(1 + k)] })),
+  ...[5, 6, 7, 8].map((b, k) => ({ ref: `-R${23 + b}`, wat: `weerstand 1 kΩ in de uitgang van reflexsensor -B${b}: pootje in een dupontbusje op GPB${k}`, a: ['-K5', `GPB${k}`], b: ['-X15', String(1 + k)] })),
 ];
 
 /** de draden van de groepen en de ingangen (naar de bordjes en de baan; de labels uit de README) */
@@ -427,7 +443,13 @@ export const GROEPEN = Array.from({ length: 16 }, (_, k) => {
 export const INGANGEN = Array.from({ length: 16 }, (_, k) => ({ ingang: k + 1, klem: [k < 8 ? '-K3' : '-K4', `IN${(k % 8) + 1}`], gpio: INGANG_GPIO[k] }));
 
 // ---------------------------------------------------------------- de controle
-const VAST = { '-X5': { '+': 'J+', '−': 'M' }, '-F1': { in: 'J+', uit: 'L+' }, '-F18': { a: 'L+', b: 'S12' }, '-F19': { in: 'L+', uit: 'L19' }, '-B1': { Vs: '3V3', GND: 'GND', OUT: 'GPIO48' } };
+const VAST = { '-X5': { '+': 'J+', '−': 'M' }, '-F1': { in: 'J+', uit: 'L+' }, '-F18': { a: 'L+', b: 'S12' }, '-F19': { in: 'L+', uit: 'L19' }, '-B1': { Vs: '3V3', GND: 'GND', OUT: 'GPIO48' },
+  // Fable 5.2 EN2: de losse klemmen (WAGO 221-2411 in de doos: -X14 ontvangers, -X15 reflexsensoren; WAGO 221-415 onder de
+  // baan: -X17 3,3 V, -X18 0 V) en de sensoren op de baan
+  '-X14': { 1: 'B2OUT', 2: 'B3OUT', 3: 'B4OUT' }, '-X15': { 1: 'B5DO', 2: 'B6DO', 3: 'B7DO', 4: 'B8DO' },
+  '-X17': Object.fromEntries([1, 2, 3, 4, 5].map((k) => [k, 'B3V3'])), '-X18': Object.fromEntries([1, 2, 3, 4, 5].map((k) => [k, 'M'])),
+  ...Object.fromEntries([2, 3, 4].map((b) => [`-B${b}`, { Vs: 'B3V3', GND: 'M', OUT: `B${b}OUT` }])),
+  ...Object.fromEntries([5, 6, 7, 8].map((b) => [`-B${b}`, { VCC: 'B3V3', GND: 'M', DO: `B${b}DO` }])) };
 /** het net van een eind (een klem van een module of een vast eind) */
 export function eindNet(e) {
   if (VAST[e[0]]) return VAST[e[0]][e[1]];
@@ -491,7 +513,8 @@ export function controleerAlles(Llinks) {
     for (const o of og) for (const r of refs) if (helft(r) === o.helft && raakt(o.rect, v[r], 0.3 - 1e-9)) fout.push(`oogje bij ${o.bij} onder ${r}`);
   }
   // de elementen in de klemmen op hun net
-  const want = { '-R1': ['3V3', 'GPIO10'], '-R2': ['L+', 'M'], '-F18': ['L+', 'S12'], '-C5': ['V6', 'M'], '-F20': ['3V3', 'B3V3'] };
+  const want = { '-R1': ['3V3', 'GPIO10'], '-R2': ['L+', 'M'], '-F18': ['L+', 'S12'], '-C5': ['V6', 'M'], '-F20': ['3V3', 'B3V3'],
+    '-R22': ['GPIO11', 'B2OUT'], '-R23': ['GPIO39', 'B3OUT'], '-R24': ['GPIO42', 'B4OUT'], '-R28': ['IN17', 'B5DO'], '-R29': ['IN18', 'B6DO'], '-R30': ['IN19', 'B7DO'], '-R31': ['IN20', 'B8DO'] };
   for (const x of IN_KLEMMEN) { const n = [eindNet(x.a), eindNet(x.b)]; if (n.join() !== want[x.ref].join()) fout.push(`${x.ref} zit op ${n.join(' en ')}`); }
   // elke groep heeft een + (L+) en een − (drain), elke ingang een klem
   for (const g of GROEPEN) { if (eindNet(g.plus) !== 'L+') fout.push(`groep ${g.groep}: + niet op L+`); if (!/D\d$/.test(eindNet(g.min))) fout.push(`groep ${g.groep}: − niet op een drain`); }

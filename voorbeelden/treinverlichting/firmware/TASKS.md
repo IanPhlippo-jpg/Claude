@@ -70,3 +70,14 @@
 - [x] main.cpp: F6 toegang (hotspot of wachtwoordkop, Origin), V5 CORS, F7 10 clients, F9 OE-commentaar, E5 commentaar, F14 tekst, F15 JSON buiten het slot + stapelmeting, GET /api/zelftest (Q1)
 - [x] Q3: ontbrekende gevallen als tests; native en native32 groen; doos bouwen (flash/RAM)
 - [x] Firmware 2.1.0, README (nieuw in 2.1.0, instellingen, tabel getest op de pc / gemeten op hardware), graphify update
+
+## Advies Fable 5.2, tweede ronde (2026-11-17)
+- [x] FN2 + QN1: PCA9685 begin() met MODE1 0x30 (beide), NepChip strikt (AI-bit, NACK halverwege, 128 bytes); test met negatieve proef
+- [x] FN1 + QN2: wachtLeds per halte (API, opslag, dashboard); stopcode voor de wachtende alleen via wachtLeds, rijcode in groen altijd via stopLeds; test vanuit de bus met negatieve proef
+- [x] FN3 + EN3: servo-rem standaard uit, instelling "wachten boven n groepen" (0 = uit) met één servo tegelijk, melding na 5 s; servoMaxBewegend (standaard 2); tests
+- [x] EN1 + TN3: vlag continu in /api/staat en codes, waarschuwing 470 Ω in het dashboard, firmwaregrens continu zenden; zelftest-tekst en niveau GPIO11 zichtbaar
+- [x] Dashboard: wachtLeds per halte met uitleg, waarschuwing continu, servo-instellingen en melding, zelftest TN3, rijVol; demomodus bij
+- [x] FN4, FN5, FN6, FN7: busherstel netjes + kortsluitmelding, Host-controle, tekst /update, bewaarvlag voor lange codes, kiesLeds en volle rij tellen, rijcode 3 keer na opstarten
+- [x] VN1: busOver als pure functie (ui/tv-logica.js) met onzekerheidsgrens; node --test in ui/test met negatieve proef
+- [x] native, native32 groen, doos bouwen; firmware 2.2.0; maak-tv.py en maak-header.py; README (nieuw in 2.2.0)
+- [x] Screenshots dashboard en tv (scratchpad trein-v7), graphify update

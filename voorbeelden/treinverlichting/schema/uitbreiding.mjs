@@ -32,16 +32,17 @@ export function irBlad(B) {
     i.push(irLed(x, 56, `-E${20 + n}`, n === 1 ? 'TSAL6200' : ''), L([[x, 70], [x, 88]]));
   }
   i.push(T(26, 63, 'in het', { size: 1.9 }), T(26, 66, 'veld', { size: 1.9 }), T(26, 69, '-W21..-W28', { size: 1.8 }), T(26, 72, 'getwist', { size: 1.8 }), T(120, 26.4, 'L+ = de klemmen n+ van -Q4 (VIN+)', { size: 2.0 }));
-  // -Q4: 8-kanaals MOSFET-module (zoals -Q1), per kanaal een N-MOSFET; de sources samen op VIN−
-  i.push(toestel(30, 88, 182, 44, '-Q4', [], []));
+  // -Q4: 8-kanaals MOSFET-module met optocouplers (zoals -Q1, blad 4). Fable 5.2 TN4: getekend als gesloten blok met zijn
+  // klemmen (geen kale MOSFET's met de gate op IN: tussen IN en de MOSFET zit per kanaal een PC817 en de printweerstand)
+  i.push(toestel(30, 88, 182, 44, '-Q4', ['', '', `8 kanalen, per kanaal PC817 + MOSFET, zoals -Q1 ${ref(B.uit, 60)}`, 'n− = drain van kanaal n, VIN− = de sources samen', 'IN n: led van de PC817 tussen VCC en IN n (actief laag)'], []));
   for (let n = 1; n <= 8; n++) {
     const x = xs(n);
-    i.push(aansluiting(x, 88, `${n}−`, 'end'), L([[x, 88], [x, 95]]), nmos(x - 2, 104, '', '', false), L([[x, 113], [x, 116]]), punt(x, 116));
-    i.push(L([[x - 11, 104], [x - 13, 104], [x - 13, 132]]), aansluiting(x - 13, 132, `IN${n}`, 'start'), L([[x - 13, 132], [x - 13, 140]]));
+    i.push(aansluiting(x, 88, `${n}−`, 'end'));
+    i.push(aansluiting(x - 13, 132, `IN${n}`, 'start'), L([[x - 13, 132], [x - 13, 140]]));
   }
-  i.push(L([[xs(1), 116], [212, 116]]), aansluiting(212, 116, 'VIN−', 'end'));
-  // Fable 5.2 T4: de stuurkant van -Q4 (per kanaal een PC817 zoals bij -Q1, blad 4): VCC uit -X12 (B3V3), GND uit -X13
-  i.push(aansluiting(30, 121, 'VCC (B3V3)'), aansluiting(30, 126.5, 'GND (M)'));
+  i.push(aansluiting(212, 116, 'VIN−', 'end'));
+  // Fable 5.2 T4/EN2: de stuurkant van -Q4: VCC uit de 3,3 V van -K4 (VCCo), GND uit -X6 J3:1 (niet meer uit B3V3)
+  i.push(aansluiting(30, 121, 'VCC (3V3, -K4 VCCo)'), aansluiting(30, 126.5, 'GND (-X6 J3:1)'));
   // -Q3: snelle MOSFET-module zonder optocoupler (AOD4184): moduleert alle IR-leds samen met de draaggolf van GPIO47
   i.push(L([[212, 116], [262, 116], [262, 121]]), toestel(240, 112, 48, 46, '-Q3', [], []), nmos(260, 130, '', '', true), T(266, 146, 'AOD4184', { size: 2.0 }));
   i.push(T(265, 153, 'zonder optocoupler', { size: 1.9 }), T(265, 156, '(snel: 30-56 kHz)', { size: 1.9 }));
@@ -52,11 +53,11 @@ export function irBlad(B) {
   for (let n = 1; n <= 8; n++) i.push(aansluiting(xs(n) - 13, 140, `GPA${n - 1}`, 'start'));
   i.push(L([[60, 174], [60, 190]]), onderbreking(60, 190, 'SDA', ref(B.besturing, 300), 'onder'), L([[80, 174], [80, 190]]), onderbreking(80, 190, 'SCL', ref(B.besturing, 300), 'onder'));
   i.push(aansluiting(60, 174, 'SDA'), aansluiting(80, 174, 'SCL'));
-  i.push(L([[180, 174], [180, 190]]), onderbreking(180, 190, 'GPB0..6', ref(B.servo, 60), 'onder'), aansluiting(180, 174, 'GPB'));
+  i.push(L([[180, 174], [180, 190]]), onderbreking(180, 190, 'GPB0..6', ref(B.servo, 112), 'onder'), aansluiting(180, 174, 'GPB'));
   // ontvangers: -B1 leerontvanger in de doos (GPIO48), -B2..-B4 op de baan (GPIO11, 39, 42), met RC-filter 100 Ω + 4,7 µF
   const ontv = [['-B1', 'TSMP58000 (leren)', 'achter het venster', 'GPIO48'], ['-B2', 'TSOP38238', 'op de baan', 'GPIO11'], ['-B3', 'TSOP38238', 'op de baan', 'GPIO39'], ['-B4', 'TSOP38238', 'op de baan', 'GPIO42']];
-  // Fable 5.2 E11: de ontvangers op de baan uit B3V3 (-X12, achter de polyfuse -F20 0,1 A); -B1 in de doos uit L3
-  i.push(L([[300, 84], [300, 40 + 3 * 48]], { w: 0.35 }), onderbreking(300, 84, 'B3V3', ref(B.besturing, 220), 'boven'));
+  // Fable 5.2 E11/EN2: de ontvangers op de baan uit B3V3 (-X12, achter de polyfuse -F20 MF-R030, blad 6); -B1 in de doos uit L3
+  i.push(L([[300, 84], [300, 40 + 3 * 48]], { w: 0.35 }), onderbreking(300, 84, 'B3V3', ref(B.besturing, 350), 'boven'));
   ontv.forEach(([b, type, waar, gpio], k) => {
     const y = 44 + k * 48;
     // -B1 in de doos zit kort bij de ESP (3,3 V van J1:2): geen RC-filter; -B2..-B4 op de baan: 100 Ω + 4,7 µF bij de ontvanger
@@ -69,10 +70,10 @@ export function irBlad(B) {
     else i.push(weerstandH(374, y + 12, `-R${21 + k}`, '1 kΩ'), L([[394, y + 12], [405, y + 12]]), onderbreking(405, y + 12, gpio, ref(B.besturing, 160), 'rechts'), T(376, y + 24, `-W${30 + k}`, { size: 1.8 }));
   });
   i.push(T(25, 200, '-E21..-E28: IR-led 940 nm (Vishay TSAL6200), op de baan, elk een getwist paar -W21..-W28 (niet naast de ontvangerkabels); -R10..-R17 120 Ω 1 W in -X9 (WAGO 221-2411): piek 89 mA.', { size: 2.2 }));
-  i.push(T(25, 205, 'IR-led n brandt alleen als -Q4 kanaal n aan staat EN GPIO47 de draaggolf geeft (-Q3; duty 33 of 50 %). Codering NEC, RC5, raw (geleerd) of continu (zonder draaggolf).', { size: 2.2 }));
-  i.push(T(25, 210, 'Leren en IR-zelftest: -B1 (TSMP58000) geeft de draaggolf door (frequentie en pulstijden). -B2..-B4: gedemoduleerd (38 kHz), actief laag, met 4,7 kΩ pull-up in de ontvanger.', { size: 2.2 }));
+  i.push(T(25, 205, 'IR-led n brandt alleen als -Q4 kanaal n aan staat EN GPIO47 de draaggolf geeft (-Q3; duty 33 of 50 %). Codering NEC, RC5, raw (geleerd) of continu (zonder draaggolf: dan -R10..-R17 470 Ω 0,5 W, Fable 5.2 EN1).', { size: 2.2 }));
+  i.push(T(25, 210, 'Leren en IR-zelftest: -B1 (TSMP58000) geeft de draaggolf door (frequentie en pulstijden). -B2..-B4: gedemoduleerd (38 kHz), actief laag (interne pull-up ± 30 kΩ, geen extra weerstand).', { size: 2.2 }));
   i.push(T(25, 215, 'Reflexsensoren (FTR) niet hier maar op ingang 17-23 van -K5 (blad 8). Ontvangers: B3V3 uit -X12, 0 V uit -X13, kabel getwist, hoogstens 3 m (AANNAME), RC-filter bij de ontvanger.', { size: 2.2 }));
-  i.push(T(25, 227, `-Q4: 8-kanaals MOSFET-module, per kanaal PC817 + MOSFET zoals -Q1 ${ref(B.uit, 60)} (VCC = B3V3, VIN+ = L+). -Q3: AOD4184 zonder optocoupler. Eerst meten met de IR-zelftest (TRN-22 F, G) vóór de leds in de baan gaan.`, { size: 2.2 }));
+  i.push(T(25, 227, `-Q4: 8-kanaals MOSFET-module, per kanaal PC817 + MOSFET zoals -Q1 ${ref(B.uit, 60)} (VCC = 3V3 van -K4, VIN+ = L+). -Q3: AOD4184 zonder optocoupler. Eerst meten met de IR-zelftest (TRN-22 F, G) vóór de leds in de baan gaan.`, { size: 2.2 }));
   i.push(T(25, 222, 'Kruisverwijzingen naar blad 6 (besturing): GPIO47, GPIO48, GPIO11, GPIO39, GPIO42, SDA, SCL en L3 (3,3 V). Plaats in de doos: TRN-10 en TRN-11.', { size: 2.2 }));
   return { titel: ['IR', 'zenden en ontvangen'], inhoud: i };
 }
@@ -102,10 +103,10 @@ export function servoBlad(B) {
   i.push(T(sx(2) + 36, 140, '…', { size: 5 }));
   i.push(T(150, 162, '-M1..-M16: servo SG90 of MG90S; hoogstens 4 tegelijk in beweging, bij het opstarten één per 0,3 s, puls uit na aankomst (instelbaar); kabels ≥ 0,25 mm².', { size: 2.2 }));
   // Fable 5.2 E2: ingang 17..23 = reflexsensoren (TCRT5000-module) rechtstreeks op -K5 GPB0..6, 1 kΩ in serie; geen 12 V
-  i.push(toestel(26, 176, 52, 30, '-B5', ['', 'TCRT5000-module', '(LM393), stoppunt'], [{ x: 52, y: 6, naam: 'VCC' }, { x: 52, y: 14, naam: 'GND' }, { x: 52, y: 24, naam: 'DO' }]));
-  i.push(L([[78, 182], [92, 182]]), T(93, 183, 'B3V3 (-X12)', { size: 1.8 }), L([[78, 190], [92, 190]]), T(93, 191, 'M (-X13)', { size: 1.8 }));
-  i.push(weerstandH(78, 200, '-R28', '1 kΩ'), L([[98, 200], [112, 200]]), onderbreking(112, 200, 'GPB0', ref(B.ir, 60), 'rechts'));
-  i.push(T(26, 214, '-B5..-B8 en -R28..-R31: ingang 17..20 (stoppunten), interne pull-up, actief laag.', { size: 1.9 }), T(26, 217.5, '-K6 (optocouplerprint voor 12 V-sensoren op 17-23) alleen als er geen reflexsensoren zijn.', { size: 1.9 }));
+  i.push(toestel(26, 176, 52, 30, '-B5', ['', 'TCRT5000-module', '(LM393), invoeging'], [{ x: 52, y: 6, naam: 'VCC' }, { x: 52, y: 14, naam: 'GND' }, { x: 52, y: 24, naam: 'DO' }]));
+  i.push(L([[78, 182], [92, 182]]), T(93, 183, `B3V3 (-X17) ${ref(B.besturing, 350)}`, { size: 1.8 }), L([[78, 190], [92, 190]]), T(93, 191, 'M (-X18)', { size: 1.8 }));
+  i.push(weerstandH(78, 200, '-R28', '1 kΩ'), L([[98, 200], [112, 200]]), onderbreking(112, 200, 'GPB0', ref(B.ir, 180), 'rechts'));
+  i.push(T(26, 214, '-B5..-B8 en -R28..-R31: ingang 17..20 (invoegingen), interne pull-up, actief laag; 1 kΩ in -X15.', { size: 1.9 }), T(26, 217.5, '-K6 (optocouplerprint voor 12 V-sensoren op 17-23) alleen als er geen reflexsensoren zijn.', { size: 1.9 }));
   i.push(toestel(26, 224, 120, 8, '-K8', ['Optioneel: MCP23017 0x21 (A0 aan L3) + 2 optocouplerprints: ingangen 25..38'], []));
   // E3: de 3 mogelijke schakelingen van de optocouplerprint aan de ingangskant (meten: TRN-22 stap A; kiezen: dashboard)
   const vb = [[170, 'printSoort "vcc"', 'gemeenschappelijke VCC = S12', 'NPN/contact trekt IN naar 0 V'], [250, 'printSoort "gnd"', 'gemeenschappelijke GND = M', 'contact of PNP geeft 12 V op IN'], [330, 'printSoort "apart"', 'per kanaal IN+ en IN−', 'NPN of PNP per ingang']];
@@ -131,15 +132,16 @@ export const STUKLIJST_V6 = [
   ['-Q4', '1', 'MOSFET-module 8 kanalen met optocouplers, 3,3 V-ingang (IR-led kiezen)', 'zoals -Q1'],
   ['-R10..-R17', '8', 'Weerstand 120 Ω, 1 W (serieweerstand IR-led)', '—'],
   ['-X9', '8', 'Doorverbinder 1 + 1: de weerstand van de IR-led aan de draad naar de led', 'WAGO 221-2411'],
-  ['-E21..-E24', '4 (+1)', 'IR-led 940 nm, 5 mm, 100 mA (aan de 4 stoppunten)', 'Vishay TSAL6200'],
+  ['-E21..-E28', '4 (+1)', 'IR-led 940 nm, 5 mm, 100 mA: nu -E21..-E24 aan de 4 stoppunten, -E25..-E28 later (blad 7)', 'Vishay TSAL6200'],
   ['-B1', '1', 'IR-leerontvanger 20-60 kHz, geeft de draaggolf door (achter het venster)', 'Vishay TSMP58000'],
   ['-B2..-B4', '3', 'IR-ontvanger 38 kHz, 2,5-5,5 V', 'Vishay TSOP38238'],
   ['-R19..-R21, -C2..-C4', '3 + 3', 'RC-filter bij de ontvangers op de baan: 100 Ω en elco 4,7 µF', '—'],
   ['-R22..-R24, -X14', '3 + 3', 'Weerstand 1 kΩ in elke ontvangerlijn, in een WAGO 221-2411', 'WAGO 221-2411'],
-  ['-B5..-B8', '4', 'Reflexsensor-module (stoppunten), 3,3 V, uitgang actief laag', 'TCRT5000-module (LM393)'],
-  ['-R28..-R31', '4', 'Weerstand 1 kΩ in de uitgang van de reflexsensor', '—'],
-  ['-F20', '1', 'Polyfuse 0,1 A: de 3,3 V naar de baan (B3V3)', 'Bourns MF-R010'],
+  ['-B5..-B8', '4', 'Reflexsensor-module (invoegingen), 3,3 V, uitgang actief laag', 'TCRT5000-module (LM393)'],
+  ['-R28..-R31, -X15', '4 + 4', 'Weerstand 1 kΩ in de uitgang van de reflexsensor, in een WAGO 221-2411', 'WAGO 221-2411'],
+  ['-F20', '1', 'Polyfuse 0,3 A: de 3,3 V naar de baan (B3V3, blad 6)', 'Bourns MF-R030'],
   ['-X12, -X13', '2', 'Verbindingsklem 5-voudig: B3V3 en 0 V van de uitbreiding', 'WAGO 221-415'],
+  ['-X17, -X18', '2', 'Verbindingsklem 5-voudig onder de baan: B3V3 en 0 V naar de reflexsensoren (veldkabel -W40)', 'WAGO 221-415'],
   ['-K7', '1', 'Servoprint PCA9685 16 kanalen, adres 0x42 (A1 dichtsolderen), schroefklem V+', 'PCA9685-module'],
   ['-T3', '1', 'Regelaar met stroomgrens (CC/CV), 5 A, op 5,5 V en 3 A gezet', 'XL4015-module met 2 potmeters'],
   ['-F19', '1 + 1', 'Zekeringhouder 5 x 20 paneelmontage + zekering T 3,15 A', 'zoals -F1'],

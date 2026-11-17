@@ -187,16 +187,16 @@
 <path d="M2203.3 1891.3 L2170.2 2020.2 L2161.1 1974.8 Z" fill="#1d1d1d" stroke="#1d1d1d" stroke-width="3.00" stroke-linejoin="round"/>
 <path d="M2203.3 1891.3 L2161.1 1974.8 L2119.2 1994.4 Z" fill="#ffffff" stroke="#1d1d1d" stroke-width="3.00" stroke-linejoin="round"/>
 <text x="2218.6" y="1860.9" font-family="Segoe UI, Arial, sans-serif" font-size="46.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">N</text>
-<rect x="2294.0" y="1848.5" width="273.6" height="20.0" rx="0.0" fill="#1d1d1d" stroke="#1d1d1d" stroke-width="2.50"/>
-<rect x="2567.6" y="1848.5" width="273.6" height="20.0" rx="0.0" fill="#ffffff" stroke="#1d1d1d" stroke-width="2.50"/>
-<rect x="2841.1" y="1848.5" width="273.6" height="20.0" rx="0.0" fill="#1d1d1d" stroke="#1d1d1d" stroke-width="2.50"/>
-<rect x="3114.7" y="1848.5" width="273.6" height="20.0" rx="0.0" fill="#ffffff" stroke="#1d1d1d" stroke-width="2.50"/>
+<rect x="2294.0" y="1848.5" width="170.7" height="20.0" rx="0.0" fill="#1d1d1d" stroke="#1d1d1d" stroke-width="2.50"/>
+<rect x="2464.7" y="1848.5" width="170.7" height="20.0" rx="0.0" fill="#ffffff" stroke="#1d1d1d" stroke-width="2.50"/>
+<rect x="2635.4" y="1848.5" width="170.7" height="20.0" rx="0.0" fill="#1d1d1d" stroke="#1d1d1d" stroke-width="2.50"/>
+<rect x="2806.1" y="1848.5" width="170.7" height="20.0" rx="0.0" fill="#ffffff" stroke="#1d1d1d" stroke-width="2.50"/>
 <text x="2294.0" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">0</text>
-<text x="2567.6" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">25</text>
-<text x="2841.1" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">50</text>
-<text x="3114.7" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">75</text>
-<text x="3410.3" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">100 m</text>
-<text x="2294.0" y="1906.5" font-family="Segoe UI, Arial, sans-serif" font-size="26.0" font-weight="400" fill="#4a4a4a" text-anchor="start" dominant-baseline="central">Schaal: 1 m = 5 px in het beeld (AANNAME, zie README)</text>
+<text x="2464.7" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">10</text>
+<text x="2635.4" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">20</text>
+<text x="2806.1" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">30</text>
+<text x="2998.8" y="1822.5" font-family="Segoe UI, Arial, sans-serif" font-size="28.0" font-weight="700" fill="#1d1d1d" text-anchor="middle" dominant-baseline="central">40 m</text>
+<text x="2294.0" y="1906.5" font-family="Segoe UI, Arial, sans-serif" font-size="26.0" font-weight="400" fill="#4a4a4a" text-anchor="start" dominant-baseline="central">Schaal: 1 m = 7,8 px in het beeld (AANNAME uit de rijstroken, zie README)</text>
 <text x="2294.0" y="1956.5" font-family="Segoe UI, Arial, sans-serif" font-size="26.0" font-weight="400" fill="#1d1d1d" text-anchor="start" dominant-baseline="central">Rechts rijden. Auto's rijden alleen op het autoparcours; bussen slaan bij wissel 1 af,</text>
 <text x="2294.0" y="1996.5" font-family="Segoe UI, Arial, sans-serif" font-size="26.0" font-weight="400" fill="#1d1d1d" text-anchor="start" dominant-baseline="central">stoppen in hun haltestrook en voegen weer in op de Stationstraat als hall sensor 1 vrij is.</text>
 <text x="2294.0" y="2036.5" font-family="Segoe UI, Arial, sans-serif" font-size="26.0" font-weight="400" fill="#1d1d1d" text-anchor="start" dominant-baseline="central">Noord: 26,8° gedraaid (de sporen liggen horizontaal).</text>

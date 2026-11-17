@@ -440,17 +440,20 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
         <div class="chips acht" id="ir-leds"></div>
         <div id="ir-codes" style="margin-top:8px"></div>
         <div class="knoppen"><button class="knop" type="button" id="ir-continu">+ Code “continu” (zonder draaggolf)</button></div>
-        <p class="klein">Voor bussen die stoppen op een led die gewoon brandt (geen 38 kHz): de IR-led brandt dan zolang de halte de bus vasthoudt. Kijk met de camera van een gsm naar een bestaande stopplaats: brandt de led rustig, dan is ze waarschijnlijk continu. De IR-zelftest hieronder zegt "ongemoduleerd" als de ontvanger licht ziet zonder draaggolf.</p>
+        <p class="klein">Voor bussen die stoppen op een led die gewoon brandt (geen 38 kHz): de IR-led brandt dan zolang de halte de bus vasthoudt.</p>
+        <div class="test-status amber" id="ir-continu-let" role="note"><b>Continu alleen met 470 Ω.</b> Een IR-led die continu brandt, krijgt een serieweerstand van <b>470 Ω (0,5 W) in plaats van 120 Ω</b> (Berekeningen §9). Met 120 Ω krijgt die weerstand 0,95 W, minutenlang, in de dichte doos. De doos zet een continu-led ook zelf uit na de langste tijd dat een halte een bus vasthoudt.</div>
+        <p class="klein" style="margin-top:10px"><b>Gemoduleerd of continu?</b> Houd de stopled van een bestaande stopplaats voor het venster van de leerontvanger (-B1) en tik op Leren. Leert de doos een code: <b>gemoduleerd</b>. Leert ze niets maar ziet de camera van een gsm wel licht: <b>continu</b>, of een draaggolf buiten 20-60 kHz. Een gsm-camera toont 38 kHz en continu hetzelfde. Zeker weten: een TCRT5000 of fototransistor op GPIO11 (ontvanger 2); het niveau staat bij de zelftest hieronder.</p>
       </div>
       <div class="tegel blok" id="ir-test">
         <h3>Zenden en zelftest</h3>
         <div class="test-status" id="ir-teller" role="status"></div>
-        <p class="klein">IR-zelftest: houd de gekozen IR-led vlak voor het venstertje van de leerontvanger (-B1) in de doos. De doos zendt een NEC-testcode via die led en leest ze zelf terug. Zo weet je of -Q3 en -Q4 de draaggolf goed schakelen (TRN-22).</p>
+        <p class="klein">IR-zelftest: houd de gekozen IR-led vlak voor het venstertje van de leerontvanger (-B1) in de doos. De doos zendt een NEC-testcode via die led en leest ze zelf terug. Zo weet je of -Q3 en -Q4 de draaggolf goed schakelen (TRN-22). Licht zonder draaggolf ziet -B1 niet (TSMP58000: alleen 20-60 kHz): over “continu” zegt deze test niets.</p>
         <div class="twee">
           <div class="veld"><span class="klein">Via IR-led</span><select id="ir-test-led" aria-label="IR-led voor de zelftest"></select></div>
           <div class="veld"><span class="klein leeg-label">&nbsp;</span><button class="knop hoofd" type="button" id="ir-test-start">IR-zelftest</button></div>
         </div>
         <div class="test-status" id="ir-test-uit" role="status"></div>
+        <div class="lijn dubbel" id="ir-niveau" style="margin-top:10px"><span class="stip" aria-hidden="true"></span><div class="tekst"><strong>GPIO11 (ontvanger 2) nu</strong><span class="klein"></span></div></div>
       </div>
       <div class="tegel blok">
         <h3>Laatst ontvangen</h3>
@@ -463,6 +466,7 @@ input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-ra
       <p class="uitleg">Wissels, slagbomen en armseinen. Stel per servo de twee eindstanden in met de schuif en Proef.</p>
       <div id="servo-lijst" class="rooster"></div>
       <div class="knoppen"><button class="knop hoofd" type="button" id="servo-nieuw">+ Nieuwe servo</button></div>
+      <div class="tegel blok" id="servo-inst" style="margin-top:18px"></div>
     </div>
     <div id="baan-bussen" class="deel" hidden>
       <h2>Bussen</h2>
@@ -707,7 +711,8 @@ async function stuur(pad, body, gelukt, stil) {
   try {
     const j = await api(pad, body);
     if (j.ok === false) { toast(j.fout || 'Dat lukte niet.', true); peil(); return null; }
-    if (gelukt) toast(gelukt);
+    if (j.waarschuwing) toast((gelukt ? gelukt + '. ' : '') + j.waarschuwing, true); // EN1: codesoort continu (470 Ω)
+    else if (gelukt) toast(gelukt);
     if (!stil) peil();
     return j;
   } catch (e) {
@@ -1445,7 +1450,9 @@ const ontvNaam = n => (ONTV.find(o => o[0] === n) || [0, 'Ontvanger ' + n])[1];
 const geleden = ms => { const d = ((K.msNu || 0) - ms) >>> 0, s = d >= 0x80000000 ? 0 : Math.round(d / 1000); return s < 90 ? s + ' s geleden' : Math.round(s / 60) + ' min geleden'; };
 const rond = v => Math.round(v * 10) / 10;
 const kb = b => b > 1e6 ? getal(b / 1e6) + ' MB' : Math.round(b / 1024) + ' kB';
-const codeTekst = c => c.soort === 'continu' ? 'continu · zonder draaggolf: de led brandt zolang de halte de bus vasthoudt' : (c.soort === 'raw' ? 'raw · ' + (c.raw ? c.raw.length : c.tijden || 0) + ' tijden' : String(c.soort || '').toUpperCase() + ' · adres ' + c.adres + ' · commando ' + c.commando) +
+const CONTINU_LET = 'Codesoort “continu” alleen met een serieweerstand van 470 Ω (0,5 W) in plaats van 120 Ω (Berekeningen §9).';
+const isContinu = nr => { const c = codesLijst().find(y => y.nr === nr); return !!(c && c.soort === 'continu'); };
+const codeTekst = c => c.soort === 'continu' ? 'continu · zonder draaggolf: de led brandt zolang de halte de bus vasthoudt · alleen met 470 Ω' : (c.soort === 'raw' ? 'raw · ' + (c.raw ? c.raw.length : c.tijden || 0) + ' tijden' : String(c.soort || '').toUpperCase() + ' · adres ' + c.adres + ' · commando ' + c.commando) +
   ' · ' + (c.khz || 38) + ' kHz' + (c.herhaal > 1 ? ' · ' + c.herhaal + ' keer' : '');
 function kiesLijst(opties, waarde, opWijzig, label) {
   const s = h('select', { 'aria-label': label, onchange: e => opWijzig(e.target.value) }, opties.map(([v, n]) => h('option', { value: v }, n)));
@@ -1509,7 +1516,10 @@ function bouwIr() {
   const codes = codesLijst(), el = $('#ir-codes');
   el.replaceChildren(...codes.map(c => h('div', { class: 'lijn dubbel' }, h('span', { class: 'nr' }, c.nr),
     h('div', { class: 'tekst' }, h('strong', null, c.naam || 'Code ' + c.nr), h('span', { class: 'klein' }, codeTekst(c))), h('div', { class: 'acties' },
-    knop('Zenden', () => stuur('/api/ir', { actie: 'zenden', nr: c.nr, leds: irKies.slice() }, '“' + c.naam + '” verzonden via ' + (irKies.length ? 'IR-led ' + irKies.join(', ') : 'alle IR-leds'), true), 'hoofd'),
+    knop('Zenden', () => {
+      if (c.soort === 'continu' && !confirm(CONTINU_LET + ' De led brandt nu 2 s. Zit de weerstand van 470 Ω erin?')) return;
+      stuur('/api/ir', { actie: 'zenden', nr: c.nr, leds: irKies.slice() }, '“' + c.naam + '” verzonden via ' + (irKies.length ? 'IR-led ' + irKies.join(', ') : 'alle IR-leds'), true);
+    }, 'hoofd'),
     knop('Naam', () => { const n = prompt('Nieuwe naam voor code ' + c.nr + ':', c.naam); if (n && n.trim()) stuur('/api/ir', { actie: 'hernoemen', nr: c.nr, naam: n.trim() }, 'Naam gewijzigd'); }),
     h('button', { class: 'ikoonknop', type: 'button', 'aria-label': 'Code ' + c.nr + ' wissen', onclick: () => {
       if (confirm('Code “' + c.naam + '” wissen? Haltes en functies die ze gebruiken, zenden dan niets meer.')) stuur('/api/ir', { actie: 'wissen', nr: c.nr }, 'Gewist');
@@ -1538,20 +1548,26 @@ function werkIrBij() {
   }
   $('#ir-leer').disabled = !!lr.loopt;
   lerenWas = !!lr.loopt;
-  // F5: codes die niet verzonden konden worden (te lang met hun herhalingen)
-  const ir = Object.assign({}, S.ir, K.ir), nv = ir.nietVerzonden || 0, tl = $('#ir-teller');
-  tl.textContent = nv ? 'IR niet verzonden: ' + nv + ' keer' + (ir.laatsteFout ? '. Laatste fout: ' + ir.laatsteFout : '') : 'IR niet verzonden: 0 keer. Alles is vertrokken.';
-  tl.className = 'test-status' + (nv ? ' fout' : ' aan');
+  // F5: codes die niet verzonden konden worden (te lang met hun herhalingen); FN7: ook geen IR-led gekozen, of de rij vol
+  const ir = Object.assign({}, S.ir, K.ir), nv = ir.nietVerzonden || 0, rv = ir.rijVol || 0, tl = $('#ir-teller');
+  tl.textContent = (nv ? 'IR niet verzonden: ' + nv + ' keer' + (ir.laatsteFout ? '. Laatste fout: ' + ir.laatsteFout : '') : 'IR niet verzonden: 0 keer. Alles is vertrokken.') +
+    (rv ? ' Rij vol: ' + rv + ' keer kon een halte haar code niet kwijt (ze komt 0,4 s later opnieuw).' : '');
+  tl.className = 'test-status' + (nv || rv ? ' fout' : ' aan');
   // E4/F1: de IR-zelftest (zenden via een IR-led, teruglezen met -B1)
   const z = K.zelftest, uit = $('#ir-test-uit');
   if (z && (z.loopt || z.led)) {
     uit.className = 'test-status' + (z.loopt ? '' : z.ok ? ' aan' : z.ongemoduleerd ? ' amber' : ' fout');
     uit.textContent = z.loopt ? 'Zelftest loopt: de doos zendt via IR-led ' + (z.led || $('#ir-test-led').value) + ' en luistert met -B1…'
       : z.ok ? 'Gelukt: draaggolf ' + getal(z.khz || 38) + ' kHz, code ' + (z.code || '?') + ' juist teruggelezen.'
-      : z.ongemoduleerd ? 'Ongemoduleerd: -B1 zag licht, maar geen draaggolf. Zendt -Q3 wel 38 kHz (TRN-22)? Stoppen de bussen op een led die gewoon brandt, gebruik dan een code “continu”.'
+      : z.ongemoduleerd ? 'Geen herkenbare draaggolf: -B1 zag een flank maar geen code (storing of toeval). Kijk -Q3 en -Q4 na en probeer opnieuw, of duty 50 %. Licht zonder draaggolf ziet -B1 nooit: of een stopled continu brandt, toont deze test niet.'
       : 'Mislukt: ' + (z.fout || 'niets teruggelezen') + '. Houd de led dichter bij het venster, probeer duty 50 % (Instellingen, Hardware) of kijk -Q3 en -Q4 na (TRN-22).';
   } else uit.textContent = '';
   $('#ir-test-start').disabled = !!(z && z.loopt);
+  // TN3: het niveau van GPIO11 (ontvanger 2), elke 0,5 s: met een TCRT5000 of fototransistor daar = IR-licht, ook zonder draaggolf
+  const nl = (K.ontvangerLaag || [])[1], ni = $('#ir-niveau');
+  ni.hidden = nl == null;
+  $('.stip', ni).className = 'stip' + (nl ? ' aan' : '');
+  $('.klein', ni).textContent = nl ? 'laag: licht (of een signaal van de ontvanger)' : 'hoog: donker. Met een fototransistor of TCRT5000 op GPIO11 toont dit of een stopled brandt, ook zonder draaggolf.';
   const l = (K.irLaatst || []).slice().sort((a, b) => b.ms - a.ms), el = $('#ir-laatst'), bussen = bussenLijst();
   const sig = l.map(x => x.ms + x.code).join('|') + '/' + bussen.map(b => b.code).join();
   if (sig !== irSig && !el.contains(document.activeElement)) {
@@ -1575,7 +1591,34 @@ function werkIrBij() {
 // ------------------------------------------------------------------------------------------------ servo's
 let servoOpen = 0, servoC = null; // -1 = nieuwe servo
 const sRij = [];
+// FN3, EN3: hoeveel servo's samen bewegen, en de rem bij veel lampen (standaard uit)
+let svC = null, svVuil = false;
+function bouwServoInst() {
+  if (svVuil && svC) return;
+  const i = S.instellingen || {};
+  svC = { servoMaxBewegend: i.servoMaxBewegend || 2, servoRemGroepen: i.servoRemGroepen || 0 };
+  tekenServoInst();
+}
+function tekenServoInst() {
+  const c = svC, nGroep = (S.groepen || []).length || 16;
+  const keuze = (opties, waarde, zet) => h('div', { class: 'keuze' }, opties.map(([id, n, sub]) => h('button', { type: 'button', 'aria-pressed': String(waarde === id),
+    onclick: () => { zet(id); svVuil = true; tekenServoInst(); } }, n, sub ? h('small', null, sub) : null)));
+  $('#servo-inst').replaceChildren(
+    h('h3', null, "Servo's samen"),
+    veld('Hoogstens tegelijk in beweging', keuze([[1, '1', ''], [2, '2', 'standaard'], [3, '3', ''], [4, '4', '']], c.servoMaxBewegend, v => { c.servoMaxBewegend = v; })),
+    h('p', { class: 'klein' }, 'Een servo trekt tot 1,2 A terwijl hij beweegt; de voeding (XL4015) begrenst op 3 A. Met 2 tegelijk blijft dat binnen de grens. Met 3 of 4 zakt de spanning en kunnen servo’s trillen of blijven hangen.'),
+    stapper({ n: 'Eén servo tegelijk boven zoveel lichtgroepen aan', min: 0, max: nGroep, waarde: c.servoRemGroepen, toon: v => v ? 'meer dan ' + v : 'uit', stap: () => 1,
+      opWijzig: v => { c.servoRemGroepen = v; if (!svVuil) { svVuil = true; tekenServoInst(); } } }),
+    h('p', { class: 'klein' }, 'Standaard uit. Alleen voor bordjes zonder serieweerstand (0 Ω), waar veel lampen samen de 5-6 V laten zakken. Branden er meer groepen, dan bewegen de servo’s één voor één; ze staan nooit stil. Wacht een servo langer dan 5 s, dan staat dat bovenaan.'),
+    h('div', { class: 'test-status amber', id: 'servo-wacht', role: 'status', hidden: true }),
+    h('div', { class: 'knoppen' }, knop("Bewaren", async () => {
+      const j = await stuur('/api/instellingen', { servoMaxBewegend: c.servoMaxBewegend, servoRemGroepen: c.servoRemGroepen }, "Servo-instellingen bewaard");
+      if (j) { svVuil = false; S.rev = -1; peil(); }
+    }, 'hoofd'), svVuil ? knop('Annuleren', () => { svVuil = false; bouwServoInst(); }) : null));
+  werkServosBij();
+}
 function bouwServos() {
+  bouwServoInst();
   sRij.length = 0;
   const l = servosLijst(), t = l.map(servoTegel);
   if (servoOpen === -1) t.push(nieuwTegel('Nieuwe servo ' + servoC.nr, servoEditor()));
@@ -1612,7 +1655,14 @@ function werkServosBij() {
     r.badge.className = 'badge ' + (l.stand === 'onderweg' ? 'amber' : 'groen');
     r.us.textContent = l.us ? l.us + ' µs' : '';
     r.bol.style.left = servoPos(l.us || s.a);
+    if (K.servoWachtLang === s.nr) { r.badge.textContent = 'wacht al > 5 s'; r.badge.className = 'badge amber'; } // FN3
   });
+  const w = $('#servo-wacht'), lang = K.servoWachtLang && servosLijst().find(x => x.nr === K.servoWachtLang);
+  if (w) {
+    w.textContent = lang ? '“' + lang.naam + '” wacht al langer dan 5 s om te bewegen' + (K.servoWachtLampen ? ': te veel lampen aan, de servo’s gaan één voor één.' : ': er bewegen al genoeg servo’s tegelijk.')
+      : K.servoWachtLampen ? 'Nu branden meer dan ' + ((S.instellingen || {}).servoRemGroepen || 0) + ' lichtgroepen: de servo’s gaan één voor één.' : '';
+    w.hidden = !w.textContent;
+  }
 }
 function servoEditor() {
   const c = servoC, so = servoSoort(c.soort);
@@ -1760,6 +1810,7 @@ function halteTegel(x) {
   return h('article', { class: 'tegel' },
     h('div', { class: 'tegel-kop' }, h('span', { class: 'nr' }, x.nr), h('h3', null, x.naam || 'Halte ' + x.nr), badge), balk, info,
     h('p', { class: 'klein' }, 'Aankomst bij ' + (x.aankomstPunt ? puntNaam(x.aankomstPunt) : '–') + ' · “' + code(x.stopCode) + '” via IR-led ' + ((x.stopLeds || []).join(', ') || 'alle') +
+      ((x.wachtLeds || []).length ? ' · tweede bus wacht aan IR-led ' + x.wachtLeds.join(', ') : ' · tweede bus: niet tegengehouden') +
       ' · stopcode ' + (x.herhalen === false ? 'één keer' : 'herhaald tot groen') +
       ' · wacht ' + (x.wachtS || 0) + ' s' + ((x.vrijIngangen || []).length ? ' · vrije weg: ingang ' + x.vrijIngangen.join(', ') + ', hoogstens ' + (x.maxVerkeerS === 0 ? '(geen grens)' : duur(x.maxVerkeerS || 60)) : '') +
       (lt.rood || lt.groen ? ' · licht: groep ' + [lt.rood, lt.oranje, lt.groen].map(n => n || '–').join('/') : '')),
@@ -1768,6 +1819,7 @@ function halteTegel(x) {
       halteC = open ? null : JSON.parse(JSON.stringify(x));
       bouwHaltes();
     } }, open ? 'Sluiten' : 'Instellen')),
+    isContinu(x.stopCode) ? h('div', { class: 'test-status amber', style: 'margin-top:8px' }, CONTINU_LET) : null,
     open ? halteEditor() : null);
 }
 function werkHaltesBij() {
@@ -1780,8 +1832,9 @@ function werkHaltesBij() {
     [...r.balk.children].forEach((s, k) => { s.className = k === i && f !== 'vrij' ? 'nu' : k < i ? 'na' : ''; });
     const b = l.bus && bussenLijst().find(y => y.nr === l.bus), w = l.wachtend > 0 && bussenLijst().find(y => y.nr === l.wachtend);
     r.info.textContent = [b && f !== 'vrij' ? 'Aan de halte: ' + b.naam : '',
-      l.wachtend >= 0 && l.wachtend != null ? 'Wacht erachter: ' + (w ? w.naam : l.wachtend ? 'bus ' + l.wachtend : 'een bus zonder code') + ' (krijgt al de stopcode)' : '',
-      l.teLang ? 'De vrije weg bleef te lang bezet: de bus kreeg toch groen. Kijk de vrij-ingangen na.' : ''].filter(Boolean).join(' · ');
+      l.wachtend >= 0 && l.wachtend != null ? 'Wacht erachter: ' + (w ? w.naam : l.wachtend ? 'bus ' + l.wachtend : 'een bus zonder code') + ' (stopcode via IR-led ' + ((x.wachtLeds || []).join(', ') || '?') + ')' : '',
+      l.teLang ? 'De vrije weg bleef te lang bezet: de bus kreeg toch groen. Kijk de vrij-ingangen na.' : '',
+      l.continuTeLang ? 'De continu-stopled brandde te lang en is uit gezet (de serieweerstand sparen).' : ''].filter(Boolean).join(' · ');
     r.info.hidden = !r.info.textContent;
   });
 }
@@ -1789,6 +1842,7 @@ function halteEditor() {
   const c = halteC;
   c.licht = c.licht || { rood: 0, oranje: 0, groen: 0 };
   c.stopLeds = c.stopLeds || [];
+  c.wachtLeds = c.wachtLeds || [];
   c.vrijIngangen = c.vrijIngangen || [];
   if (c.herhalen == null) c.herhalen = true;
   if (c.maxVerkeerS == null) c.maxVerkeerS = 60;
@@ -1797,14 +1851,19 @@ function halteEditor() {
   const punten = [['', 'kies een punt van het plan']].concat(planPunten(P).map(({ p, c: k }) => [p.id, p.id + ' · ' + (p.naam || k[1])]));
   if (c.aankomstPunt && !punten.some(x => x[0] === c.aankomstPunt)) punten.push([c.aankomstPunt, c.aankomstPunt]);
   const sec = (k, n, max) => stapper({ n, min: 0, max, waarde: c[k] || 0, toon: v => v + ' s', stap: (x, op) => ((op ? x : x - 1) < 30 ? 1 : 5), opWijzig: v => { c[k] = v; } });
+  const contLet = h('div', { class: 'test-status amber', role: 'note' }, CONTINU_LET + ' Met 120 Ω wordt die weerstand te heet: de led brandt zolang de halte de bus vasthoudt.');
+  contLet.hidden = !isContinu(c.stopCode);
   return h('div', { class: 'editor' },
     veld('Naam', h('input', { type: 'text', maxlength: 23, value: c.naam || '', placeholder: 'bv. Halte Station 1', oninput: e => { c.naam = e.target.value; } })),
     veld('Aankomst: de bus is gezien bij', kiesLijst(punten, c.aankomstPunt || '', v => { c.aankomstPunt = v; }, 'Aankomstpunt')),
-    h('div', { class: 'twee' }, veld('Stopcode (de bus stopt)', kiesLijst(codes, c.stopCode || 0, v => { c.stopCode = +v; }, 'Stopcode')),
+    h('div', { class: 'twee' }, veld('Stopcode (de bus stopt)', kiesLijst(codes, c.stopCode || 0, v => { c.stopCode = +v; contLet.hidden = !isContinu(c.stopCode); }, 'Stopcode')),
       veld('Rijcode (de bus vertrekt)', kiesLijst(codes, c.rijdCode || 0, v => { c.rijdCode = +v; }, 'Rijcode'))),
-    veld('Stopcode zenden via IR-led (niets gekozen = alle)', chipsKies(IRLEDS, c.stopLeds)),
+    contLet,
+    veld('Stopled: de IR-led aan de halte (niets gekozen = alle)', chipsKies(IRLEDS, c.stopLeds)),
+    veld('Wachtled: de IR-led vóór de halte, voor een tweede bus (niets gekozen = niet tegenhouden)', chipsKies(IRLEDS, c.wachtLeds)),
+    h('p', { class: 'klein' }, 'Een IR-led zendt één code tegelijk. Komt er een tweede bus terwijl de halte bezet is, dan krijgt die de stopcode via de wachtled en wacht hij daar; de eerste bus krijgt bij groen gewoon de rijcode via de stopled en vertrekt. Is de halte weer vrij, dan krijgt de wachtende de rijcode via de wachtled en rijdt hij door naar de stopled. Zonder wachtled houdt de halte een tweede bus niet tegen (zoals firmware 2.0.0). Wachtled en stopled zijn twee verschillende leds.'),
     h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: c.herhalen !== false, onchange: e => { c.herhalen = e.target.checked; } }), 'Stopcode blijven herhalen tot groen (elke 0,4 s)'),
-    h('p', { class: 'klein' }, 'Aan: voor bussen die alleen stilstaan zolang ze de stopcode zien. Uit: één keer zenden, voor bussen die de stopcode onthouden tot de rijcode komt. Na een herstart zendt elke halte één keer de rijcode, zodat geen bus blijft staan. Komt er een tweede bus terwijl de halte bezet is, dan krijgt die meteen de stopcode en wacht hij.'),
+    h('p', { class: 'klein' }, 'Aan: voor bussen die alleen stilstaan zolang ze de stopcode zien. Uit: één keer zenden, voor bussen die de stopcode onthouden tot de rijcode komt. Na een herstart zendt elke halte drie keer de rijcode (via de stopled en de wachtled), zodat geen bus blijft staan.'),
     sec('wachtS', 'Wachten aan de halte', 600),
     veld('Vrije weg: deze ingangen moeten vrij zijn (bv. hallsensor)', chipsKies(zichtbareIngangen().map(g => g.nr), c.vrijIngangen)),
     sec('vrijMinS', 'Zo lang vrij', 60),
@@ -1817,7 +1876,9 @@ function halteEditor() {
       knop('Bewaren', async () => {
         if (!(c.naam || '').trim()) { toast('Geef de halte een naam.', true); return; }
         if (!c.aankomstPunt) { toast('Kies het aankomstpunt.', true); return; }
-        const j = await stuur('/api/halte', { nr: c.nr, naam: c.naam.trim(), aankomstPunt: c.aankomstPunt, stopLeds: c.stopLeds, stopCode: c.stopCode || 0, rijdCode: c.rijdCode || 0,
+        if (c.wachtLeds.length && !c.stopLeds.length) { toast('Kies ook de stopled: niets gekozen betekent alle leds, ook de wachtled.', true); return; }
+        if (c.wachtLeds.some(n => c.stopLeds.includes(n))) { toast('Wachtled en stopled moeten verschillende IR-leds zijn.', true); return; }
+        const j = await stuur('/api/halte', { nr: c.nr, naam: c.naam.trim(), aankomstPunt: c.aankomstPunt, stopLeds: c.stopLeds, wachtLeds: c.wachtLeds, stopCode: c.stopCode || 0, rijdCode: c.rijdCode || 0,
           wachtS: c.wachtS || 0, vrijIngangen: c.vrijIngangen, vrijMinS: c.vrijMinS || 0, licht: c.licht, groenS: c.groenS || 0, servo: c.servo || 0,
           herhalen: c.herhalen !== false, maxVerkeerS: c.maxVerkeerS != null ? c.maxVerkeerS : 60 }, 'Halte bewaard');
         if (j) { halteOpen = 0; halteC = null; bouwHaltes(); }
@@ -2413,7 +2474,7 @@ $('#fw-bewaar').addEventListener('click', bijwerken);
 $('#ir-leer').addEventListener('click', () => stuur('/api/ir', { actie: 'leren', naam: $('#ir-naam').value.trim() || 'Nieuwe code', ontvanger: +$('#ir-ontv').value }, 'Leren gestart: 10 s'));
 $('#servo-nieuw').addEventListener('click', () => { servoOpen = -1; servoC = { nr: vrijNr(servosLijst(), NSERVO), naam: '', kanaal: vrijNr(servosLijst().map(x => ({ nr: x.kanaal })), 16) || 1, a: 1000, b: 2000, snelheid: 400, soort: 'wissel', pulsUitS: 0 }; bouwServos(); });
 $('#bus-nieuw').addEventListener('click', () => { busOpen = -1; busC = { nr: 0, naam: '', kleur: '#1f6fd1', code: '' }; bouwBussen(); });
-$('#halte-nieuw').addEventListener('click', () => { halteOpen = -1; halteC = { nr: vrijNr(haltesLijst(), NHALTE), naam: '', aankomstPunt: '', stopLeds: [], stopCode: 0, rijdCode: 0, wachtS: 12, vrijIngangen: [], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0, herhalen: true, maxVerkeerS: 60 }; bouwHaltes(); });
+$('#halte-nieuw').addEventListener('click', () => { halteOpen = -1; halteC = { nr: vrijNr(haltesLijst(), NHALTE), naam: '', aankomstPunt: '', stopLeds: [], wachtLeds: [], stopCode: 0, rijdCode: 0, wachtS: 12, vrijIngangen: [], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0, herhalen: true, maxVerkeerS: 60 }; bouwHaltes(); });
 $('#toegang-bewaar').addEventListener('click', () => {
   const w = $('#toegang-ww').value;
   if (!/^[\x20-\x7e]{8,63}$/.test(w)) { toast('Het wifi-wachtwoord van de doos heeft 8 tot 63 tekens.', true); return; }
@@ -2426,6 +2487,7 @@ $('#toegang-wis').addEventListener('click', () => { zetApiWw(''); toast('Wachtwo
 $('#zelftest-start').addEventListener('click', zelftest);
 $('#ir-test-start').addEventListener('click', () => stuur('/api/ir', { actie: 'zelftest', led: +$('#ir-test-led').value }, 'IR-zelftest gestart'));
 $('#ir-continu').addEventListener('click', () => {
+  if (!confirm(CONTINU_LET + ' Met 120 Ω wordt die weerstand meer dan 150 °C. Zit (of komt) de weerstand van 470 Ω erin?')) return; // EN1
   const n = prompt('Naam voor de code “continu” (de IR-led brandt zonder draaggolf zolang de halte de bus vasthoudt):', 'Stop (continu)');
   if (n && n.trim()) stuur('/api/ir', { actie: 'bewaren', code: { naam: n.trim(), soort: 'continu', herhaal: 1 } }, 'Code “continu” bewaard');
 });
@@ -2443,7 +2505,7 @@ const Demo = (() => {
   const std = id => { const f = fxInfo(id); return f.p ? [f.p[0].std, f.p[1].std] : [0, 0]; };
   const st = {
     rev: 1, melding: '', versie: '1.3.0 (voorbeeld)', hotspot: 'Treinbaan', aantalGroepen: 16,
-    instellingen: { dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true }, printSoort: ['vcc', 'vcc', 'vcc'], irLedActiefLaag: true, irDuty: 33 },
+    instellingen: { dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true }, printSoort: ['vcc', 'vcc', 'vcc'], irLedActiefLaag: true, irDuty: 33, servoRemGroepen: 0, servoMaxBewegend: 2 },
     wachtwoord: 'treinbaan',
     test: { soort: '', groep: 0 }, thuisnet: { ssid: 'Thuis', verbonden: true, ip: '192.168.1.40' },
     groepen: namen.map((n, i) => ({ nr: i + 1, naam: n, dagnacht: [0, 1, 4, 5, 6, 7, 11, 13, 14].includes(i),
@@ -2561,7 +2623,7 @@ const Demo = (() => {
   // ---- versie 6: 40 ingangen zoals de doos (17-23 op de MCP23017 0x20; 0x21 niet aanwezig: 25-40 "aanwezig":false; 24 is
   // geen ingang meer), IR, servo's, bussen, haltes, kastjes, plan
   const t0 = Date.now();
-  st.versie = '2.1.0 (voorbeeld)';
+  st.versie = '2.2.0 (voorbeeld)';
   for (let i = 16; i < 40; i++) st.ingangen.push({ nr: i + 1, naam: 'Ingang ' + (i + 1), soort: 'contact', vasthouden: 0.3, gedrag: 'geen', functieA: 0, functieB: 0, wisselen: false, nalopen: 10, actief: false, teller: 0, toestand: 'rust' });
   st.ingangen.forEach((x, i) => { x.polariteit = 'npn'; x.aanwezig = i < 24; });
   Object.assign(st.ingangen[16], { naam: 'Hall sensor 1', soort: 'puls', teller: 52 });
@@ -2575,7 +2637,10 @@ const Demo = (() => {
   [code('Herkenning bus 1', 'nec', 1, 1), code('Herkenning bus 2', 'nec', 1, 2), code('Stop bus', 'nec', 0, 18), code('Rijden bus', 'nec', 0, 19),
     code('Knipperlicht bus', 'rc5', 5, 12, 36), code('Toeter (opgenomen)', 'raw', 0, 0, 38, { raw: Array(255).fill(560), herhaal: 5 }), { naam: 'Stop (continu)', soort: 'continu', herhaal: 1 }]
     .forEach((c, i) => { st.ir.codes[i] = Object.assign({ nr: i + 1 }, c); });
-  Object.assign(st.ir, { nietVerzonden: 1, laatsteFout: '“Toeter (opgenomen)”: 255 tijden x 5 = 1275, meer dan 1200' });
+  Object.assign(st.ir, { nietVerzonden: 1, laatsteFout: '“Toeter (opgenomen)”: 255 tijden x 5 = 1275, meer dan 1200', rijVol: 0, continu: true, continuWaarschuwing: CONTINU_LET });
+  st.ontvangerLaag = [false, false, false, false];
+  st.servoWachtLampen = false;
+  st.servoWachtLang = 0;
   st.zelftest = {};
   let zelftestT = 0;
   const ZELFTEST = { // dezelfde vorm als apiZelftest in include/api.h (firmware 2.1.0)
@@ -2597,7 +2662,7 @@ const Demo = (() => {
   const servoNaar = (nr, stand) => { const x = st.servos[nr - 1]; if (x) x.doel = stand === 'wissel' ? (x.doel === x.a ? x.b : x.a) : stand === 'b' ? x.b : x.a; };
   st.bussen = [{ nr: 1, naam: 'Lijnbus 1', kleur: '#d23b2b', code: 'nec:01FE01FE' }, { nr: 2, naam: 'Lijnbus 2', kleur: '#1f6fd1', code: 'nec:01FE02FD' },
     { nr: 3, naam: 'Lijnbus 3', kleur: '#e0a400', code: 'nec:01FE03FC' }];
-  const halte = (nr, naam, punt, led) => ({ nr, naam, aankomstPunt: punt, stopLeds: [led], stopCode: 3, rijdCode: 4, wachtS: 12, vrijIngangen: [17], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0, herhalen: true, maxVerkeerS: 60 });
+  const halte = (nr, naam, punt, led) => ({ nr, naam, aankomstPunt: punt, stopLeds: [led], wachtLeds: nr === 1 ? [led + 1] : [], stopCode: 3, rijdCode: 4, wachtS: 12, vrijIngangen: [17], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0, herhalen: true, maxVerkeerS: 60 });
   st.haltes = [halte(1, 'Halte Lijnbus 1', 'STOP_lijnbus1', 7), halte(2, 'Halte Lijnbus 2', 'STOP_lijnbus2', 6), halte(3, 'Halte Lijnbus 3', 'STOP_lijnbus3', 5)];
   Object.assign(st.haltes[0], { licht: { rood: 13, oranje: 14, groen: 15 }, servo: 5 });
   st.haltes[2].herhalen = false;
@@ -2644,7 +2709,13 @@ const Demo = (() => {
       x.bus = x.fase === 'vrij' ? 0 : x.nr;
       x.wachtend = x.nr === 1 && ['wachten', 'verkeer'].includes(x.fase) ? 2 : -1; // F3: een tweede bus wacht achter de eerste
     });
-    if (st.zelftest.loopt && t - zelftestT > 2500) { // IR-led 8 hangt in het voorbeeld aan een stopplaats zonder draaggolf
+    st.ontvangerLaag[1] = ms % 6000 < 2000; // TN3: een fototransistor op GPIO11 ziet om de 6 s 2 s lang licht
+    // FN3: de rem (standaard uit); aan en te veel groepen: één servo tegelijk, Wissel 3 wacht dan al > 5 s
+    const rem = st.instellingen.servoRemGroepen || 0, aan = st.groepen.filter(g => g.aan).length;
+    st.servoWachtLampen = !!rem && aan > rem;
+    st.servoWachtLang = st.servoWachtLampen ? 3 : 0;
+    st.melding = st.servoWachtLang ? 'Servo "Wissel 3" wacht al langer dan 5 s om te bewegen (meer dan ' + rem + ' lichtgroepen aan: de servo\'s gaan één voor één).' : '';
+    if (st.zelftest.loopt && t - zelftestT > 2500) { // IR-led 8 geeft in het voorbeeld een flank zonder draaggolf
       const led = st.zelftest.led;
       st.zelftest = led === 8 ? { loopt: false, led, ok: false, ongemoduleerd: true, fout: 'geen draaggolf' } : { loopt: false, led, ok: true, khz: 38.0, code: 'nec:00FF12ED' };
     }
@@ -2742,7 +2813,7 @@ const Demo = (() => {
           b.printSoort.slice(0, 5).forEach((x, k) => { st.instellingen.printSoort[k] = x; });
         }
         if (b.wachtwoord) st.wachtwoord = b.wachtwoord;
-        ['dagnachtMin', 'opstart', 'irLedActiefLaag', 'irDuty'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
+        ['dagnachtMin', 'opstart', 'irLedActiefLaag', 'irDuty', 'servoRemGroepen', 'servoMaxBewegend'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
         if (b.thuisnet) {
           const ssid = b.thuisnet.ssid || '';
           st.instellingen.thuisnet = { ssid, metWachtwoord: !!ssid && (b.thuisnet.wachtwoord ? true : st.instellingen.thuisnet.metWachtwoord) };
@@ -2783,7 +2854,7 @@ const Demo = (() => {
           if (raw.length * (b.code.herhaal || 1) > 1200) return fout('Deze code kan hoogstens ' + Math.floor(1200 / raw.length) + ' keer herhaald worden (1200 tijden met de herhalingen).');
           c[p] = Object.assign({ nr: p + 1 }, b.code);
           st.rev++;
-          return { ok: true, nr: p + 1 };
+          return Object.assign({ ok: true, nr: p + 1 }, b.code.soort === 'continu' ? { waarschuwing: CONTINU_LET } : {});
         }
         if (!c[i]) return fout('Deze code bestaat niet.');
         if (b.actie === 'zenden' && (c[i].raw || []).length * (c[i].herhaal || 1) > 1200) { // F5: wordt niet stil weggegooid
@@ -2794,6 +2865,7 @@ const Demo = (() => {
         if (b.actie === 'wissen') c[i] = null;
         if (b.actie === 'hernoemen') c[i].naam = b.naam;
         if (b.actie !== 'zenden') st.rev++;
+        if (b.actie === 'zenden' && c[i].soort === 'continu') return { ok: true, nr: i + 1, waarschuwing: CONTINU_LET };
         break;
       }
       case '/api/bus': {
@@ -2820,9 +2892,13 @@ const Demo = (() => {
       }
       case '/api/halte': {
         const i = st.haltes.findIndex(y => y.nr === b.nr);
+        if (b.actie !== 'wissen' && (b.wachtLeds || []).length && (!(b.stopLeds || []).length || b.wachtLeds.some(n => b.stopLeds.includes(n))))
+          return fout('Wachtled en stopled moeten verschillende IR-leds zijn: één led zendt één code tegelijk.');
         if (b.actie === 'wissen') { if (i >= 0) st.haltes.splice(i, 1); }
         else if (i >= 0) Object.assign(st.haltes[i], b); else st.haltes.push(Object.assign({}, b));
         st.rev++;
+        const cd = b.stopCode && st.ir.codes[b.stopCode - 1];
+        if (cd && cd.soort === 'continu') return { ok: true, nr: b.nr, waarschuwing: CONTINU_LET };
         break;
       }
       case '/api/kastje':

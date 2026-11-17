@@ -541,8 +541,8 @@
 <text x="185.46" y="90.66" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111111">74</text>
 <line x1="143.65" y1="67.35" x2="166.20" y2="147.35" stroke="#111111" stroke-width="0.6" stroke-opacity="0.85"/>
 <text x="157.86" y="117.25" font-size="1.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111111">75</text>
-<line x1="141.95" y1="147.35" x2="36.60" y2="147.35" stroke="#e07a10" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>
-<line x1="172.15" y1="147.35" x2="36.60" y2="147.35" stroke="#111111" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>
+<line x1="203.00" y1="181.50" x2="36.60" y2="181.50" stroke="#e07a10" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>
+<line x1="172.40" y1="156.50" x2="36.60" y2="156.50" stroke="#111111" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>
 <line x1="161.50" y1="39.35" x2="36.60" y2="39.35" stroke="#c8202f" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>
 <line x1="161.50" y1="67.35" x2="36.60" y2="67.35" stroke="#111111" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>
 <line x1="172.40" y1="212.50" x2="36.60" y2="212.50" stroke="#8a8d91" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>
@@ -556,6 +556,20 @@
 <text x="184.90" y="73.60" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-C5</text>
 <line x1="191.70" y1="67.35" x2="136.00" y2="147.35" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
 <text x="165.35" y="107.35" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-F20</text>
+<line x1="116.90" y1="212.50" x2="165.90" y2="145.00" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
+<text x="142.90" y="178.75" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-R22</text>
+<line x1="172.40" y1="184.50" x2="165.90" y2="145.00" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
+<text x="170.65" y="164.75" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-R23</text>
+<line x1="172.40" y1="174.00" x2="165.90" y2="145.00" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
+<text x="170.65" y="159.50" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-R24</text>
+<line x1="-171.53" y1="208.50" x2="-134.10" y2="203.00" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
+<text x="-151.31" y="205.75" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-R28</text>
+<line x1="-168.99" y1="208.50" x2="-134.10" y2="203.00" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
+<text x="-150.05" y="205.75" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-R29</text>
+<line x1="-166.45" y1="208.50" x2="-134.10" y2="203.00" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
+<text x="-148.77" y="205.75" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-R30</text>
+<line x1="-163.91" y1="208.50" x2="-134.10" y2="203.00" stroke="#111" stroke-width="0.9" stroke-dasharray="1.2 0.8"/>
+<text x="-147.50" y="205.75" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">-R31</text>
 <text x="262.00" y="29.00" font-size="2.8" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Modules (vastschroeven op de palen in de bodem, geen solderen)</text>
 <text x="262.00" y="33.50" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6 ESP-adapter: 84,5 x 73,5, 4 x M3 op 81 x 68 *</text>
 <text x="262.00" y="37.10" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2 PCA9685: 62,5 x 25,4, 4 x M2,5 op 56 x 19</text>
@@ -592,7 +606,7 @@
 <text x="262.00" y="148.20" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">G15+ aan -Q2:7+   G15− aan -Q2:7− via -F16 en -X8:15</text>
 <text x="262.00" y="151.50" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">G16+ aan -Q2:8+   G16− aan -Q2:8− via -F17 en -X8:16</text>
 <text x="262.00" y="156.80" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Volgorde: 1 de rechterhelft printen, 2 de modules op hun palen (plaatschroef 2,5 x 6 /</text>
-<text x="262.00" y="160.10" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3 x 8), 3 de WAGO-klemmen in hun klikhouders, 4 de draden W01..W92 volgens TRN-14/15</text>
+<text x="262.00" y="160.10" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3 x 8), 3 de WAGO-klemmen in hun klikhouders, 4 de draden W01..W115 volgens TRN-14/15</text>
 <text x="262.00" y="163.40" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">(dupont op de pinnen van -K2, -K7, -Q1, -Q2), 5 -R1, -R2, -F18 en -C5 met hun pootjes in</text>
 <text x="262.00" y="166.70" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">de klemmen, -B1 in zijn vakje (lens naar het venster), 6 proefopstelling op tafel (TRN-20),</text>
 <text x="262.00" y="170.00" font-size="2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">7 de helften in elkaar klikken (TRN-06). Streepjes: draden over de naad (TRN-11).</text>
@@ -703,10 +717,10 @@
 <text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-c</text>
 <line x1="380.00" y1="287.00" x2="380.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Projectie: 1e hoek</text>
-<line x1="387.00" y1="286.50" x2="393.30" y2="285.45" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="387.00" y1="282.30" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="387.00" y1="286.50" x2="387.00" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="393.30" y1="285.45" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="393.30" y2="286.50" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="283.35" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="387.00" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="393.30" y1="286.50" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
 <line x1="385.95" y1="284.40" x2="394.35" y2="284.40" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
 <circle cx="398.90" cy="284.40" r="2.10" fill="none" stroke="#111" stroke-width="0.3"/>
 <circle cx="398.90" cy="284.40" r="1.05" fill="none" stroke="#111" stroke-width="0.3"/>

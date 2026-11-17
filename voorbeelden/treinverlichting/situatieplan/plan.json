@@ -6,10 +6,13 @@
  "hoogte": 724,
  "coordinaten": "pixels van achtergrond.jpg, oorsprong linksboven, x naar rechts, y naar beneden",
  "schaal": {
-  "px_per_m": 5.0,
+  "px_per_m": 7.8,
   "aanname": true,
-  "uitleg": "AANNAME: het hotel is in de Google-foto ± 100 m lang (50 m = 243 px) en in dit beeld ± 500 px; 1 m = 5 px. Nadien te controleren met een gemeten maat van de modelbaan."
+  "uitleg": "AANNAME (Fable 5.2 VN2): de 2 rijstroken van de Stationstraat liggen 25.5 px uit elkaar, een rijstrook is 3 tot 3,5 m: 25.5 / 3.25 = 7.8 px/m. Vroeger 5 px/m (hotel ± 100 m in de Google-foto): dan was een strook 5,1 m breed. Te controleren met een gemeten maat van de modelbaan."
  },
+ "mm_op_de_baan_per_px": 1.47,
+ "mm_op_de_baan_aanname": true,
+ "mm_op_de_baan_uitleg": "AANNAME: H0 1:87 bij 7.8 px/m: 1000 / (7.8 x 87) = 1.47 mm per px; een strook is dan ± 37,5 mm. Meten: de breedte van een rijstrook op de echte baan in mm gedeeld door 25.5 px, hier invullen en aanname op false.",
  "noord_graden": 26.8,
  "noord_uitleg": "noord wijst 26,8 graden met de klok mee vanaf 'boven' (sporen liggen horizontaal)",
  "rijbanen": [
@@ -21,7 +24,7 @@
    "richting": "in de volgorde van de punten: oostwaarts op de zuidstrook, keren aan de rechterrand, westwaarts op de noordstrook, tegen de klok in rond de rotonde",
    "breedte_px": 25.5,
    "lengte_px": 3290.2,
-   "lengte_m": 658.05,
+   "lengte_m": 421.82,
    "begin": null,
    "eind": null,
    "punten": [
@@ -6615,7 +6618,7 @@
    "richting": "van begin naar eind: bij wissel 1 van de Stationstraat af, omhoog, naar links tussen gebouw en sporen",
    "breedte_px": 30.0,
    "lengte_px": 1178.5,
-   "lengte_m": 235.69,
+   "lengte_m": 151.08,
    "begin": {
     "van": "autolus",
     "wissel": "W1",
@@ -8995,7 +8998,7 @@
    "richting": "van begin (boven) naar eind (invoegen op de Stationstraat)",
    "breedte_px": 50.0,
    "lengte_px": 300.3,
-   "lengte_m": 60.05,
+   "lengte_m": 38.5,
    "begin": {
     "van": "busbaan",
     "einde": true,
@@ -9620,7 +9623,7 @@
    "richting": "van begin (boven) naar eind (invoegen op de Stationstraat)",
    "breedte_px": 50.0,
    "lengte_px": 305.0,
-   "lengte_m": 60.99,
+   "lengte_m": 39.1,
    "begin": {
     "van": "busbaan",
     "wissel": "W4",
@@ -10253,7 +10256,7 @@
    "richting": "van begin (boven) naar eind (invoegen op de Stationstraat)",
    "breedte_px": 50.0,
    "lengte_px": 304.8,
-   "lengte_m": 60.96,
+   "lengte_m": 39.08,
    "begin": {
     "van": "busbaan",
     "wissel": "W3",
@@ -10886,7 +10889,7 @@
    "richting": "van begin (boven) naar eind (invoegen op de Stationstraat)",
    "breedte_px": 50.0,
    "lengte_px": 305.9,
-   "lengte_m": 61.19,
+   "lengte_m": 39.22,
    "begin": {
     "van": "busbaan",
     "wissel": "W2",
@@ -11627,6 +11630,247 @@
    "baan": "autolus",
    "afstand_px": 1838.1,
    "opmerking": "op de noordstrook, net stroomopwaarts van de invoegingen: bewaakt het verkeer naar de haltes"
+  },
+  {
+   "id": "HW1",
+   "naam": "HW1",
+   "x": 1617.9,
+   "y": 539.0,
+   "baan": "busbaan",
+   "afstand_px": 40,
+   "advies": true,
+   "opmerking": "net na W1 op de afbuigende tak: de bus nam deze kant",
+   "alleen_bus": true
+  },
+  {
+   "id": "HW2",
+   "naam": "HW2",
+   "x": 1012.2,
+   "y": 358.3,
+   "baan": "halte_standmodel",
+   "afstand_px": 40,
+   "advies": true,
+   "opmerking": "net na W2 op de afbuigende tak: de bus nam deze kant",
+   "alleen_bus": true
+  },
+  {
+   "id": "HW3",
+   "naam": "HW3",
+   "x": 888.8,
+   "y": 358.4,
+   "baan": "halte_lijnbus1",
+   "afstand_px": 40,
+   "advies": true,
+   "opmerking": "net na W3 op de afbuigende tak: de bus nam deze kant",
+   "alleen_bus": true
+  },
+  {
+   "id": "HW4",
+   "naam": "HW4",
+   "x": 762.6,
+   "y": 358.3,
+   "baan": "halte_lijnbus2",
+   "afstand_px": 40,
+   "advies": true,
+   "opmerking": "net na W4 op de afbuigende tak: de bus nam deze kant",
+   "alleen_bus": true
+  },
+  {
+   "id": "HS_lijnbus3",
+   "naam": "HS_lijnbus3",
+   "x": 592.2,
+   "y": 456.8,
+   "baan": "halte_lijnbus3",
+   "afstand_px": 148.1,
+   "advies": true,
+   "opmerking": "hallsensor aan STOP_lijnbus3: de bus komt aan de halte (aankomstpunt)",
+   "alleen_bus": true
+  },
+  {
+   "id": "HS_lijnbus2",
+   "naam": "HS_lijnbus2",
+   "x": 712.8,
+   "y": 456.9,
+   "baan": "halte_lijnbus2",
+   "afstand_px": 150.5,
+   "advies": true,
+   "opmerking": "hallsensor aan STOP_lijnbus2: de bus komt aan de halte (aankomstpunt)",
+   "alleen_bus": true
+  },
+  {
+   "id": "HS_lijnbus1",
+   "naam": "HS_lijnbus1",
+   "x": 839.1,
+   "y": 456.9,
+   "baan": "halte_lijnbus1",
+   "afstand_px": 150.4,
+   "advies": true,
+   "opmerking": "hallsensor aan STOP_lijnbus1: de bus komt aan de halte (aankomstpunt)",
+   "alleen_bus": true
+  },
+  {
+   "id": "HS_standmodel",
+   "naam": "HS_standmodel",
+   "x": 960.9,
+   "y": 457.8,
+   "baan": "halte_standmodel",
+   "afstand_px": 152.0,
+   "advies": true,
+   "opmerking": "hallsensor aan STOP_standmodel: de bus komt aan de halte (aankomstpunt)",
+   "alleen_bus": true
+  },
+  {
+   "id": "HALL2",
+   "naam": "HALL2",
+   "x": 1314.5,
+   "y": 562.0,
+   "baan": "autolus",
+   "afstand_px": 1505.0,
+   "advies": true,
+   "opmerking": "om de ± 50 cm"
+  },
+  {
+   "id": "HALL3",
+   "naam": "HALL3",
+   "x": 231.1,
+   "y": 503.2,
+   "baan": "autolus",
+   "afstand_px": 2613.1,
+   "advies": true,
+   "opmerking": "om de ± 50 cm"
+  },
+  {
+   "id": "HALL4",
+   "naam": "HALL4",
+   "x": 231.2,
+   "y": 619.3,
+   "baan": "autolus",
+   "afstand_px": 2911.0,
+   "advies": true,
+   "opmerking": "om de ± 50 cm"
+  },
+  {
+   "id": "HALL5",
+   "naam": "HALL5",
+   "x": 515.7,
+   "y": 587.6,
+   "baan": "autolus",
+   "afstand_px": 3208.8,
+   "advies": true,
+   "opmerking": "om de ± 50 cm"
+  },
+  {
+   "id": "HALL6",
+   "naam": "HALL6",
+   "x": 815.6,
+   "y": 587.5,
+   "baan": "autolus",
+   "afstand_px": 218.4,
+   "advies": true,
+   "opmerking": "om de ± 50 cm"
+  },
+  {
+   "id": "HALL7",
+   "naam": "HALL7",
+   "x": 1113.4,
+   "y": 587.5,
+   "baan": "autolus",
+   "afstand_px": 516.2,
+   "advies": true,
+   "opmerking": "om de ± 50 cm"
+  },
+  {
+   "id": "HALL8",
+   "naam": "HALL8",
+   "x": 1411.3,
+   "y": 587.5,
+   "baan": "autolus",
+   "afstand_px": 814.1,
+   "advies": true,
+   "opmerking": "om de ± 50 cm"
+  },
+  {
+   "id": "HALL9",
+   "naam": "HALL9",
+   "x": 1549.2,
+   "y": 333.5,
+   "baan": "busbaan",
+   "afstand_px": 294.1,
+   "advies": true,
+   "opmerking": "om de ± 50 cm",
+   "alleen_bus": true
+  },
+  {
+   "id": "HALL10",
+   "naam": "HALL10",
+   "x": 1295.1,
+   "y": 333.5,
+   "baan": "busbaan",
+   "afstand_px": 548.2,
+   "advies": true,
+   "opmerking": "om de ± 50 cm",
+   "alleen_bus": true
+  }
+ ],
+ "ir_sensoren": [
+  {
+   "id": "IRRX1",
+   "naam": "IRRX1",
+   "x": 1701.1,
+   "y": 573.9,
+   "baan": "autolus",
+   "afstand_px": 1112.0,
+   "advies": true,
+   "opmerking": "IR-ontvanger voor wissel 1: herkent de bus (zijn code)",
+   "sensor": "ir"
+  },
+  {
+   "id": "FTR_lijnbus3",
+   "naam": "FTR_lijnbus3",
+   "x": 528.9,
+   "y": 562.0,
+   "baan": "halte_lijnbus3",
+   "afstand_px": 275.4,
+   "advies": true,
+   "opmerking": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
+   "alleen_bus": true,
+   "sensor": "ftr"
+  },
+  {
+   "id": "FTR_lijnbus2",
+   "naam": "FTR_lijnbus2",
+   "x": 644.8,
+   "y": 562.0,
+   "baan": "halte_lijnbus2",
+   "afstand_px": 279.9,
+   "advies": true,
+   "opmerking": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
+   "alleen_bus": true,
+   "sensor": "ftr"
+  },
+  {
+   "id": "FTR_lijnbus1",
+   "naam": "FTR_lijnbus1",
+   "x": 771.2,
+   "y": 562.0,
+   "baan": "halte_lijnbus1",
+   "afstand_px": 279.8,
+   "advies": true,
+   "opmerking": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
+   "alleen_bus": true,
+   "sensor": "ftr"
+  },
+  {
+   "id": "FTR_standmodel",
+   "naam": "FTR_standmodel",
+   "x": 892.4,
+   "y": 562.0,
+   "baan": "halte_standmodel",
+   "afstand_px": 281.0,
+   "advies": true,
+   "opmerking": "reflexsensor vlak voor de invoeging: verkeer vrij, de bus is vertrokken",
+   "alleen_bus": true,
+   "sensor": "ftr"
   }
  ],
  "verkeerslichten": [

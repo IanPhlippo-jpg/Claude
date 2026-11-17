@@ -245,11 +245,14 @@ void test_herstart_tijdens_wachten() {
   TEST_ASSERT_EQUAL(0, (int)leeg.ir.size());
 }
 
-// F3: een tweede bus tijdens groen wordt onthouden, krijgt meteen de stopcode, en de halte begint met hem zodra ze vrij is
+// F3 + FN1: een tweede bus tijdens groen wordt onthouden en krijgt meteen de stopcode, maar via de wachtled (IR-led 4);
+// de eerste bus krijgt zijn rijdcode via de stopled (IR-led 5) gewoon 3 keer. De halte begint met de wachtende zodra
+// ze vrij is.
 void test_tweede_bus_tijdens_groen() {
   Proef p;
   p.cfg[0].vrijIngangen = 0;
   p.cfg[0].wachtS = 1;
+  p.cfg[0].wachtLeds = 1u << 3; // IR-led 4
   p.h.melding(p.cfg, "P5", 1, p.u, p.t);
   p.loop(3510);
   TEST_ASSERT_EQUAL_STRING("groen", p.fase());
@@ -258,12 +261,16 @@ void test_tweede_bus_tijdens_groen() {
   TEST_ASSERT_TRUE(p.h.t[0].heeftWachtend);
   TEST_ASSERT_EQUAL(2, p.h.t[0].wachtendBus);
   TEST_ASSERT_EQUAL(stops + 1, p.u.tel(2)); // meteen de stopcode
+  TEST_ASSERT_EQUAL_HEX8(1u << 3, p.u.ir.back().leds); // via de wachtled
   TEST_ASSERT_TRUE(p.h.houdt(0));
+  TEST_ASSERT_FALSE(p.h.houdtStop(0));
   p.h.melding(p.cfg, "P5", 3, p.u, p.t);   // een derde: niet (hoogstens één wachtende)
   TEST_ASSERT_EQUAL(2, p.h.t[0].wachtendBus);
   p.loop(1000);
-  TEST_ASSERT_EQUAL(rijd, p.u.tel(3));      // geen rijdcode meer zolang er een bus wacht
+  TEST_ASSERT_EQUAL(rijd + 2, p.u.tel(3));   // FN1: de rijdcode loopt door (3 keer in groen)
   TEST_ASSERT_TRUE(p.u.tel(2) >= stops + 3); // de stopcode herhaald
+  for (auto &x : p.u.ir)
+    if (x.t > p.t - 1000) TEST_ASSERT_EQUAL_HEX8(x.code == 2 ? 1u << 3 : 1u << 4, x.leds); // stop: led 4, rijd: led 5
   p.loop(4000 + 2000);
   TEST_ASSERT_EQUAL_STRING("aankomst", p.fase()); // na vertrek meteen de wachtende bus
   TEST_ASSERT_EQUAL(2, p.h.t[0].bus);
@@ -280,6 +287,177 @@ void test_tweede_bus_tijdens_groen() {
   b.haltes.t[0].heeftWachtend = false;
   deserializeJson(d, apiStaat(b, 0, true));
   TEST_ASSERT_EQUAL(-1, d["haltes"][0]["wachtend"].as<int>());
+}
+
+namespace {
+/** QN2: een nep-bus van het Car System: staat boven één IR-led, stopt op de stopcode en rijdt op de rijdcode (een bus
+ *  die de stopcode onthoudt). Hij leest alleen wat via zijn eigen led gaat (leds 0 = alle leds). */
+struct NepBus {
+  uint8_t led;
+  bool rijdt = true;
+  void zie(const Nep::Ir &x, int stop, int rijd) {
+    uint8_t leds = x.leds ? x.leds : 0xFF;
+    if (!(leds & led)) return;
+    if (x.code == stop) rijdt = false;
+    if (x.code == rijd) rijdt = true;
+  }
+};
+/** wat elke led in elke fase zond: bit 0 = stopcode, bit 1 = rijdcode */
+struct Gezien {
+  uint8_t led[N_FASEN][8] = {{0}};
+  void zie(int fase, const Nep::Ir &x, int stop, int rijd) {
+    uint8_t leds = x.leds ? x.leds : 0xFF;
+    for (int k = 0; k < 8; k++)
+      if (leds >> k & 1) led[fase][k] |= (uint8_t)((x.code == stop ? 1 : 0) | (x.code == rijd ? 2 : 0));
+  }
+};
+} // namespace
+
+// QN2 + FN1, vanuit de bussen: bus 1 staat aan de stopled (IR-led 5), bus 2 komt aan terwijl de halte bezet is en
+// staat aan de wachtled (IR-led 4). Bus 1 moet in groen vertrekken terwijl bus 2 blijft wachten; daarna rijdt bus 2 naar
+// de stopled en stopt daar. Per fase: wat zag elke led? (2.1.0: in groen kreeg led 5 de stopcode voor bus 2 en geen
+// rijdcode: bus 1 bleef staan.)
+void test_twee_bussen_vanuit_de_bus() {
+  Proef p;
+  p.cfg[0].vrijIngangen = 0;
+  p.cfg[0].wachtS = 4;
+  p.cfg[0].groenS = 5;
+  p.cfg[0].wachtLeds = 1u << 3;
+  const uint8_t STOPLED = 1u << 4, WACHTLED = 1u << 3;
+  NepBus bus1{STOPLED}, bus2{WACHTLED};
+  Gezien g;
+  size_t gelezen = p.u.ir.size();
+  bool bus1ReedInGroen = false, bus2StondInGroen = true, bus2StondInVertrek = true;
+  auto loop = [&](uint32_t ms) {
+    for (uint32_t e = p.t + ms; p.t < e;) {
+      p.t += 5;
+      p.h.stap(p.cfg, p.actief, p.u, p.t);
+      for (; gelezen < p.u.ir.size(); gelezen++) {
+        const Nep::Ir &x = p.u.ir[gelezen];
+        bus1.zie(x, 2, 3);
+        bus2.zie(x, 2, 3);
+        g.zie(p.h.t[0].fase, x, 2, 3);
+      }
+      if (p.h.t[0].fase == FASE_GROEN && p.h.t[0].bus == 1) {
+        bus1ReedInGroen = bus1ReedInGroen || bus1.rijdt;
+        bus2StondInGroen = bus2StondInGroen && !bus2.rijdt;
+        if (bus1.rijdt) bus1.led = 0; // hij rijdt weg: boven geen led van de halte meer
+      }
+      if (p.h.t[0].fase == FASE_VERTREK && p.h.t[0].bus == 1) bus2StondInVertrek = bus2StondInVertrek && !bus2.rijdt;
+    }
+  };
+  auto melding = [&](int bus) {
+    p.h.melding(p.cfg, "P5", bus, p.u, p.t);
+    for (; gelezen < p.u.ir.size(); gelezen++) {
+      bus1.zie(p.u.ir[gelezen], 2, 3);
+      bus2.zie(p.u.ir[gelezen], 2, 3);
+      g.zie(p.h.t[0].fase, p.u.ir[gelezen], 2, 3);
+    }
+  };
+  melding(1);
+  TEST_ASSERT_FALSE(bus1.rijdt); // bus 1 stopt aan de halte
+  loop(1000);
+  melding(2); // bus 2 komt aan tijdens "stop"
+  TEST_ASSERT_TRUE(p.h.t[0].heeftWachtend);
+  TEST_ASSERT_FALSE(bus2.rijdt); // en wacht aan de wachtled
+  loop(1500 + 4000 + 10);
+  TEST_ASSERT_EQUAL_STRING("groen", p.fase());
+  loop(5000 + 2000);
+  // bus 1 vertrok in groen, bus 2 bleef wachten tot de halte vrij was
+  TEST_ASSERT_TRUE_MESSAGE(bus1ReedInGroen, "bus 1 moet in groen vertrekken");
+  TEST_ASSERT_TRUE_MESSAGE(bus2StondInGroen, "bus 2 moet in groen blijven wachten");
+  TEST_ASSERT_TRUE(bus2StondInVertrek);
+  TEST_ASSERT_TRUE(bus1.rijdt);
+  // per led en fase (eerste cyclus, bus 1)
+  TEST_ASSERT_EQUAL_HEX8(1, g.led[FASE_AANKOMST][4]); // stopled: stop
+  TEST_ASSERT_EQUAL_HEX8(1, g.led[FASE_WACHTEN][4]);
+  TEST_ASSERT_EQUAL_HEX8(1, g.led[FASE_WACHTEN][3]); // wachtled: stop (voor bus 2)
+  TEST_ASSERT_EQUAL_HEX8(2, g.led[FASE_GROEN][4]);   // stopled: alleen rijd
+  TEST_ASSERT_EQUAL_HEX8(1, g.led[FASE_GROEN][3]);   // wachtled: alleen stop
+  TEST_ASSERT_EQUAL_HEX8(0, g.led[FASE_VERTREK][4]); // stopled: niets
+  TEST_ASSERT_EQUAL_HEX8(1, g.led[FASE_VERTREK][3]); // wachtled: nog altijd stop
+  for (int k : {0, 1, 2, 5, 6, 7})
+    for (int f = 0; f < N_FASEN; f++) TEST_ASSERT_EQUAL_HEX8(0, g.led[f][k] & 1); // de andere leds: nooit een stopcode
+  // de halte begint met bus 2: hij krijgt de rijdcode aan de wachtled en rijdt
+  TEST_ASSERT_EQUAL(2, p.h.t[0].bus);
+  TEST_ASSERT_TRUE(bus2.rijdt);
+  loop(300);
+  bus2.led = STOPLED; // na 0,3 s staat hij boven de stopled
+  loop(500);
+  TEST_ASSERT_FALSE(bus2.rijdt); // en stopt daar (stopcode elke 400 ms)
+  TEST_ASSERT_TRUE(bus1.rijdt);  // bus 1 is al weg en ziet niets meer van de halte
+  loop(2000 + 4000 + 10);
+  TEST_ASSERT_EQUAL_STRING("groen", p.fase());
+  loop(100);
+  TEST_ASSERT_TRUE(bus2.rijdt);
+}
+
+// FN1: zonder wachtled (leeg) wordt de tweede bus niet tegengehouden (zoals 2.0.0): geen stopcode, niet onthouden
+void test_zonder_wachtled_niet_tegenhouden() {
+  Proef p;
+  p.cfg[0].vrijIngangen = 0;
+  p.cfg[0].wachtS = 1;
+  TEST_ASSERT_EQUAL_HEX8(0, p.cfg[0].wachtLeds);
+  p.h.melding(p.cfg, "P5", 1, p.u, p.t);
+  p.loop(1000);
+  int stops = p.u.tel(2);
+  p.h.melding(p.cfg, "P5", 2, p.u, p.t);
+  TEST_ASSERT_FALSE(p.h.t[0].heeftWachtend);
+  TEST_ASSERT_EQUAL(stops, p.u.tel(2));
+  p.loop(2510);
+  TEST_ASSERT_EQUAL_STRING("groen", p.fase());
+  p.loop(1000);
+  TEST_ASSERT_EQUAL(1 + 3, p.u.tel(3)); // opstarten 1 (zonder loop in vrij) + 3 in groen
+  p.loop(4000 + 2000);
+  TEST_ASSERT_EQUAL_STRING("vrij", p.fase()); // geen wachtende: vrij
+}
+
+// FN7: na het opstarten de rijdcode 3 keer (om de 0,5 s) via de stopled en de wachtled; een bus die intussen aankomt,
+// stopt de reeks
+void test_opstarten_rijdcode_drie_keer() {
+  Proef p;
+  p.cfg[0].wachtLeds = 1u << 3;
+  Nep u;
+  Haltes h;
+  h.begin(0, p.cfg[0], u, 0);
+  for (uint32_t t = 5; t <= 1100; t += 5) h.stap(p.cfg, 0, u, t);
+  TEST_ASSERT_EQUAL(3, u.tel(3));
+  for (auto &x : u.ir) TEST_ASSERT_EQUAL_HEX8((1u << 4) | (1u << 3), x.leds);
+  TEST_ASSERT_EQUAL(500, (int)(u.ir[1].t - u.ir[0].t));
+  // een bus komt na 0,2 s aan: geen rijdcodes meer (wel de stopcode)
+  Nep v;
+  Haltes h2;
+  h2.begin(0, p.cfg[0], v, 0);
+  h2.melding(p.cfg, "P5", 1, v, 200);
+  for (uint32_t t = 205; t <= 20000; t += 5) h2.stap(p.cfg, 0, v, t);
+  TEST_ASSERT_EQUAL(1 + 3, v.tel(3)); // 1 bij het opstarten, 3 in groen
+}
+
+// FN1: de API weigert een wachtled die ook stopled is, of een wachtled zonder gekozen stopled (leeg = alle leds)
+void test_wachtleds_api() {
+  Baan b;
+  auto roep = [&](const char *j) { return apiHalte(b, j, strlen(j), 0); };
+  TEST_ASSERT_EQUAL(200, roep(R"({"nr":1,"naam":"H","aankomstPunt":"P5","stopLeds":[5],"wachtLeds":[4]})").code);
+  TEST_ASSERT_EQUAL_HEX8(1u << 3, b.cfg.halte[0].wachtLeds);
+  Antwoord a = roep(R"({"nr":1,"naam":"H","stopLeds":[5],"wachtLeds":[5]})");
+  TEST_ASSERT_EQUAL(400, a.code);
+  TEST_ASSERT_TRUE(a.json.find("verschillende") != std::string::npos);
+  TEST_ASSERT_EQUAL(400, roep(R"({"nr":1,"naam":"H","stopLeds":[],"wachtLeds":[4]})").code);
+  TEST_ASSERT_EQUAL(400, roep(R"({"nr":1,"naam":"H","wachtLeds":[5]})").code); // de bewaarde stopled is 5
+  TEST_ASSERT_EQUAL(400, roep(R"({"nr":1,"naam":"H","wachtLeds":[9]})").code);
+  TEST_ASSERT_EQUAL_HEX8(1u << 3, b.cfg.halte[0].wachtLeds); // niets veranderd
+  TEST_ASSERT_EQUAL(200, roep(R"({"nr":1,"naam":"H","wachtLeds":[]})").code);
+  TEST_ASSERT_EQUAL_HEX8(0, b.cfg.halte[0].wachtLeds);
+  // in de staat (volledig) en terug uit een bestand
+  roep(R"({"nr":1,"naam":"H","wachtLeds":[3,4]})");
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, false));
+  TEST_ASSERT_EQUAL(2, (int)d["haltes"][0]["wachtLeds"].size());
+  TEST_ASSERT_EQUAL(3, d["haltes"][0]["wachtLeds"][0].as<int>());
+  Config c;
+  std::string json = configNaarJson(b.cfg), mld;
+  configVanJson(json.data(), json.size(), c, mld);
+  TEST_ASSERT_EQUAL_HEX8((1u << 2) | (1u << 3), c.halte[0].wachtLeds);
 }
 
 // F12: een vrij-ingang die actief blijft (magneet boven de sensor, losse draad): na maxVerkeerS toch groen, met melding
@@ -340,14 +518,70 @@ void test_continu_stopcode() {
   TEST_ASSERT_EQUAL_HEX8(0, b.continuLeds(t + IR_CONTINU_PROEF_MS));
 }
 
+// EN1: een continu-stopled krijgt een tijdsgrens: aankomst + stop + wachtS + maxVerkeerS (0 = 60 s) + 10 s. Met
+// maxVerkeerS = 0 en een vrij-ingang die bezet blijft, brandde ze in 2.1.0 zonder einde (0,95 W in 120 Ω). Ook: de
+// waarschuwing over 470 Ω in de antwoorden van de API en in /api/staat.
+void test_continu_tijdsgrens_en_waarschuwing() {
+  Baan b;
+  auto post = [&](Antwoord (*f)(Baan &, const char *, size_t, uint32_t), const char *j) { return f(b, j, strlen(j), 0); };
+  Antwoord a = post(apiIr, R"({"actie":"bewaren","nr":1,"code":{"naam":"Stop","soort":"continu"}})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_TRUE(a.json.find("470") != std::string::npos);
+  TEST_ASSERT_TRUE(post(apiIr, R"({"actie":"bewaren","nr":2,"code":{"naam":"Rijd","soort":"nec"}})").json.find("470") ==
+                   std::string::npos);
+  a = post(apiIr, R"({"actie":"zenden","nr":1,"leds":[3]})");
+  TEST_ASSERT_TRUE(a.json.find("waarschuwing") != std::string::npos);
+  a = post(apiHalte, R"({"nr":1,"naam":"Halte","aankomstPunt":"P5","stopLeds":[5],"stopCode":1,"rijdCode":2,"wachtS":1,
+    "vrijIngangen":[7],"vrijMinS":1,"maxVerkeerS":0})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_TRUE(a.json.find("470") != std::string::npos);
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, true));
+  TEST_ASSERT_TRUE(d["ir"]["continu"].as<bool>());
+  TEST_ASSERT_TRUE(std::string(d["ir"]["continuWaarschuwing"].as<const char *>()).find("470") != std::string::npos);
+  TEST_ASSERT_TRUE(d["haltes"][0]["continu"].as<bool>());
+  // de bus komt, ingang 7 blijft bezet (maxVerkeerS 0 = geen grens): de halte houdt hem eindeloos vast
+  const uint32_t grens = HALTE_AANKOMST_MS + HALTE_STOP_MS + 1000 + 60000 + HALTE_CONTINU_MARGE_MS;
+  TEST_ASSERT_EQUAL(grens, Haltes::continuGrensMs(b.cfg.halte[0], false));
+  b.busGezien(-1, "P5", 10);
+  b.haltes.melding(b.cfg.halte, "P5", -1, b, 10);
+  uint32_t t = 10;
+  IngangMasker zeven = ingangBit(6);
+  for (; t < 10 + grens - 100; t += 5) b.tick(t, zeven);
+  TEST_ASSERT_EQUAL(FASE_VERKEER, b.haltes.t[0].fase);
+  TEST_ASSERT_EQUAL_HEX8(1u << 4, b.continuLeds(t));
+  TEST_ASSERT_TRUE(b.logicaMelding().find("continu") == std::string::npos);
+  for (; t < 10 + grens + 100; t += 5) b.tick(t, zeven);
+  TEST_ASSERT_EQUAL(FASE_VERKEER, b.haltes.t[0].fase); // houdt nog vast ...
+  TEST_ASSERT_EQUAL_HEX8(0, b.continuLeds(t));          // ... maar de led is uit
+  TEST_ASSERT_TRUE(b.logicaMelding().find("470") != std::string::npos);
+  deserializeJson(d, apiStaat(b, t, true));
+  TEST_ASSERT_TRUE(d["haltes"][0]["continuTeLang"].as<bool>());
+  // een wachtende bus aan de wachtled: ook met een grens
+  HalteCfg &c = b.cfg.halte[0];
+  c.wachtLeds = 1u << 3;
+  c.maxVerkeerS = 60;
+  b.haltesOpnieuw(t);
+  b.haltes.melding(b.cfg.halte, "P5", -1, b, t);
+  b.haltes.melding(b.cfg.halte, "P5", 1, b, t);
+  TEST_ASSERT_TRUE(b.haltes.houdtWacht(0));
+  TEST_ASSERT_EQUAL_HEX8((1u << 4) | (1u << 3), b.continuLeds(t));
+  TEST_ASSERT_EQUAL_HEX8(0, b.continuLeds(t + Haltes::continuGrensMs(c, true)) & (1u << 3));
+}
+
 int main() {
   UNITY_BEGIN();
+  RUN_TEST(test_continu_tijdsgrens_en_waarschuwing);
   RUN_TEST(test_hele_cyclus);
   RUN_TEST(test_zonder_vrije_ingangen_meteen_groen);
   RUN_TEST(test_halte_in_de_baan_met_ir_en_bus);
   RUN_TEST(test_herhalen_tot_groen);
   RUN_TEST(test_herstart_tijdens_wachten);
   RUN_TEST(test_tweede_bus_tijdens_groen);
+  RUN_TEST(test_twee_bussen_vanuit_de_bus);
+  RUN_TEST(test_zonder_wachtled_niet_tegenhouden);
+  RUN_TEST(test_opstarten_rijdcode_drie_keer);
+  RUN_TEST(test_wachtleds_api);
   RUN_TEST(test_verkeer_blijft_bezet);
   RUN_TEST(test_continu_stopcode);
   return UNITY_END();

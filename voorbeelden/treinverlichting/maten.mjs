@@ -63,8 +63,10 @@ export const M = {
   // Fable 5.2 D9: de 2 zekeringen (-F1 hoofdzekering, -F19 servo's) in een zekeringhouder 5 x 20 voor paneelmontage in de
   // achterwand naast de DC-bus: van buiten te vervangen zonder de doos los te maken. Gat Ø12,5, flens Ø16 x 2 en kap Ø12
   // x 12 buiten, lijf Ø12 x 24 binnen met 2 vlaksteeklippen 4,8 (AANNAME: gangbare houder, na te meten), op y 26 boven
-  // de WAGO-klemmen
-  zekering: { gat: 12.5, x: [245, 263], y: 26, flens: 16, flensDik: 2, kap: 12, kapL: 12, lijf: 12, lijfL: 24, lip: 6 },
+  // de WAGO-klemmen. Fable 5.2 DN2 (2026-11-17): steek 22 (de moeren: tot 17 over de vlakken, 19,6 over de hoeken; op 18
+  // raakten ze elkaar) en 6 hoger (y 32): het lijf en de vlakstekers blijven 12 boven de WAGO-klemmen, de hendels gaan open.
+  // Een houder voor 10 A (er bestaan versies van 6,3 A), vlaksteekhulzen 4,8 in de bestellijst
+  zekering: { gat: 12.5, x: [241, 263], y: 32, moer: 17, flens: 16, flensDik: 2, kap: 12, kapL: 12, lijf: 12, lijfL: 24, lip: 6 },
   dcbus: { gat: 11.5, flens: 12.5, flensDik: 2.0, lijf: 14.4, draad: 11.3, lippen: 9.7, moer: 14, moerDik: 2.0, x: 223, y: 26 },
   // kader van een bordje: de ringwanden zelf (0,3 speling); bordje 16 heeft in zijn bredere ring 2 lage stroken
   kader: { speling: 0.3, h: 3 + 1.6 + 0.3 },

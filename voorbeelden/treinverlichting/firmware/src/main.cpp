@@ -106,6 +106,8 @@ volatile bool pcaOk = false;
 volatile bool mcp1Ok = false, mcp2Ok = false, servoOk = false;
 IrZendEsp irZendHw(ir, mcp1, mcp1Ok);
 volatile bool irBezig = false;         // F8: niet bewaren zolang er een IR-frame loopt
+volatile bool irLangBezig = false;     // FN6: de RMT zendt een lange code (met bijvullen door een interrupt)
+volatile bool i2cKort = false;         // FN4: SCL blijft laag (kortsluiting): pulsen helpen niet
 volatile bool zelftestVraag = false, zelftestKlaar = false; // Q1: de lichttaak doet de I2C-zelftest
 ZelftestHw zelftestUit;
 TaskHandle_t taakLicht = nullptr, taakIr = nullptr, taakKastjes = nullptr;
@@ -141,9 +143,25 @@ bool leesBestand(const char *pad, std::string &uit) {
   return true;
 }
 
+/** FN6 (Fable 5.2, tweede ronde): zolang LittleFS schrijft (en de flash wist), kan de interrupt die een lange IR-code
+ *  bijvult niet lopen. Zolang een Bewaren bestaat, wacht een lange code (irZender.bewaarBezig); een lange code die al
+ *  loopt, mag eerst eindigen (hoogstens 1,5 s). Alleen vanuit de loop-taak (de webserver en het bewaren): de teller
+ *  maakt geneste Bewaren mogelijk. */
+int bewaarTeller = 0;
+struct Bewaren {
+  Bewaren() {
+    if (bewaarTeller++ == 0) irZender.bewaarBezig = true;
+    for (int i = 0; i < 300 && irLangBezig; i++) delay(5);
+  }
+  ~Bewaren() {
+    if (--bewaarTeller == 0) irZender.bewaarBezig = false;
+  }
+};
+
 /** eerst naar een tijdelijk bestand, dan hernoemen: een stroomonderbreking laat nooit een half bestand achter */
 bool schrijfBestand(const char *pad, const std::string &inhoud) {
   if (!fsOk) return false;
+  Bewaren b; // FN6
   String tmp = String(pad) + ".tmp";
   File f = LittleFS.open(tmp, "w");
   if (!f) return false;
@@ -289,6 +307,7 @@ void lichtTaak(void *) {
       return baan.haalIrZend(z) && baan.irCodeVoor(z, c);
     }, continu);
     irBezig = irZender.bezig();
+    irLangBezig = irZender.bezigLang();
     if (nu - geschreven >= UITGANG_MS) {
       geschreven = nu;
       if (pcaOk && !pcaZet(uit)) { pcaOk = false; busFout = true; }
@@ -301,9 +320,9 @@ void lichtTaak(void *) {
     // de chips nakijken (en na een spanningsdip opnieuw instellen)
     if (nu - controle >= CONTROLE_MS) {
       controle = nu;
-      if (busFout) { // F11: eerst de bus vrijmaken (9 klokpulsen), dan alles opnieuw instellen
+      if (busFout || i2cKort) { // F11: eerst de bus vrijmaken (9 klokpulsen), dan alles opnieuw instellen
         busFout = false;
-        i2cHerstel(Wire, PIN_SDA, PIN_SCL, I2C_HZ);
+        i2cKort = !i2cHerstel(Wire, PIN_SDA, PIN_SCL, I2C_HZ); // FN4: SCL laag = kortsluiting, elke 2 s opnieuw kijken
       }
       if (!pcaOk || !pcaControleer()) {
         digitalWrite(PIN_OE, HIGH); // veilig: alles uit zolang de chips niet goed staan (ook de servo's: F9)
@@ -374,6 +393,9 @@ void meldingBijwerken() {
     m += t;
   };
   if (!fsOk) erbij("Het geheugen van de doos werkt niet: wijzigingen worden niet bewaard.");
+  if (i2cKort) // FN4
+    erbij("De I2C-bus is kortgesloten: SCL (GPIO9) blijft laag, ook zonder klokpulsen. Kijk de dupont-kabel over de naad "
+          "en de modules na (een verkeerd ingestoken stekker, een draad tegen GND).");
   if (!pcaOk) // F9: OE is gedeeld met de servoprint
     erbij(N_PCA > 1 ? "De uitgangen (PCA9685, adres 0x40 of 0x41) antwoorden niet: alle lampen blijven uit en de servo's "
                       "krijgen geen puls (OE is gedeeld). Kijk de draden na."
@@ -555,6 +577,7 @@ void ontvangStart(const String &doel, size_t max) {
   ontvangMax = max;
   if (!fsOk) { ontvangFout = "Het geheugen van de doos werkt niet."; return; }
   if (!doel.length()) { ontvangFout = "Naam: 1 tot 31 tekens (letters, cijfers, _ -) met een extensie, bv. achtergrond.jpg."; return; }
+  Bewaren b; // FN6
   if (doel.startsWith(TV_MAP)) LittleFS.mkdir("/tv");
   ontvangBestand = LittleFS.open(doel + ".tmp", "w");
   if (!ontvangBestand) ontvangFout = "Het bestand kon niet aangemaakt worden.";
@@ -564,10 +587,12 @@ void ontvangStuk(const uint8_t *buf, size_t n) {
   if (ontvangFout || !n) return;
   ontvangGrootte += n;
   if (ontvangGrootte > ontvangMax) { ontvangFout = "Het bestand is te groot."; return; }
+  Bewaren b; // FN6
   if (ontvangBestand.write(buf, n) != n) ontvangFout = "Het geheugen van de doos is vol.";
 }
 /** afsluiten: nakijken (ontvangControle), dan het oude bestand vervangen; bij een fout blijft het oude */
 void ontvangEinde(bool afgebroken) {
+  Bewaren b; // FN6
   if (ontvangBestand) ontvangBestand.close();
   String tmp = ontvangDoel + ".tmp";
   if (afgebroken && !ontvangFout) ontvangFout = "De upload is afgebroken.";
@@ -630,7 +655,10 @@ const char UPDATE_PAGINA[] PROGMEM =
     "<!doctype html><html lang=nl><meta charset=utf-8><meta name=viewport content='width=device-width'>"
     "<title>Treinbaan bijwerken</title><body style='font-family:sans-serif;max-width:30em;margin:2em auto;padding:0 1em'>"
     "<h1>Firmware bijwerken</h1><p>Kies het bestand <b>firmware.bin</b> (.pio/build/doos/firmware.bin). De doos start "
-    "daarna opnieuw; alle instellingen blijven.</p><form method=post action=/api/update enctype=multipart/form-data>"
+    "daarna opnieuw; alle instellingen blijven.</p><p><b>Werkt alleen via de hotspot Treinbaan</b> (wifi van de doos, "
+    "http://192.168.4.1/update). Op het thuisnet weigert de doos dit formulier: het stuurt het wachtwoord niet mee. "
+    "Daar werkt bijwerken via het dashboard (Instellingen).</p>"
+    "<form method=post action=/api/update enctype=multipart/form-data>"
     "<input type=file name=firmware accept=.bin required> <button>Bijwerken</button></form>"
     "<p><a href=/>terug naar het dashboard</a></p></body></html>";
 

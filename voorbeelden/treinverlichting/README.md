@@ -33,7 +33,7 @@ groep, waakhond, thuis-wifi, testmodus. **Versie 2:** kabelgoten van 28 hoog met
 | Optocouplerprints (-K3, -K4) | 2 x 8 kanalen PC817 (3,6-24 V), **de ingangen naar de rechterwand**: de knoppen, sensoren en hallsensoren trekken IN naar 0 V |
 | ESP (-K1 op -X6) | ESP32-S3-DevKitC-1 v1.1 (N16R8) in een **schroefklemadapter** met 44 klemmen; de 2 micro-USB-poorten achter een opening in de **voorwand** (flashen met de doos dicht) |
 | Regelaar (-T2) | Joy-IT SBC-Buck02: 12 -> 5 V voor de ESP, met schroefklem (rechtsvoor) |
-| Zekeringen | hoofdzekering 7,5 A (ATO in een houder met draden, -F1, achter de DC-bus); **per groep een polyfuse 0,5 A** (Bourns MF-R050, -F2..-F17) met één pootje in de klem n− van de MOSFET-module en het andere in een WAGO 221-2411 met de − van het bordje; de +12 V voor ingangen en sensoren een eigen polyfuse (-F18) |
+| Zekeringen | hoofdzekering T 8 A (5 x 20 in een houder in de achterwand, -F1, naast de DC-bus); **per groep een polyfuse 0,5 A** (Bourns MF-R050, -F2..-F17) met één pootje in de klem n− van de MOSFET-module en het andere in een WAGO 221-2411 met de − van het bordje; de +12 V voor ingangen en sensoren een eigen polyfuse (-F18) |
 | Ompoolbeveiliging | Schottkydiode SB560 (-R2) tussen L+ en 0 V, met haar pootjes in de verdeelklemmen |
 | Verdeelklemmen | WAGO 221-415 achteraan in de rechterhelft, onder de DC-bus: -X1 (L+, 2 stuks), -X2 (0 V, 2 stuks), -X3 (+12 V sensoren), -X7 (3,3 V) |
 | DC-bus | 5,5 x 2,5, 8 A (GlobTek JACK-L-PANEL-8A(R)) in de **achterwand van de rechterhelft**, boven de WAGO-klemmen |
@@ -64,10 +64,10 @@ groep, waakhond, thuis-wifi, testmodus. **Versie 2:** kabelgoten van 28 hoog met
 | een bordje (groep n) | de **+** aan de klem **n+** van zijn MOSFET-module, de **−** in de **WAGO 221-2411 van zijn polyfuse** (de polyfuse zit met haar andere pootje in de klem **n−**). Groep 1..8 = -Q1 kanaal 1..8 (achteraan), groep 9..16 = -Q2 kanaal 1..8. De + en − van de eindklemmen van een bordje nooit doorlussen naar een ander bordje |
 | een led | aan een bordje: lange poot (+) aan de klemmenrij met de weerstanden, korte poot (−) aan de andere rij |
 | een drukknop, schakelaar of reedcontact | print "vcc" (zoals getekend): tussen **IN n** en **0 V** (-X2); print "gnd": tussen **+12 V** (-X3) en IN n; print "apart": IN+ aan +12 V, het contact tussen IN− en 0 V. Welke print je hebt: **TRN-22 stap A** (meten), dan kiezen in het dashboard (Fable 5.2 E3) |
-| een **hallsensor** (omnipolair, open collector: Honeywell SS451A; de unipolaire SS441A of een A3144 werken ook maar alleen met de zuidpool) | + (pin 1) aan **+12 V** (-X3), − (pin 2) aan **0 V** (-X2), de uitgang (pin 3) aan **IN n** (print "gnd": plus 2,2 kΩ van IN n naar +12 V); in het dashboard de ingang op "Hallsensor (korte puls)" zetten (hieronder) |
-| een andere sensor met NPN-uitgang (IR, open collector) | + aan **+12 V** (-X3), − aan **0 V** (-X2), de uitgang aan **IN n** |
+| een **hallsensor** (omnipolair, open collector: Honeywell SS451A; de unipolaire SS441A of een A3144 werken ook maar alleen met de zuidpool) | + (pin 1) aan **+12 V** (-X3), − (pin 2) aan **0 V** (-X2), de uitgang (pin 3) aan **IN n** (print "gnd": plus 2,2 kΩ van IN n naar +12 V; print "apart": IN+ aan +12 V, de uitgang aan IN−); in het dashboard de ingang op "Hallsensor (korte puls)" zetten (hieronder) |
+| een andere sensor met NPN-uitgang (IR, open collector) | + aan **+12 V** (-X3), − aan **0 V** (-X2), de uitgang aan **IN n** (print "gnd": plus 2,2 kΩ van IN n naar +12 V, de firmware keert om; print "apart": IN+ aan +12 V, de uitgang aan IN−) |
 | een sensor die zelf 12 V geeft (PNP) | op een print "gnd" of "apart" rechtstreeks aan IN n ("apart": aan IN+, IN− aan 0 V) en de ingang op "pnp"; op een print "vcc" **niet** (12 V in sperrichting over de led): daar een klein relais 12 V waarvan het contact tussen IN n en 0 V hangt |
-| een **reflexsensor** (TCRT5000-module, "FTR": ziet ook een bus die stilstaat) | **niet** op de 12 V-ingangen: + aan **3,3 V (-X12, B3V3)**, − aan 0 V (-X13), de uitgang via **1 kΩ** aan ingang **17..23** (GPB0..6 van de MCP23017 -K5), soort "contact" (Fable 5.2 E2) |
+| een **reflexsensor** (TCRT5000-module, "FTR": ziet ook een bus die stilstaat) | **niet** op de 12 V-ingangen: + aan **3,3 V (-X17 onder de baan, B3V3)**, − aan 0 V (-X18), de uitgang via **1 kΩ** (-R28..-R31 in -X15) aan ingang **17..23** (GPB0..6 van de MCP23017 -K5), soort "contact" (Fable 5.2 E2) |
 | een kant-en-klare hallmodule voor Arduino (KY-003 en gelijk, met lampje en pull-up naar zijn eigen VCC) | **niet gebruiken**: op 5 V gevoed blijft de ingang half aan (12 V tegen 5 V door de led van de PC817), op 12 V brandt het lampje van de module met een weerstand voor 5 V. Neem de losse sensor |
 
 Ingang 1..8 = -K3 IN1..IN8, ingang 9..16 = -K4 IN1..IN8, ingang 17..23 = -K5 GPB0..GPB6 (reflexsensoren; GPB7 en GPA7 zijn geen ingang, Fable 5.2 E7). **Meer hallsensoren op één ingang** mag (parallel: de
@@ -167,13 +167,14 @@ in `schema/Aansluitschema-kabeldoos.pdf`; berekening: `docs/Berekeningen.md` §9
 
 **In de doos (fase B):** in de rechterhelft tussen de PCA9685 en de optocouplers de **servoprint -K7** (servostekkers naar
 voren, de kabels door een 5de tule in de rechterwand), de **XL4015 -T3** (CC/CV) en de elco **-C5** (pootjes in de
-schroefklem V+/GND van de servoprint), en 2 WAGO-klemmen **-X12** (3,3 V naar de baan, B3V3) en **-X13** (0 V) in een
+schroefklem V+/GND van de servoprint), en 2 WAGO-klemmen **-X12** (3,3 V naar de baan, B3V3, achter de polyfuse **-F20 MF-R030** met haar pootjes in -X7:5 en -X12:1) en **-X13** (0 V) in een
 klikhouder; in de linkerhelft naast bordje 16 de **IR-driver -Q4** (uitgangen naar de tules vooraan), de **AOD4184 -Q3**
 en de **MCP23017 -K5** (plaats en palen voor een tweede, -K8). De **IR-leerontvanger -B1** staat in een houder achter een
 **venstertje Ø6 in de voorwand** (rechts naast de USB-opening): Ian houdt zijn IR-zender ervoor, de doos blijft dicht
 (een stukje doorzichtig plakband aan de binnenkant houdt stof en insecten buiten; IR gaat erdoor). De zekeringen **-F1**
 (T 8 A) en **-F19** (T 3,15 A) zitten in houders 5 x 20 **in de achterwand** naast de DC-bus: van buiten te vervangen.
-Bij elke tule en elke module met dupont een oogje voor een kabelbinder (trekontlasting). Montagebladen **TRN-10**
+Bij elke tule en elke module met dupont een oogje voor een kabelbinder (trekontlasting): steek in elk oogje een losse
+kabelbinder vóór de doos onder de baan gaat (tegen de baan is het kanaal dicht), of doe het op de werkhaken (Fable 5.2 DN1). Montagebladen **TRN-10**
 (rechts) en **TRN-11** (links), draadlijst **TRN-15**, meetblad **TRN-22**.
 
 **Pinnen:** GPIO47 = IR zenden, GPIO48 = leerontvanger, GPIO11, 39 en 42 = 3 IR-ontvangers op de baan (gecodeerd IR; een
@@ -185,13 +186,16 @@ lichtgroepen 1-16, 0x41 blijft vrij voor 17-32), optioneel een tweede MCP23017 o
 - **IR-leds** (aan de 4 stoppunten, tot 8): van de klem n+ van -Q4 (L+) door een weerstand van 120 Ω (**1 W**, in een
   WAGO 221-2411 -X9) naar de anode, de kathode terug in de klem n−. Elke led een **getwist paar**, door een andere tule
   dan de ontvangers (38 kHz-pulsen storen anders de ontvangers). -Q3 (AOD4184) schakelt met de draaggolf van GPIO47.
-  Piek 89 mA per led. **Eerst meten** (TRN-22 F, G): kiest het dashboard IR-led 1, dan geleidt alleen kanaal 1; de
+  Piek 89 mA per led. **Codesoort "continu"** (stopled zonder draaggolf): 470 Ω 0,5 W in plaats van 120 Ω, want de led
+  brandt dan minutenlang (Fable 5.2 EN1, Berekeningen; het dashboard waarschuwt en zet de led na de haltecyclus uit). **Eerst meten** (TRN-22 F, G): kiest het dashboard IR-led 1, dan geleidt alleen kanaal 1; de
   IR-zelftest leest de code terug via -B1. De polariteit van -Q4 staat in het dashboard ("IR-led actief laag").
-- **IR-ontvangers** op de baan: 3,3 V uit **-X12 (B3V3, achter de polyfuse -F20 0,1 A)**, 0 V uit -X13, de uitgang via
+- **IR-ontvangers** op de baan: 3,3 V uit **-X12 (B3V3, achter de polyfuse -F20 MF-R030, 0,3 A)**, 0 V uit -X13, de uitgang via
   **1 kΩ** (-R22..-R24 in een WAGO 221-2411) naar de ESP; bij de ontvanger 100 Ω en 4,7 µF; kabel hoogstens 3 m, getwist.
   Een sluiting op de baan laat de polyfuse springen, niet de ESP herstarten.
-- **Reflexsensoren** (TCRT5000, aan de stoppunten: ze zien ook een bus die stilstaat): 3,3 V uit -X12, de uitgang met
-  1 kΩ naar ingang 17..23 (-K5 GPB0..6). Niet op de 12 V-ingangen.
+- **Reflexsensoren** (TCRT5000, vlak voor de invoegingen: ze zien ook een auto die stilstaat): de veldkabel **-W40** brengt
+  3,3 V en 0 V van -X12:2 en -X13:2 naar 2 WAGO 221-415 **-X17/-X18 onder de baan**; daar elke sensor; de uitgang met 1 kΩ
+  (-R28..-R31 in -X15) naar ingang 17..23 (-K5 GPB0..6). Niet op de 12 V-ingangen. Samen ± 0,1 A achter -F20 (Fable 5.2 EN2);
+  meer dan 4 reflexsensoren: een eigen 3,3 V-regelaar (Berekeningen).
 - **Servo's:** de XL4015 -T3 **eerst** zonder servo's en zonder -K7 op 5,5 V en de stroomgrens op 3 A zetten (TRN-22 E),
   een druppel lak op de potmeters, elco 1000 µF **25 V**. Bij het opstarten gaan de servo's één voor één naar hun stand;
   verlengkabels van minstens 0,25 mm². OE gedeeld met de lichtprint (bij reset staan de servo's stil). Geen GND-dupont
@@ -224,7 +228,8 @@ verkeerslichten. Zonder doos draait de simulatie.
 
 **Sensoradvies** (Ian: "Ik moet hierop kunnen zien hoe de bussen of auto's aan het rijden zijn"), uitgewerkt op het plan
 in `docs/Sensoradvies.png` (lijst met plaatsen in pixels van het plan: `docs/sensoradvies.json`, opnieuw maken met
-`python docs/sensoradvies.py`):
+`python docs/sensoradvies.py`, daarna zet `python situatieplan/maak-plan.py` ze in `plan.json` zodat de tv hun
+meldingen kent, Fable 5.2 VN3):
 
 ![Sensoradvies op het situatieplan](docs/Sensoradvies.png)
 
@@ -234,7 +239,7 @@ in `docs/Sensoradvies.png` (lijst met plaatsen in pixels van het plan: `docs/sen
 | net na elke wissel, op de afbuigende tak | hallsensor | 4 | bevestigt welke kant de bus nam |
 | aan elk stoppunt | hallsensor | 4 | de bus komt aan: de halte start (aankomstpunt) |
 | vlak voor elke invoeging | reflexsensor (TCRT5000) | 4 | ziet ook een stilstaande auto: "verkeer vrij" en de bus is vertrokken (Fable 5.2 S2) |
-| op de autolus en de busbaan, om de ± 50 cm | hallsensor | 12 + 3 | daartussen schat de tv met de gemeten snelheid |
+| op de autolus en de busbaan, om de ± 50 cm | hallsensor | 7 + 2 | daartussen schat de tv met de gemeten snelheid |
 | (er al) | hallsensor 1 | 1 | |
 
 **Hallsensor:** een **omnipolaire** sensor met open collector (Honeywell SS451A, 3 tot 24 V; AANNAME: datablad nakijken):
@@ -242,12 +247,15 @@ dan maakt de pool van de magneet niet uit (Fable 5.2 S1). Probeer eerst met éé
 van het Car System-voertuig al volstaat; dan zijn extra magneten niet nodig.
 
 **Stap voor stap** (Fable 5.2 S3): (1) één halte met één aankomstsensor en één IR-led, tot ze 50 keer na elkaar goed gaat;
-(2) de 4 haltes; (3) de 4 invoegingen; (4) pas dan de 15 sensoren op de lange stukken, en alleen als het beeld op de tv
+(2) de 4 haltes; (3) de 4 invoegingen; (4) pas dan de 9 sensoren op de lange stukken, en alleen als het beeld op de tv
 zonder hen stoort. **Tellingen** (S4): 16 ingangen op de optocouplerprints + 7 op de MCP23017 (17..23) = 23, waarvan
-ingang 1 de knop: **22 voor sensoren**. Fase 1-3 (8 hall + hallsensor 1 op de prints, 4 reflex op 17..20) past; de 15 op de
-lange stukken vragen de tweede MCP23017 (0x21, ingangen 25-38) met 2 optocouplerprints. **Schaal** (V3): de schaal van
-het plan (1 m = 5 px) en H0 1:87 zijn AANNAMES en een modelbaan is bijna altijd ingekort: meet 2 punten op de echte baan
-en zet `"mm_op_de_baan_per_px"` in `situatieplan/plan.json`; `docs/sensoradvies.py` rekent dan daarmee.
+ingang 1 de knop: **22 voor sensoren**. Fase 1-3 (8 hall + hallsensor 1 op de prints, 4 reflex op 17..20) past; van de 9 op de
+lange stukken passen er nog 6 op de optocouplerprints, voor de laatste 3 de tweede MCP23017 (0x21, ingangen 25-38) met 2
+optocouplerprints. **Schaal** (V3, VN2): de 2 rijstroken van de Stationstraat liggen 25,5 px uit elkaar; een rijstrook is
+3 tot 3,5 m, dus 1 m = **7,8 px** (vroeger 5 px: dan was een strook 5,1 m). In H0 1:87 is 1 px dan **1,47 mm** op de baan
+(een strook 37,5 mm) en 50 cm op de baan ± 340 px. Beide AANNAME: `"mm_op_de_baan_per_px": 1.47` staat in
+`situatieplan/plan.json` (`mm_op_de_baan_aanname: true`); meet de breedte van een rijstrook op de echte baan, deel door
+25,5 en vul de waarde in (`situatieplan/maak-plan.py`); `docs/sensoradvies.py` rekent dan daarmee.
 
 ## Bestellijst
 
@@ -267,7 +275,7 @@ MOSFET-module, de XL4015, de IR-zelftest) en print en bedraad pas daarna.
 | -T1 | Netadapter 12 V, 6,67 A, C14, stekker 5,5 x 2,5 | 1 | Mean Well GST90A12-P1M | Reichelt, Conrad | € 32,00 | € 32,00 |
 | — | Netsnoer C13 | 1 | gewoon pc-netsnoer |  | € 5,00 | € 5,00 |
 | -X5 | DC-chassisbus 5,5 x 2,5, 8 A | 1 | GlobTek JACK-L-PANEL-8A(R) | Mouser | € 4,00 | € 4,00 |
-| -F1 | Zekeringhouder 5 x 20 voor paneelmontage (gat Ø12,5, vlaksteker 4,8) + zekering T 8 A (Fable 5.2 D9) | 1 + 1 | bv. Schurter FEU of gelijk | Reichelt, Conrad | € 3,00 | € 3,00 |
+| -F1 | Zekeringhouder 5 x 20 voor paneelmontage, **10 A** (niet de versie van 6,3 A; gat Ø12,5, vlaksteker 4,8) + zekering T 8 A (Fable 5.2 D9, DN2) | 1 + 1 | bv. Schurter FEU of gelijk | Reichelt, Conrad | € 3,00 | € 3,00 |
 | -R2 | Schottkydiode 10 A, 45 V (ompoolbeveiliging, Fable 5.2 E15) | 1 | 10SQ045 | Reichelt | € 0,60 | € 0,60 |
 | -K1 | ESP32-S3-DevKitC-1-N16R8 (op het bord: v1.1, Fable 5.2 E18) | 1 | Espressif (origineel, v1.1) | Kiwi Electronics, Otronic | € 16,00 | € 16,00 |
 | -X6 | Schroefklemadapter ESP32-S3 44-pin (23 en 25,5 mm) | 1 | ESP32-S3 Expansion Board 44P | Amazon.de, AliExpress | € 8,00 | € 8,00 |
@@ -288,8 +296,9 @@ MOSFET-module, de XL4015, de IR-zelftest) en print en bedraad pas daarna.
 | — | 2-componentenlijm epoxy, 24 ml (de naad, eventueel; opruwen met korrel 120) | 1 | bv. UHU Plus Schnellfest | bouwmarkt | € 8,00 | € 8,00 |
 | — | Montagedraad 0,14, 0,25, 0,5 en 0,75 mm² | 1 |  |  | € 6,00 | € 6,00 |
 | — | Kabelbinders 2,5 x 100 mm (ook voor de oogjes in de bodem) | 1 zakje |  |  | € 3,00 | € 3,00 |
+| — | Vlaksteekhuls 4,8, geïsoleerd, voor 0,5 tot 1,5 mm²: de zekeringhouders -F1 en -F19 (krimptang; Fable 5.2 DN2) | 4 |  | Conrad, bouwmarkt | € 0,10 | € 0,40 |
 | — | Kabelmarkering (cijfers en letters) of vlaggetjes | 1 | de labels van Draden labelen |  | € 4,00 | € 4,00 |
-| | **Totaal de doos** | | | | | **€ 198,65** |
+| | **Totaal de doos** | | | | | **€ 199,05** |
 
 **De uitbreiding van versie 6** (IR, servo's, MCP23017, reflexsensoren)
 
@@ -305,10 +314,11 @@ MOSFET-module, de XL4015, de IR-zelftest) en print en bedraad pas daarna.
 | -B2..-B4 | IR-ontvanger 38 kHz | 3 | Vishay TSOP38238 | Reichelt, Mouser | € 1,20 | € 3,60 |
 | -R19..-R21, -C2..-C4 | Filter bij de ontvangers op de baan: 100 Ω en elco 4,7 µF | 3 + 3 |  |  | € 0,10 | € 0,60 |
 | -R22..-R24, -X14 | Weerstand 1 kΩ in elke ontvangerlijn + WAGO 221-2411 (Fable 5.2 E11) | 3 + 3 | WAGO 221-2411 |  | € 0,50 | € 3,00 |
-| -B5..-B8 | Reflexsensor-module (stoppunten, op ingang 17-20 van -K5, 3,3 V) | 4 | TCRT5000-module (LM393) | AliExpress, Amazon.de | € 1,00 | € 4,00 |
+| -B5..-B8 | Reflexsensor-module (vlak voor de invoegingen, op ingang 17-20 van -K5, 3,3 V) | 4 | TCRT5000-module (LM393) | AliExpress, Amazon.de | € 1,00 | € 4,00 |
 | -R28..-R31 | Weerstand 1 kΩ in de uitgang van de reflexsensor (dupontbusje op GPBn + WAGO 221-2411) | 4 + 4 | WAGO 221-2411 |  | € 0,50 | € 4,00 |
-| -F20 | Polyfuse 0,1 A: de 3,3 V naar de baan (Fable 5.2 E11) | 1 | Bourns MF-R010 | Reichelt, Mouser | € 0,30 | € 0,30 |
+| -F20 | Polyfuse 0,3 A: de 3,3 V naar de baan (Fable 5.2 E11, EN2) | 1 | Bourns MF-R030 | Reichelt, Mouser | € 0,30 | € 0,30 |
 | -X12, -X13 | Verbindingsklem 5-voudig: 3,3 V (na -F20) en 0 V van de uitbreiding | 2 | WAGO 221-415 |  | € 0,90 | € 1,80 |
+| -X17, -X18 | Verbindingsklem 5-voudig onder de baan: 3,3 V en 0 V naar de reflexsensoren (veldkabel -W40, Fable 5.2 EN2) | 2 | WAGO 221-415 |  | € 0,90 | € 1,80 |
 | -K7 | Servoprint PCA9685 16 kanalen (A1 dichtsolderen = 0x42) | 1 | PCA9685-module | AZ-Delivery, Amazon.de | € 4,50 | € 4,50 |
 | -T3 | Regelaar met stroomgrens (CC/CV), op 5,5 V en 3 A gezet (Fable 5.2 E9, E10) | 1 | XL4015-module 5 A met 2 potmeters | AliExpress, Amazon.de | € 3,50 | € 3,50 |
 | -F19 | Zekeringhouder 5 x 20 paneel + zekering T 3,15 A (naast -F1 in de achterwand) | 1 + 1 | zoals -F1 |  | € 3,00 | € 3,00 |
@@ -317,25 +327,26 @@ MOSFET-module, de XL4015, de IR-zelftest) en print en bedraad pas daarna.
 | — | Dupontkabels 30 cm (40 female-female, 40 female-male) en 50 cm female-female (de I2C over de naad in één stuk, Fable 5.2 E6) | 2 sets |  | AZ-Delivery, Amazon.de | € 4,00 | € 8,00 |
 | — | Dupontbehuizingen 4-, 6- en 8-polig (busjes per groep, Fable 5.2 D2) | 1 set |  | AliExpress | € 2,00 | € 2,00 |
 | — | Krimpkous, assortiment | 1 |  |  | € 3,00 | € 3,00 |
-| | **Totaal de uitbreiding (zonder servo's)** | | | | | **€ 81,19** |
+| | **Totaal de uitbreiding (zonder servo's)** | | | | | **€ 82,99** |
 
 **Sensoren op de baan, fase 1** (sensoradvies: begin met 1 halte, dan de 4 haltes, dan de invoegingen)
 
 | Ref | Onderdeel | Aantal | Type | Winkel | Prijs per stuk | Totaal |
 |---|---|--:|---|---|--:|--:|
-| — | Hallsensor omnipolair, open collector, 3-24 V (Fable 5.2 S1): fase 1 = 4 na de wissels + 4 aan de invoegingen | 8 | Honeywell SS451A (AANNAME: datablad nakijken) | Mouser, Farnell | € 2,80 | € 22,40 |
+| — | Hallsensor omnipolair, open collector, 3-24 V (Fable 5.2 S1): fase 1 = 4 na de wissels + 4 aan de stoppunten (de reflexsensoren -B5..-B8 aan de invoegingen) | 8 | Honeywell SS451A (AANNAME: datablad nakijken) | Mouser, Farnell | € 2,80 | € 22,40 |
 | — | Sensorkabel 3-aderig 3 x 0,14 mm² (LiYY), ± 25 m voor fase 1 | 25 m |  |  | € 0,40 | € 10,00 |
 | — | Getwiste 2-aderige kabel voor de IR-leds (Fable 5.2 E12) | 10 m |  |  | € 0,30 | € 3,00 |
 | — | Neodymiummagneet Ø5 x 2, alleen als de stuurmagneet van het voertuig niet volstaat (eerst proberen) | per voertuig | N35 |  | € 0,20 |  |
 | | **Totaal sensoren fase 1** | | | | | **€ 35,40** |
 
-**Alles samen (doos, uitbreiding, sensoren fase 1, zonder servo's): € 315,24.** Niet in dit totaal:
+**Alles samen (doos, uitbreiding, sensoren fase 1, zonder servo's): € 317,44.** Niet in dit totaal:
 
 | Ref | Onderdeel | Aantal | Type | Winkel | Prijs per stuk | Totaal |
 |---|---|--:|---|---|--:|--:|
-| -K8 + 2 printen | Fase 2 (de 15 sensoren op de lange stukken): tweede MCP23017 (0x21) + 2 optocouplerprints, ingangen 25-38 | 1 + 2 | zoals -K5 en -K3 |  | € 11,00 |  |
-| — | Fase 2: 15 hallsensoren + ± 35 m sensorkabel | 15 | SS451A |  |  |  |
+| -K8 + 2 printen | Fase 2 (de 9 sensoren op de lange stukken; nodig vanaf de 7de): tweede MCP23017 (0x21) + 2 optocouplerprints, ingangen 25-38 | 1 + 2 | zoals -K5 en -K3 |  | € 11,00 |  |
+| — | Fase 2: 9 hallsensoren + ± 25 m sensorkabel (AANNAME) | 9 | SS451A |  |  |  |
 | -M1..-M16 | Servo (wissels, slagbomen, armseinen) + verlengkabel ≥ 0,25 mm² | per stuk | SG90 of MG90S |  |  |  |
+| -R10..-R17 | Alleen voor een continu-systeem (TRN-22 stap H): weerstand 470 Ω, 0,5 W in plaats van 120 Ω (Fable 5.2 EN1) | 8 | metaalfilm |  | € 0,10 |  |
 | — | Geluidskastje (los, compleet) | per kastje | geluidskastje/README.md |  | € 25,25 |  |
 
 De 16 Modelbouwled-bordjes heb je al; een extra kost € 9,75 (Modelbouwled.nl). Filament: ongeveer 500 g PETG zwart

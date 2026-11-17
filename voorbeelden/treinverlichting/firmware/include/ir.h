@@ -44,9 +44,13 @@ constexpr int IR_HERHAAL_MAX = 10;
 constexpr int IR_TEKST_LEN = 24;     // "nec:AABBCCDD" en een 0 past ruim
 constexpr int MAX_IR_PULSEN = 1200;  // genoeg voor 10 x een NEC- of RC5-frame met de pauzes (raw: zie irPulsen)
 constexpr int IR_MAX_ITEMS = 700;    // RMT-items om te zenden (2 tijden per item, een tijd > 32767 µs telt dubbel)
+constexpr int IR_ITEMS_ZONDER_BIJVULLEN = 144; // FN6: 3 geheugenblokken van RMT-kanaal 1 (src/irhw.h)
 constexpr uint8_t IR_DUTY_STD = 33;  // draaggolf: % aan (E4: 33 of 50, instelling irDuty)
 constexpr uint32_t FTR_NIVEAU_MS = 50; // E2: een ontvangerpin zo lang laag = aanwezigheid
 constexpr uint32_t IR_CONTINU_PROEF_MS = 2000; // een continu-code met de hand zenden: zo lang aan
+// EN1 (2.2.0): een continu-led brandt seconden tot minuten aan een stuk; met 120 Ω krijgt die weerstand 0,95 W blijvend
+constexpr const char *IR_CONTINU_WAARSCHUWING =
+    "Codesoort continu alleen met een serieweerstand van 470 Ω (0,5 W) in plaats van 120 Ω (Berekeningen §9).";
 
 enum IrSoort : uint8_t { IR_NEC, IR_RC5, IR_RAW, IR_CONTINU, N_IR_SOORTEN };
 
@@ -292,13 +296,23 @@ inline int irItems(const uint32_t *us, int n) {
   return (helften + 1) / 2;
 }
 
+/** het aantal RMT-items van de code met al haar herhalingen (0 = past niet in de pulsbuffer; continu: 0) */
+inline int irCodeItems(const IrCode &c) {
+  if (c.soort == IR_CONTINU) return 0;
+  static uint32_t us[MAX_IR_PULSEN];
+  int n = irPulsen(c, us, MAX_IR_PULSEN);
+  return n > 0 ? irItems(us, n) : 0;
+}
+
 /** past de code met al haar herhalingen in één keer zenden? (F5: anders werd ze stil niet verzonden) */
 inline bool irPast(const IrCode &c) {
   if (c.soort == IR_CONTINU) return true;
-  static uint32_t us[MAX_IR_PULSEN];
-  int n = irPulsen(c, us, MAX_IR_PULSEN);
-  return n > 0 && irItems(us, n) <= IR_MAX_ITEMS;
+  int n = irCodeItems(c);
+  return n > 0 && n <= IR_MAX_ITEMS;
 }
+
+/** FN6: moet de RMT deze code tijdens het zenden bijvullen (meer dan 144 items, de 3 blokken van kanaal 1)? */
+inline bool irLang(const IrCode &c) { return irCodeItems(c) > IR_ITEMS_ZONDER_BIJVULLEN; }
 
 /** hoe vaak deze code hoogstens herhaald kan worden (0 = zelfs één keer past niet) */
 inline int irMaxHerhaal(const IrCode &c) {

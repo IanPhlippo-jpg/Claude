@@ -1,10 +1,17 @@
-// Een nep-I2C-bus voor de tests (firmware 2.1.0, Fable 5.2 Q1): dezelfde functies als TwoWire van Arduino, met per
+// Een nep-I2C-bus voor de tests (firmware 2.1.0, Fable 5.2 Q1; 2.2.0: QN1): dezelfde functies als TwoWire van Arduino, met per
 // adres een model van een chip. Elke overdracht komt in een logboek (adres, register, bytes), zodat een test kan
 // nakijken wat de drivers in include/i2c.h op de bus zetten en in welke volgorde.
 // Modellen: NepChip (een registerbestand met adres ophogen: PCA9685) en NepMcp (MCP23017 met BANK 0/1, IODIR, OLAT,
 // GPIO-pinnen, GPINTEN, en INTF/INTCAP die bevriezen bij de eerste verandering tot ze gelezen zijn, zoals Fable 5.2 F10
 // het datablad leest; een MODEL, geen meting).
 // Geen test: deze map heet niet test_*, PlatformIO bouwt ze niet apart. Gebruik: #include "../nep/nepwire.h".
+// Firmware 2.2.0 (Fable 5.2, tweede ronde, QN1): strenger.
+//   - NepChip (PCA9685) hoogt het registeradres alleen op als AI (bit 5 van MODE1, register 0) gezet is, zoals de
+//     echte chip; ALL_LED_ON_L..ALL_LED_OFF_H (0xFA..0xFD) schrijven zet dat byte in alle 16 kanalen (datablad 7.3.4).
+//   - NACK halverwege: nackNa = het aantal databytes dat de chip nog aanneemt; daarna NACK (endTransmission geeft 3) en
+//     de rest wordt niet geschreven. Eén keer: daarna weer -1.
+//   - NepWire heeft de zendbuffer van Wire (128 bytes met het registeradres): write() neemt er niet meer aan (geeft
+//     minder terug dan gevraagd) en endTransmission() zendt wat erin zit, zoals TwoWire van ESP32 Arduino 2.x.
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
@@ -15,9 +22,15 @@
 struct NepChip {
   uint8_t reg[256] = {0};
   uint8_t wijzer = 0;
-  virtual void schrijf(uint8_t r, uint8_t v) { reg[r] = v; }
+  int nackNa = -1; // QN1: NACK na zoveel databytes in de volgende schrijfbeurt (-1 = nooit)
+  virtual void schrijf(uint8_t r, uint8_t v) {
+    reg[r] = v;
+    if (r >= 0xFA && r <= 0xFD) // ALL_LED_*: in alle kanalen
+      for (int k = 0; k < 16; k++) reg[0x06 + 4 * k + (r - 0xFA)] = v;
+  }
   virtual uint8_t lees(uint8_t r) { return reg[r]; }
-  virtual uint8_t volgende(uint8_t r) { return (uint8_t)(r + 1); }
+  /** PCA9685: alleen ophogen met AI (MODE1 bit 5); zonder AI blijft de wijzer op hetzelfde register */
+  virtual uint8_t volgende(uint8_t r) { return (reg[0] & 0x20) ? (uint8_t)(r + 1) : r; }
   virtual ~NepChip() {}
 };
 
@@ -39,12 +52,16 @@ class NepWire {
     adres_ = adres;
     buf_.clear();
   }
+  static constexpr size_t BUFFER = 128; // zoals I2C_BUFFER_LENGTH van ESP32 Arduino 2.x
+
   size_t write(uint8_t b) {
+    if (buf_.size() >= BUFFER) return 0; // vol: Wire neemt niets meer aan
     buf_.push_back(b);
     return 1;
   }
   size_t write(const uint8_t *b, size_t n) {
-    for (size_t i = 0; i < n; i++) buf_.push_back(b[i]);
+    for (size_t i = 0; i < n; i++)
+      if (!write(b[i])) return i;
     return n;
   }
   uint8_t endTransmission(bool stop = true) {
@@ -53,18 +70,21 @@ class NepWire {
     if (!c) return 2; // NACK op het adres
     if (buf_.empty()) return 0;
     c->wijzer = buf_[0];
+    uint8_t r = 0;
     if (buf_.size() > 1) {
       Overdracht o;
       o.adres = adres_;
       o.reg = buf_[0];
       for (size_t i = 1; i < buf_.size(); i++) {
+        if (c->nackNa >= 0 && (int)(i - 1) >= c->nackNa) { r = 3; break; } // NACK op een databyte
         c->schrijf(c->wijzer, buf_[i]);
         o.data.push_back(buf_[i]);
         c->wijzer = c->volgende(c->wijzer);
       }
+      c->nackNa = -1;
       log.push_back(o);
     }
-    return 0;
+    return r;
   }
   uint8_t requestFrom(uint8_t adres, uint8_t n) {
     NepChip *c = chip[adres & 0x7F];

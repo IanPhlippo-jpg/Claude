@@ -65,6 +65,13 @@ MU = 0.3  # wrijving PETG op PETG (AANNAME)
 # plaatschroef voor kunststof 2,0 x 6 met bolkop Ø4 (AANNAME: gangbare maat), print 1,6 dik, gat in de print Ø2,2 (AANNAME)
 PAAL = dict(d=5.0, voorgat=1.6, schroef=2.0, l=6.0, pcb=1.6, gat=2.2, kop=4.0)
 IR = dict(naam='Vishay TSAL6200', vf=1.35, if_dc=0.100, if_piek=0.200, r=120.0, p_r=1.0, duty_draag=1 / 3, duty_code=0.5)  # datablad TSAL6200; duty AANNAME (NEC)
+# Fable 5.2 EN1: een continu-systeem (stopled zonder draaggolf) laat de led minutenlang branden: dan 470 Ω 0,5 W
+IR_CONTINU = dict(r=470.0, p_r=0.5, haltes=4)
+# Fable 5.2 EN2: de 3,3 V naar de baan (B3V3) achter -F20; belasting: reflexsensoren (TCRT5000-module, 12 tot 24 mA op
+# 3,3 V: AANNAME), IR-ontvangers TSOP38238 (0,35 mA, datablad); polyfuse Bourns MF-R030: houdstroom 0,30 A bij 23 °C,
+# ± 0,8 x bij 40 °C, R1max 1,36 Ω (datablad MF-R, AANNAME na te kijken); de 3,3 V-regelaar van het ESP-bord: 0,8 A (AANNAME)
+B3V3 = dict(reflex=4, reflex_a=0.024, ontv=3, ontv_a=0.00035, hold=0.30, derate40=0.8, r1max=1.36, esp_ldo=0.8)
+ESP33 = dict(esp=0.35, stuurkant=3 * 0.03, pullups=16 * 0.0012, pca=2 * 0.010, mcp=0.002, leer=0.0005)
 SERVO = dict(naam='SG90 / MG90S', n=16, tegelijk=4, blok=1.2, rust=0.010, u=5.5, eta=0.88, buck_a=5.0, cc=3.0, zekering=3.15)  # stromen AANNAME (Fable 5.2 E8: MG90S 1,0-1,2 A blokkeren bij 6 V); cc = stroomgrens van de XL4015 CC/CV (E10)
 TAU_PETG = 15.0  # MPa: afschuifsterkte van geprint PETG over de laagnaden heen (AANNAME, voorzichtig: ~1/3 van de bulkwaarde)
 PETG = dict(e=2100.0, rek_max=0.02)  # MPa; toelaatbare rek bij herhaald klikken (AANNAME, gangbaar voor PETG)
@@ -291,7 +298,19 @@ def maak():
     gnd_rust = (U - OPTO['u_led']) / (2200 + OPTO['r'])  # E3, print "gnd": NPN-sensor uit, stroom door 2,2 kΩ en de led
     gnd_zink = U / 2200  # NPN-sensor aan: hij trekt IN naar 0 V
     assert gnd_rust > 2e-3 and gnd_zink < 0.020
-    p_v6 = servo_piek * SERVO['u'] * (1 / SERVO['eta'] - 1) + 8 * (ir_piek ** 2 * IR['r'] * IR['duty_draag'] * IR['duty_code'])
+    # EN1: continu-systeem: de led brandt zolang de halte vasthoudt
+    ic = (U - IR['vf']) / IR_CONTINU['r']
+    p_c = ic ** 2 * IR_CONTINU['r']
+    assert p_c <= 0.5 * IR_CONTINU['p_r'], 'continu: weerstand te zwaar belast'
+    assert not (ir_piek ** 2 * IR['r'] <= 0.5 * IR['p_r']), '120 Ω mag niet continu'  # de negatieve proef: 0,95 W in 1 W
+    # EN2: B3V3
+    b3_last = B3V3['reflex'] * B3V3['reflex_a'] + B3V3['ontv'] * B3V3['ontv_a']
+    b3_hold40 = B3V3['hold'] * B3V3['derate40']
+    b3_val = b3_last * B3V3['r1max']
+    assert b3_last < 0.6 * b3_hold40 and b3_val < 0.2, 'polyfuse -F20 te klein voor B3V3'
+    esp33 = sum(ESP33.values()) + b3_last
+    assert esp33 < 0.8 * B3V3['esp_ldo'], '3,3 V-regelaar van het ESP-bord te zwaar belast'
+    p_v6 = servo_piek * SERVO['u'] * (1 / SERVO['eta'] - 1) + 8 * (ir_piek ** 2 * IR['r'] * IR['duty_draag'] * IR['duty_code']) + IR_CONTINU['haltes'] * p_c
     dt6 = (p_tot + p_v6) / (DOOS['alfa'] * a_eff)
     assert dt6 < 15
     npn_i = (U - OPTO['u_led']) / OPTO['r']
@@ -318,6 +337,17 @@ def maak():
           "Met meer dan 12 groepen aan wachten de servo's (E14). Na aankomst mag de puls uit (instelbaar, E19).", '',
           f'**OE** met 2 PCA9685-printen (2 x 10 kΩ naar 0 V, AANNAME) tegen -R1 1 kΩ: hoog = **{f(oe_hoog, 2)} V** (grens 0,7 x 3,3 = '
           f'{f(0.7 * 3.3, 2)} V; Fable 5.2 E16). De IR-weerstanden zijn 1 W: blijft GPIO47 door een fout hoog, dan is het 0,95 W continu.', '',
+          f'**Codesoort "continu"** (Fable 5.2 EN1): zonder draaggolf brandt de led zolang de halte een bus vasthoudt (aankomst, stop, '
+          f'wachten, verkeer: minuten). Met 120 Ω is dat {f(ir_piek ** 2 * IR["r"], 2)} W blijvend in een weerstand van 1 W: te heet in een dichte doos. '
+          f'Voor een continu-systeem dus **{f(IR_CONTINU["r"], 0)} Ω {f(IR_CONTINU["p_r"], 1)} W**: {f(ic * 1000, 1)} mA en {f(p_c, 2)} W '
+          f'({f(100 * p_c / IR_CONTINU["p_r"], 0)} % van de waarde; stopleds van zulke systemen werken met 10 tot 20 mA, AANNAME: te proeven). '
+          f'{IR_CONTINU["haltes"]} haltes tegelijk: {f(IR_CONTINU["haltes"] * p_c, 2)} W, meegeteld in de warmte hieronder. De firmware zet een '
+          'continu-stopled na de langste haltecyclus + 10 s uit.', '',
+          f'**De 3,3 V naar de baan (B3V3, Fable 5.2 EN2)**: {B3V3["reflex"]} reflexsensoren x {f(B3V3["reflex_a"] * 1000, 0)} mA en '
+          f'{B3V3["ontv"]} IR-ontvangers = **{f(b3_last * 1000, 0)} mA** achter -F20 (Bourns MF-R030: {f(B3V3["hold"], 2)} A, bij 40 °C ± '
+          f'{f(b3_hold40, 2)} A; spanningsval {f(b3_val, 2)} V). De MF-R010 van vroeger hield bij 40 °C maar ± 0,08 A en sprong in gewoon bedrijf. '
+          f'-Q4 haalt zijn stuurkant niet meer uit B3V3 maar uit de 3,3 V van -K4. De 3,3 V-regelaar van het ESP-bord levert dan samen '
+          f'± {f(esp33, 2)} A (AANNAME 0,8 A): genoeg. Meer dan 4 reflexsensoren: een eigen regelaar 3,3 V (AMS1117-module uit de 5 V van -T2).', '',
           f'**Ingangen: de 3 mogelijke schakelingen van de optocouplerprint** (Fable 5.2 E3; serieweerstand {f(OPTO["r"], 0)} Ω AANNAME; welke '
           'schakeling: meten, TRN-22 stap A). De handleiding van Envistia beschrijft de 8-kanaals PC817-print met een gemeenschappelijke '
           'VCC (de ingang wordt actief als ze naar 0 V gaat); andere verkopers tonen een gemeenschappelijke GND. '
@@ -327,7 +357,7 @@ def maak():
           f'(SS451A: hoogstens 20 mA). **Nooit 12 V op IN van een print "vcc"**: dan staat er 12 V in sperrichting over de led (PC817: hoogstens '
           f'{f(OPTO["vr"], 0)} V); de firmware weigert PNP op zo\'n print. Reflexsensoren (TCRT5000, 3,3 V) gaan niet over een optocoupler maar '
           'met 1 kΩ in serie rechtstreeks naar ingang 17-23 van de MCP23017 (E2).', '',
-          f'**Warmte met de uitbreiding** (Fable 5.2 D5): + {f(p_v6, 2)} W (de XL4015 bij {f(SERVO["cc"], 0)} A en de IR-weerstanden), samen '
+          f'**Warmte met de uitbreiding** (Fable 5.2 D5): + {f(p_v6, 2)} W (de XL4015 bij {f(SERVO["cc"], 0)} A, de IR-weerstanden en 4 continu-stopleds van 470 Ω), samen '
           f'{f(p_tot + p_v6, 2)} W: **{f(dt6, 1)} K** warmer dan onder de baan in het ongunstigste geval; de polyfuses blijven binnen de gerekende {T_DOOS} °C.', '',
           f"**Voeding:** de uitbreiding vraagt uit 12 V hoogstens {f(extra_12, 2)} A (servo's, IR gemiddeld, ontvangers, 16 extra ingangen); "
           f'met de bordjes van 1K (Modelbouwled voor 12 V) en 4 ingangen actief: **{f(gewoon, 2)} A** ({f(100 * gewoon / ADAPTER["a"], 0)} % van de '

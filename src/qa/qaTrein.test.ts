@@ -204,6 +204,15 @@ describe('kabeldoos, versie 6 fase B: de modules van de uitbreiding', () => {
     }
     expect(Math.abs(Zk.x[0] - Zk.x[1])).toBeGreaterThan(Zk.flens);
   });
+  it('Fable 5.2 DN2: de moeren van de zekeringhouders en de DC-bus raken elkaar niet, de WAGO-hendels gaan open', () => {
+    const Zk = (M as any).zekering, dc = (M as any).dcbus, hoek = (sw: number) => sw / Math.cos(Math.PI / 6) / 2;
+    // over de hoeken (zeskant) in het slechtste geval: moer 17 van de houder, 14 van de DC-bus
+    expect(Math.abs(Zk.x[1] - Zk.x[0]), 'steek van de houders').toBeGreaterThanOrEqual(22);
+    expect(Math.abs(Zk.x[1] - Zk.x[0])).toBeGreaterThan(2 * hoek(Zk.moer));
+    for (const x of Zk.x) expect(Math.abs(x - dc.x), `moer DC-bus ${x}`).toBeGreaterThan(hoek(Zk.moer) + hoek(dc.moer));
+    // WAGO 221-415 8,3 hoog in zijn houder (5) + de hendel open (± 10): het lijf van de houder komt er niet aan
+    expect(Zk.y - Zk.lijf / 2, 'lijf boven de open hendels').toBeGreaterThan(8.3 + 5 + 10);
+  });
   it('de servokabels hebben hun eigen tule (rechts, z 88) en de servoprint staat met zijn stekkers naar voren', () => {
     expect((M as any).rechts.tules.rechts).toContain(88);
     expect((PLAATSING as Record<string, { rot: number }>)['-K7'].rot).toBe(0);

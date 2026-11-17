@@ -8,6 +8,13 @@
 //   F1  codesoort "continu": de leds van de haltes die een bus vasthouden branden zonder draaggolf (continuLeds). Een
 //       gewone code gaat voor: de continu-leds gaan dan even uit (± 70 ms bij NEC) en daarna weer aan.
 //   F5  een code die niet in één keer past, wordt niet verzonden: de teller nietVerzonden telt, laatsteFout zegt waarom.
+// Firmware 2.2.0 (Fable 5.2, tweede ronde):
+//   FN6 een code van meer dan 144 RMT-items wordt tijdens het zenden door een interrupt bijgevuld; schrijft LittleFS
+//       op dat moment, dan wacht die interrupt en raakt het frame beschadigd. main.cpp zet bewaarBezig zolang het
+//       bewaart: een lange code wacht dan in KIEZEN (de leds blijven gekozen) tot het bewaren klaar is. Korte codes
+//       (de stop- en rijdcodes van de haltes zijn NEC of RC5: ± 34 items) gaan gewoon door.
+//   FN7 kiesLeds() kan mislukken (de MCP23017 antwoordt niet): dan wordt de code NIET verzonden (anders "verzonden"
+//       zonder led) en telt nietVerzonden.
 #pragma once
 #include <stdint.h>
 
@@ -36,9 +43,13 @@ class IrZender {
   uint8_t fase = RUST;
   uint32_t nietVerzonden = 0;
   const char *laatsteFout = "";
+  volatile bool bewaarBezig = false; // FN6: main.cpp schrijft in LittleFS
+  uint32_t uitgesteld = 0;           // FN6: zoveel keer wachtte een lange code op het bewaren (voor de tests)
 
   /** bezig met een frame? (dan niet in het flashgeheugen schrijven, F8) */
   bool bezig() const { return fase == KIEZEN || fase == ZENDEN || fase == NALOOP; }
+  /** FN6: zendt de RMT nu een lange code (met bijvullen)? Dan wacht wie in LittleFS wil schrijven */
+  bool bezigLang() const { return fase == ZENDEN && lang_; }
 
   /** elke tick. haal(z, code): de volgende opdracht uit de rij (false = geen); continuLeds: de leds die nu continu
    *  moeten branden */
@@ -50,14 +61,22 @@ class IrZender {
         if (haal(z, code_)) {
           if (continuAan_) { hw.continu(false); continuAan_ = false; }
           huidigContinu_ = 0;
-          hw.kiesLeds(z.leds);
+          if (!hw.kiesLeds(z.leds)) { // FN7: zonder gekozen led niets zenden
+            fout("De IR-leds konden niet gekozen worden (MCP23017 0x20 antwoordt niet).");
+            return;
+          }
           fase = KIEZEN;
           wacht_ = IR_WACHT_TICKS;
           return;
         }
         if (continuLeds != huidigContinu_) {
           if (continuAan_) { hw.continu(false); continuAan_ = false; }
-          hw.kiesLeds(continuLeds);
+          if (!hw.kiesLeds(continuLeds)) { // FN7: één keer tellen, de volgende tick opnieuw proberen
+            if (!continuFout_) fout("De IR-leds konden niet gekozen worden (MCP23017 0x20 antwoordt niet).");
+            continuFout_ = true;
+            return;
+          }
+          continuFout_ = false;
           huidigContinu_ = continuLeds;
           if (continuLeds) { fase = CONTINU_KIEZEN; wacht_ = IR_WACHT_TICKS; }
         }
@@ -71,6 +90,12 @@ class IrZender {
         return;
       case KIEZEN:
         if (--wacht_ > 0) return;
+        lang_ = irLang(code_);
+        if (bewaarBezig && lang_) { // FN6: wachten tot LittleFS klaar is
+          wacht_ = 1;
+          uitgesteld++;
+          return;
+        }
         if (!irPast(code_)) {
           fout("De code is te lang om in één keer te zenden (minder herhalingen).");
         } else if (!hw.zend(code_)) {
@@ -89,7 +114,7 @@ class IrZender {
         return;
       case NALOOP:
         if (--wacht_ > 0) return;
-        hw.kiesLeds(0);
+        if (!hw.kiesLeds(0)) laatsteFout = "De IR-leds konden niet uit gezet worden (MCP23017 0x20 antwoordt niet).";
         fase = RUST; // de volgende tick zet de continu-leds terug
         return;
       default:
@@ -103,6 +128,8 @@ class IrZender {
   int wacht_ = 0;
   uint8_t huidigContinu_ = 0;
   bool continuAan_ = false;
+  bool continuFout_ = false; // FN7: kiesLeds voor de continu-leds mislukte (al geteld)
+  bool lang_ = false;        // FN6: de huidige code heeft meer dan 144 items
 
   void fout(const char *t) {
     nietVerzonden++;

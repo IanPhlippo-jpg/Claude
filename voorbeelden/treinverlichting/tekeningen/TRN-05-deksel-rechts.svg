@@ -1767,10 +1767,10 @@
 <text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-c</text>
 <line x1="380.00" y1="287.00" x2="380.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Projectie: 1e hoek</text>
-<line x1="387.00" y1="286.50" x2="393.30" y2="285.45" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="387.00" y1="282.30" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="387.00" y1="286.50" x2="387.00" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="393.30" y1="285.45" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="393.30" y2="286.50" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="283.35" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="387.00" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="393.30" y1="286.50" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
 <line x1="385.95" y1="284.40" x2="394.35" y2="284.40" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
 <circle cx="398.90" cy="284.40" r="2.10" fill="none" stroke="#111" stroke-width="0.3"/>
 <circle cx="398.90" cy="284.40" r="1.05" fill="none" stroke="#111" stroke-width="0.3"/>

@@ -10,6 +10,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { Blad, onderdeelBlad, kader, kaderSmal, getal, type Deel, type P } from './werktekening';
 // @ts-expect-error: het generatorscript is plain JavaScript
 import { M, indeling, rechts, haakKlik, dekselKlik, bevestigingsGaten } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
@@ -428,6 +429,24 @@ describe('modules en bedrading (opbouw.mjs, versie 5)', () => {
     expect(best.length).toBeGreaterThan(100);
     expect({ meetblad: refs.filter((r) => !noemt(meet, r)), bestellijst: refs.filter((r) => !noemt(best, r)) }).toEqual({ meetblad: [], bestellijst: [] });
   });
+  it('Fable 5.2 TN1-TN3: TRN-22 meet de printsoort met 5 V en mA (geen diodetest), D is geen meting zonder VCC, H beslist via leren', () => {
+    const t = meetBlad6('TRN-22', '1 / 1', PROJECT).replace(/<[^>]+>/g, ' ');
+    expect(t).not.toMatch(/diodetest \(multimeter\)/);
+    expect(t).toMatch(/5 V \(USB-lader of -T2\)/);
+    expect(t).not.toMatch(/VCC los \(zoals bij het inschakelen\)/);
+    expect(t).toMatch(/kies IR leren/);
+    expect(t).toMatch(/470 Ω/);
+  });
+  it('Fable 5.2 EN1 en EN2: het rekenblad slaagt (continu 470 Ω, B3V3 binnen de polyfuse MF-R030) en elke veldkabel staat in de draadlijst', () => {
+    const r = spawnSync('python', [`${DIR}/docs/berekeningen.py`], { env: { ...process.env, PYTHONIOENCODING: 'utf8' }, encoding: 'utf8' });
+    expect(r.status, r.stderr).toBe(0);
+    const md = readFileSync(`${DIR}/docs/Berekeningen.md`, 'utf8');
+    expect(md).toMatch(/\*\*470 Ω 0,5 W\*\*/);
+    expect(md).toMatch(/MF-R030/);
+    const d = DRADEN as { van: string[]; naar: string[] }[], einden = d.flatMap((q) => [q.van[0], q.naar[0]]);
+    for (const b of ['-B2', '-B3', '-B4', '-B5', '-B6', '-B7', '-B8']) expect(einden.filter((e) => e === b).length, b).toBe(3);
+    expect(einden).toContain('-X17');
+  });
   it('de klemmen in het klemmenplan bestaan op hun module', () => {
     for (const [strook, [, rijen]] of Object.entries(KLEMMEN as Record<string, [string, { klem: string; bron?: [string, string] }[]]>)) {
       for (const r of rijen) if (r.bron) expect(MODULES[r.bron[0]].klemmen.some((k: { naam: string }) => k.naam === r.bron![1]), `${strook}:${r.klem}`).toBe(true);
@@ -438,7 +457,8 @@ describe('modules en bedrading (opbouw.mjs, versie 5)', () => {
     expect(d.filter((q) => /^PWM\d+$/.test(q.net)).length).toBe(16);
     expect(d.filter((q) => /^IN\d+$/.test(q.net)).length).toBe(16);
     expect(d.filter((q) => /retour/.test(q.wat)).every((q) => q.mm2 >= 0.75)).toBe(true);
-    for (const q of d) expect(lengte(q as never), q.nr).toBeGreaterThan(60);
+    // veldkabels (Fable 5.2 EN2: naar de baan, -X17/-X18 onder de baan) krijgen hun lengte op de baan, niet uit de doos
+    for (const q of d) if (!(q as { veld?: boolean }).veld) expect(lengte(q as never), q.nr).toBeGreaterThan(60);
     expect((GROEPEN as unknown[]).length).toBe(16);
   });
 });

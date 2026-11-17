@@ -205,8 +205,109 @@ void test_mcp_twee_pinnen_in_een_tick() {
   TEST_ASSERT_EQUAL_HEX16(0x0000, mcpActiefFlanken(0x0001, 0x0001, 0x0000));
 }
 
+// FN2 (Fable 5.2, tweede ronde): een warme reset (watchdog, update) laat de PCA9685 aan staan met de kanalen van
+// voor de reset. begin() moet ze ALLEMAAL uit zetten vóór OE laag gaat. Dat lukt alleen als MODE1 eerst 0x30 krijgt
+// (slapen met AI): dan landen de 4 bytes in ALL_LED_ON_L..ALL_LED_OFF_H. Negatieve proef: met de MODE1 = 0x10 van 2.1.0
+// komen ze alle vier in ALL_LED_ON_L en brandt alles weer.
+void test_pca_begin_na_warme_reset_alles_uit() {
+  NepWire w;
+  NepChip chip;
+  w.koppel(0x40, &chip);
+  Pca p;
+  TEST_ASSERT_TRUE(p.begin(w, 0x40));
+  TEST_ASSERT_TRUE(p.zet(0xFFFF));
+  uint16_t terug = 0;
+  TEST_ASSERT_TRUE(p.leesTerug(terug));
+  TEST_ASSERT_EQUAL_HEX16(0xFFFF, terug);
+  Pca na; // de ESP herstart, de PCA9685 niet
+  TEST_ASSERT_TRUE(na.begin(w, 0x40));
+  TEST_ASSERT_TRUE(na.leesTerug(terug));
+  TEST_ASSERT_EQUAL_HEX16(0x0000, terug);
+  // negatieve proef: de volgorde van 2.1.0 met hetzelfde model
+  TEST_ASSERT_TRUE(na.zet(0xFFFF)); // weer alles aan
+  for (int r = 0xFA; r <= 0xFD; r++) chip.reg[r] = 0; // wat de goede begin() er schreef, weg
+  chip.reg[Pca::MODE1] = 0x20;
+  const uint8_t slaap = 0x10, uit[4] = {0, 0, 0, 0x10};
+  detail::i2cSchrijf(&w, 0x40, Pca::MODE1, &slaap, 1);
+  detail::i2cSchrijf(&w, 0x40, Pca::ALL_LED_ON_L, uit, 4);
+  TEST_ASSERT_EQUAL_HEX8(0x10, chip.reg[Pca::ALL_LED_ON_L]); // alle 4 bytes in één register (de laatste wint)
+  TEST_ASSERT_EQUAL_HEX8(0x00, chip.reg[0xFD]);              // ALL_LED_OFF_H nooit geschreven
+  const uint8_t wakker = 0x20;
+  detail::i2cSchrijf(&w, 0x40, Pca::MODE1, &wakker, 1);
+  TEST_ASSERT_TRUE(na.leesTerug(terug));
+  TEST_ASSERT_EQUAL_HEX16(0xFFFF, terug); // alles brandt weer
+  // ook de servo-PCA9685: na een warme reset geen oude pulsen meer
+  NepChip sc;
+  w.koppel(0x42, &sc);
+  Servo s;
+  TEST_ASSERT_TRUE(s.begin(w, 0x42));
+  uint16_t t[16];
+  for (int i = 0; i < 16; i++) t[i] = 307;
+  TEST_ASSERT_TRUE(s.zet(t));
+  Servo s2;
+  TEST_ASSERT_TRUE(s2.begin(w, 0x42));
+  for (int k = 0; k < 16; k++) TEST_ASSERT_EQUAL_HEX8(0x10, sc.reg[0x06 + 4 * k + 3]); // OFF_H bit 4: geen puls
+}
+
+// QN1: het model zelf: zonder AI blijft de wijzer staan (zoals de echte PCA9685), met AI hoogt hij op
+void test_nep_pca_ai_bit() {
+  NepWire w;
+  NepChip chip;
+  w.koppel(0x40, &chip);
+  const uint8_t drie[3] = {1, 2, 3};
+  detail::i2cSchrijf(&w, 0x40, 0x06, drie, 3);
+  TEST_ASSERT_EQUAL(3, chip.reg[0x06]);
+  TEST_ASSERT_EQUAL(0, chip.reg[0x07]);
+  chip.reg[0] = 0x20;
+  detail::i2cSchrijf(&w, 0x40, 0x06, drie, 3);
+  TEST_ASSERT_EQUAL(1, chip.reg[0x06]);
+  TEST_ASSERT_EQUAL(3, chip.reg[0x08]);
+}
+
+// QN1: de buffer van Wire is 128 bytes (met het registeradres). Wire zelf kapt stil af (write geeft minder terug);
+// i2cSchrijf weigert zo'n overdracht vooraf: niets op de bus.
+void test_nep_buffer_128_bytes() {
+  NepWire w;
+  NepChip chip;
+  w.koppel(0x40, &chip);
+  uint8_t veel[129] = {0};
+  w.beginTransmission(0x40);
+  TEST_ASSERT_EQUAL(128, (int)w.write(veel, 129)); // zoals TwoWire: de 129e past niet
+  TEST_ASSERT_EQUAL(0, (int)w.write(1));
+  w.endTransmission();
+  TEST_ASSERT_EQUAL(127, (int)w.log.back().data.size()); // afgekapt verzonden (registeradres + 127)
+  size_t van = w.log.size();
+  TEST_ASSERT_FALSE(detail::i2cSchrijf(&w, 0x40, 0x06, veel, 128)); // 129 bytes: geweigerd
+  TEST_ASSERT_EQUAL(0, (int)(w.log.size() - van));
+  TEST_ASSERT_TRUE(detail::i2cSchrijf(&w, 0x40, 0x06, veel, 127)); // 128 bytes: past
+}
+
+// QN1: NACK halverwege een schrijfbeurt (stoorpuls, chip in reset): zet() meldt het en schrijft de volgende keer alles
+void test_pca_nack_halverwege() {
+  NepWire w;
+  NepChip chip;
+  w.koppel(0x40, &chip);
+  Pca p;
+  TEST_ASSERT_TRUE(p.begin(w, 0x40));
+  TEST_ASSERT_TRUE(p.zet(0));
+  chip.nackNa = 10; // 2,5 kanalen komen aan, dan NACK
+  TEST_ASSERT_FALSE(p.zet(0x00FF));
+  uint16_t m;
+  TEST_ASSERT_FALSE(p.laatst(m));
+  size_t van = w.log.size();
+  TEST_ASSERT_TRUE(p.zet(0x00FF));
+  TEST_ASSERT_EQUAL(64, (int)w.log[van].data.size()); // alles opnieuw
+  uint16_t terug;
+  TEST_ASSERT_TRUE(p.leesTerug(terug));
+  TEST_ASSERT_EQUAL_HEX16(0x00FF, terug);
+}
+
 int main() {
   UNITY_BEGIN();
+  RUN_TEST(test_pca_begin_na_warme_reset_alles_uit);
+  RUN_TEST(test_nep_pca_ai_bit);
+  RUN_TEST(test_nep_buffer_128_bytes);
+  RUN_TEST(test_pca_nack_halverwege);
   RUN_TEST(test_pca_alleen_gewijzigde_kanalen);
   RUN_TEST(test_servo_pca_alleen_gewijzigde_kanalen);
   RUN_TEST(test_mcp_ir_leds_polariteit);

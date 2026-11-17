@@ -93,22 +93,39 @@ inline uint16_t ingangenLees() {
 
 /** F11 (Fable 5.2): een slave die de bus vasthoudt (SDA laag midden in een byte, bv. na een stoorpuls) loslaten:
  *  Wire stoppen, 9 klokpulsen op SCL (de slave schuift zijn byte uit en laat SDA los), een STOP-conditie, en Wire
- *  opnieuw beginnen. Daarna stelt de lichttaak de chips opnieuw in. */
-inline void i2cHerstel(TwoWire &w, int sda, int scl, uint32_t hz) {
+ *  opnieuw beginnen. Daarna stelt de lichttaak de chips opnieuw in.
+ *  FN4 (2.2.0): eerst kijken of SCL zelf laag blijft (kortsluiting, of een chip die de klok vasthoudt): dan helpen
+ *  pulsen niet en geeft de functie false (melding "I2C-bus kortgesloten"). De STOP netjes: SCL laag, SDA laag, SCL
+ *  hoog, SDA hoog (2.1.0 trok SDA laag terwijl SCL hoog was: eerst een START, dan pas de STOP). */
+inline bool i2cHerstel(TwoWire &w, int sda, int scl, uint32_t hz) {
   w.end();
   pinMode(sda, INPUT_PULLUP);
-  pinMode(scl, OUTPUT_OPEN_DRAIN);
-  for (int i = 0; i < 9; i++) {
-    digitalWrite(scl, LOW);
+  pinMode(scl, INPUT_PULLUP);
+  delayMicroseconds(10);
+  bool sclVrij = digitalRead(scl) == HIGH;
+  if (sclVrij) {
+    digitalWrite(scl, HIGH);
+    pinMode(scl, OUTPUT_OPEN_DRAIN);
+    for (int i = 0; i < 9; i++) {
+      digitalWrite(scl, LOW);
+      delayMicroseconds(5);
+      digitalWrite(scl, HIGH);
+      delayMicroseconds(5);
+    }
+    digitalWrite(scl, LOW); // STOP: SCL laag, SDA laag, SCL hoog, SDA hoog
+    delayMicroseconds(5);
+    digitalWrite(sda, LOW);
+    pinMode(sda, OUTPUT_OPEN_DRAIN);
     delayMicroseconds(5);
     digitalWrite(scl, HIGH);
     delayMicroseconds(5);
+    digitalWrite(sda, HIGH);
+    delayMicroseconds(5);
+    pinMode(scl, INPUT_PULLUP);
+    delayMicroseconds(10);
+    sclVrij = digitalRead(scl) == HIGH; // na het loslaten: nog altijd laag = kortgesloten
   }
-  pinMode(sda, OUTPUT_OPEN_DRAIN); // STOP: SDA van laag naar hoog terwijl SCL hoog is
-  digitalWrite(sda, LOW);
-  delayMicroseconds(5);
-  digitalWrite(sda, HIGH);
-  delayMicroseconds(5);
   w.begin(sda, scl, hz);
   w.setTimeOut(10);
+  return sclVrij;
 }

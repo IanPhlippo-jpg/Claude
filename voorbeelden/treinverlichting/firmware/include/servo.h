@@ -3,7 +3,7 @@
 //
 // Per servo: kanaal (1..16 van de PCA9685 op 0x42), eindstand A en B in µs (500..2500), snelheid in µs per seconde
 // (0 = meteen) en de soort (wissel, slagboom, armsein: alleen voor het dashboard en de tv).
-// Bewegen: de puls schuift met de snelheid van de huidige stand naar het doel. Hoogstens 4 servo's tegelijk in beweging
+// Bewegen: de puls schuift met de snelheid van de huidige stand naar het doel. Hoogstens 4 (2.2.0: maxBewegend, standaard 2) servo's tegelijk in beweging
 // (om de 5-6 V-voeding te sparen: een servo trekt tijdens het bewegen tot 0,5-1 A); de andere wachten in volgorde van
 // aanvraag in een rij. Een servo met snelheid 0 springt meteen naar zijn doel maar houdt 0,3 s een plaats bezet (zo lang
 // heeft hij nodig om er te geraken). Krijgt een servo die al beweegt of wacht een nieuw doel, dan houdt hij zijn plaats.
@@ -12,9 +12,15 @@
 //   E8  de eerste puls van een servo (na het opstarten: naarStart; of de eerste opdracht) gaat ook door de rij, en
 //       hoogstens één servo per 300 ms krijgt zijn eerste puls: bij het opstarten gaan ze één voor één naar hun stand
 //       in plaats van alle 16 samen (tot 16 x de blokkeerstroom op de 5,5 V).
-//   E14 geremd (de Baan zet het als meer dan 12 lichtgroepen aan staan): geen nieuwe beweging, de rij wacht.
+//   E14 geremd (de Baan zet het als meer dan 12 lichtgroepen aan staan): geen nieuwe beweging, de rij wacht. (2.2.0:
+//       standaard uit en één tegelijk in plaats van stilstaan, zie FN3.)
 //   E19 pulsUitS per servo (0 = altijd een puls; 1..10): zoveel seconden na aankomst geen puls meer (een wissel die
 //       tegen zijn aanslag duwt, trekt dan geen blokkeerstroom meer). De volgende opdracht zet de puls weer aan.
+// Firmware 2.2.0 (Fable 5.2, tweede ronde):
+//   EN3 maxBewegend (instelling servoMaxBewegend, 1..4, standaard 2): de XL4015 begrenst op 3 A; 2 x 1,2 A past, 4 niet.
+//   FN3 de rem van E14 telt groepen, geen stroom: standaard UIT (instelling servoRemGroepen, 0 = uit). Staat ze aan en
+//       branden er meer groepen, dan staan de servo's niet meer stil maar beweegt er één tegelijk. Een servo die
+//       langer dan 5 s in de rij staat, geeft een melding (langWachtend; de Baan zet ze in logicaMelding).
 // Tellen voor de PCA9685: 25 MHz / (4096 x (121 + 1)) = 50,03 Hz, één tel = 122 / 25 MHz = 4,88 µs; 1500 µs = 307 tellen.
 #pragma once
 #include <stdint.h>
@@ -25,7 +31,9 @@
 namespace trein {
 
 constexpr int MAX_SERVOS = 16;
-constexpr int SERVO_MAX_BEWEGEND = 4;
+constexpr int SERVO_MAX_BEWEGEND = 4;      // de grens van de instelling servoMaxBewegend
+constexpr int SERVO_MAX_BEWEGEND_STD = 2;  // EN3: 2 x 1,2 A binnen de 3 A van de XL4015
+constexpr uint32_t SERVO_WACHT_MELDING_MS = 5000; // FN3: langer in de rij = een melding in het dashboard
 constexpr uint16_t SERVO_MIN_US = 500, SERVO_MAX_US = 2500, SERVO_STD_US = 1500;
 constexpr uint16_t SERVO_MAX_SNELHEID = 20000; // µs per seconde
 constexpr uint32_t SERVO_SPRONG_MS = 300;       // een sprong duurt zo lang; ook: hoogstens één eerste puls per 300 ms
@@ -69,9 +77,23 @@ class Servos {
     bool beweegt = false, wacht = false;
     bool pulsUit = false;  // E19: na aankomst de puls uit
     uint32_t sinds = 0, laatst = 0, aangekomen = 0;
+    uint32_t wachtSinds = 0; // FN3: sinds wanneer in de rij
   };
   Toestand t[MAX_SERVOS];
-  bool geremd = false; // E14: geen nieuwe bewegingen (te veel lampen aan)
+  bool geremd = false;     // E14/FN3: te veel lampen aan: hoogstens één servo tegelijk
+  int maxBewegend = SERVO_MAX_BEWEGEND_STD; // EN3: hoeveel servo's tegelijk mogen bewegen (1..4)
+
+  /** hoeveel er nu tegelijk mogen bewegen */
+  int limiet() const {
+    int m = maxBewegend < 1 ? 1 : (maxBewegend > SERVO_MAX_BEWEGEND ? SERVO_MAX_BEWEGEND : maxBewegend);
+    return geremd ? 1 : m;
+  }
+  /** FN3: de eerste servo die al langer dan 5 s in de rij staat (-1 = geen) */
+  int langWachtend(uint32_t nu) const {
+    for (int i = 0; i < nRij_; i++)
+      if (nu - t[rij_[i]].wachtSinds >= SERVO_WACHT_MELDING_MS) return rij_[i];
+    return -1;
+  }
 
   uint16_t us(int s) const { return (uint16_t)((t[s].mus + 500) / 1000); }
   bool onderweg(int s) const { return t[s].beweegt || t[s].wacht; }
@@ -157,7 +179,7 @@ class Servos {
           nu - x.aangekomen >= (uint32_t)cfg[s].pulsUitS * 1000u)
         x.pulsUit = true;
     }
-    while (nRij_ > 0 && bewegend() < SERVO_MAX_BEWEGEND && magBeginnen(rij_[0], nu)) {
+    while (nRij_ > 0 && bewegend() < limiet() && magBeginnen(rij_[0], nu)) {
       int s = rij_[0];
       memmove(rij_, rij_ + 1, (size_t)(nRij_ - 1));
       nRij_--;
@@ -182,9 +204,8 @@ class Servos {
   bool eersteGezet_ = false;
   uint32_t eersteOm_ = 0; // wanneer de laatste servo zijn eerste puls kreeg
 
-  /** mag servo s nu beginnen? niet als geremd; een servo zonder puls pas 300 ms na de vorige eerste puls */
+  /** mag servo s nu beginnen? een servo zonder puls pas 300 ms na de vorige eerste puls (de rem zit in limiet()) */
   bool magBeginnen(int s, uint32_t nu) const {
-    if (geremd) return false;
     return t[s].actief || !eersteGezet_ || nu - eersteOm_ >= SERVO_SPRONG_MS;
   }
 
@@ -201,8 +222,9 @@ class Servos {
     if (sprong) x.mus = (int32_t)x.doel * 1000;
   }
   void vraagPlaats(int s, uint32_t nu, bool sprong) {
-    if (bewegend() < SERVO_MAX_BEWEGEND && nRij_ == 0 && magBeginnen(s, nu)) { begin(s, nu, sprong); return; }
+    if (bewegend() < limiet() && nRij_ == 0 && magBeginnen(s, nu)) { begin(s, nu, sprong); return; }
     t[s].wacht = true;
+    t[s].wachtSinds = nu;
     rij_[nRij_++] = (uint8_t)s;
   }
   void uitRij(int s) {

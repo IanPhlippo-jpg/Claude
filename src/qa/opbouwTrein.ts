@@ -14,7 +14,7 @@ import { MODULES, PLAATSING, DRADEN, IN_KLEMMEN, GROEPEN, voetafdruk, gatenDoos,
 import { M, wagoHouders, rechts, indeling, tsmpHouder } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
 
 type Eind = [string, string];
-type Draad = { nr: string; van: Eind; naar: Eind; net: string; mm2: number; kleur: string; wat: string };
+type Draad = { nr: string; van: Eind; naar: Eind; net: string; mm2: number; kleur: string; wat: string; veld?: boolean };
 type Module = { naam: string; kort: string; l: number; b: number; h: number; gaten: [number, number][]; gat: number; schroef?: string; aanname?: string; wago?: boolean; klem?: boolean; optioneel?: boolean; klemmen: { naam: string; label: string; x: number; z: number; soort: string }[] };
 const MOD = MODULES as Record<string, Module>;
 const DR = DRADEN as Draad[];
@@ -30,6 +30,11 @@ const VAST: Record<string, (k: string) => [number, number, number]> = {
   // versie 6 fase B: de zekeringhouder van de servo's (met draden) naast de regelaar, de leerontvanger in zijn houder
   '-F19': () => [M.zekering.x[1], M.zekering.y, -(M.doos.binnen / 2) + 26],
   '-B1': () => [M.tsmp.x, M.tsmp.y + 10, M.doos.binnen / 2 - 3],
+  // Fable 5.2 EN2: de losse WAGO-klemmen in de doos (bij de ESP en bij -K5) en de veldeinden (onder de baan: ± 3 m,
+  // in de draadlijst als "veld"; hier bij de tule waar ze binnenkomen)
+  '-X14': () => [240, 8, 18], '-X15': () => [-60, 8, 76],
+  '-X17': () => [M.rechts.x1 + 3000, 0, 0], '-X18': () => [M.rechts.x1 + 3000, 0, 0],
+  ...Object.fromEntries(['-B2', '-B3', '-B4', '-B5', '-B6', '-B7', '-B8'].map((b) => [b, () => [M.rechts.x1 + 3000, 0, 0] as [number, number, number]])),
 };
 /** de plaats in de doos (x, y, z) van een eind van een draad */
 export function plaats(e: Eind): [number, number, number] {
@@ -44,6 +49,7 @@ const eindTekst = (e: Eind) => {
   if (e[0] === '-F1') return `-F1 zekering T 8 A (${e[1]})`;
   if (e[0] === '-F19') return `-F19 zekering T 3,15 A (${e[1]})`;
   if (e[0] === '-B1') return `-B1 TSMP58000 (${e[1]})`;
+  if (VAST[e[0]]) return `${e[0]}:${e[1]}${/^-X1[45]$/.test(e[0]) ? ' (WAGO 221-2411)' : /^-X1[78]$/.test(e[0]) ? ' (onder de baan)' : ''}`;
   const m = /^(-X[12])([ab])$/.exec(e[0]);
   if (m) return `${m[1]}:${(m[2] === 'b' ? 5 : 0) + +e[1]} (WAGO)`;
   const k = klem(e[0], e[1]);
@@ -256,7 +262,7 @@ export function draadlijstBlad(nr: string, blad: string, project: Project, van =
   b.lijn([30, y - 3.8], [30 + k.reduce((a, q) => a + q[1], 0), y - 3.8], 0.35);
   y -= 3.8;
   for (const d of DR.slice(van, tot)) {
-    const cel = [d.nr, eindTekst(d.van), eindTekst(d.naar), d.wat, getal(d.mm2, 2), d.kleur, `${lengte(d)} mm`];
+    const cel = [d.nr, eindTekst(d.van), eindTekst(d.naar), d.wat, getal(d.mm2, 2), d.kleur, d.veld ? 'veld' : `${lengte(d)} mm`];
     x = 30;
     cel.forEach((t, i) => { b.tekst([x + 1, y - 2.75], t.length > (i === 3 ? 92 : 50) ? t.slice(0, i === 3 ? 90 : 48) + '…' : t, 1.95, 'start', { vet: i === 0 }); x += k[i][1]; });
     y -= rijH;
@@ -346,17 +352,17 @@ export function meetBlad6(nr: string, blad: string, project: Project): string {
   b.tekst([25, 280], 'Versie 6: eerst kopen en meten, dan bedraden', 5, 'start', { vet: true });
   b.tekst([25, 274.5], 'Eén stuk van elke module op tafel (± € 24 tot € 37), vóór je print of bedradt. De uitkomst kies je in het dashboard (Instellingen › Hardware).', 2.3);
   const stappen = [
-    ['A', '-K3/-K4 optocouplerprint, diodetest (multimeter): IN1 – elke gemeenschappelijke klem. Geleidt de led van de klem "VCC" naar IN1: "vcc"; van IN1 naar de klem "G/GND": "gnd"; per kanaal een eigen paar klemmen: "apart"', 'vcc / gnd / apart'],
+    ['A', '-K3/-K4 optocouplerprint (Fable 5.2 TN1: geen diodetest, die leest door de serieweerstand vaak "open"): 5 V (USB-lader of -T2) in serie met de multimeter op mA, + aan de ene klem, − aan de andere, beide richtingen. Stroom van "VCC" naar IN1: "vcc"; van IN1 naar "G/GND": "gnd"; geen gemeenschappelijke klem, wel stroom tussen IN1+ en IN1−: "apart" (5 V blijft onder de 6 V die de led andersom verdraagt)', 'vcc / gnd / apart'],
     ['B', '-K3 stroom in één ingang: 12 V (S12 van -X3) door een mA-meter op de ingang zoals bij A gevonden (vcc: IN naar 0 V; gnd: IN naar 12 V)', '3 .. 15 mA'],
     ['C', '-Q1 (en -Q2, -Q4) polariteit: VCC 3,3 V, VIN+ 12 V, een led met 1 kΩ op kanaal 1. IN1 naar GND: led aan = actief laag (standaard). Anders actief hoog: -DTREIN_UITGANG_ACTIEF_HOOG en "IR-led actief laag" uit', 'laag / hoog'],
-    ['D', '-Q1 zonder ESP: VCC los (zoals bij het inschakelen), 12 V aan: blijft de led uit? Zo niet: de groepen flitsen bij elk inschakelen (README, E5)', 'uit'],
+    ['D', 'Gevolg van C (Fable 5.2 TN2, geen aparte meting): "actief laag" betekent dat bij elk inschakelen alle groepen ± 1 s branden, en blijvend als de ESP niet start. Zien: de hele proefopstelling, RESET van de ESP ingedrukt houden en dan de 12 V aan', 'gezien'],
     ['E', '-T3 XL4015 zonder -K7: 12 V aan IN, OUT+ – OUT− met de potmeter op 5,5 V zetten, een druppel lak erop; de elco -C5 is 25 V of meer', '5,4 .. 5,6 V'],
     ['F', '-Q4 en -Q3: IR-led 1 gekozen in het dashboard: alleen kanaal 1 geleidt (n− – VIN− < 0,1 V), de andere 7 niet', 'alleen 1'],
     ['G', 'IR-zelftest (-B1 TSMP58000, -Q3, -Q4): IR-led 1 voor het venster, knop "IR-zelftest": draaggolf en dezelfde code terug. Niet: duty op 50 %', '37 .. 39 kHz'],
-    ['H', 'Stopplaats van Ian: gsm-camera op de IR-led. Knippert ze in de camera niet maar brandt ze, of meldt de zelftest "ongemoduleerd": codesoort "continu"', 'gemoduleerd?'],
+    ['H', 'Stopplaats van Ian (Fable 5.2 TN3): houd zijn stopled voor het venster en kies IR leren. Leert de doos een code: gemoduleerd (120 Ω). Ziet de gsm-camera licht maar leert de doos niets: continu (of een draaggolf buiten 20-60 kHz): codesoort "continu" en de IR-leds met 470 Ω 0,5 W (EN1). Zeker zijn: een TCRT5000 op GPIO11, het niveau staat in het dashboard', 'code / continu'],
     ['I', 'Zelftest (Instellingen › Zelftest): I2C -K5 0x20, -K2 0x40, -K7 0x42 gevonden; -X6 bord "v1.1" opgedrukt (GPIO48)', '3 gevonden'],
     ['J', '-K7: één servo van a naar b; bij een herstart gaan de servo\'s één voor één naar hun stand', 'gedaan'],
-    ['K', '-X12 – -X13: 3,3 V naar de baan (na -F20 0,1 A, van -X7); een draadje -X12 naar 0 V: de ESP blijft draaien', '3,2 .. 3,35 V'],
+    ['K', '-X12 – -X13: 3,3 V naar de baan (B3V3, na -F20 MF-R030 0,3 A, van -X7), met de 4 reflexsensoren aan; een draadje -X12 naar 0 V: de ESP blijft draaien', '3,1 .. 3,35 V'],
     ['L', 'OE met beide PCA9685 (-K2 en -K7) aangesloten, RESET ingedrukt (-X1/-X2 12 V aan, -T2 levert 5 V)', '≥ 2,5 V'],
     ['M', 'Reflexsensor (TCRT5000) op ingang 17 (-K5 GPB0, 1 kΩ in serie): hand erboven = "actief", weg = "rust"', 'actief/rust'],
   ];

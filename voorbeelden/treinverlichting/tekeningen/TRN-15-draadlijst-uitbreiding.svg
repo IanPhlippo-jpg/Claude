@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297">
 <rect x="0" y="0" width="420" height="297" fill="#fff"/>
-<text x="30.00" y="17.00" font-size="4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Interne draadlijst (vervolg): de uitbreiding van versie 6 (W62..W92)</text>
+<text x="30.00" y="17.00" font-size="4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Interne draadlijst (vervolg): de uitbreiding van versie 6 (W62..W115)</text>
 <text x="30.00" y="22.50" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">De draden naar de bordjes (G01+ .. G16+, G01− .. G16−) en de ingangen (IN01 .. IN16) staan in de README (Draden labelen) en op TRN-10. Lengte uit het 3D-model + 60 mm.</text>
 <text x="31.00" y="31.80" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Nr</text>
 <text x="42.00" y="31.80" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Van</text>
@@ -81,7 +81,7 @@
 <text x="182.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">L+ naar de zekeringhouder -F19 van de servo's (T 3,15 A, in de achterwand)</text>
 <text x="312.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">120 mm</text>
+<text x="341.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="63.58" x2="356.00" y2="63.58" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W71</text>
 <text x="42.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-F19 zekering T 3,15 A (uit)</text>
@@ -89,7 +89,7 @@
 <text x="182.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V na -F19 naar de regelaar van de servo's</text>
 <text x="312.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
+<text x="341.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">200 mm</text>
 <line x1="30.00" y1="67.00" x2="356.00" y2="67.00" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W72</text>
 <text x="42.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X2:9 (WAGO)</text>
@@ -124,143 +124,327 @@
 <text x="341.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">170 mm</text>
 <line x1="30.00" y1="80.68" x2="356.00" y2="80.68" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W76</text>
-<text x="42.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X12:2</text>
+<text x="42.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:VCCo</text>
 <text x="112.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:VCC</text>
-<text x="182.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V ingangskant IR-driver (over de naad)</text>
+<text x="182.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V ingangskant IR-driver (dupont female-male 50 cm, over de naad; Fable 5.2 EN2)</text>
 <text x="312.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">310 mm</text>
+<text x="341.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">330 mm</text>
 <line x1="30.00" y1="84.10" x2="356.00" y2="84.10" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W77</text>
-<text x="42.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X13:2</text>
+<text x="42.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:1 (G)</text>
 <text x="112.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:GND</text>
-<text x="182.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V ingangskant IR-driver (over de naad)</text>
+<text x="182.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V ingangskant IR-driver (dupont female-male 50 cm, over de naad)</text>
 <text x="312.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">340 mm</text>
+<text x="341.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">320 mm</text>
 <line x1="30.00" y1="87.52" x2="356.00" y2="87.52" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W78</text>
-<text x="42.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X1:10 (WAGO)</text>
-<text x="112.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:VIN+</text>
-<text x="182.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V voor de IR-leds (over de naad)</text>
-<text x="312.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
-<text x="325.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">470 mm</text>
+<text x="42.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X12:3</text>
+<text x="112.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B2:Vs</text>
+<text x="182.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W31 (getwist, ± 3 m): 3,3 V naar IR-ontvanger -B2</text>
+<text x="312.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="90.94" x2="356.00" y2="90.94" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W79</text>
-<text x="42.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:VIN−</text>
-<text x="112.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q3:OUT−</text>
-<text x="182.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">terugweg van de IR-leds door de AOD4184 (piek 0,7 A)</text>
-<text x="312.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
+<text x="42.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X13:3</text>
+<text x="112.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B2:GND</text>
+<text x="182.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W31: 0 V naar IR-ontvanger -B2</text>
+<text x="312.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
+<text x="341.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="94.36" x2="356.00" y2="94.36" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W80</text>
-<text x="42.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X2:10 (WAGO)</text>
-<text x="112.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q3:DC−</text>
-<text x="182.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V van de AOD4184 (over de naad)</text>
-<text x="312.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
-<text x="325.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">380 mm</text>
+<text x="42.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B2:OUT</text>
+<text x="112.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X14:1 (WAGO 221-2411)</text>
+<text x="182.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W31: uitgang van -B2 naar -X14 (WAGO 221-2411, daar -R22 1 kΩ naar de ESP)</text>
+<text x="312.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">geel</text>
+<text x="341.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="97.78" x2="356.00" y2="97.78" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W81</text>
-<text x="42.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:17 (47)</text>
-<text x="112.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q3:PWM</text>
-<text x="182.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR zenden: draaggolf van GPIO47 (dupont female-male 30 cm, over de naad)</text>
+<text x="42.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X12:4</text>
+<text x="112.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B3:Vs</text>
+<text x="182.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W32 (getwist, ± 3 m): 3,3 V naar IR-ontvanger -B3</text>
 <text x="312.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">240 mm</text>
+<text x="325.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="101.20" x2="356.00" y2="101.20" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W82</text>
-<text x="42.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA0</text>
-<text x="112.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN1</text>
-<text x="182.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 1 kiezen (dupont)</text>
+<text x="42.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X13:4</text>
+<text x="112.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B3:GND</text>
+<text x="182.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W32: 0 V naar IR-ontvanger -B3</text>
 <text x="312.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="325.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="104.62" x2="356.00" y2="104.62" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W83</text>
-<text x="42.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA1</text>
-<text x="112.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN2</text>
-<text x="182.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 2 kiezen (dupont)</text>
+<text x="42.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B3:OUT</text>
+<text x="112.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X14:2 (WAGO 221-2411)</text>
+<text x="182.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W32: uitgang van -B3 naar -X14 (WAGO 221-2411, daar -R23 1 kΩ naar de ESP)</text>
 <text x="312.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="325.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">geel</text>
+<text x="341.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="108.04" x2="356.00" y2="108.04" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W84</text>
-<text x="42.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA2</text>
-<text x="112.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN3</text>
-<text x="182.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 3 kiezen (dupont)</text>
+<text x="42.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X12:5</text>
+<text x="112.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B4:Vs</text>
+<text x="182.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W33 (getwist, ± 3 m): 3,3 V naar IR-ontvanger -B4</text>
 <text x="312.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="325.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="111.46" x2="356.00" y2="111.46" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W85</text>
-<text x="42.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA3</text>
-<text x="112.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN4</text>
-<text x="182.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 4 kiezen (dupont)</text>
+<text x="42.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X13:5</text>
+<text x="112.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B4:GND</text>
+<text x="182.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W33: 0 V naar IR-ontvanger -B4</text>
 <text x="312.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="325.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="114.88" x2="356.00" y2="114.88" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W86</text>
-<text x="42.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA4</text>
-<text x="112.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN5</text>
-<text x="182.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 5 kiezen (dupont)</text>
+<text x="42.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B4:OUT</text>
+<text x="112.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X14:3 (WAGO 221-2411)</text>
+<text x="182.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W33: uitgang van -B4 naar -X14 (WAGO 221-2411, daar -R24 1 kΩ naar de ESP)</text>
 <text x="312.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="325.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">geel</text>
+<text x="341.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="118.30" x2="356.00" y2="118.30" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W87</text>
-<text x="42.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA5</text>
-<text x="112.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN6</text>
-<text x="182.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 6 kiezen (dupont)</text>
-<text x="312.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="42.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X12:2</text>
+<text x="112.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X17:1 (onder de baan)</text>
+<text x="182.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W40 (± 3 m): 3,3 V naar de verdeelklem -X17 onder de baan (de 4 reflexsensoren)</text>
+<text x="312.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,25</text>
+<text x="325.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="121.72" x2="356.00" y2="121.72" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W88</text>
-<text x="42.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA6</text>
-<text x="112.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN7</text>
-<text x="182.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 7 kiezen (dupont)</text>
-<text x="312.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="42.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X13:2</text>
+<text x="112.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X18:1 (onder de baan)</text>
+<text x="182.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W40: 0 V naar de verdeelklem -X18 onder de baan</text>
+<text x="312.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,25</text>
+<text x="325.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="125.14" x2="356.00" y2="125.14" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W89</text>
-<text x="42.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA7</text>
-<text x="112.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN8</text>
-<text x="182.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 8 kiezen (dupont)</text>
+<text x="42.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X17:2 (onder de baan)</text>
+<text x="112.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B5:VCC</text>
+<text x="182.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 3,3 V naar reflexsensor -B5</text>
 <text x="312.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="325.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="128.56" x2="356.00" y2="128.56" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W90</text>
-<text x="42.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:2 (3V3)</text>
-<text x="112.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B1 TSMP58000 (Vs)</text>
-<text x="182.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V voor de IR-leerontvanger</text>
+<text x="42.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X18:2 (onder de baan)</text>
+<text x="112.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B5:GND</text>
+<text x="182.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 0 V naar reflexsensor -B5</text>
 <text x="312.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="325.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="131.98" x2="356.00" y2="131.98" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W91</text>
-<text x="42.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:22 (G)</text>
-<text x="112.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B1 TSMP58000 (GND)</text>
-<text x="182.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V voor de IR-leerontvanger</text>
+<text x="42.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B5:DO</text>
+<text x="112.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X15:1 (WAGO 221-2411)</text>
+<text x="182.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W41: uitgang van -B5 naar -X15 (WAGO 221-2411, daar -R28 1 kΩ naar -K5 GPB0)</text>
 <text x="312.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
+<text x="325.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="135.40" x2="356.00" y2="135.40" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W92</text>
-<text x="42.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:16 (48)</text>
-<text x="112.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B1 TSMP58000 (OUT)</text>
-<text x="182.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR leren: uitgang van de TSMP58000 naar GPIO48</text>
+<text x="42.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X17:3 (onder de baan)</text>
+<text x="112.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B6:VCC</text>
+<text x="182.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 3,3 V naar reflexsensor -B6</text>
 <text x="312.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
-<text x="325.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">geel</text>
-<text x="341.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
+<text x="325.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
 <line x1="30.00" y1="138.82" x2="356.00" y2="138.82" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
-<text x="30.00" y="143.32" font-size="2.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Doorsnede: 0,75 mm² (H05V-K) voor 12 V en 0 V naar de MOSFET-modules (tot 2,6 A per module); 0,5 mm² voor de regelaar; 0,25 mm² voor S12; 0,14 mm² of dupontkabels voor signalen.</text>
-<text x="30.00" y="146.82" font-size="2.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Dupont: female-female op de pinnen van -K2 en -Q1/-Q2; female-male waar het andere eind in een schroefklem of WAGO-klem gaat. Een schroefklem neemt hoogstens 2 draden.</text>
+<text x="31.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W93</text>
+<text x="42.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X18:3 (onder de baan)</text>
+<text x="112.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B6:GND</text>
+<text x="182.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 0 V naar reflexsensor -B6</text>
+<text x="312.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="142.24" x2="356.00" y2="142.24" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W94</text>
+<text x="42.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B6:DO</text>
+<text x="112.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X15:2 (WAGO 221-2411)</text>
+<text x="182.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W42: uitgang van -B6 naar -X15 (WAGO 221-2411, daar -R29 1 kΩ naar -K5 GPB1)</text>
+<text x="312.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="145.66" x2="356.00" y2="145.66" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W95</text>
+<text x="42.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X17:4 (onder de baan)</text>
+<text x="112.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B7:VCC</text>
+<text x="182.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 3,3 V naar reflexsensor -B7</text>
+<text x="312.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="149.08" x2="356.00" y2="149.08" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W96</text>
+<text x="42.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X18:4 (onder de baan)</text>
+<text x="112.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B7:GND</text>
+<text x="182.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 0 V naar reflexsensor -B7</text>
+<text x="312.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="152.50" x2="356.00" y2="152.50" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W97</text>
+<text x="42.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B7:DO</text>
+<text x="112.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X15:3 (WAGO 221-2411)</text>
+<text x="182.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W43: uitgang van -B7 naar -X15 (WAGO 221-2411, daar -R30 1 kΩ naar -K5 GPB2)</text>
+<text x="312.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="155.92" x2="356.00" y2="155.92" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W98</text>
+<text x="42.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X17:5 (onder de baan)</text>
+<text x="112.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B8:VCC</text>
+<text x="182.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 3,3 V naar reflexsensor -B8</text>
+<text x="312.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="159.34" x2="356.00" y2="159.34" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W99</text>
+<text x="42.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X18:5 (onder de baan)</text>
+<text x="112.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B8:GND</text>
+<text x="182.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">onder de baan: 0 V naar reflexsensor -B8</text>
+<text x="312.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="162.76" x2="356.00" y2="162.76" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W100</text>
+<text x="42.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B8:DO</text>
+<text x="112.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X15:4 (WAGO 221-2411)</text>
+<text x="182.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veldkabel -W44: uitgang van -B8 naar -X15 (WAGO 221-2411, daar -R31 1 kΩ naar -K5 GPB3)</text>
+<text x="312.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">veld</text>
+<line x1="30.00" y1="166.18" x2="356.00" y2="166.18" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W101</text>
+<text x="42.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X1:10 (WAGO)</text>
+<text x="112.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:VIN+</text>
+<text x="182.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V voor de IR-leds (over de naad)</text>
+<text x="312.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
+<text x="325.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
+<text x="341.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">470 mm</text>
+<line x1="30.00" y1="169.60" x2="356.00" y2="169.60" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W102</text>
+<text x="42.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:VIN−</text>
+<text x="112.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q3:OUT−</text>
+<text x="182.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">terugweg van de IR-leds door de AOD4184 (piek 0,7 A)</text>
+<text x="312.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
+<text x="325.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
+<line x1="30.00" y1="173.02" x2="356.00" y2="173.02" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W103</text>
+<text x="42.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X2:10 (WAGO)</text>
+<text x="112.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q3:DC−</text>
+<text x="182.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V van de AOD4184 (over de naad)</text>
+<text x="312.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
+<text x="325.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">380 mm</text>
+<line x1="30.00" y1="176.44" x2="356.00" y2="176.44" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W104</text>
+<text x="42.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:17 (47)</text>
+<text x="112.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q3:PWM</text>
+<text x="182.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR zenden: draaggolf van GPIO47 (dupont female-male 30 cm, over de naad)</text>
+<text x="312.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">240 mm</text>
+<line x1="30.00" y1="179.86" x2="356.00" y2="179.86" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W105</text>
+<text x="42.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA0</text>
+<text x="112.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN1</text>
+<text x="182.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 1 kiezen (dupont)</text>
+<text x="312.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="183.28" x2="356.00" y2="183.28" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W106</text>
+<text x="42.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA1</text>
+<text x="112.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN2</text>
+<text x="182.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 2 kiezen (dupont)</text>
+<text x="312.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="186.70" x2="356.00" y2="186.70" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W107</text>
+<text x="42.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA2</text>
+<text x="112.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN3</text>
+<text x="182.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 3 kiezen (dupont)</text>
+<text x="312.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="190.12" x2="356.00" y2="190.12" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W108</text>
+<text x="42.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA3</text>
+<text x="112.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN4</text>
+<text x="182.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 4 kiezen (dupont)</text>
+<text x="312.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="193.54" x2="356.00" y2="193.54" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W109</text>
+<text x="42.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA4</text>
+<text x="112.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN5</text>
+<text x="182.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 5 kiezen (dupont)</text>
+<text x="312.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="196.96" x2="356.00" y2="196.96" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W110</text>
+<text x="42.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA5</text>
+<text x="112.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN6</text>
+<text x="182.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 6 kiezen (dupont)</text>
+<text x="312.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="200.38" x2="356.00" y2="200.38" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W111</text>
+<text x="42.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA6</text>
+<text x="112.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN7</text>
+<text x="182.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 7 kiezen (dupont)</text>
+<text x="312.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="203.80" x2="356.00" y2="203.80" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W112</text>
+<text x="42.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K5:GPA7</text>
+<text x="112.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-Q4:IN8</text>
+<text x="182.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR-led 8 kiezen (dupont)</text>
+<text x="312.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
+<text x="341.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="207.22" x2="356.00" y2="207.22" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W113</text>
+<text x="42.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:2 (3V3)</text>
+<text x="112.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B1 TSMP58000 (Vs)</text>
+<text x="182.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V voor de IR-leerontvanger</text>
+<text x="312.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
+<text x="341.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<line x1="30.00" y1="210.64" x2="356.00" y2="210.64" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W114</text>
+<text x="42.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:22 (G)</text>
+<text x="112.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B1 TSMP58000 (GND)</text>
+<text x="182.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V voor de IR-leerontvanger</text>
+<text x="312.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
+<text x="341.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
+<line x1="30.00" y1="214.06" x2="356.00" y2="214.06" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="31.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W115</text>
+<text x="42.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:16 (48)</text>
+<text x="112.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-B1 TSMP58000 (OUT)</text>
+<text x="182.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">IR leren: uitgang van de TSMP58000 naar GPIO48</text>
+<text x="312.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
+<text x="325.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">geel</text>
+<text x="341.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
+<line x1="30.00" y1="217.48" x2="356.00" y2="217.48" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
+<text x="30.00" y="221.98" font-size="2.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Doorsnede: 0,75 mm² (H05V-K) voor 12 V en 0 V naar de MOSFET-modules (tot 2,6 A per module); 0,5 mm² voor de regelaar; 0,25 mm² voor S12; 0,14 mm² of dupontkabels voor signalen.</text>
+<text x="30.00" y="225.48" font-size="2.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Dupont: female-female op de pinnen van -K2 en -Q1/-Q2; female-male waar het andere eind in een schroefklem of WAGO-klem gaat. Een schroefklem neemt hoogstens 2 draden.</text>
 <rect x="20" y="10" width="390" height="277" fill="none" stroke="#111" stroke-width="0.7"/>
 <line x1="210.00" y1="297.00" x2="210.00" y2="282.00" stroke="#111" stroke-width="0.7" stroke-linecap="round" />
 <line x1="210.00" y1="0.00" x2="210.00" y2="15.00" stroke="#111" stroke-width="0.7" stroke-linecap="round" />
@@ -368,10 +552,10 @@
 <text x="336.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">mm · ISO 2768-c</text>
 <line x1="380.00" y1="287.00" x2="380.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Projectie: 1e hoek</text>
-<line x1="387.00" y1="286.50" x2="393.30" y2="285.45" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="387.00" y1="282.30" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="387.00" y1="286.50" x2="387.00" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
-<line x1="393.30" y1="285.45" x2="393.30" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="393.30" y2="286.50" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="283.35" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="387.00" y1="285.45" x2="387.00" y2="283.35" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="393.30" y1="286.50" x2="393.30" y2="282.30" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
 <line x1="385.95" y1="284.40" x2="394.35" y2="284.40" stroke="#111" stroke-width="0.13" stroke-linecap="round" stroke-dasharray="3 0.8 0.6 0.8"/>
 <circle cx="398.90" cy="284.40" r="2.10" fill="none" stroke="#111" stroke-width="0.3"/>
 <circle cx="398.90" cy="284.40" r="1.05" fill="none" stroke="#111" stroke-width="0.3"/>

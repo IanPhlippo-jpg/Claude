@@ -1,5 +1,6 @@
 // Tests van include/servo.h:  python -m platformio test -e native -f test_servo
-// Tellen bij 50 Hz, snelheid (µs/s), meteen (snelheid 0), hoogstens 4 tegelijk met een wachtrij, nieuw doel onderweg.
+// Tellen bij 50 Hz, snelheid (µs/s), meteen (snelheid 0), hoogstens 4 (standaard 2, EN3) tegelijk met een wachtrij,
+// nieuw doel onderweg; de rem bij veel lampen (FN3: standaard uit, dan één tegelijk, melding na 5 s).
 #include <unity.h>
 
 #include <vector>
@@ -86,6 +87,7 @@ void test_meteen_houdt_plaats_bezet() {
 
 void test_hoogstens_vier_tegelijk() {
   Proef p;
+  p.s.maxBewegend = 4; // de grens van de instelling
   for (int i = 0; i < 6; i++) p.s.zetMeteen(i, 1000, STAND_A);
   for (int i = 0; i < 6; i++) p.s.naar(i, 2000, STAND_B, p.cfg[i], p.t);
   TEST_ASSERT_EQUAL(4, p.s.bewegend());
@@ -120,7 +122,8 @@ void test_nieuw_doel_onderweg_en_vergeten() {
   TEST_ASSERT_EQUAL(1800, p.s.us(7));
   p.loop(10);
   TEST_ASSERT_EQUAL(0, p.s.bewegend());
-  // wachtend vergeten: weg uit de rij, geen puls
+  // wachtend vergeten: weg uit de rij, geen puls (4 tegelijk: de vijfde wacht)
+  p.s.maxBewegend = 4;
   for (int i = 0; i < 5; i++) p.s.zetMeteen(i, 1000, STAND_A);
   for (int i = 0; i < 5; i++) p.s.naar(i, 2000, STAND_B, p.cfg[i], p.t);
   p.s.vergeet(4);
@@ -173,28 +176,107 @@ void test_opstarten_een_voor_een() {
   TEST_ASSERT_EQUAL(6, metPuls);
 }
 
-// E14: meer dan 12 lichtgroepen aan: geen nieuwe beweging, de rij wacht tot er minder aan staan
+// EN3: standaard bewegen hoogstens 2 servo's tegelijk (2 x 1,2 A binnen de 3 A van de XL4015); instelbaar 1..4
+void test_standaard_twee_tegelijk() {
+  Proef p;
+  TEST_ASSERT_EQUAL(2, p.s.maxBewegend);
+  for (int i = 0; i < 4; i++) p.s.zetMeteen(i, 1000, STAND_A);
+  for (int i = 0; i < 4; i++) p.s.naar(i, 2000, STAND_B, p.cfg[i], p.t);
+  TEST_ASSERT_EQUAL(2, p.s.bewegend());
+  TEST_ASSERT_EQUAL(2, p.s.wachtend());
+  for (int k = 0; k < 400; k++) {
+    p.loop(5);
+    TEST_ASSERT_TRUE(p.s.bewegend() <= 2);
+  }
+  TEST_ASSERT_EQUAL(2000, p.s.us(3));
+  // in de Baan: de instelling servoMaxBewegend
+  Baan b;
+  TEST_ASSERT_EQUAL(2, b.cfg.inst.servoMaxBewegend);
+  for (int i = 0; i < 4; i++) {
+    b.cfg.servo[i].gebruikt = true;
+    b.servos.zetMeteen(i, b.cfg.servo[i].a, STAND_A);
+  }
+  b.cfg.inst.servoMaxBewegend = 3;
+  b.tick(0, 0);
+  for (int i = 0; i < 4; i++) b.servoNaar(i, STAND_B, 0);
+  TEST_ASSERT_EQUAL(3, b.servos.bewegend());
+  // via de API: 1..4, anders 400
+  auto inst = [&](const char *j) { return apiInstellingen(b, j, strlen(j), 0).code; };
+  TEST_ASSERT_EQUAL(200, inst(R"({"servoMaxBewegend":1})"));
+  TEST_ASSERT_EQUAL(1, b.cfg.inst.servoMaxBewegend);
+  TEST_ASSERT_EQUAL(400, inst(R"({"servoMaxBewegend":5})"));
+  TEST_ASSERT_EQUAL(400, inst(R"({"servoMaxBewegend":0})"));
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, false));
+  TEST_ASSERT_EQUAL(1, d["instellingen"]["servoMaxBewegend"].as<int>());
+}
+
+// E14 + FN3: de rem staat standaard UIT: met 13 lichtgroepen aan (een avondscène) bewegen de servo's gewoon.
+// Negatieve proef: met de rem op 12 groepen (zoals 2.1.0 altijd) staan ze in 2.1.0 stil; nu gaat er één tegelijk.
+// Een servo die langer dan 5 s wacht: een melding.
 void test_wachten_bij_veel_lampen() {
   Baan b;
-  ServoCfg &c = b.cfg.servo[0];
-  c.gebruikt = true;
-  c.snelheid = 1000;
-  b.servos.zetMeteen(0, c.a, STAND_A);
+  for (int i = 0; i < 3; i++) {
+    ServoCfg &c = b.cfg.servo[i];
+    c.gebruikt = true;
+    c.snelheid = 1000; // 0,8 s van A naar B
+    snprintf(c.naam, sizeof c.naam, "Wissel %d", i + 1);
+    b.servos.zetMeteen(i, c.a, STAND_A);
+  }
+  const ServoCfg &c = b.cfg.servo[0];
+  TEST_ASSERT_EQUAL(0, b.cfg.inst.servoRemGroepen); // standaard uit
   for (int g = 0; g < 13; g++) b.lampen.stand[g].aan = true;
   b.tick(0, 0);
   b.tick(5, 0);
-  TEST_ASSERT_TRUE(b.servos.geremd);
-  TEST_ASSERT_TRUE(b.servoNaar(0, STAND_B, 5));
-  for (uint32_t t = 10; t < 1000; t += 5) b.tick(t, 0);
-  TEST_ASSERT_EQUAL(c.a, b.servos.us(0)); // wacht
-  TEST_ASSERT_EQUAL_STRING("onderweg", b.servos.standTekst(0));
-  JsonDocument d;
-  deserializeJson(d, apiStaat(b, 1000, true));
-  TEST_ASSERT_TRUE(d["servoWachtLampen"].as<bool>());
-  b.lampen.stand[12].aan = false; // 12 aan: mag weer
-  for (uint32_t t = 1000; t < 2000; t += 5) b.tick(t, 0);
   TEST_ASSERT_FALSE(b.servos.geremd);
-  TEST_ASSERT_EQUAL(c.b, b.servos.us(0));
+  TEST_ASSERT_TRUE(b.servoNaar(0, STAND_B, 5));
+  uint32_t t = 10;
+  for (; t < 1000; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL(c.b, b.servos.us(0)); // bewogen, ondanks 13 groepen
+  // de rem aan op 12 groepen: geremd, maar één servo tegelijk (niet stil)
+  b.cfg.inst.servoRemGroepen = 12;
+  b.tick(t, 0);
+  TEST_ASSERT_TRUE(b.servos.geremd);
+  for (int i = 0; i < 3; i++) b.servoNaar(i, i == 0 ? STAND_A : STAND_B, t);
+  TEST_ASSERT_EQUAL(1, b.servos.bewegend());
+  TEST_ASSERT_EQUAL(2, b.servos.wachtend());
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, t, true));
+  TEST_ASSERT_TRUE(d["servoWachtLampen"].as<bool>());
+  TEST_ASSERT_EQUAL(0, d["servoWachtLang"].as<int>());
+  int maxSamen = 0;
+  uint32_t t0 = t;
+  for (; t < t0 + 3000; t += 5) {
+    b.tick(t, 0);
+    if (b.servos.bewegend() > maxSamen) maxSamen = b.servos.bewegend();
+  }
+  TEST_ASSERT_EQUAL(1, maxSamen);
+  TEST_ASSERT_EQUAL(c.a, b.servos.us(0));
+  TEST_ASSERT_EQUAL(b.cfg.servo[2].b, b.servos.us(2)); // alle drie na elkaar aangekomen
+  // melding na 5 s wachten: met een servo die nooit klaar raakt (snelheid 1 µs/s) blijft de rij staan
+  b.cfg.servo[0].snelheid = 1;
+  b.servoNaar(0, STAND_B, t);
+  b.servoNaar(1, STAND_A, t);
+  t0 = t;
+  for (; t < t0 + 4900; t += 5) b.tick(t, 0);
+  TEST_ASSERT_TRUE(b.logicaMelding().empty());
+  for (; t < t0 + 5100; t += 5) b.tick(t, 0);
+  TEST_ASSERT_TRUE(b.logicaMelding().find("Wissel 2") != std::string::npos);
+  TEST_ASSERT_TRUE(b.logicaMelding().find("één voor één") != std::string::npos);
+  deserializeJson(d, apiStaat(b, t, true));
+  TEST_ASSERT_EQUAL(2, d["servoWachtLang"].as<int>());
+  // minder lampen aan: niet meer geremd, servo 2 mag meteen (2 tegelijk)
+  b.lampen.stand[12].aan = false;
+  for (uint32_t e = t + 1100; t < e; t += 5) b.tick(t, 0);
+  TEST_ASSERT_FALSE(b.servos.geremd);
+  TEST_ASSERT_EQUAL(b.cfg.servo[1].a, b.servos.us(1));
+  TEST_ASSERT_TRUE(b.logicaMelding().empty());
+  // de instelling via de API: 0..N_GROEPEN
+  auto inst = [&](const char *j) { return apiInstellingen(b, j, strlen(j), 0).code; };
+  TEST_ASSERT_EQUAL(200, inst(R"({"servoRemGroepen":0})"));
+  TEST_ASSERT_EQUAL(0, b.cfg.inst.servoRemGroepen);
+  TEST_ASSERT_EQUAL(400, inst(R"({"servoRemGroepen":-1})"));
+  TEST_ASSERT_EQUAL(400, inst(R"({"servoRemGroepen":99})"));
 }
 
 // E19: pulsUitS: zoveel s na aankomst geen puls meer; de volgende opdracht zet hem weer aan. 0 = altijd puls.
@@ -224,6 +306,7 @@ int main() {
   RUN_TEST(test_snelheid);
   RUN_TEST(test_meteen_houdt_plaats_bezet);
   RUN_TEST(test_hoogstens_vier_tegelijk);
+  RUN_TEST(test_standaard_twee_tegelijk);
   RUN_TEST(test_nieuw_doel_onderweg_en_vergeten);
   RUN_TEST(test_opstarten_een_voor_een);
   RUN_TEST(test_wachten_bij_veel_lampen);

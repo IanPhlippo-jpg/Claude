@@ -68,6 +68,8 @@ struct Instellingen {
   uint8_t printSoort[N_PRINTEN] = {PRINT_VCC, PRINT_VCC, PRINT_VCC, PRINT_VCC, PRINT_VCC}; // E3, per optocouplerprint
   bool irLedActiefLaag = UITGANG_ACTIEF_LAAG; // E1: polariteit van -Q4 (standaard dezelfde als -Q1)
   uint8_t irDuty = IR_DUTY_STD;               // E4: 33 of 50 %
+  uint8_t servoRemGroepen = 0;                // FN3 (2.2.0): servo's één tegelijk boven zoveel groepen aan; 0 = uit
+  uint8_t servoMaxBewegend = SERVO_MAX_BEWEGEND_STD; // EN3 (2.2.0): 1..4 servo's tegelijk
 };
 
 /** keert de Baan ingang i om? (printsoort en polariteit, E3) */
@@ -483,6 +485,8 @@ struct Lezer {
       else hersteld++;
     }
     c.stopLeds = leds(v["stopLeds"], c.stopLeds);
+    c.wachtLeds = leds(v["wachtLeds"], c.wachtLeds); // FN1 (2.2.0); ontbreekt in oudere bestanden: 0
+    if (c.wachtLeds & (c.stopLeds ? c.stopLeds : 0xFF)) { c.wachtLeds = 0; hersteld++; } // geen led delen
     c.stopCode = verwijzing(v["stopCode"], MAX_IR_CODES, c.stopCode);
     c.rijdCode = verwijzing(v["rijdCode"], MAX_IR_CODES, c.rijdCode);
     c.wachtS = (uint16_t)getal(v["wachtS"], 0, HALTE_MAX_S, c.wachtS);
@@ -619,6 +623,8 @@ struct Lezer {
       if (du.is<int>() && (du.as<int>() == 33 || du.as<int>() == 50)) i.irDuty = (uint8_t)du.as<int>();
       else hersteld++;
     }
+    i.servoRemGroepen = (uint8_t)getal(v["servoRemGroepen"], 0, N_GROEPEN, i.servoRemGroepen);
+    i.servoMaxBewegend = (uint8_t)getal(v["servoMaxBewegend"], 1, SERVO_MAX_BEWEGEND, i.servoMaxBewegend);
   }
 };
 
@@ -716,6 +722,7 @@ inline void schrijfHalte(JsonObject o, const HalteCfg &c) {
   o["naam"] = c.naam;
   o["aankomstPunt"] = c.aankomstPunt;
   schrijfLeds(o["stopLeds"].to<JsonArray>(), c.stopLeds);
+  schrijfLeds(o["wachtLeds"].to<JsonArray>(), c.wachtLeds);
   o["stopCode"] = c.stopCode + 1;
   o["rijdCode"] = c.rijdCode + 1;
   o["wachtS"] = c.wachtS;
@@ -765,6 +772,8 @@ inline void schrijfInstellingen(JsonObject o, const Instellingen &i, bool metWac
   for (int k = 0; k < N_PRINTEN; k++) ps.add(printSoortId(i.printSoort[k]));
   o["irLedActiefLaag"] = i.irLedActiefLaag;
   o["irDuty"] = i.irDuty;
+  o["servoRemGroepen"] = i.servoRemGroepen;
+  o["servoMaxBewegend"] = i.servoMaxBewegend;
 }
 
 inline std::string configNaarJson(const Config &c) {

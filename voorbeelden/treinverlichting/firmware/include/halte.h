@@ -1,4 +1,4 @@
-// De bushalte (firmware 2.0.0), zonder hardware: een toestandsmachine per halte. Testen: test/test_halte.
+// De bushalte (firmware 2.0.0; 2.2.0: wachtLeds), zonder hardware: een toestandsmachine per halte. Testen: test/test_halte.
 //
 // Fasen:
 //   vrij      wacht op een bus: een melding op het aankomstpunt (code, hallsensor of lichtsluis; de bus mag onbekend zijn)
@@ -20,7 +20,19 @@
 //       telt niet als tweede bus.
 //   F12 maxVerkeerS (standaard 60, 0 = geen grens): blijft een vrij-ingang langer bezet, dan toch groen, met een
 //       melding (teLang). Regel voor vrijMinS: minstens de afstand van de sensor tot de invoeging / traagste snelheid.
-// Codesoort "continu" (F1): de Baan laat de stopleds branden zolang de halte de bus vasthoudt (houdt()).
+// Firmware 2.2.0 (Fable 5.2, tweede ronde):
+//   FN1 een IR-led zendt één code tegelijk. In 2.1.0 ging de stopcode voor de wachtende bus via dezelfde stopLeds als
+//       de rijdcode voor de eerste: de eerste bus kreeg in groen geen rijdcode en bleef staan. Nu heeft elke halte een
+//       tweede masker wachtLeds (de IR-led vóór de halte, waar de tweede bus stilstaat):
+//         - de stopcode voor de wachtende gaat ALLEEN via wachtLeds (elke 400 ms met herhalen);
+//         - de eerste bus krijgt in groen ALTIJD zijn rijdcode via stopLeds (3 keer), wat er ook wacht;
+//         - is de halte weer vrij, dan krijgt de wachtende zijn rijdcode via wachtLeds (3 keer) en begint de halte
+//           met hem (stopcode via stopLeds: hij rijdt van de wachtled naar de stopled en stopt daar);
+//         - wachtLeds leeg: de tweede bus wordt niet tegengehouden en niet onthouden (zoals 2.0.0).
+//       wachtLeds en stopLeds mogen geen led delen (de API weigert het).
+//   FN7 na het opstarten gaat de rijdcode 3 keer (om de 0,5 s) via stopLeds en wachtLeds, zoals in groen.
+// Codesoort "continu" (F1): de Baan laat de stopleds branden zolang de halte de eerste bus vasthoudt (houdtStop) en
+// de wachtleds zolang er een bus wacht (houdtWacht).
 // Alles wat naar buiten gaat (IR, lichtgroepen, servo, vertrek) loopt via HalteUit (de Baan; in de tests een nep).
 #pragma once
 #include <stdint.h>
@@ -37,6 +49,7 @@ constexpr uint32_t HALTE_VASTHOUD_MS = 400; // F2: stopcode herhalen
 constexpr uint16_t HALTE_MAX_VERKEER_STD_S = 60;
 constexpr int HALTE_RIJD_KEER = 3;
 constexpr uint16_t HALTE_MAX_S = 3600;
+constexpr uint32_t HALTE_CONTINU_MARGE_MS = 10000; // EN1: marge op de grens voor een continu-stopled
 
 enum HalteFase : uint8_t { FASE_VRIJ, FASE_AANKOMST, FASE_STOP, FASE_WACHTEN, FASE_VERKEER, FASE_GROEN, FASE_VERTREK, N_FASEN };
 inline const char *halteFaseId(int f) {
@@ -49,6 +62,7 @@ struct HalteCfg {
   char naam[NAAM_LEN] = {0};
   char aankomstPunt[PUNT_ID_LEN] = {0};
   uint8_t stopLeds = 0;        // bit k = IR-led k+1
+  uint8_t wachtLeds = 0;       // FN1: de IR-led(s) vóór de halte voor een tweede bus; 0 = de tweede bus niet tegenhouden
   int8_t stopCode = -1, rijdCode = -1; // IR-code (index), -1 = geen
   uint16_t wachtS = 12;
   IngangMasker vrijIngangen = 0;
@@ -77,10 +91,16 @@ class Haltes {
     uint32_t volgendeIr = 0; // stop/groen: wanneer de code opnieuw
     uint8_t rijdKeer = 0;
     uint32_t vrijSinds = 0;  // verkeer: sinds wanneer alles vrij is
-    uint32_t volgendeStop = 0; // F2/F3: wanneer de stopcode opnieuw
+    uint32_t volgendeStop = 0; // F2: wanneer de stopcode opnieuw (stopLeds)
+    uint32_t volgendeWacht = 0; // FN1: wanneer de stopcode voor de wachtende opnieuw (wachtLeds)
     bool heeftWachtend = false; // F3: een tweede bus wacht
     int8_t wachtendBus = -1;
     bool teLang = false;     // F12: het verkeer bleef te lang bezet (toch groen gegeven)
+    uint8_t opstartKeer = 0;   // FN7: na het opstarten nog zoveel keer de rijdcode (in vrij)
+    uint8_t wachtRijdKeer = 0; // FN1: de vorige wachtende rijdt door: nog zoveel keer de rijdcode via wachtLeds
+    uint32_t volgendeWachtRijd = 0;
+    uint32_t vastSinds = 0;    // EN1: begin van aankomst (de eerste bus wordt vastgehouden)
+    uint32_t wachtBegin = 0;   // EN1: sinds wanneer de tweede bus wacht
   };
   Toestand t[MAX_HALTES];
 
@@ -91,8 +111,15 @@ class Haltes {
     t[h].sinds = nu;
     if (!c.gebruikt) return;
     licht(c, u, true, false, false, nu);
-    if (c.rijdCode >= 0) u.halteIr(c.rijdCode, c.stopLeds, nu); // F2: een bus die nog vastgehouden werd, mag rijden
+    if (c.rijdCode < 0) return;
+    // F2/FN7: een bus die nog vastgehouden werd (ook aan de wachtled), mag rijden: 3 keer, om de 0,5 s
+    u.halteIr(c.rijdCode, opstartLeds(c), nu);
+    t[h].opstartKeer = HALTE_RIJD_KEER - 1;
+    t[h].volgendeIr = nu + HALTE_HERHAAL_MS;
   }
+
+  /** de leds voor de rijdcode na het opstarten: stopLeds en wachtLeds (stopLeds leeg = alle) */
+  static uint8_t opstartLeds(const HalteCfg &c) { return c.stopLeds ? (uint8_t)(c.stopLeds | c.wachtLeds) : 0; }
 
   /** een melding bij punt id (bus = index of -1): start de haltes met dat aankomstpunt die vrij zijn; een bezette
    *  halte onthoudt een tweede bus (F3) */
@@ -109,17 +136,40 @@ class Haltes {
       if (bus >= 0 && bus == x.bus) continue;              // de bus die er al staat
       if (bus < 0 && x.fase <= FASE_VERKEER) continue;      // onbekend terwijl een bus staat: waarschijnlijk dezelfde
       if (x.heeftWachtend) continue;                        // hoogstens één wachtende
+      if (!c.wachtLeds) continue;                           // FN1: geen wachtled: niet tegenhouden (zoals 2.0.0)
       x.heeftWachtend = true;
       x.wachtendBus = (int8_t)bus;
-      u.halteIr(c.stopCode, c.stopLeds, nu);
-      x.volgendeStop = nu + HALTE_VASTHOUD_MS;
+      x.wachtRijdKeer = 0;
+      x.wachtBegin = nu;
+      u.halteIr(c.stopCode, c.wachtLeds, nu); // FN1: alleen via de wachtled
+      x.volgendeWacht = nu + HALTE_VASTHOUD_MS;
     }
   }
 
-  /** houdt de halte nu een bus vast (aankomst tot en met verkeer, of een wachtende bus)? */
-  bool houdt(int h) const {
+  /** houdt de halte de eerste bus vast (aankomst tot en met verkeer)? dan de stopcode via stopLeds */
+  bool houdtStop(int h) const { return t[h].fase >= FASE_AANKOMST && t[h].fase <= FASE_VERKEER; }
+  /** wacht er een tweede bus aan de wachtled? dan de stopcode via wachtLeds (FN1) */
+  bool houdtWacht(int h) const { return t[h].fase != FASE_VRIJ && t[h].heeftWachtend; }
+  /** houdt de halte nu een bus vast (de eerste of een wachtende)? */
+  bool houdt(int h) const { return houdtStop(h) || houdtWacht(h); }
+
+  /** EN1: hoe lang een continu-stopled hoogstens brandt: aankomst + stop + wachtS + maxVerkeerS (0 = geen grens: dan
+   *  60 s) + 10 s marge; aan de wachtled ook nog groen en oranje van de bus ervoor. Normaal komt groen eerder; alleen
+   *  bij "geen grens" of een fout gaat de led op deze grens uit (de weerstand mag niet blijvend 0,95 W krijgen). */
+  static uint32_t continuGrensMs(const HalteCfg &c, bool wacht) {
+    uint32_t verkeer = (uint32_t)(c.maxVerkeerS ? c.maxVerkeerS : HALTE_MAX_VERKEER_STD_S) * 1000u;
+    uint32_t g = HALTE_AANKOMST_MS + HALTE_STOP_MS + (uint32_t)c.wachtS * 1000u + verkeer + HALTE_CONTINU_MARGE_MS;
+    return wacht ? g + (uint32_t)c.groenS * 1000u + HALTE_ORANJE_MS : g;
+  }
+  /** EN1: mag de continu-stopled (wacht = de wachtled) nu nog branden? */
+  bool continuMag(int h, const HalteCfg &c, uint32_t nu, bool wacht) const {
     const Toestand &x = t[h];
-    return (x.fase >= FASE_AANKOMST && x.fase <= FASE_VERKEER) || (x.fase != FASE_VRIJ && x.heeftWachtend);
+    return wacht ? houdtWacht(h) && nu - x.wachtBegin < continuGrensMs(c, true)
+                 : houdtStop(h) && nu - x.vastSinds < continuGrensMs(c, false);
+  }
+  /** EN1: hield de halte langer vast dan een continu-stopled mag branden? */
+  bool continuTeLang(int h, const HalteCfg &c, uint32_t nu) const {
+    return (houdtStop(h) && !continuMag(h, c, nu, false)) || (houdtWacht(h) && !continuMag(h, c, nu, true));
   }
 
   /** elke tick; actief = de ingangen die nu actief zijn */
@@ -129,14 +179,32 @@ class Haltes {
       Toestand &x = t[h];
       if (!c.gebruikt) { x.fase = FASE_VRIJ; continue; }
       uint32_t in = nu - x.sinds;
-      // F2/F3: de stopcode herhalen zolang de halte een bus vasthoudt
-      bool vasthouden = (x.fase >= FASE_AANKOMST && x.fase <= FASE_VERKEER) || (x.fase != FASE_VRIJ && x.heeftWachtend);
-      if (c.herhalen && vasthouden && voorbij(nu, x.volgendeStop)) {
+      // F2: de stopcode herhalen zolang de halte de eerste bus vasthoudt (via stopLeds)
+      if (c.herhalen && houdtStop(h) && voorbij(nu, x.volgendeStop)) {
         u.halteIr(c.stopCode, c.stopLeds, nu);
         x.volgendeStop += HALTE_VASTHOUD_MS;
         if (voorbij(nu, x.volgendeStop)) x.volgendeStop = nu + HALTE_VASTHOUD_MS; // te ver achter: niet inhalen
       }
+      // FN1: los daarvan de stopcode voor de wachtende bus, via wachtLeds
+      if (c.herhalen && houdtWacht(h) && voorbij(nu, x.volgendeWacht)) {
+        u.halteIr(c.stopCode, c.wachtLeds, nu);
+        x.volgendeWacht += HALTE_VASTHOUD_MS;
+        if (voorbij(nu, x.volgendeWacht)) x.volgendeWacht = nu + HALTE_VASTHOUD_MS;
+      }
+      // FN1: de vorige wachtende rijdt van de wachtled naar de stopled (rijdcode nog 2 keer via wachtLeds)
+      if (x.wachtRijdKeer && voorbij(nu, x.volgendeWachtRijd)) {
+        u.halteIr(c.rijdCode, c.wachtLeds, nu);
+        x.wachtRijdKeer--;
+        x.volgendeWachtRijd += HALTE_HERHAAL_MS;
+      }
       switch (x.fase) {
+        case FASE_VRIJ: // FN7: na het opstarten de rijdcode nog 2 keer
+          if (x.opstartKeer && voorbij(nu, x.volgendeIr)) {
+            u.halteIr(c.rijdCode, opstartLeds(c), nu);
+            x.opstartKeer--;
+            x.volgendeIr += HALTE_HERHAAL_MS;
+          }
+          break;
         case FASE_AANKOMST:
           if (in >= HALTE_AANKOMST_MS) naarFase(h, c, FASE_STOP, u, nu);
           break;
@@ -160,7 +228,7 @@ class Haltes {
           }
           break;
         case FASE_GROEN:
-          if (!x.heeftWachtend && x.rijdKeer < HALTE_RIJD_KEER && voorbij(nu, x.volgendeIr)) {
+          if (x.rijdKeer < HALTE_RIJD_KEER && voorbij(nu, x.volgendeIr)) { // FN1: ook als er een bus wacht
             u.halteIr(c.rijdCode, c.stopLeds, nu);
             x.rijdKeer++;
             x.volgendeIr += HALTE_HERHAAL_MS;
@@ -178,6 +246,12 @@ class Haltes {
               x.heeftWachtend = false;
               x.bus = x.wachtendBus;
               x.wachtendBus = -1;
+              // FN1: hij staat aan de wachtled: daar de rijdcode (3 keer), dan stopt hij aan de stopled
+              if (c.rijdCode >= 0) {
+                u.halteIr(c.rijdCode, c.wachtLeds, nu);
+                x.wachtRijdKeer = HALTE_RIJD_KEER - 1;
+                x.volgendeWachtRijd = nu + HALTE_HERHAAL_MS;
+              }
               naarFase(h, c, FASE_AANKOMST, u, nu);
             }
           }
@@ -225,6 +299,8 @@ class Haltes {
     x.sinds = nu;
     switch (f) {
       case FASE_AANKOMST:
+        x.opstartKeer = 0; // FN7: een bus komt aan: geen rijdcodes van het opstarten meer
+        x.vastSinds = nu;
         licht(c, u, true, false, false, nu);
         u.halteIr(c.stopCode, c.stopLeds, nu);
         x.volgendeStop = nu + HALTE_VASTHOUD_MS;
@@ -240,7 +316,7 @@ class Haltes {
         break;
       case FASE_GROEN:
         licht(c, u, false, false, true, nu);
-        if (!x.heeftWachtend) u.halteIr(c.rijdCode, c.stopLeds, nu);
+        u.halteIr(c.rijdCode, c.stopLeds, nu); // FN1: altijd, ook als er een bus wacht (die zit aan wachtLeds)
         x.rijdKeer = 1;
         x.volgendeIr = nu + HALTE_HERHAAL_MS;
         if (c.servo >= 0) u.halteServo(c.servo, true, nu);

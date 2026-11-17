@@ -60,6 +60,21 @@
 //   POST /api/servo            "pulsUitS": 0 (altijd puls) of 1..10
 //   POST /api/punt             "alleenBus": true|false
 //   POST /api/halte            "herhalen": true|false, "maxVerkeerS": 0..3600 (0 = geen grens)
+// Firmware 2.2.0 erbij (Fable 5.2, tweede ronde; zie README, "Nieuw in 2.2.0"):
+//   POST /api/halte            "wachtLeds": [4] (FN1: de IR-led vóór de halte voor een tweede bus; [] = de tweede bus
+//                              niet tegenhouden). Moet een andere led zijn dan stopLeds (400).
+//   POST /api/instellingen     {"servoRemGroepen":0..N} (FN3: 0 = uit, standaard; anders boven zoveel groepen aan één
+//                              servo tegelijk), {"servoMaxBewegend":1..4} (EN3, standaard 2)
+//   GET  /api/staat            "servoWachtLang": nr van een servo die al > 5 s wacht (0 = geen)
+//                              "ir": {"continu": true als er een code "continu" is, "continuWaarschuwing": "..."};
+//                              per halte "continu": true (stopcode continu), "continuTeLang": true (EN1: de led ging
+//                              op haar tijdsgrens uit)
+//   GET  /api/staat            "ir": {"rijVol": n} (FN7: codes van de haltes die niet in de rij van 8 pasten);
+//                              "nietVerzonden" telt nu ook codes waarvoor de IR-leds niet gekozen konden worden
+//   GET  /api/staat            "ontvangerLaag": [false,true,false,false] (TN3: het niveau van ontvangerpin 1..4 nu;
+//                              een TCRT5000/fototransistor op GPIO11 = ontvanger 2: laag = IR-licht, ook zonder draaggolf)
+//   POST /api/ir, /api/halte   met een code "continu" (bewaren, zenden, als stopcode): {"ok":true,"nr":n,
+//                              "waarschuwing":"... 470 Ω ..."} (EN1)
 //   GET  /api/zelftest         (main.cpp, apiZelftest) I2C-scan, PCA9685 teruglezen, MCP23017, LittleFS, stapels, wifi
 //   Toegang (main.cpp, toegang()): elke POST/PUT alleen van de hotspot (192.168.4.x) of met de kop
 //   X-Treinbaan-Wachtwoord = het wifi-wachtwoord (anders 401); een Origin die niet de doos zelf is: 403.
@@ -104,6 +119,18 @@ inline Antwoord foutN(const char *formaat, int n) {
 inline Antwoord goed(int nr = 0) {
   Antwoord a;
   a.json = nr > 0 ? "{\"ok\":true,\"nr\":" + std::to_string(nr) + "}" : "{\"ok\":true}";
+  return a;
+}
+
+/** goed, met een waarschuwing die het dashboard toont (EN1: codesoort continu) */
+inline Antwoord goedMet(int nr, const char *waarschuwing) {
+  if (!waarschuwing || !waarschuwing[0]) return goed(nr);
+  Antwoord a;
+  JsonDocument d;
+  d["ok"] = true;
+  if (nr > 0) d["nr"] = nr;
+  d["waarschuwing"] = waarschuwing;
+  serializeJson(d, a.json);
   return a;
 }
 
@@ -180,11 +207,18 @@ inline void staatErbij(JsonObject o, const Baan &b, uint32_t nu, bool kort) {
     // F3: de wachtende bus (nummer), 0 = een onbekende bus wacht, -1 = niemand
     x["wachtend"] = b.haltes.t[i].heeftWachtend ? b.haltes.t[i].wachtendBus + 1 : -1;
     if (b.haltes.t[i].teLang) x["teLang"] = true;
+    if (b.continuHalte(i)) {
+      x["continu"] = true; // EN1: de stopcode is continu (470 Ω!)
+      if (b.haltes.continuTeLang(i, b.cfg.halte[i], nu)) x["continuTeLang"] = true;
+    }
     if (!kort) schrijfHalte(x, b.cfg.halte[i]);
   }
-  o["servoWachtLampen"] = b.servos.geremd && b.servos.wachtend() > 0; // E14
+  o["servoWachtLampen"] = b.servos.geremd && b.servos.wachtend() > 0; // E14 (2.2.0: dan één tegelijk)
+  o["servoWachtLang"] = b.servos.langWachtend(nu) + 1;                // FN3: servo die > 5 s wacht (0 = geen)
   JsonArray ob = o["ontvangerBezet"].to<JsonArray>();                  // E2: lang laag op ontvanger 1..4
   for (int i = 0; i < IR_ONTVANGERS; i++) ob.add(b.niveau[i].bezet);
+  JsonArray ol = o["ontvangerLaag"].to<JsonArray>(); // TN3: het niveau nu (ontvanger 1 = -B1 wordt niet gelezen)
+  for (int i = 0; i < IR_ONTVANGERS; i++) ol.add(b.ontvangerLaag[i]);
   JsonObject zt = o["zelftest"].to<JsonObject>(); // E4
   zt["loopt"] = b.zelftest.loopt;
   zt["ok"] = b.zelftest.ok;
@@ -195,7 +229,10 @@ inline void staatErbij(JsonObject o, const Baan &b, uint32_t nu, bool kort) {
   zt["ongemoduleerd"] = b.zelftest.ongemoduleerd;
   JsonObject ir = o["ir"].to<JsonObject>(); // F5
   ir["nietVerzonden"] = b.irNietVerzonden;
+  ir["rijVol"] = b.irRijVol; // FN7: codes van de haltes die niet in de rij pasten
   ir["laatsteFout"] = b.irLaatsteFout;
+  ir["continu"] = b.continuGebruikt();                // EN1: er is een code "continu" bewaard
+  ir["continuWaarschuwing"] = IR_CONTINU_WAARSCHUWING; // de tekst voor het dashboard
   if (kort) return;
   JsonArray codes = ir["codes"].to<JsonArray>();
   for (int i = 0; i < MAX_IR_CODES; i++) {
@@ -544,6 +581,13 @@ inline Antwoord apiInstellingen(Baan &b, const char *body, size_t len, uint32_t 
   JsonVariantConst du = r["irDuty"];
   if (!du.isNull() && (!du.is<int>() || (du.as<int>() != 33 && du.as<int>() != 50)))
     return fout("irDuty: 33 of 50 (% van de periode dat de IR-led aan is).");
+  auto bereik = [](JsonVariantConst v, long lo, long hi) {
+    return v.isNull() || (v.is<long>() && v.as<long>() >= lo && v.as<long>() <= hi);
+  };
+  if (!bereik(r["servoRemGroepen"], 0, N_GROEPEN))
+    return foutN("servoRemGroepen: 0 (uit) tot %d lichtgroepen.", N_GROEPEN);
+  if (!bereik(r["servoMaxBewegend"], 1, SERVO_MAX_BEWEGEND))
+    return fout("servoMaxBewegend: 1 tot 4 servo's tegelijk (2 past binnen de 3 A van de voeding).");
   for (int p = 0; p < nPs; p++) b.zetPrintSoort(p, soorten[p]);
   char oud[64], oudSsid[33], oudThuis[64];
   strcpy(oud, b.cfg.inst.wachtwoord);
@@ -700,14 +744,14 @@ inline Antwoord apiIr(Baan &b, const char *body, size_t len, uint32_t nu) {
     }
     b.cfg.ir[plaats] = nieuw;
     b.cfgRev++;
-    return goed(plaats + 1);
+    return goedMet(plaats + 1, soort == IR_CONTINU ? IR_CONTINU_WAARSCHUWING : ""); // EN1
   }
   if (strcmp(actie, "zenden") == 0) {
     if (!bestaat) return fout("Deze IR-code bestaat niet.");
     uint64_t m;
     if (!lijstMasker(d["leds"], IR_LEDS, m)) return fout("IR-leds: een lijst met nummers 1 tot 8.");
     if (!b.irZenden(i, (uint8_t)m)) return fout("De doos is nog bezig met zenden. Probeer zo dadelijk opnieuw.");
-    return goed(i + 1);
+    return goedMet(i + 1, b.cfg.ir[i].soort == IR_CONTINU ? IR_CONTINU_WAARSCHUWING : ""); // EN1
   }
   if (strcmp(actie, "wissen") == 0) {
     if (!bestaat) return fout("Deze IR-code bestaat niet.");
@@ -890,8 +934,16 @@ inline Antwoord apiHalte(Baan &b, const char *body, size_t len, uint32_t nu) {
   JsonVariantConst ap = d["aankomstPunt"];
   if (!ap.isNull() && (!ap.is<const char *>() || (ap.as<const char *>()[0] && !puntIdGeldig(ap.as<const char *>()))))
     return fout("Aankomstpunt: de id van een punt uit het plan (bv. \"P5\").");
-  uint64_t m;
-  if (!lijstMasker(d["stopLeds"], IR_LEDS, m)) return fout("Stopleds: een lijst met IR-leds 1 tot 8.");
+  uint64_t m, ms, mw;
+  if (!lijstMasker(d["stopLeds"], IR_LEDS, ms)) return fout("Stopleds: een lijst met IR-leds 1 tot 8.");
+  if (!lijstMasker(d["wachtLeds"], IR_LEDS, mw)) return fout("Wachtleds: een lijst met IR-leds 1 tot 8 (leeg = geen).");
+  {
+    // FN1: de wachtled moet een andere led zijn dan de stopled (stopLeds leeg = alle leds)
+    uint8_t stop = d["stopLeds"].isNull() && i >= 0 ? b.cfg.halte[i].stopLeds : (uint8_t)ms;
+    uint8_t wacht = d["wachtLeds"].isNull() && i >= 0 ? b.cfg.halte[i].wachtLeds : (uint8_t)mw;
+    if (wacht && !stop) return fout("Met een wachtled moet je de stopled kiezen (niets gekozen = alle leds, ook de wachtled).");
+    if (wacht & stop) return fout("Wachtled en stopled moeten verschillende IR-leds zijn: één led zendt één code tegelijk.");
+  }
   if (!lijstMasker(d["vrijIngangen"], N_INGANGEN, m)) return foutN("Vrije ingangen: een lijst met ingangen 1 tot %d.", N_INGANGEN);
   if (!verwijzingOk(d["stopCode"], MAX_IR_CODES, irBestaat, b) || !verwijzingOk(d["rijdCode"], MAX_IR_CODES, irBestaat, b))
     return fout("Stop- of rijdcode: het nummer van een bewaarde IR-code (0 = geen).");
@@ -913,7 +965,7 @@ inline Antwoord apiHalte(Baan &b, const char *body, size_t len, uint32_t nu) {
   lz.halte(d.as<JsonVariantConst>(), b.cfg.halte[i], i);
   b.haltesOpnieuw(nu, i);
   b.cfgRev++;
-  return goed(i + 1);
+  return goedMet(i + 1, b.continuHalte(i) ? IR_CONTINU_WAARSCHUWING : ""); // EN1
 }
 
 // ---------------------------------------------------------------------------------------------------- kastje
@@ -1005,26 +1057,34 @@ inline uint32_t sindsVan(const char *t) {
 /** mag dit verzoek iets wijzigen? 0 = ja, 401 = wachtwoord nodig, 403 = een andere webpagina (Origin).
  *  clientIp: het IP van de client ("192.168.4.23"); kop: X-Treinbaan-Wachtwoord; origin/host: de koppen Origin en Host;
  *  thuisIp: het IP van de doos op het thuisnet ("" = niet verbonden). Regels (Fable 5.2, F6):
- *    - een Origin die niet de doos zelf is (http://192.168.4.1, http://treinbaan.local, http://<thuisIp> of http://<Host>)
+ *    - een Origin die niet de doos zelf is (http://192.168.4.1, http://treinbaan.local of http://<thuisIp>)
  *      = een formulier of script van een andere pagina: altijd 403;
+ *    - FN5 (2.2.0): ook de kop Host moet de doos zelf zijn (192.168.4.1, treinbaan.local of het thuis-IP; leeg mag).
+ *      Bij DNS-rebinding zijn Origin en Host allebei de naam van de aanvaller: 2.1.0 aanvaardde "Origin = Host";
  *    - van de eigen hotspot (192.168.4.x): goed;
  *    - anders (thuisnet) alleen met het wifi-wachtwoord in de kop. */
 inline int toegang(const char *clientIp, const char *kop, const char *origin, const char *host, const char *thuisIp,
                    const char *wachtwoord) {
-  if (origin && origin[0]) {
-    auto is = [origin](const char *h) {
-      if (!h || !h[0]) return false;
-      return strncmp(origin, "http://", 7) == 0 && strcmp(origin + 7, h) == 0;
-    };
-    if (!is("192.168.4.1") && !is("treinbaan.local") && !is(thuisIp) && !is(host)) return 403;
-  }
+  // FN5: de naam van de doos zelf, eventueel met ":80"
+  auto eigen = [thuisIp](const char *h) {
+    if (!h || !h[0]) return false;
+    for (const char *n : {"192.168.4.1", "treinbaan.local", thuisIp}) {
+      if (!n || !n[0]) continue;
+      size_t k = strlen(n);
+      if (strncmp(h, n, k) == 0 && (h[k] == 0 || strcmp(h + k, ":80") == 0)) return true;
+    }
+    return false;
+  };
+  if (host && host[0] && !eigen(host)) return 403;
+  if (origin && origin[0] && (strncmp(origin, "http://", 7) != 0 || !eigen(origin + 7))) return 403;
   if (clientIp && strncmp(clientIp, "192.168.4.", 10) == 0) return 0;
   if (kop && wachtwoord && wachtwoord[0] && strcmp(kop, wachtwoord) == 0) return 0;
   return 401;
 }
 
 inline Antwoord geweigerd(int code) {
-  Antwoord a = fout(code == 403 ? "Geweigerd: dit verzoek komt van een andere webpagina."
+  Antwoord a = fout(code == 403 ? "Geweigerd: dit verzoek komt van een andere webpagina (of niet via 192.168.4.1, "
+                                  "treinbaan.local of het IP van de doos)."
                                 : "Wachtwoord nodig: vul in het dashboard het wifi-wachtwoord van de doos in (alleen op het thuisnet nodig).");
   a.code = code;
   return a;

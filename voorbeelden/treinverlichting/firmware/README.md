@@ -2,11 +2,55 @@
 
 ESP32-S3-DevKitC-1 v1.1 (N16R8, twee micro-USB-poorten "UART" en "USB") met een PCA9685 (16 lichtgroepen, uit te
 breiden tot 32) en 16 ingangen rechtstreeks op GPIO's. De doos maakt een eigen wifi-netwerk met een dashboard voor gsm
-en tablet, en meldt zich als je dat wilt ook aan op de wifi van het huis. Firmware **2.1.0** (het advies van Fable 5.2
-verwerkt, zie hieronder); sinds 2.0.0: **IR** zenden,
+en tablet, en meldt zich als je dat wilt ook aan op de wifi van het huis. Firmware **2.2.0** (de tweede ronde van het
+advies van Fable 5.2 verwerkt, zie hieronder); sinds 2.0.0: **IR** zenden,
 leren en ontvangen, **servo's** (wissels, slagbomen, armseinen), **NPN of PNP** per ingang, tot **37 ingangen**,
 **bussen** volgen langs meetpunten, de **bushalte**, **geluidskastjes** en een **tv-pagina**. De groepen zijn sinds
 1.3.0 alleen **aan of uit**, en de ingangen lezen ook de korte pulsen van **hallsensoren**.
+
+## Nieuw in 2.2.0 (2026-11-17, advies Fable 5.2, tweede ronde)
+
+Nummers = de punten van `../docs/Advies-Fable-5.2-v7.md`. Elke P1/P2 heeft een test die faalt zonder de fix (de fix
+tijdelijk teruggedraaid en zo nagekeken). Het configuratiebestand blijft versie 4: de nieuwe velden zijn optioneel.
+
+- **EN1 Codesoort "continu" alleen met 470 Ω (0,5 W) in plaats van 120 Ω** (Berekeningen §9). Het dashboard zegt het
+  bij de codes, vraagt een bevestiging bij "+ Code continu" en bij Zenden, en toont het in de halte als de stopcode
+  continu is. De API geeft `"waarschuwing"` terug bij bewaren en zenden van een continu-code en bij een halte met een
+  continu-stopcode; `/api/staat` heeft `"ir":{"continu":true,"continuWaarschuwing":".."}` en per halte `"continu"`.
+  Een continu-stopled heeft een **tijdsgrens**: aankomst + stop + `wachtS` + `maxVerkeerS` (0 = 60 s) + 10 s (aan de
+  wachtled ook nog groen en oranje); daarna gaat ze uit, met een melding en `"continuTeLang":true` per halte.
+- **EN3 `servoMaxBewegend`** (instelling 1..4, standaard **2**): 2 x 1,2 A blijft binnen de 3 A van de XL4015.
+- **FN1 Tweede bus: `wachtLeds`** per halte (lijst zoals `stopLeds`): de IR-led vóór de halte. De stopcode voor de
+  wachtende bus gaat **alleen** via de wachtled; de eerste bus krijgt in groen **altijd** zijn rijdcode via de stopled
+  (in 2.1.0 bleef hij staan). Is de halte vrij, dan krijgt de wachtende 3 keer de rijdcode via de wachtled en stopt hij
+  aan de stopled. `wachtLeds` leeg = de tweede bus niet tegenhouden (zoals 2.0.0). Wachtled en stopled mogen geen led
+  delen (400); met een wachtled moet de stopled gekozen zijn (leeg = alle leds). Test vanuit de bus (QN2): een nep-bus
+  aan elke led die stopt op "stop" en rijdt op "rij", met wat elke led in elke fase zond.
+- **FN2 PCA9685 `begin()`**: MODE1 eerst **0x30** (slapen met AI) in beide drivers; anders landden de 4 bytes "alles
+  uit" in één register en brandden na een warme reset de oude groepen weer. **QN1**: het model (`test/nep/nepwire.h`)
+  hoogt alleen op met AI, kopieert ALL_LED naar de 16 kanalen, kan een NACK halverwege nabootsen en heeft de buffer van
+  Wire (128 bytes); `i2cSchrijf` weigert een overdracht die niet past.
+- **FN3 De servo-rem is standaard uit** (`servoRemGroepen`, 0 = uit, anders 1..N groepen). Staat ze aan en branden er
+  meer groepen, dan beweegt er **één servo tegelijk** in plaats van geen. Een servo die langer dan 5 s wacht: een
+  melding bovenaan het dashboard en `"servoWachtLang"` (nr) in `/api/staat`.
+- **FN4 Busherstel**: eerst kijken of SCL laag blijft (dan "I2C-bus kortgesloten" in de melding, elke 2 s opnieuw), de
+  STOP netjes (SCL laag, SDA laag, SCL hoog, SDA hoog).
+- **FN5 Toegang**: ook de kop `Host` moet de doos zijn (192.168.4.1, treinbaan.local of het thuis-IP, eventueel met
+  `:80`): tegen DNS-rebinding. De noodpagina `/update` zegt dat ze alleen via de hotspot Treinbaan werkt.
+- **FN6 Bewaren en lange IR-codes**: zolang LittleFS schrijft (instellingen, stand, uploads), wacht een code van meer
+  dan 144 RMT-items in KIEZEN; een lange code die al loopt, laat het schrijven eerst eindigen (hoogstens 1,5 s).
+- **FN7** Mislukt het kiezen van de IR-leds (MCP23017), dan wordt de code niet verzonden en telt `nietVerzonden`; een
+  volle rij van 8 telt in `"ir":{"rijVol":n}`; na het opstarten zendt elke halte haar rijdcode **3 keer** (via stopled
+  en wachtled).
+- **TN3 Zelftest**: -B1 (TSMP58000) ziet licht zonder draaggolf niet: de teksten zeggen dat nu. Gemoduleerd of continu:
+  leert de doos de code van de stopled, dan gemoduleerd; leert ze niets maar ziet een gsm-camera licht: continu of een
+  draaggolf buiten 20-60 kHz. Zeker weten: een TCRT5000 of fototransistor op GPIO11; het niveau staat live in het
+  dashboard (`"ontvangerLaag"` in `/api/staat`).
+- **VN1 Tv**: een melding zonder buscode op een gedeelde strook wordt geen nieuwe auto als er een bus "over" het punt
+  rijdt; die grens is nu de helft van de afstand van het vorige meetpunt van die bus tot het punt (minimum 4 m), en
+  een bus die volgens de doos nog naar dit punt rijdt, telt altijd. De beslissing staat in `ui/tv-logica.js`, getest
+  met `node --test ui/test/*.test.mjs` (7 tests). Met de nep-doos (gedeelde strook, bussen die na IRS1 35 % sneller
+  rijden): 2.1.0 maakte van 5 busmeldingen 2 spookauto's, 2.2.0 geen.
 
 ## Nieuw in 2.1.0 (2026-11-16, advies Fable 5.2 op versie 6)
 
@@ -74,6 +118,7 @@ hardware" blijft leeg tot het op TRN-20 gemeten is.
 |---|---|---|
 | Lichtgroepen aan/uit, effecten, scènes, functies, dag/nacht | ja (test_licht, test_functies, test_api) | |
 | PCA9685: alleen gewijzigde kanalen, teruglezen, na een dip opnieuw (E6) | ja, model (test_hw) | |
+| PCA9685: alles uit na een warme reset (FN2), NACK halverwege, buffer 128 bytes (QN1) | ja, strenger model (test_hw) | |
 | Polariteit -Q1 en -Q4, OLATA eerst uit (E1) | ja, model van -Q4 (test_hw) | |
 | Toestand na inschakelen met actief-lage modules (E5) | nee (alleen hardware) | |
 | Ingangen: contact, puls (1-10 ms), teller, gedrag | ja (test_ingangen) | |
@@ -86,9 +131,13 @@ hardware" blijft leeg tot het op TRN-20 gemeten is.
 | IR: leds kiezen, 2 ticks, zenden (F4), continu (F1) | ja, nep-hardware (test_irzend) | |
 | IR-zelftest via -B1 (E4) | ja, met een nagemaakt frame (test_irzend) | |
 | IR-driver -Q3/-Q4 op 38 kHz, duty 33/50 (E4) | nee (alleen hardware) | |
-| Servo's: snelheid, 4 tegelijk, één voor één bij opstarten (E8), wachten bij > 12 groepen (E14), puls uit (E19) | ja (test_servo) | |
+| Servo's: snelheid, 2 (1..4) tegelijk (EN3), één voor één bij opstarten (E8), rem standaard uit en dan één tegelijk, melding na 5 s (FN3), puls uit (E19) | ja (test_servo) | |
 | Servo-PCA9685 50 Hz, alleen gewijzigde kanalen | ja, model (test_hw) | |
-| Bushalte: fasen, herhalen (F2), rijdcode na herstart, tweede bus (F3), maxVerkeer (F12), continu (F1) | ja (test_halte) | |
+| Bushalte: fasen, herhalen (F2), rijdcode 3 keer na herstart (FN7), tweede bus met wachtled vanuit de bus (F3, FN1, QN2), maxVerkeer (F12), continu met tijdsgrens (F1, EN1) | ja (test_halte) | |
+| IR: lange code wacht op het bewaren (FN6), leds niet gekozen en volle rij geteld (FN7) | ja, nep-hardware (test_irzend) | |
+| Toegang: Host-kop (FN5) | ja, de regel (test_api) | |
+| Tv: bus over het punt met onzekerheid (VN1) | ja (node --test ui/test/*.test.mjs) en met de nep-doos | |
+| Busherstel: SCL kortgesloten (FN4) | nee (alleen hardware) | |
 | Of een bus van Ian met deze IR-codes stopt en rijdt (F1, F2) | nee (alleen op de baan) | |
 | Meetpunten, meldingen, rijtijd, alleenBus (V1), volgorde (V2) | ja (test_bus, test_interpolatie) | |
 | Instellingen bewaren en laden, versie 1-4 | ja (test_opslag) | |
@@ -154,12 +203,13 @@ hardware" blijft leeg tot het op TRN-20 gemeten is.
 | bouwen en flashen (eerste keer, via de micro-USB "UART") | `python -m platformio run -e doos -t upload` |
 | bijwerken zonder kabel | dashboard, Instellingen, "Firmware bijwerken": kies `.pio/build/doos/firmware.bin` (of `http://192.168.4.1/update`) |
 | seriële monitor | `python -m platformio device monitor -e doos` |
-| tests op de pc (159) | `python -m platformio test -e native` |
-| dezelfde tests met 32 groepen (159) | `python -m platformio test -e native32` |
+| tests op de pc (172) | `python -m platformio test -e native` |
+| dezelfde tests met 32 groepen (172) | `python -m platformio test -e native32` |
+| tests van de tv-logica (7, node, niets te installeren) | `node --test ui/test/*.test.mjs` |
 | proef op de pc | `python -m platformio run -e native`, dan `.pio/build/native/program.exe` |
 
-Flash en RAM (`doos`, 16 groepen, firmware 2.1.0, met dashboard en tv-pagina): 1 070 313 bytes van het app-slot van
-6 553 600 (16,3 %), RAM 126 248 van 327 680 bytes (38,5 %; de instellingen met 32 IR-codes van 256 tijden zitten in het
+Flash en RAM (`doos`, 16 groepen, firmware 2.2.0, met dashboard en tv-pagina): 1 079 941 bytes van het app-slot van
+6 553 600 (16,5 %), RAM 126 488 van 327 680 bytes (38,6 %; de instellingen met 32 IR-codes van 256 tijden zitten in het
 geheugen; de kopieën voor de JSON (F15) en de leerbuffer van 48 kB komen in PSRAM). De partitietabel
 `default_16MB.csv` heeft twee app-slots (app0 en app1): een update gaat naar het vrije slot; de oude firmware blijft tot
 de nieuwe **volledig en ongeschonden ontvangen** is (grootte, begin en controlesom). Een firmware die start en dan
@@ -292,7 +342,8 @@ aan 0 V, niets omkeren). Hoe Ian de print koopt en bedraadt: zie de README van d
 
 ## Bushalte
 
-Per halte (8): aankomstpunt, stopleds (IR-leds), stopcode en rijdcode (IR-codes), wachttijd, vrije ingangen (verkeer)
+Per halte (8): aankomstpunt, stopleds (IR-leds), wachtleds (2.2.0: de IR-led vóór de halte voor een tweede bus),
+stopcode en rijdcode (IR-codes), wachttijd, vrije ingangen (verkeer)
 met minimale vrije tijd, lichtgroepen rood/oranje/groen (gewone lichtgroepen), groentijd en eventueel een servo.
 
 | fase | duur | wat de doos doet |
@@ -305,12 +356,15 @@ met minimale vrije tijd, lichtgroepen rood/oranje/groen (gewone lichtgroepen), g
 | groen | groenS | groen aan, rood uit, rijdcode (3 keer om de 0,5 s), servo naar B; de rijtijd van de bus telt vanaf hier |
 | vertrek | 2 s | groen uit, oranje aan; daarna rood aan, oranje uit, servo naar A -> vrij |
 
-Na het opstarten (en na het bewaren van een halte) zendt elke halte één keer haar rijdcode (F2): een bus die tijdens
-een stroomonderbreking aan de halte stond, rijdt dan weer. Een **tweede bus** die aankomt terwijl de halte bezig is,
-wordt onthouden (één per halte, `"wachtend"` in `/api/staat`), krijgt meteen de stopcode (en met `herhalen` elke 0,4 s;
-de rijdcode valt dan weg), en de halte begint met hem zodra ze weer vrij is (F3). Een stopcode `"continu"` laat de
-stopleds branden van aankomst tot groen (F1). Regel voor `vrijMinS`: minstens de afstand van de sensor tot de invoeging
-gedeeld door de traagste snelheid.
+Na het opstarten (en na het bewaren van een halte) zendt elke halte 3 keer haar rijdcode, via de stopleds en de
+wachtleds (F2, FN7): een bus die tijdens een stroomonderbreking aan de halte stond, rijdt dan weer. Een **tweede bus**
+die aankomt terwijl de halte bezig is, wordt alleen tegengehouden als de halte **wachtleds** heeft (FN1): dan wordt hij
+onthouden (één per halte, `"wachtend"` in `/api/staat`) en krijgt hij de stopcode via de wachtleds (met `herhalen` elke
+0,4 s). De eerste bus krijgt in groen gewoon zijn rijdcode via de stopleds. Is de halte vrij, dan krijgt de wachtende 3
+keer de rijdcode via de wachtleds en begint de halte met hem (stopcode via de stopleds) (F3). Zonder wachtleds rijdt
+een tweede bus door (zoals 2.0.0). Een stopcode `"continu"` laat de stopleds branden van aankomst tot groen, en de
+wachtleds zolang er een bus wacht, met een tijdsgrens (F1, EN1); alleen met 470 Ω per led. Regel voor `vrijMinS`:
+minstens de afstand van de sensor tot de invoeging gedeeld door de traagste snelheid.
 
 ## Een hallsensor instellen
 
@@ -381,15 +435,15 @@ Alles JSON. Groepen, scènes, functies en ingangen hebben nummers vanaf 1.
 | `POST /api/update` | de nieuwe firmware als multipart-upload (veld `firmware`, bestand `firmware.bin`); antwoord `{"ok":true,"herstart":true}`, daarna herstart de doos. Een bestand dat niet met 0xE9 begint of niet in het vrije app-slot past, wordt geweigerd |
 | `GET /update` | een kleine eigen pagina om bij te werken (als het dashboard zelf stuk zou zijn) |
 | `POST /api/ingang` (2.0.0) | ook `{"nr":5,"polariteit":"pnp"}` en `{"groep":1,"polariteit":"pnp"}` (groep = print 1..5: 1-8, 9-16, 17-23, 25-31, 32-38); pnp op een print `"vcc"`: 400 |
-| `POST /api/instellingen` (2.1.0) | `{"printSoort":["vcc","gnd","apart"]}` (1 tot 5 printen; `"vcc"` geweigerd zolang er een pnp-ingang op staat), `{"irLedActiefLaag":true}`, `{"irDuty":33}` of `50` |
+| `POST /api/instellingen` (2.1.0) | `{"printSoort":["vcc","gnd","apart"]}` (1 tot 5 printen; `"vcc"` geweigerd zolang er een pnp-ingang op staat), `{"irLedActiefLaag":true}`, `{"irDuty":33}` of `50`; 2.2.0: `{"servoRemGroepen":0}` (0 = uit, standaard; tot het aantal groepen), `{"servoMaxBewegend":2}` (1..4) |
 | `GET /api/zelftest` (2.1.0) | I2C-scan (0x20, 0x21, 0x40, 0x41, 0x42 gevonden), de PCA9685 teruglezen, MCP23017's, servo-PCA9685, LittleFS, vrije stapel per taak, wifi-toestellen, vrij geheugen: `{"ok":..,"i2c":[{"adres":"0x20","wat":..,"gevonden":true}],"pca9685":{"ok":..,"geschreven":..,"gelezen":..},"mcp23017":..,"mcp23017b":..,"servoPca":..,"littlefs":{..},"stapelVrij":{"licht":..,"ir":..,"kastjes":..,"loop":..},"wifiClients":2,"vrijGeheugen":..,"vrijPsram":..}` |
 | `POST /api/ir` | `{"actie":"leren","naam":"Stop bus","ontvanger":1}` (10 s), `{"actie":"bewaren","nr":3,"code":{"naam":"..","soort":"nec"\|"rc5"\|"raw"\|"continu","khz":38,"adres":0,"commando":18,"adres16":false,"commando16":false,"raw":[9000,4500,...],"herhaal":1}}` (zonder `nr`: nieuw; 32 codes, raw 2..256 tijden in µs, aan/uit om beurten, begint met aan; te lang met de herhalingen: 400 met het maximum), `{"actie":"zelftest","led":5}` (2.1.0, E4), `{"actie":"zenden","nr":3,"leds":[5,6]}` (leeg of zonder `leds` = alle), `{"actie":"wissen","nr":3}`, `{"actie":"hernoemen","nr":3,"naam":".."}` |
 | `POST /api/bus` | `{"nr":1,"naam":"Bus 1","kleur":"#d23","code":"nec:00FF12ED"}` (zonder `nr`: nieuw; 8 bussen), `{"actie":"wissen","nr":1}`, `{"actie":"gezien","bus":1,"punt":"P3"}` (met de hand, testen) |
 | `POST /api/punt` | `{"id":"P3","ingang":5}`, `{"id":"P4","ontvanger":2}`, optioneel `"soort":"hall"\|"ir"\|"ftr"\|"auto"`, `"volgende":"P5"` en `"alleenBus":true` (V1); `{"id":"P3","ingang":0}` = loskoppelen; `{"actie":"wissen","id":"P3"}` (48 punten) |
 | `POST /api/servo` | `{"nr":1,"naam":"Wissel 1","kanaal":1,"a":1100,"b":1900,"snelheid":400,"soort":"wissel"\|"slagboom"\|"armsein"}` (snelheid in µs/s, 0 = meteen; `"pulsUitS":0..10`, E19), `{"nr":1,"naar":"a"\|"b"\|"wissel"}`, `{"nr":1,"kanaal":1,"proef":1500}` (ook voor een servo die nog niet bewaard is: hij wordt dan aangemaakt), `{"actie":"wissen","nr":1}` |
-| `POST /api/halte` | `{"nr":1,"naam":"Halte Station 1","aankomstPunt":"P5","stopLeds":[5],"stopCode":3,"rijdCode":4,"wachtS":12,"vrijIngangen":[7],"vrijMinS":3,"licht":{"rood":9,"oranje":10,"groen":11},"groenS":5,"servo":0,"herhalen":true,"maxVerkeerS":60}` (0 = geen; `maxVerkeerS` 0 = geen grens), `{"actie":"wissen","nr":1}` |
+| `POST /api/halte` | `{"nr":1,"naam":"Halte Station 1","aankomstPunt":"P5","stopLeds":[5],"wachtLeds":[4],"stopCode":3,"rijdCode":4,"wachtS":12,"vrijIngangen":[7],"vrijMinS":3,"licht":{"rood":9,"oranje":10,"groen":11},"groenS":5,"servo":0,"herhalen":true,"maxVerkeerS":60}` (0 = geen; `maxVerkeerS` 0 = geen grens; `wachtLeds` (2.2.0, FN1) [] = een tweede bus niet tegenhouden, geen led gemeen met `stopLeds`: anders 400), `{"actie":"wissen","nr":1}` |
 | `POST /api/kastje` | van het kastje: `{"actie":"aanmelden","id":"a1b2c3","naam":"Kerk","ip":"192.168.4.23","geluiden":[{"naam":"klok.wav","s":4.2}],"versie":"1.0.0"}` (elke 30 s; 90 s niets = offline); van het dashboard: `{"actie":"spelen","kastje":"Kerk","geluid":"klok.wav","volume":80}` (doos -> `POST http://<ip>/speel`), `{"actie":"stop","kastje":"Kerk"}` (-> `/stop`), `{"actie":"hernoemen","id":"a1b2c3","naam":"Kerk"}` (-> `/naam`) |
-| Toegang (2.1.0, F6) | elke POST/PUT (ook `/api/update`, `/api/plan`, de bestanden): van de hotspot (192.168.4.x) of met de kop `X-Treinbaan-Wachtwoord: <wifi-wachtwoord>`, anders **401**; een `Origin` die niet de doos is (`http://192.168.4.1`, `http://treinbaan.local`, het IP op het thuisnet, de `Host`): **403**. Uitzondering: `{"actie":"aanmelden"}` van een geluidskastje |
+| Toegang (2.1.0, F6; 2.2.0, FN5) | elke POST/PUT (ook `/api/update`, `/api/plan`, de bestanden): van de hotspot (192.168.4.x) of met de kop `X-Treinbaan-Wachtwoord: <wifi-wachtwoord>`, anders **401**; een `Origin` of een `Host` die niet de doos is (`192.168.4.1`, `treinbaan.local`, het IP op het thuisnet, eventueel met `:80`): **403**. Uitzondering: `{"actie":"aanmelden"}` van een geluidskastje |
 | `GET /api/meldingen?sinds=812` | `{"volgnr":813,"msNu":123456,"meldingen":[{"nr":813,"ms":123400,"soort":"hall"\|"ir"\|"ftr","punt":"P3","ingang":5,"ontvanger":2,"code":"nec:00FF12ED","bus":1}]}` (`ingang`, `ontvanger`, `code`, `bus` alleen als ze er zijn; hoogstens de laatste 64; een `sinds` groter dan `volgnr` = de doos herstartte: alles) |
 | `GET /api/plan`, `PUT /api/plan` | het plan (body = `situatieplan/plan.json`, JSON-object, hoogstens **256 kB**), bewaard als `/plan.json`; zonder eigen plan geeft GET `/tv/plan.json` |
 | `POST /api/plan/beeld` | jpg of png (multipart of ruwe body, hoogstens 1,5 MB) -> `/plan.jpg`; `GET /plan.jpg` |
@@ -414,6 +468,10 @@ Alleen volledig: per servo, bus en halte ook hun instellingen, `"ir":{"codes":[{
 per ingang `"polariteit"` (`raw` staat er alleen bij een code met tijden), in `"instellingen"` ook `"printSoort"` (5),
 `"irLedActiefLaag"` en `"irDuty"`; per punt `"alleenBus"`, per servo `"pulsUitS"`, per halte `"herhalen"` en
 `"maxVerkeerS"`. `"pnpOmkeren"` bestaat niet meer (2.1.0).
+Sinds 2.2.0 ook: `"servoWachtLang"` (FN3, nr van een servo die > 5 s wacht, 0 = geen), `"ontvangerLaag"` (TN3, het
+niveau van ontvangerpin 1..4 nu), in `"ir"` ook `"rijVol"` (FN7), `"continu"` en `"continuWaarschuwing"` (EN1), per
+halte `"continu"` en `"continuTeLang"` (EN1); volledig in `"instellingen"` ook `"servoRemGroepen"` en
+`"servoMaxBewegend"`, per halte `"wachtLeds"`.
 
 `/api/staat` geeft per groep `"aan"` (gekozen), `"brandt"` (nu echt aan, bij knipperen deze tel; vervangt `"lamp"`
 0..100 van 1.2), `"effect"`, `"p1"`, `"p2"`, `"fase"`; per ingang `"actief"`, `"teller"`, `"toestand"` (bv. "puls",
