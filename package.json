@@ -32,7 +32,7 @@
     "clipper2-ts": "2.0.1-18",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "replicad": "^1.2.0",
+    "replicad": "^1.2.1",
     "replicad-opencascadejs": "^1.1.0",
     "three": "^0.180.0",
     "three-bvh-csg": "^0.0.18",
