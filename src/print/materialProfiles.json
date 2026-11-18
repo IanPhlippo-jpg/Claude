@@ -1,0 +1,446 @@
+{
+  "version": 1,
+  "generated": "2026-11-18",
+  "note": "pricePerKg in EUR. Generieke profielen. Bereiken uit fabrikant-TDS; standaardwaarden, prijzen en volumetrische limieten zijn AANNAME tenzij anders vermeld. Geen gegevens uit AGPL-slicerprofielen.",
+  "currency": "EUR",
+  "materials": [
+    {
+      "id": "pla",
+      "name": "PLA",
+      "type": "PLA",
+      "basis": "Bambu Lab PLA Basic",
+      "nozzleTemp": {
+        "min": 190,
+        "max": 230,
+        "default": 220
+      },
+      "bedTemp": {
+        "min": 55,
+        "max": 65,
+        "default": 60
+      },
+      "density": 1.24,
+      "pricePerKg": 20,
+      "maxVolumetricSpeed": 20,
+      "cooling": 100,
+      "coolingRange": {
+        "min": 50,
+        "max": 100
+      },
+      "enclosure": false,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://store.bblcdn.com/s1/default/58b85d0f3db94878854a28fdb8a0006e/Bambu_PLA_Basic_Technical_Data_Sheet.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/pla-basic-filament"
+      ],
+      "assumptions": [
+        "nozzleTemp.default: 220 (TDS geeft alleen het bereik 190-230)",
+        "bedTemp: 55-65 voor gladde/getextureerde PEI uit de filamentgids; de TDS noemt 35-45 voor de Cool Plate",
+        "pricePerKg: 20 (AANNAME, gemiddelde winkelprijs)",
+        "maxVolumetricSpeed: 20 mm³/s (AANNAME, niet in TDS of filamentgids)"
+      ]
+    },
+    {
+      "id": "pla-plus",
+      "name": "PLA+",
+      "type": "PLA",
+      "basis": "generieke PLA+ (getaaid PLA)",
+      "nozzleTemp": {
+        "min": 200,
+        "max": 230,
+        "default": 215
+      },
+      "bedTemp": {
+        "min": 50,
+        "max": 65,
+        "default": 60
+      },
+      "density": 1.24,
+      "pricePerKg": 22,
+      "maxVolumetricSpeed": 18,
+      "cooling": 100,
+      "coolingRange": {
+        "min": 50,
+        "max": 100
+      },
+      "enclosure": false,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://www.elegoo.com/products/elegoo-pla-plus-3d-printer-filament-1-75mm-colored-1kg"
+      ],
+      "assumptions": [
+        "nozzleTemp: 200-230, standaard 215 (AANNAME: Elegoo PLA+ productpagina niet uitleesbaar door rate-limiting; waarde uit het spoeletiket van Elegoo PLA+ zoals vaak geciteerd, nog te verifiëren)",
+        "bedTemp: 50-65, standaard 60 (AANNAME, gelijk aan PLA op PEI)",
+        "density: 1.24 (AANNAME, gelijk aan PLA)",
+        "pricePerKg: 22 (AANNAME)",
+        "maxVolumetricSpeed: 18 mm³/s (AANNAME, iets onder PLA wegens hogere viscositeit)"
+      ]
+    },
+    {
+      "id": "petg",
+      "name": "PETG",
+      "type": "PETG",
+      "basis": "Bambu Lab PETG Basic",
+      "nozzleTemp": {
+        "min": 230,
+        "max": 260,
+        "default": 255
+      },
+      "bedTemp": {
+        "min": 65,
+        "max": 75,
+        "default": 70
+      },
+      "density": 1.25,
+      "pricePerKg": 22,
+      "maxVolumetricSpeed": 14,
+      "cooling": 40,
+      "coolingRange": {
+        "min": 0,
+        "max": 60
+      },
+      "enclosure": false,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://store.bblcdn.com/s1/default/cb94589bf7994fdcbfa833badefae9cd/Bambu_PETG_Basic_Technical_Data_Sheet.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/petg-basic"
+      ],
+      "assumptions": [
+        "nozzleTemp.default: 255 en bedTemp.default: 70 (proefstukinstellingen in de TDS, geen expliciete standaard)",
+        "cooling: 40 (AANNAME binnen het TDS-bereik 0-60 %)",
+        "pricePerKg: 22 (AANNAME)",
+        "maxVolumetricSpeed: 14 mm³/s (AANNAME)"
+      ]
+    },
+    {
+      "id": "abs",
+      "name": "ABS",
+      "type": "ABS",
+      "basis": "Bambu Lab ABS",
+      "nozzleTemp": {
+        "min": 240,
+        "max": 270,
+        "default": 260
+      },
+      "bedTemp": {
+        "min": 80,
+        "max": 100,
+        "default": 90
+      },
+      "density": 1.05,
+      "pricePerKg": 22,
+      "maxVolumetricSpeed": 18,
+      "cooling": 20,
+      "coolingRange": {
+        "min": 0,
+        "max": 80
+      },
+      "enclosure": true,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://store.bblcdn.com/s7/default/23b4cf2b83d5470bb96d19970b5f3ae8/Bambu_ABS_Technical_Data_Sheet_V3.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/abs-filament"
+      ],
+      "assumptions": [
+        "nozzleTemp.default: 260 (proefstukinstelling in de TDS); de filamentgids noemt 240-280",
+        "bedTemp.default: 90 (AANNAME binnen 80-100; de filamentgids noemt 90-100 op PEI)",
+        "cooling: 20 (AANNAME binnen het TDS-bereik 0-80 %)",
+        "pricePerKg: 22 (AANNAME)",
+        "maxVolumetricSpeed: 18 mm³/s (AANNAME)"
+      ]
+    },
+    {
+      "id": "asa",
+      "name": "ASA",
+      "type": "ASA",
+      "basis": "Bambu Lab ASA",
+      "nozzleTemp": {
+        "min": 240,
+        "max": 270,
+        "default": 260
+      },
+      "bedTemp": {
+        "min": 80,
+        "max": 100,
+        "default": 90
+      },
+      "density": 1.05,
+      "pricePerKg": 28,
+      "maxVolumetricSpeed": 16,
+      "cooling": 20,
+      "coolingRange": {
+        "min": 0,
+        "max": 80
+      },
+      "enclosure": true,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://store.bblcdn.com/ad7b08230c164e72856cffbe06bb7dc9.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/asa-filament"
+      ],
+      "assumptions": [
+        "nozzleTemp.default: 260 (proefstukinstelling in de TDS)",
+        "bedTemp.default: 90 (AANNAME binnen 80-100)",
+        "cooling: 20 (AANNAME binnen het TDS-bereik 0-80 %)",
+        "pricePerKg: 28 (AANNAME)",
+        "maxVolumetricSpeed: 16 mm³/s (AANNAME)"
+      ]
+    },
+    {
+      "id": "tpu-95a",
+      "name": "TPU 95A",
+      "type": "TPU",
+      "basis": "Bambu Lab TPU 95A / TPU 95A HF",
+      "nozzleTemp": {
+        "min": 220,
+        "max": 240,
+        "default": 230
+      },
+      "bedTemp": {
+        "min": 30,
+        "max": 35,
+        "default": 35
+      },
+      "density": 1.22,
+      "pricePerKg": 35,
+      "maxVolumetricSpeed": 3.6,
+      "cooling": 100,
+      "coolingRange": {
+        "min": 50,
+        "max": 100
+      },
+      "enclosure": false,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://store.bblcdn.com/58df32731eab4c90a7dac9b12e13ba88.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/tpu-95a-hf"
+      ],
+      "assumptions": [
+        "density: 1.22 (waarde uit de TDS van TPU 95A HF; voor gewone TPU 95A gelijk genomen)",
+        "maxVolumetricSpeed: 3.6 mm³/s is de waarde die Bambu Lab op de TPU 95A HF-pagina voor gewone TPU 95A opgeeft (HF: 12)",
+        "pricePerKg: 35 (AANNAME)",
+        "ams: niet via AMS laden (fabrikant: alleen \"TPU for AMS\" is AMS-geschikt)"
+      ]
+    },
+    {
+      "id": "pa",
+      "name": "PA (nylon)",
+      "type": "PA",
+      "basis": "Polymaker PolyMide CoPA",
+      "nozzleTemp": {
+        "min": 250,
+        "max": 270,
+        "default": 260
+      },
+      "bedTemp": {
+        "min": 25,
+        "max": 50,
+        "default": 50
+      },
+      "density": 1.12,
+      "pricePerKg": 50,
+      "maxVolumetricSpeed": 8,
+      "cooling": 0,
+      "coolingRange": {
+        "min": 0,
+        "max": 0
+      },
+      "enclosure": true,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://polymaker.com/wp-content/uploads/lana-downloads/TDS_Polymaker_PolyMide-CoPA_V5.5_2026-01-06_EN.pdf"
+      ],
+      "assumptions": [
+        "enclosureRequired: true (AANNAME; PA krimpt en neemt vocht op, TDS vraagt drogen maar noemt geen behuizing)",
+        "pricePerKg: 50 (AANNAME)",
+        "maxVolumetricSpeed: 8 mm³/s (AANNAME)",
+        "hardenedNozzle: false (Polymaker raadt bij veel gebruik toch een slijtvaste nozzle aan)"
+      ]
+    },
+    {
+      "id": "pa-cf",
+      "name": "PA-CF",
+      "type": "PA-CF",
+      "basis": "Bambu Lab PA6-CF",
+      "nozzleTemp": {
+        "min": 260,
+        "max": 290,
+        "default": 280
+      },
+      "bedTemp": {
+        "min": 80,
+        "max": 100,
+        "default": 100
+      },
+      "density": 1.09,
+      "pricePerKg": 70,
+      "maxVolumetricSpeed": 8,
+      "cooling": 20,
+      "coolingRange": {
+        "min": 0,
+        "max": 60
+      },
+      "enclosure": true,
+      "hardenedNozzle": true,
+      "sources": [
+        "https://store.bblcdn.com/b2abc59ac250492b979a52f1ce3e61b3.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/pa6-cf"
+      ],
+      "assumptions": [
+        "nozzleTemp.default: 280 en bedTemp.default: 100 (proefstukinstellingen in de TDS)",
+        "cooling: 20 (AANNAME binnen het TDS-bereik 0-60 %)",
+        "pricePerKg: 70 (AANNAME)",
+        "maxVolumetricSpeed: 8 mm³/s (AANNAME)"
+      ]
+    },
+    {
+      "id": "pc",
+      "name": "PC",
+      "type": "PC",
+      "basis": "Bambu Lab PC",
+      "nozzleTemp": {
+        "min": 260,
+        "max": 280,
+        "default": 270
+      },
+      "bedTemp": {
+        "min": 90,
+        "max": 110,
+        "default": 100
+      },
+      "density": 1.2,
+      "pricePerKg": 35,
+      "maxVolumetricSpeed": 12,
+      "cooling": 20,
+      "coolingRange": {
+        "min": 0,
+        "max": 60
+      },
+      "enclosure": true,
+      "hardenedNozzle": false,
+      "sources": [
+        "https://store.bblcdn.com/a52afdccddfd448583d119587122c8c5.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/pc-filament"
+      ],
+      "assumptions": [
+        "nozzleTemp.default: 270 en bedTemp.default: 100 (proefstukinstellingen in de TDS)",
+        "cooling: 20 (AANNAME binnen het TDS-bereik 0-60 %)",
+        "pricePerKg: 35 (AANNAME)",
+        "maxVolumetricSpeed: 12 mm³/s (AANNAME)"
+      ]
+    },
+    {
+      "id": "pet-cf",
+      "name": "PET-CF",
+      "type": "PET-CF",
+      "basis": "Bambu Lab PET-CF",
+      "nozzleTemp": {
+        "min": 260,
+        "max": 290,
+        "default": 270
+      },
+      "bedTemp": {
+        "min": 80,
+        "max": 100,
+        "default": 80
+      },
+      "density": 1.29,
+      "pricePerKg": 60,
+      "maxVolumetricSpeed": 8,
+      "cooling": 20,
+      "coolingRange": {
+        "min": 0,
+        "max": 60
+      },
+      "enclosure": true,
+      "hardenedNozzle": true,
+      "sources": [
+        "https://store.bblcdn.com/9690d6226f024acab2ba0dd52dabb654.pdf",
+        "https://bambulab.com/en/filament/guide",
+        "https://us.store.bambulab.com/products/pet-cf"
+      ],
+      "assumptions": [
+        "nozzleTemp.default: 270 en bedTemp.default: 80 (proefstukinstellingen in de TDS)",
+        "cooling: 20 (AANNAME binnen het TDS-bereik 0-60 %)",
+        "pricePerKg: 60 (AANNAME)",
+        "maxVolumetricSpeed: 8 mm³/s (AANNAME)"
+      ]
+    }
+  ],
+  "resins": [
+    {
+      "id": "resin-standard",
+      "name": "Standard resin",
+      "basis": "Elegoo Standard Photopolymer Resin",
+      "wavelengthNm": 405,
+      "density": 1.1,
+      "pricePerKg": 30,
+      "exposure": {
+        "layerS": 2.5,
+        "bottomS": 25,
+        "bottomLayers": 5,
+        "liftMmPerMin": 60
+      },
+      "sources": [
+        "https://www.123-3d.co.uk/pdf/Elegoo_Standaard_Resin_TDS_EN.pdf",
+        "https://www.elegoo.com/products/elegoo-standard-resin-v-2-0"
+      ],
+      "assumptions": [
+        "density: 1.10 (TDS geeft een bereik 1.05-1.25 g/cm³; midden van het gangbare bereik genomen)",
+        "exposure: laag 2.5 s, bodem 25 s, 5 bodemlagen, lift 60 mm/min (AANNAME; TDS noemt 2.5-3.5 s en 25-35 s voor een oudere monochrome lcd, per printer kalibreren)",
+        "pricePerKg: 30 (AANNAME)"
+      ]
+    },
+    {
+      "id": "resin-abs-like",
+      "name": "ABS-like resin",
+      "basis": "generieke ABS-like hars (Elegoo ABS-Like Resin)",
+      "wavelengthNm": 405,
+      "density": 1.1,
+      "pricePerKg": 35,
+      "exposure": {
+        "layerS": 3,
+        "bottomS": 30,
+        "bottomLayers": 5,
+        "liftMmPerMin": 60
+      },
+      "sources": [
+        "https://www.elegoo.com/products/elegoo-abs-like-resin-v-2-0"
+      ],
+      "assumptions": [
+        "density: 1.10 (AANNAME)",
+        "exposure: laag 3.0 s, bodem 30 s (AANNAME, iets langer dan standaardhars)",
+        "pricePerKg: 35 (AANNAME)"
+      ]
+    },
+    {
+      "id": "resin-water-washable",
+      "name": "Water-washable resin",
+      "basis": "generieke waterafwasbare hars (Elegoo Water Washable Resin)",
+      "wavelengthNm": 405,
+      "density": 1.1,
+      "pricePerKg": 35,
+      "exposure": {
+        "layerS": 2.5,
+        "bottomS": 25,
+        "bottomLayers": 5,
+        "liftMmPerMin": 60
+      },
+      "sources": [
+        "https://www.elegoo.com/products/elegoo-water-washable-resin-v-2-0"
+      ],
+      "assumptions": [
+        "density: 1.10 (AANNAME)",
+        "exposure: laag 2.5 s, bodem 25 s (AANNAME)",
+        "pricePerKg: 35 (AANNAME)"
+      ]
+    }
+  ]
+}

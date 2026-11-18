@@ -1,0 +1,4479 @@
+[
+  {
+    "id": "bambu-x1",
+    "brand": "Bambu Lab",
+    "model": "X1",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2022-05",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 110,
+    "enclosure": true,
+    "multiMaterial": "AMS up to 16",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/x1",
+      "https://bambulab.com/en/compare",
+      "https://blog.bambulab.com/the-x1-series-is-eol-the-standard-it-set-will-remain-forever",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "nozzles: 0.4 standaard, 0.2/0.6/0.8 optioneel (X1-pagina noemt geen diameters; gelijk aan X1C/P1-reeks genomen)",
+      "maxBedTemp: 110 (compare-pagina geeft voor X1C 110 °C @220 V en 120 °C @110 V; X1 zonder Carbon niet apart vermeld, en de lagere waarde voor 220 V genomen)",
+      "maxNozzleTemp: 300 (X1-reekspagina noemt 300 °C hotend; niet apart voor X1 zonder Carbon)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-x1c",
+    "brand": "Bambu Lab",
+    "model": "X1 Carbon",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2022-05",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 110,
+    "enclosure": true,
+    "multiMaterial": "AMS up to 16",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/x1",
+      "https://bambulab.com/en/x1e",
+      "https://bambulab.com/en/compare",
+      "https://blog.bambulab.com/the-x1-series-is-eol-the-standard-it-set-will-remain-forever",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "nozzles: 0.4 standaard, 0.2/0.6/0.8 optioneel (niet op de huidige X1-pagina; gangbaar hotendaanbod)",
+      "maxBedTemp: 110 (fabrikant: 110 °C @220 V, 120 °C @110 V; Europese netspanning gekozen)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-x1e",
+    "brand": "Bambu Lab",
+    "model": "X1E",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2023-10",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 320,
+    "maxBedTemp": 110,
+    "enclosure": true,
+    "multiMaterial": "AMS up to 16",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Actieve kamerverwarming tot 60 °C"
+    ],
+    "sources": [
+      "https://bambulab.com/en/x1e",
+      "https://blog.bambulab.com/the-x1-series-is-eol-the-standard-it-set-will-remain-forever",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "buildVolume: 256 x 256 x 256 (X1E-pagina noemt geen bouwvolume; gelijk aan X1C, zelfde frame)",
+      "maxBedTemp: 110 (niet op X1E-pagina; gelijk aan X1C @220 V genomen)",
+      "nozzles: 0.4 standaard, 0.2/0.6/0.8 optioneel (niet op X1E-pagina)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-p1p",
+    "brand": "Bambu Lab",
+    "model": "P1P",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2022-11",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "AMS up to 16",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/p1p",
+      "https://blog.bambulab.com/a-farewell-to-p1p",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "buildVolume: 256 x 256 x 256 (huidige P1P-pagina noemt het niet meer; gelijk aan P1S op de compare-pagina)",
+      "maxNozzleTemp: 300 en maxBedTemp: 100 (overgenomen van P1S op de compare-pagina; P1P-specificatiepagina offline)",
+      "nozzles: 0.4 standaard, 0.2/0.6/0.8 optioneel (niet op de P1P-pagina)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-p1s",
+    "brand": "Bambu Lab",
+    "model": "P1S",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2023-07",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 100,
+    "enclosure": true,
+    "multiMaterial": "AMS up to 16",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/compare",
+      "https://bambulab.com/en/p1p",
+      "https://blog.bambulab.com/a-farewell-to-p1p",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "maxSpeed: 500 mm/s (P1P-pagina noemt dit voor de P1-reeks; P1S-specificatiepagina offline)",
+      "maxAccel: 20000 mm/s² (P1P-pagina noemt dit voor de P1-reeks; P1S-specificatiepagina offline)",
+      "multiMaterial: AMS up to 16 (P1P-pagina: 16 kleuren met 4 AMS; voor P1S gelijk genomen)",
+      "nozzles: 0.4 standaard, 0.2/0.6/0.8 optioneel (niet op compare-pagina)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-a1-mini",
+    "brand": "Bambu Lab",
+    "model": "A1 mini",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2023-09",
+    "buildVolume": [
+      180,
+      180,
+      180
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 80,
+    "enclosure": false,
+    "multiMaterial": "AMS lite, 4 colours",
+    "maxSpeed": 500,
+    "maxAccel": 10000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        180,
+        0
+      ],
+      [
+        180,
+        180
+      ],
+      [
+        0,
+        180
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        180
+      ],
+      "y": [
+        0,
+        180
+      ],
+      "z": [
+        0,
+        180
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/a1-mini/tech-specs",
+      "https://bambulab.com/en/a1-mini",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "multiMaterial: AMS lite met 4 spoelen (productpagina noemt AMS lite, aantal niet op de specificatiepagina)",
+      "printableArea: rechthoek 0..180 x 0..180 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-a1",
+    "brand": "Bambu Lab",
+    "model": "A1",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2023-12",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "AMS lite, 4 colours",
+    "maxSpeed": 500,
+    "maxAccel": 10000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/a1/tech-specs",
+      "https://bambulab.com/en/a1",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "multiMaterial: AMS lite met 4 spoelen (aantal niet op de specificatiepagina)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-h2d",
+    "brand": "Bambu Lab",
+    "model": "H2D",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2025-03",
+    "buildVolume": [
+      325,
+      320,
+      325
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 2,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 120,
+    "enclosure": true,
+    "multiMaterial": "Dual nozzle; up to 4 AMS 2 Pro + 8 AMS HT (24 slots), up to 25 colours",
+    "maxSpeed": 1000,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        325,
+        0
+      ],
+      [
+        325,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        325
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        325
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Eén nozzle 325x320x325; twee nozzles 300x320x320; totaal bereik beide nozzles 350x320x320",
+      "Actieve kamerverwarming tot 65 °C"
+    ],
+    "sources": [
+      "https://bambulab.com/en/h2d/tech-specs",
+      "https://bambulab.com/en/h2d/faq",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "printableArea: rechthoek 0..325 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-h2d-pro",
+    "brand": "Bambu Lab",
+    "model": "H2D Pro",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2025-08",
+    "buildVolume": [
+      325,
+      320,
+      325
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 2,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 120,
+    "enclosure": true,
+    "multiMaterial": "Dual nozzle; AMS 2 Pro + AMS HT (as H2D)",
+    "maxSpeed": 1000,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        325,
+        0
+      ],
+      [
+        325,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        325
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        325
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Eén nozzle 325x320x325; twee nozzles 300x320x320; totaal 350x320x320. Nozzles van wolfraamcarbide.",
+      "Actieve kamerverwarming tot 65 °C"
+    ],
+    "sources": [
+      "https://bambulab.com/en/h2d-pro/tech-specs",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "multiMaterial: maximaal aantal AMS-eenheden gelijk aan H2D genomen (H2D Pro-pagina noemt alleen AMS 2 Pro + AMS HT in de doos)",
+      "printableArea: rechthoek 0..325 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-h2s",
+    "brand": "Bambu Lab",
+    "model": "H2S",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2025-08",
+    "buildVolume": [
+      340,
+      320,
+      340
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 120,
+    "enclosure": true,
+    "multiMaterial": "Up to 4 AMS 2 Pro + 8 AMS HT (24 slots), up to 24 colours",
+    "maxSpeed": 1000,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        340,
+        0
+      ],
+      [
+        340,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        340
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        340
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Actieve kamerverwarming tot 65 °C"
+    ],
+    "sources": [
+      "https://bambulab.com/en/h2s/tech-specs",
+      "https://bambulab.com/en/h2s/faq",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "printableArea: rechthoek 0..340 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-p2s",
+    "brand": "Bambu Lab",
+    "model": "P2S",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2025-10",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 110,
+    "enclosure": true,
+    "multiMaterial": "Up to 4 AMS 2 Pro + 4 AMS HT (20 slots), up to 20 colours",
+    "maxSpeed": 600,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/p2s/specs",
+      "https://bambulab.com/en/p2s/faq",
+      "https://bambulab.com/en/compare",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-h2c",
+    "brand": "Bambu Lab",
+    "model": "H2C",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2025-11",
+    "buildVolume": [
+      325,
+      320,
+      320
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 2,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 120,
+    "enclosure": true,
+    "multiMaterial": "Vortek: 6 induction hotends on the right + 1 left nozzle (7 colours without full purge); AMS 2 Pro / AMS HT",
+    "maxSpeed": 1000,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        325,
+        0
+      ],
+      [
+        325,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        325
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        320
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Links één nozzle 325x320x320; rechts één nozzle 305x320x325; twee nozzles 300x320x320; totaal 330x320x320",
+      "Actieve kamerverwarming tot 65 °C"
+    ],
+    "sources": [
+      "https://bambulab.com/en/h2c/specs",
+      "https://bambulab.com/en/h2c",
+      "https://bambulab.com/en/h2c/faq",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "nozzles: 0.4 standaard (pagina noemt ondersteunde 0.2/0.4/0.6/0.8, geen meegeleverde diameter)",
+      "multiMaterial: Vortek plus AMS 2 Pro / AMS HT (maximaal aantal AMS-eenheden niet gevonden op de fabrikantpagina)",
+      "printableArea: rechthoek 0..325 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-x2d",
+    "brand": "Bambu Lab",
+    "model": "X2D",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2026-04",
+    "buildVolume": [
+      256,
+      256,
+      260
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 2,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 120,
+    "enclosure": true,
+    "multiMaterial": "Dual nozzle; up to 4 AMS 2 Pro + 8 AMS HT (24 slots), up to 25 colours",
+    "maxSpeed": 1000,
+    "maxAccel": 20000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        260
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Hoofdnozzle 256x256x260; hulpnozzle en beide nozzles 235,5x256x256",
+      "Actieve kamerverwarming tot 65 °C"
+    ],
+    "sources": [
+      "https://bambulab.com/en/x2d/specs",
+      "https://bambulab.com/en/x2d/faq",
+      "https://bambulab.com/en/compare",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-a2l",
+    "brand": "Bambu Lab",
+    "model": "A2L",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2026-06",
+    "buildVolume": [
+      330,
+      320,
+      325
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 80,
+    "enclosure": false,
+    "multiMaterial": "Up to 4 AMS units + 1 AMS lite, up to 19 colours",
+    "maxSpeed": 500,
+    "maxAccel": 10000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        330,
+        0
+      ],
+      [
+        330,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        330
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        325
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://bambulab.com/en/a2l/specs",
+      "https://bambulab.com/en/a2l/faq",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "enclosure: false (specificatie noemt geen behuizing, buitenframe kunststof; A-reeks is open)",
+      "nozzles: 0.4 standaard (pagina noemt ondersteunde 0.2/0.4/0.6/0.8, geen meegeleverde diameter)",
+      "printableArea: rechthoek 0..330 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "bambu-h3c",
+    "brand": "Bambu Lab",
+    "model": "H3C",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2026-11",
+    "buildVolume": [
+      330,
+      320,
+      325
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      },
+      {
+        "diameter": 0.2
+      },
+      {
+        "diameter": 0.6
+      },
+      {
+        "diameter": 0.8
+      }
+    ],
+    "toolheads": 9,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 120,
+    "enclosure": true,
+    "multiMaterial": "SwapTek 9-tool changer + AMS 3H (9 slots); up to 24 spools via extra AMS on PrintTool 1",
+    "maxSpeed": 1400,
+    "maxAccel": 25000,
+    "gcodeFlavor": "bambu",
+    "fileFormat": "gcode.3mf",
+    "firmware": "Bambu",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        330,
+        0
+      ],
+      [
+        330,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        330
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        325
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "bambu-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Actieve kamerverwarming tot 65 °C"
+    ],
+    "sources": [
+      "https://bambulab.com/en/h3c/specs",
+      "https://bambulab.com/en/h3c",
+      "https://blog.bambulab.com/tool-changer-game-changer-bambu-lab-presents-h3c-the-defining-new-generation-of-3d-printers",
+      "https://en.wikipedia.org/wiki/Bambu_Lab"
+    ],
+    "assumptions": [
+      "printableArea: rechthoek 0..330 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen fabrikantbron; een eventuele uitgesloten zone voor spoelen, afvegen of snijden moet tegen een referentiebestand uit Bambu Studio van Ian gecontroleerd worden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: bambu-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-3",
+    "brand": "Elegoo",
+    "model": "Neptune 3",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2022-04",
+    "buildVolume": [
+      220,
+      220,
+      280
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 260,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 180,
+    "maxAccel": 3000,
+    "gcodeFlavor": "marlin",
+    "fileFormat": "gcode",
+    "firmware": "Marlin",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        220,
+        0
+      ],
+      [
+        220,
+        220
+      ],
+      [
+        0,
+        220
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        220
+      ],
+      "y": [
+        0,
+        220
+      ],
+      "z": [
+        0,
+        280
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-neptune-3-fdm-3d-printer"
+    ],
+    "assumptions": [
+      "buildVolume: 220 x 220 x 280 (productpagina zonder beschrijving; officiële pagina niet uitleesbaar door rate-limiting)",
+      "maxBedTemp: 100 (gelijk aan Neptune 3 Pro genomen)",
+      "announced: 2022-04 (geen fabrikantdatum gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "maxNozzleTemp: 260 (niet in de productbeschrijving; Neptune 3-reeks met messing nozzle)",
+      "maxSpeed: 180 mm/s (niet in de productbeschrijving)",
+      "maxAccel: 3000 mm/s² (niet gepubliceerd; voorzichtige Marlin-waarde)",
+      "gcodeFlavor: marlin (Neptune 3-reeks draait Marlin; niet op de productpagina vermeld)",
+      "printableArea: rechthoek 0..220 x 0..220 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-3-pro",
+    "brand": "Elegoo",
+    "model": "Neptune 3 Pro",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2022-11",
+    "buildVolume": [
+      225,
+      225,
+      280
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 260,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 180,
+    "maxAccel": 3000,
+    "gcodeFlavor": "marlin",
+    "fileFormat": "gcode",
+    "firmware": "Marlin",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        225,
+        0
+      ],
+      [
+        225,
+        225
+      ],
+      [
+        0,
+        225
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        225
+      ],
+      "y": [
+        0,
+        225
+      ],
+      "z": [
+        0,
+        280
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-neptune-3-pro-fdm-3d-printer-225x225x280mm"
+    ],
+    "assumptions": [
+      "maxBedTemp: 100 (productpagina: bed warmt \"tot 100 °C\" op; absolute maximum niet vermeld)",
+      "announced: 2022-11 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "maxNozzleTemp: 260 (niet in de productbeschrijving; Neptune 3-reeks met messing nozzle)",
+      "maxSpeed: 180 mm/s (niet in de productbeschrijving)",
+      "maxAccel: 3000 mm/s² (niet gepubliceerd; voorzichtige Marlin-waarde)",
+      "gcodeFlavor: marlin (Neptune 3-reeks draait Marlin; niet op de productpagina vermeld)",
+      "printableArea: rechthoek 0..225 x 0..225 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-3-plus",
+    "brand": "Elegoo",
+    "model": "Neptune 3 Plus",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2022-12",
+    "buildVolume": [
+      320,
+      320,
+      400
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 260,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 180,
+    "maxAccel": 3000,
+    "gcodeFlavor": "marlin",
+    "fileFormat": "gcode",
+    "firmware": "Marlin",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        320,
+        0
+      ],
+      [
+        320,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        320
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        400
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-neptune-3-plus-fdm-3d-printer-with-larger-build-volume-of-320x320x400mm"
+    ],
+    "assumptions": [
+      "maxBedTemp: 100 (productpagina: bed warmt \"tot 100 °C\" op)",
+      "announced: 2022-12 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "maxNozzleTemp: 260 (niet in de productbeschrijving; Neptune 3-reeks met messing nozzle)",
+      "maxSpeed: 180 mm/s (niet in de productbeschrijving)",
+      "maxAccel: 3000 mm/s² (niet gepubliceerd; voorzichtige Marlin-waarde)",
+      "gcodeFlavor: marlin (Neptune 3-reeks draait Marlin; niet op de productpagina vermeld)",
+      "printableArea: rechthoek 0..320 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-3-max",
+    "brand": "Elegoo",
+    "model": "Neptune 3 Max",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2022-12",
+    "buildVolume": [
+      420,
+      420,
+      500
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 260,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 180,
+    "maxAccel": 3000,
+    "gcodeFlavor": "marlin",
+    "fileFormat": "gcode",
+    "firmware": "Marlin",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        420,
+        0
+      ],
+      [
+        420,
+        420
+      ],
+      [
+        0,
+        420
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        420
+      ],
+      "y": [
+        0,
+        420
+      ],
+      "z": [
+        0,
+        500
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-neptune-3-max-fdm-3d-printer-massive-printing-size-of-420x420x500mm"
+    ],
+    "assumptions": [
+      "maxBedTemp: 100 (productpagina: bed warmt \"tot 100 °C\" op)",
+      "announced: 2022-12 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "maxNozzleTemp: 260 (niet in de productbeschrijving; Neptune 3-reeks met messing nozzle)",
+      "maxSpeed: 180 mm/s (niet in de productbeschrijving)",
+      "maxAccel: 3000 mm/s² (niet gepubliceerd; voorzichtige Marlin-waarde)",
+      "gcodeFlavor: marlin (Neptune 3-reeks draait Marlin; niet op de productpagina vermeld)",
+      "printableArea: rechthoek 0..420 x 0..420 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-4",
+    "brand": "Elegoo",
+    "model": "Neptune 4",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2023-05",
+    "buildVolume": [
+      225,
+      225,
+      265
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 110,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 500,
+    "maxAccel": 8000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "Klipper (Elegoo)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        225,
+        0
+      ],
+      [
+        225,
+        225
+      ],
+      [
+        0,
+        225
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        225
+      ],
+      "y": [
+        0,
+        225
+      ],
+      "z": [
+        0,
+        265
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-neptune-4-fdm-3d-printer",
+      "https://www.elegoo.com.cn/uploads/20230529/93fe46ef887fae3189a8cc0509fb9181.pdf"
+    ],
+    "assumptions": [
+      "maxAccel: 8000 mm/s² (niet vermeld voor Neptune 4; waarde van Neptune 4 Max genomen)",
+      "announced: 2023-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek 0..225 x 0..225 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-4-pro",
+    "brand": "Elegoo",
+    "model": "Neptune 4 Pro",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2023-05",
+    "buildVolume": [
+      225,
+      225,
+      265
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 110,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 500,
+    "maxAccel": 8000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "Klipper (Elegoo)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        225,
+        0
+      ],
+      [
+        225,
+        225
+      ],
+      [
+        0,
+        225
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        225
+      ],
+      "y": [
+        0,
+        225
+      ],
+      "z": [
+        0,
+        265
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [
+      "Gesegmenteerd bed: middenzone 120 x 120 mm, buitenzone apart schakelbaar (productpagina)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-neptune-4-pro-fdm-3d-printer",
+      "https://www.elegoo.com.cn/uploads/20230719/d918626b0c5b81b817edc83dd44e36a5.pdf"
+    ],
+    "assumptions": [
+      "maxAccel: 8000 mm/s² (niet vermeld voor Neptune 4 Pro; waarde van Neptune 4 Max genomen)",
+      "announced: 2023-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek 0..225 x 0..225 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-4-plus",
+    "brand": "Elegoo",
+    "model": "Neptune 4 Plus",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2023-09",
+    "buildVolume": [
+      320,
+      320,
+      385
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 500,
+    "maxAccel": 8000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "Klipper (Elegoo)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        320,
+        0
+      ],
+      [
+        320,
+        320
+      ],
+      [
+        0,
+        320
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        320
+      ],
+      "y": [
+        0,
+        320
+      ],
+      "z": [
+        0,
+        385
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/neptune-4-plus-fdm-3d-printer"
+    ],
+    "assumptions": [
+      "maxBedTemp: 100 (niet in de productbeschrijving; voorzichtig gekozen)",
+      "maxAccel: 8000 mm/s² (niet vermeld; waarde van Neptune 4 Max genomen)",
+      "announced: 2023-09 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek 0..320 x 0..320 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-neptune-4-max",
+    "brand": "Elegoo",
+    "model": "Neptune 4 Max",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2023-09",
+    "buildVolume": [
+      420,
+      420,
+      480
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 500,
+    "maxAccel": 8000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "Klipper (Elegoo)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        420,
+        0
+      ],
+      [
+        420,
+        420
+      ],
+      [
+        0,
+        420
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        420
+      ],
+      "y": [
+        0,
+        420
+      ],
+      "z": [
+        0,
+        480
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-gimage",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/neptune-4-max-fdm-3d-printer"
+    ],
+    "assumptions": [
+      "maxBedTemp: 100 (niet in de productbeschrijving; voorzichtig gekozen)",
+      "announced: 2023-09 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek 0..420 x 0..420 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-gimage (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-orangestorm-giga",
+    "brand": "Elegoo",
+    "model": "OrangeStorm Giga",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2024-05",
+    "buildVolume": [
+      800,
+      800,
+      1000
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.6,
+        "default": true
+      },
+      {
+        "diameter": 0.4
+      },
+      {
+        "diameter": 0.8
+      },
+      {
+        "diameter": 1
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 300,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "Optional dual or quad extrusion upgrade kit",
+    "maxSpeed": 300,
+    "maxAccel": 3000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "Klipper (Elegoo)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        800,
+        0
+      ],
+      [
+        800,
+        800
+      ],
+      [
+        0,
+        800
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        800
+      ],
+      "y": [
+        0,
+        800
+      ],
+      "z": [
+        0,
+        1000
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "klipper-png",
+    "validatie": "nog te printen",
+    "notes": [
+      "Standaardsnelheid 150 mm/s, maximum 300 mm/s; bed 100 °C bij 25 °C omgeving (handleiding)",
+      "Losse behuizing en dubbele/viervoudige printkop als accessoire in de officiële winkel"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/orangestorm-giga",
+      "https://www.elegoo.com.cn/uploads/20250925/028b39980fd851eba76ddfb6979ff3d2.pdf"
+    ],
+    "assumptions": [
+      "nozzles: 0.4/0.8/1.0 als optie (handleiding noemt 0.6 standaard; winkel verkoopt een \"multi-size\" nozzleset, maten niet uitgelezen)",
+      "maxAccel: 3000 mm/s² (niet gepubliceerd; voorzichtig gekozen voor een portaal van 800 mm)",
+      "announced: 2024-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek 0..800 x 0..800 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: klipper-png (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-centauri-carbon",
+    "brand": "Elegoo",
+    "model": "Centauri Carbon",
+    "technology": "fdm",
+    "status": "discontinued",
+    "announced": "2025-02",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 320,
+    "maxBedTemp": 110,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "ELEGOO OS (Klipper-based)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-centauri",
+    "validatie": "nog te printen",
+    "notes": [
+      "Hotend tot 32 mm³/s (productpagina)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/centauri-carbon",
+      "https://www.elegoo.com/products/centauri-carbon-2"
+    ],
+    "assumptions": [
+      "maxBedTemp: 110 (niet uitgelezen: productpagina geblokkeerd door rate-limiting; gelijk aan Centauri Carbon 2)",
+      "gcodeFlavor: klipper (eigen Elegoo-firmware op Klipper-basis; zie docs/34 R5, te verifiëren)",
+      "announced: 2025-02 (eerste accessoires in de officiële winkel op 2025-02-12)",
+      "status: discontinued (alleen nog \"pre-owned\" in de US-winkel; opgevolgd door Centauri Carbon 2)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-centauri (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-centauri-carbon-2",
+    "brand": "Elegoo",
+    "model": "Centauri Carbon 2",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2026-05",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 110,
+    "enclosure": true,
+    "multiMaterial": "CANVAS optional (4 colours)",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "ELEGOO OS (Klipper-based)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-centauri",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/centauri-carbon-2",
+      "https://www.elegoo.com.cn/uploads/20251218/86d301d8d1876088c2d118ec41c57319.pdf"
+    ],
+    "assumptions": [
+      "maxNozzleTemp: 350 en maxBedTemp: 110 (uit de handleiding van de Combo; printer zonder CANVAS is dezelfde machine)",
+      "gcodeFlavor: klipper (eigen Elegoo-firmware op Klipper-basis; te verifiëren)",
+      "announced: 2026-05 (eerste publicatie van de losse printer in de officiële winkel; de Combo kwam op 2026-01-26)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-centauri (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-centauri-carbon-2-combo",
+    "brand": "Elegoo",
+    "model": "Centauri Carbon 2 Combo",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2026-01",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 110,
+    "enclosure": true,
+    "multiMaterial": "CANVAS, 4 colours",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "ELEGOO OS (Klipper-based)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-centauri",
+    "validatie": "nog te printen",
+    "notes": [
+      "Ook verkocht als ELEGOO x emoji Centauri Carbon 2 Combo (zelfde printer)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/centauri-carbon-2-combo",
+      "https://www.elegoo.com.cn/uploads/20251218/86d301d8d1876088c2d118ec41c57319.pdf",
+      "https://www.elegoo.com/products/centauri-carbon-2",
+      "https://www.prnewswire.com/news-releases/elegoo-to-launch-multicolor-3d-printer-centauri-carbon-2-combo-on-january-26-302664338.html"
+    ],
+    "assumptions": [
+      "gcodeFlavor: klipper (eigen Elegoo-firmware op Klipper-basis; te verifiëren)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-centauri (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-centauri-2",
+    "brand": "Elegoo",
+    "model": "Centauri 2",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2026-06",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 110,
+    "enclosure": false,
+    "multiMaterial": "CANVAS optional (4 colours)",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "ELEGOO OS",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-centauri",
+    "validatie": "nog te printen",
+    "notes": [
+      "Open frame; bed 260 x 260 mm; standaardversnelling 10 000 mm/s², aanbevolen snelheid 250 mm/s (productpagina)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/centauri-2"
+    ],
+    "assumptions": [
+      "gcodeFlavor: klipper (pagina noemt \"ELEGOO OS\" en uitvoer Gcode; Klipper-basis te verifiëren)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-centauri (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-centauri-2-combo",
+    "brand": "Elegoo",
+    "model": "Centauri 2 Combo",
+    "technology": "fdm",
+    "status": "released",
+    "announced": "2026-06",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 110,
+    "enclosure": false,
+    "multiMaterial": "CANVAS, 4 colours",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "ELEGOO OS",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-centauri",
+    "validatie": "nog te printen",
+    "notes": [
+      "Open frame met CANVAS (4 kleuren, RFID, automatisch bijvullen) (productpagina)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/centauri-2-combo",
+      "https://www.elegoo.com/products/centauri-2"
+    ],
+    "assumptions": [
+      "gcodeFlavor: klipper (pagina noemt \"ELEGOO OS\" en uitvoer Gcode; Klipper-basis te verifiëren)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-centauri (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-centauri-x-ultra",
+    "brand": "Elegoo",
+    "model": "Centauri X Ultra",
+    "technology": "fdm",
+    "status": "announced",
+    "announced": "2026-11",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 4,
+    "maxNozzleTemp": 350,
+    "maxBedTemp": 120,
+    "enclosure": true,
+    "multiMaterial": "4 independent printheads (tool changer); optional AFS up to 20 colours",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "ELEGOO OS",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-centauri",
+    "validatie": "nog te printen",
+    "notes": [
+      "AANGEKONDIGD op Formnext 2026 (17 november 2026): eerste toolchanger van Elegoo met vier onafhankelijke printkoppen. Geen prijs of leverdatum."
+    ],
+    "sources": [
+      "https://www.prnewswire.co.uk/news-releases/elegoo-showcases-new-solutions-across-resin-printing-fdm-printing-and-3d-scanning-at-formnext-2026-302942939.html"
+    ],
+    "assumptions": [
+      "buildVolume: 256 x 256 x 256 (vakpers, van een infobord op de beurs; nog geen specificatie van Elegoo)",
+      "maxNozzleTemp: 350 (vakpers, infobord op de beurs)",
+      "maxBedTemp: 120 (vakpers, infobord op de beurs)",
+      "maxSpeed: 500 mm/s (vakpers, infobord op de beurs)",
+      "maxAccel: 20000 mm/s² (niet gepubliceerd; gelijk aan Centauri Carbon 2)",
+      "enclosure: true (niet gepubliceerd; foto's tonen een gesloten kast)",
+      "gcodeFlavor: klipper (niet gepubliceerd)",
+      "nozzles: 0.4 (niet gepubliceerd)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: front-left (AANNAME: gangbaar voor cartesiaanse en CoreXY-printers, niet in de fabrikantspecificatie)",
+      "thumbnailFormat: elegoo-centauri (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-3",
+    "brand": "Elegoo",
+    "model": "Mars 3",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2021-06",
+    "buildVolume": [
+      143.43,
+      89.6,
+      175
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "ctb",
+    "firmware": "ELEGOO (ChiTu)",
+    "resin": {
+      "xyResolutionUm": 35,
+      "lcdResolution": [
+        4098,
+        2560
+      ],
+      "lcdSizeMm": [
+        143.43,
+        89.6
+      ],
+      "screenType": "6.66\" 4K mono LCD"
+    },
+    "printableArea": [
+      [
+        -71.715,
+        -44.8
+      ],
+      [
+        71.715,
+        -44.8
+      ],
+      [
+        71.715,
+        44.8
+      ],
+      [
+        -71.715,
+        44.8
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -71.715,
+        71.715
+      ],
+      "y": [
+        -44.8,
+        44.8
+      ],
+      "z": [
+        0,
+        175
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "ctb-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-mars-3-lcd-3d-printer"
+    ],
+    "assumptions": [
+      "buildVolume: 143.43 x 89.6 x 175 (pagina noemt alleen \"37 % groter dan Mars 2\"; XY uit 4098 x 2560 px x 35 µm)",
+      "lcdSizeMm: 143.43 x 89.6 (berekend uit pixels x pixelmaat)",
+      "fileFormat: ctb (ChiTuBox-generatie; niet op de pagina)",
+      "announced: 2021-06 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -71.715..71.715 x -44.8..44.8 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: ctb-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-3-pro",
+    "brand": "Elegoo",
+    "model": "Mars 3 Pro",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2022-05",
+    "buildVolume": [
+      143,
+      89.6,
+      175
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "ctb",
+    "firmware": "ELEGOO (ChiTu)",
+    "resin": {
+      "xyResolutionUm": 35,
+      "lcdResolution": [
+        4098,
+        2560
+      ],
+      "lcdSizeMm": [
+        143.43,
+        89.6
+      ],
+      "screenType": "6.6\" 4K mono LCD"
+    },
+    "printableArea": [
+      [
+        -71.5,
+        -44.8
+      ],
+      [
+        71.5,
+        -44.8
+      ],
+      [
+        71.5,
+        44.8
+      ],
+      [
+        -71.5,
+        44.8
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -71.5,
+        71.5
+      ],
+      "y": [
+        -44.8,
+        44.8
+      ],
+      "z": [
+        0,
+        175
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "ctb-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-mars-3-pro-4k-mono-lcd-3d-printer"
+    ],
+    "assumptions": [
+      "xyResolutionUm: 35 (gelijk aan Mars 3, zelfde lcd)",
+      "lcdSizeMm: 143.43 x 89.6 (berekend uit pixels x pixelmaat)",
+      "fileFormat: ctb (ChiTuBox-generatie; niet op de pagina)",
+      "announced: 2022-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -71.5..71.5 x -44.8..44.8 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: ctb-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-4",
+    "brand": "Elegoo",
+    "model": "Mars 4",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2023-05",
+    "buildVolume": [
+      153.36,
+      77.76,
+      175
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 18,
+      "lcdResolution": [
+        8520,
+        4320
+      ],
+      "lcdSizeMm": [
+        153.36,
+        77.76
+      ],
+      "screenType": "7\" 9K mono LCD"
+    },
+    "printableArea": [
+      [
+        -76.68,
+        -38.88
+      ],
+      [
+        76.68,
+        -38.88
+      ],
+      [
+        76.68,
+        38.88
+      ],
+      [
+        -76.68,
+        38.88
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -76.68,
+        76.68
+      ],
+      "y": [
+        -38.88,
+        38.88
+      ],
+      "z": [
+        0,
+        175
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-mars-4-msla-resin-3d-printer-with-9k-mono-lcd"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 153.36 x 77.76 (gelijk aan bouwvolume XY)",
+      "fileFormat: goo (niet op de pagina; Mars 4-generatie)",
+      "announced: 2023-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -76.68..76.68 x -38.88..38.88 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-4-ultra",
+    "brand": "Elegoo",
+    "model": "Mars 4 Ultra",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2023-05",
+    "buildVolume": [
+      153.36,
+      77.76,
+      165
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 18,
+      "lcdResolution": [
+        8520,
+        4320
+      ],
+      "lcdSizeMm": [
+        153.36,
+        77.76
+      ],
+      "screenType": "7\" 9K mono LCD"
+    },
+    "printableArea": [
+      [
+        -76.68,
+        -38.88
+      ],
+      [
+        76.68,
+        -38.88
+      ],
+      [
+        76.68,
+        38.88
+      ],
+      [
+        -76.68,
+        38.88
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -76.68,
+        76.68
+      ],
+      "y": [
+        -38.88,
+        38.88
+      ],
+      "z": [
+        0,
+        165
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-mars-4-ultra-msla-resin-3d-printer-with-9k-mono-lcd"
+    ],
+    "assumptions": [
+      "buildVolume: 153.36 x 77.76 x 165 (XY uit pixels x 18 µm; hoogte niet in de beschrijving)",
+      "lcdSizeMm: 153.36 x 77.76 (berekend)",
+      "fileFormat: goo (niet op de pagina)",
+      "announced: 2023-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -76.68..76.68 x -38.88..38.88 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-4-max",
+    "brand": "Elegoo",
+    "model": "Mars 4 Max",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2023-04",
+    "buildVolume": [
+      195.84,
+      122.4,
+      150
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 34,
+      "lcdResolution": [
+        5760,
+        3600
+      ],
+      "lcdSizeMm": [
+        195.84,
+        122.4
+      ],
+      "screenType": "9.1\" 6K mono LCD"
+    },
+    "printableArea": [
+      [
+        -97.92,
+        -61.2
+      ],
+      [
+        97.92,
+        -61.2
+      ],
+      [
+        97.92,
+        61.2
+      ],
+      [
+        -97.92,
+        61.2
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -97.92,
+        97.92
+      ],
+      "y": [
+        -61.2,
+        61.2
+      ],
+      "z": [
+        0,
+        150
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-mars-4-max-msla-resin-3d-printer-with-6k-mono-lcd"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 195.84 x 122.4 (gelijk aan bouwvolume XY)",
+      "announced: 2023-04 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -97.92..97.92 x -61.2..61.2 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-4-dlp",
+    "brand": "Elegoo",
+    "model": "Mars 4 DLP",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2023-04",
+    "buildVolume": [
+      132.8,
+      74.7,
+      150
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 51.875,
+      "lcdResolution": [
+        2560,
+        1440
+      ],
+      "lcdSizeMm": [
+        132.8,
+        74.7
+      ],
+      "screenType": "TI DLP projector"
+    },
+    "printableArea": [
+      [
+        -66.4,
+        -37.35
+      ],
+      [
+        66.4,
+        -37.35
+      ],
+      [
+        66.4,
+        37.35
+      ],
+      [
+        -66.4,
+        37.35
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -66.4,
+        66.4
+      ],
+      "y": [
+        -37.35,
+        37.35
+      ],
+      "z": [
+        0,
+        150
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-mars-4-dlp-resin-3d-printer",
+      "https://www.elegoo.com.cn/uploads/20230314/c962ca9800974469f4655c0a6b2bb7b9.pdf"
+    ],
+    "assumptions": [
+      "buildVolume: 132.8 x 74.7 x 150 (beschrijving en handleiding niet als tekst uitleesbaar)",
+      "resin.lcdResolution: 2560 x 1440 (niet uitgelezen)",
+      "resin.xyResolutionUm: 51.875 (berekend uit 132.8 mm / 2560 px)",
+      "fileFormat: goo (niet uitgelezen)",
+      "announced: 2023-04 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -66.4..66.4 x -37.35..37.35 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-5",
+    "brand": "Elegoo",
+    "model": "Mars 5",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2024-06",
+    "buildVolume": [
+      143.43,
+      89.6,
+      150
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 35,
+      "lcdResolution": [
+        4098,
+        2560
+      ],
+      "lcdSizeMm": [
+        143.43,
+        89.6
+      ],
+      "screenType": "6.66\" 4K mono LCD"
+    },
+    "printableArea": [
+      [
+        -71.715,
+        -44.8
+      ],
+      [
+        71.715,
+        -44.8
+      ],
+      [
+        71.715,
+        44.8
+      ],
+      [
+        -71.715,
+        44.8
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -71.715,
+        71.715
+      ],
+      "y": [
+        -44.8,
+        44.8
+      ],
+      "z": [
+        0,
+        150
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/mars-5-4k-6-6inch-monochrome-lcd-resin-3d-printer"
+    ],
+    "assumptions": [
+      "buildVolume: 143.43 x 89.6 x 150 (productpagina niet uitleesbaar door rate-limiting; 4K 6,6\" uit de producttitel)",
+      "resin.lcdResolution: 4098 x 2560 (4K 6,6\" zoals Mars 3)",
+      "resin.xyResolutionUm: 35 (berekend)",
+      "announced: 2024-06 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -71.715..71.715 x -44.8..44.8 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-mars-5-ultra",
+    "brand": "Elegoo",
+    "model": "Mars 5 Ultra",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2024-06",
+    "buildVolume": [
+      153.36,
+      77.76,
+      165
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 18,
+      "lcdResolution": [
+        8520,
+        4320
+      ],
+      "lcdSizeMm": [
+        153.36,
+        77.76
+      ],
+      "screenType": "7\" 9K mono LCD"
+    },
+    "printableArea": [
+      [
+        -76.68,
+        -38.88
+      ],
+      [
+        76.68,
+        -38.88
+      ],
+      [
+        76.68,
+        38.88
+      ],
+      [
+        -76.68,
+        38.88
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -76.68,
+        76.68
+      ],
+      "y": [
+        -38.88,
+        38.88
+      ],
+      "z": [
+        0,
+        165
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "Tot 150 mm/h, AI-camera, automatisch nivelleren (productpagina)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/mars-5-ultra-9k-7inch-monochrome-lcd-resin-3d-printer"
+    ],
+    "assumptions": [
+      "buildVolume: 153.36 x 77.76 x 165 (productpagina niet uitleesbaar; 9K 7\" uit de producttitel, gelijk aan Mars 4 Ultra)",
+      "resin.lcdResolution: 8520 x 4320 (9K 7\" zoals Mars 4)",
+      "announced: 2024-06 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -76.68..76.68 x -38.88..38.88 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn",
+    "brand": "Elegoo",
+    "model": "Saturn",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2020-09",
+    "buildVolume": [
+      192,
+      120,
+      200
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "ctb",
+    "firmware": "ELEGOO (ChiTu)",
+    "resin": {
+      "xyResolutionUm": 50,
+      "lcdResolution": [
+        3840,
+        2400
+      ],
+      "lcdSizeMm": [
+        192,
+        120
+      ],
+      "screenType": "8.9\" 4K mono LCD"
+    },
+    "printableArea": [
+      [
+        -96,
+        -60
+      ],
+      [
+        96,
+        -60
+      ],
+      [
+        96,
+        60
+      ],
+      [
+        -96,
+        60
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -96,
+        96
+      ],
+      "y": [
+        -60,
+        60
+      ],
+      "z": [
+        0,
+        200
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "ctb-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-saturn-4k-mono-lcd-3d-printer"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 192 x 120 (gelijk aan bouwvolume XY)",
+      "fileFormat: ctb (ChiTuBox-generatie)",
+      "announced: 2020-09 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -96..96 x -60..60 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: ctb-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-s",
+    "brand": "Elegoo",
+    "model": "Saturn S",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2022-02",
+    "buildVolume": [
+      196,
+      122,
+      210
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "ctb",
+    "firmware": "ELEGOO (ChiTu)",
+    "resin": {
+      "xyResolutionUm": 48,
+      "lcdResolution": [
+        4098,
+        2560
+      ],
+      "lcdSizeMm": [
+        196,
+        122
+      ],
+      "screenType": "9.1\" 4K mono LCD"
+    },
+    "printableArea": [
+      [
+        -98,
+        -61
+      ],
+      [
+        98,
+        -61
+      ],
+      [
+        98,
+        61
+      ],
+      [
+        -98,
+        61
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -98,
+        98
+      ],
+      "y": [
+        -61,
+        61
+      ],
+      "z": [
+        0,
+        210
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "ctb-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-saturn-s-msla-9-1-4k-mono-lcd-3d-printer"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 196 x 122 (gelijk aan bouwvolume XY)",
+      "announced: 2022-02 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -98..98 x -61..61 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: ctb-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-2",
+    "brand": "Elegoo",
+    "model": "Saturn 2",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2022-05",
+    "buildVolume": [
+      219,
+      123,
+      250
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "ctb",
+    "firmware": "ELEGOO (ChiTu)",
+    "resin": {
+      "xyResolutionUm": 28.5,
+      "lcdResolution": [
+        7680,
+        4320
+      ],
+      "lcdSizeMm": [
+        219,
+        123
+      ],
+      "screenType": "10\" 8K mono LCD"
+    },
+    "printableArea": [
+      [
+        -109.5,
+        -61.5
+      ],
+      [
+        109.5,
+        -61.5
+      ],
+      [
+        109.5,
+        61.5
+      ],
+      [
+        -109.5,
+        61.5
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -109.5,
+        109.5
+      ],
+      "y": [
+        -61.5,
+        61.5
+      ],
+      "z": [
+        0,
+        250
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "ctb-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-saturn-2-8k-10-inches-mono-lcd-3d-printer"
+    ],
+    "assumptions": [
+      "buildVolume: 219 x 123 x 250 (XY gelijk aan Saturn 8K met hetzelfde 10\" 8K-scherm; hoogte niet uitgelezen)",
+      "resin.lcdResolution: 7680 x 4320 (zoals Saturn 8K)",
+      "fileFormat: ctb (ChiTuBox-generatie)",
+      "announced: 2022-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -109.5..109.5 x -61.5..61.5 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: ctb-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-8k",
+    "brand": "Elegoo",
+    "model": "Saturn 8K",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2022-09",
+    "buildVolume": [
+      219,
+      123,
+      210
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "ctb",
+    "firmware": "ELEGOO (ChiTu)",
+    "resin": {
+      "xyResolutionUm": 28.5,
+      "lcdResolution": [
+        7680,
+        4320
+      ],
+      "lcdSizeMm": [
+        219,
+        123
+      ],
+      "screenType": "10\" 8K mono LCD"
+    },
+    "printableArea": [
+      [
+        -109.5,
+        -61.5
+      ],
+      [
+        109.5,
+        -61.5
+      ],
+      [
+        109.5,
+        61.5
+      ],
+      [
+        -109.5,
+        61.5
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -109.5,
+        109.5
+      ],
+      "y": [
+        -61.5,
+        61.5
+      ],
+      "z": [
+        0,
+        210
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "ctb-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-saturn-8k-msla-10inch-monochrome-lcd-resin-3d-printer"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 219 x 123 (gelijk aan bouwvolume XY)",
+      "fileFormat: ctb (ChiTuBox-generatie)",
+      "announced: 2022-09 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -109.5..109.5 x -61.5..61.5 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: ctb-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-3",
+    "brand": "Elegoo",
+    "model": "Saturn 3",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2023-05",
+    "buildVolume": [
+      218.88,
+      122.88,
+      250
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 19,
+      "lcdResolution": [
+        11520,
+        5120
+      ],
+      "lcdSizeMm": [
+        218.88,
+        122.88
+      ],
+      "screenType": "10\" 12K mono LCD"
+    },
+    "printableArea": [
+      [
+        -109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        61.44
+      ],
+      [
+        -109.44,
+        61.44
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -109.44,
+        109.44
+      ],
+      "y": [
+        -61.44,
+        61.44
+      ],
+      "z": [
+        0,
+        250
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "XY-resolutie 19 x 24 µm (niet-vierkante pixels)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-saturn-3-resin-3d-printer-12k"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 218.88 x 122.88 (gelijk aan bouwvolume XY)",
+      "announced: 2023-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -109.44..109.44 x -61.44..61.44 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-3-ultra",
+    "brand": "Elegoo",
+    "model": "Saturn 3 Ultra",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2023-05",
+    "buildVolume": [
+      218.88,
+      122.88,
+      260
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO (Linux)",
+    "resin": {
+      "xyResolutionUm": 19,
+      "lcdResolution": [
+        11520,
+        5120
+      ],
+      "lcdSizeMm": [
+        218.88,
+        122.88
+      ],
+      "screenType": "10\" 12K mono LCD"
+    },
+    "printableArea": [
+      [
+        -109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        61.44
+      ],
+      [
+        -109.44,
+        61.44
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -109.44,
+        109.44
+      ],
+      "y": [
+        -61.44,
+        61.44
+      ],
+      "z": [
+        0,
+        260
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "XY-resolutie 19 x 24 µm; tot 150 mm/h (handleiding)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-saturn-3-ultra-resin-3d-printer-12k",
+      "https://www.elegoo.com.cn/uploads/20230529/a5399d8b5033b6f7ac9a3a337e638e64.pdf"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 218.88 x 122.88 (gelijk aan bouwvolume XY)",
+      "announced: 2023-05 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -109.44..109.44 x -61.44..61.44 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-4",
+    "brand": "Elegoo",
+    "model": "Saturn 4",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2024-04",
+    "buildVolume": [
+      218.88,
+      122.88,
+      220
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 19,
+      "lcdResolution": [
+        11520,
+        5120
+      ],
+      "lcdSizeMm": [
+        218.88,
+        122.88
+      ],
+      "screenType": "10\" 12K mono LCD"
+    },
+    "printableArea": [
+      [
+        -109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        61.44
+      ],
+      [
+        -109.44,
+        61.44
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -109.44,
+        109.44
+      ],
+      "y": [
+        -61.44,
+        61.44
+      ],
+      "z": [
+        0,
+        220
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "Tot 70 mm/h (productpagina)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/saturn-4-12k-10inch-monochrome-lcd-resin-3d-printer"
+    ],
+    "assumptions": [
+      "buildVolume: 218.88 x 122.88 x 220 (productpagina niet uitleesbaar; 10\" 12K uit de titel, gelijk aan Saturn 4 Ultra)",
+      "resin.lcdResolution: 11520 x 5120 (zoals Saturn 4 Ultra)",
+      "announced: 2024-04 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -109.44..109.44 x -61.44..61.44 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-4-ultra",
+    "brand": "Elegoo",
+    "model": "Saturn 4 Ultra",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2024-04",
+    "buildVolume": [
+      218.88,
+      122.88,
+      220
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO EL3D-4.0",
+    "resin": {
+      "xyResolutionUm": 19,
+      "lcdResolution": [
+        11520,
+        5120
+      ],
+      "lcdSizeMm": [
+        218.88,
+        122.88
+      ],
+      "screenType": "10\" 12K mono LCD"
+    },
+    "printableArea": [
+      [
+        -109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        -61.44
+      ],
+      [
+        109.44,
+        61.44
+      ],
+      [
+        -109.44,
+        61.44
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -109.44,
+        109.44
+      ],
+      "y": [
+        -61.44,
+        61.44
+      ],
+      "z": [
+        0,
+        220
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "XY-resolutie 19 x 24 µm; tot 150 mm/h; AI-camera (handleiding)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/saturn-4-ultra-12k-10inch-monochrome-lcd-resin-3d-printer",
+      "https://www.elegoo.com.cn/uploads/20250120/ea15e9af29b39d315d05c01c1c8b18eb.pdf"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 218.88 x 122.88 (gelijk aan bouwvolume XY)",
+      "fileFormat: goo (handleiding noemt CHITUBOX en ELEGOO-slicers; formaat niet uitgelezen)",
+      "announced: 2024-04 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -109.44..109.44 x -61.44..61.44 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-4-ultra-16k",
+    "brand": "Elegoo",
+    "model": "Saturn 4 Ultra 16K",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2025-01",
+    "buildVolume": [
+      211.68,
+      118.37,
+      220
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO EL3D-4.0",
+    "resin": {
+      "xyResolutionUm": 14,
+      "lcdResolution": [
+        15120,
+        6230
+      ],
+      "lcdSizeMm": [
+        211.68,
+        118.37
+      ],
+      "screenType": "10\" 16K mono LCD"
+    },
+    "printableArea": [
+      [
+        -105.84,
+        -59.185
+      ],
+      [
+        105.84,
+        -59.185
+      ],
+      [
+        105.84,
+        59.185
+      ],
+      [
+        -105.84,
+        59.185
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -105.84,
+        105.84
+      ],
+      "y": [
+        -59.185,
+        59.185
+      ],
+      "z": [
+        0,
+        220
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "XY-resolutie 14 x 19 µm; tot 150 mm/h (handleiding)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/saturn-4-ultra-16k-10inch-monochrome-lcd-resin-3d-printer",
+      "https://www.elegoo.com.cn/uploads/20250923/8636c057f35a814d6e4e9e5bae63b9e2.pdf"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 211.68 x 118.37 (gelijk aan bouwvolume XY)",
+      "fileFormat: goo (niet uitgelezen)",
+      "announced: 2025-01 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "printableArea: rechthoek -105.84..105.84 x -59.185..59.185 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-saturn-5-ultra",
+    "brand": "Elegoo",
+    "model": "Saturn 5 Ultra",
+    "technology": "resin",
+    "status": "announced",
+    "announced": "2026-11",
+    "buildVolume": [
+      211.68,
+      118.37,
+      220
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 14,
+      "lcdResolution": [
+        15120,
+        6230
+      ],
+      "lcdSizeMm": [
+        211.68,
+        118.37
+      ],
+      "screenType": "10\" 16K mono LCD"
+    },
+    "printableArea": [
+      [
+        -105.84,
+        -59.185
+      ],
+      [
+        105.84,
+        -59.185
+      ],
+      [
+        105.84,
+        59.185
+      ],
+      [
+        -105.84,
+        59.185
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -105.84,
+        105.84
+      ],
+      "y": [
+        -59.185,
+        59.185
+      ],
+      "z": [
+        0,
+        220
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "AANGEKONDIGD op Formnext 2026 (17 november 2026); lancering gepland begin Q1 2027. Elegoo noemt alleen een \"intelligent resin management system\"; geen technische gegevens."
+    ],
+    "sources": [
+      "https://www.prnewswire.co.uk/news-releases/elegoo-showcases-new-solutions-across-resin-printing-fdm-printing-and-3d-scanning-at-formnext-2026-302942939.html"
+    ],
+    "assumptions": [
+      "buildVolume: 211.68 x 118.37 x 220 (geen gegevens; gelijk aan Saturn 4 Ultra 16K als voorganger)",
+      "resin.lcdResolution: 15120 x 6230 (geen gegevens; gelijk aan Saturn 4 Ultra 16K)",
+      "resin.xyResolutionUm: 14 (geen gegevens)",
+      "resin.screenType: 10\" 16K mono LCD (geen gegevens)",
+      "fileFormat: goo (geen gegevens)",
+      "printableArea: rechthoek -105.84..105.84 x -59.185..59.185 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-jupiter",
+    "brand": "Elegoo",
+    "model": "Jupiter",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2021-10",
+    "buildVolume": [
+      277.848,
+      156.264,
+      300
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "ctb",
+    "firmware": "ELEGOO (ChiTu)",
+    "resin": {
+      "xyResolutionUm": 51,
+      "lcdResolution": [
+        5448,
+        3064
+      ],
+      "lcdSizeMm": [
+        277.848,
+        156.264
+      ],
+      "screenType": "12.8\" 6K mono LCD"
+    },
+    "printableArea": [
+      [
+        -138.924,
+        -78.132
+      ],
+      [
+        138.924,
+        -78.132
+      ],
+      [
+        138.924,
+        78.132
+      ],
+      [
+        -138.924,
+        78.132
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -138.924,
+        138.924
+      ],
+      "y": [
+        -78.132,
+        78.132
+      ],
+      "z": [
+        0,
+        300
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "ctb-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-jupiter-resin-3d-printer-6k-mono-msla-3d-printer"
+    ],
+    "assumptions": [
+      "buildVolume: 277.848 x 156.264 x 300 (pagina noemt 12,8\" 6K; waarden gelijk aan Jupiter SE met hetzelfde scherm)",
+      "resin.lcdResolution: 5448 x 3064 (zoals Jupiter SE)",
+      "fileFormat: ctb (pagina noemt CHITUBOX Pro)",
+      "announced: 2021-10 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -138.924..138.924 x -78.132..78.132 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: ctb-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-jupiter-se",
+    "brand": "Elegoo",
+    "model": "Jupiter SE",
+    "technology": "resin",
+    "status": "discontinued",
+    "announced": "2023-11",
+    "buildVolume": [
+      277.848,
+      156.264,
+      300
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 51,
+      "lcdResolution": [
+        5448,
+        3064
+      ],
+      "lcdSizeMm": [
+        277.848,
+        156.264
+      ],
+      "screenType": "12.8\" 6K mono LCD"
+    },
+    "printableArea": [
+      [
+        -138.924,
+        -78.132
+      ],
+      [
+        138.924,
+        -78.132
+      ],
+      [
+        138.924,
+        78.132
+      ],
+      [
+        -138.924,
+        78.132
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -138.924,
+        138.924
+      ],
+      "y": [
+        -78.132,
+        78.132
+      ],
+      "z": [
+        0,
+        300
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [],
+    "sources": [
+      "https://www.elegoo.com/products/jupiter-se"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 277.848 x 156.264 (gelijk aan bouwvolume XY)",
+      "fileFormat: goo (niet uitgelezen)",
+      "announced: 2023-11 (eerste publicatie in de officiële Elegoo-winkel; geen aankondigingsdatum van de fabrikant gevonden)",
+      "status: discontinued (niet meer leverbaar in de officiële Elegoo-winkels www/us/eu op 2026-11-18; geen formele EOL-aankondiging gevonden)",
+      "printableArea: rechthoek -138.924..138.924 x -78.132..78.132 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  },
+  {
+    "id": "elegoo-jupiter-2",
+    "brand": "Elegoo",
+    "model": "Jupiter 2",
+    "technology": "resin",
+    "status": "released",
+    "announced": "2026-04",
+    "buildVolume": [
+      302.4,
+      161.98,
+      300
+    ],
+    "bedShape": "rect",
+    "nozzles": [],
+    "toolheads": 1,
+    "maxNozzleTemp": 0,
+    "maxBedTemp": 0,
+    "enclosure": true,
+    "multiMaterial": "",
+    "maxSpeed": 0,
+    "maxAccel": 0,
+    "gcodeFlavor": "",
+    "fileFormat": "goo",
+    "firmware": "ELEGOO",
+    "resin": {
+      "xyResolutionUm": 20,
+      "lcdResolution": [
+        15120,
+        6230
+      ],
+      "lcdSizeMm": [
+        302.4,
+        161.98
+      ],
+      "screenType": "14\" 16K mono LCD"
+    },
+    "printableArea": [
+      [
+        -151.2,
+        -80.99
+      ],
+      [
+        151.2,
+        -80.99
+      ],
+      [
+        151.2,
+        80.99
+      ],
+      [
+        -151.2,
+        80.99
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        -151.2,
+        151.2
+      ],
+      "y": [
+        -80.99,
+        80.99
+      ],
+      "z": [
+        0,
+        300
+      ]
+    },
+    "origin": "center",
+    "thumbnailFormat": "goo-preview",
+    "validatie": "nog te printen",
+    "notes": [
+      "XY-resolutie 20 x 26 µm; automatisch nivelleren, harstoevoer en verwarming (persbericht)"
+    ],
+    "sources": [
+      "https://www.elegoo.com/products/elegoo-jupiter-2",
+      "https://www.prnewswire.com/news-releases/elegoo-launches-large-format-resin-printer-jupiter-2-setting-new-benchmark-in-lcd-3d-printing-302740587.html"
+    ],
+    "assumptions": [
+      "lcdSizeMm: 302.4 x 161.98 (gelijk aan bouwvolume XY)",
+      "fileFormat: goo (persbericht noemt geen bestandsformaat)",
+      "printableArea: rechthoek -151.2..151.2 x -80.99..80.99 (AANNAME: afgeleid van het bouwvolume van de fabrikant; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden op de fabrikantpagina)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd; veilig voor het model; start- en eindcode die buiten het bed moeten komen, vragen eerst een gecontroleerde waarde)",
+      "origin: center (AANNAME: harsformaten beschrijven lagen rond het midden van het lcd)",
+      "thumbnailFormat: goo-preview (AANNAME: nog te verifiëren tegen een bestand uit de slicer van de fabrikant)"
+    ]
+  }
+]
