@@ -1,0 +1,49 @@
+/* 3D Print tab: graphics area, Property Panel extras, preview sliders and legend (light and dark themes) */
+.k-print-view { position: absolute; inset: 0; z-index: 4; background: var(--bg-viewport-gradient); border: 1px solid var(--border); overflow: hidden; }
+.k-print-canvas { position: absolute; inset: 0; }
+.k-print-canvas canvas { display: block; outline: none; }
+.k-print-badge { position: absolute; left: 8px; bottom: 6px; font-size: 11px; color: var(--text-muted); background: color-mix(in srgb, var(--bg-panel) 80%, transparent); padding: 2px 6px; border-radius: 2px; pointer-events: none; }
+.k-print-legend { position: absolute; left: 10px; top: 34px; min-width: 230px; background: color-mix(in srgb, var(--bg-panel) 92%, transparent); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); font-size: 12px; padding: 6px 8px; color: var(--text); }
+.k-print-legend-title { font-weight: 600; margin-bottom: 4px; }
+.k-print-legend-row { display: flex; align-items: center; gap: 6px; padding: 1px 0; }
+.k-print-legend-row .grow, .k-print-legendrow .grow { flex: 1; }
+.k-print-legend-sum { border-top: 1px solid var(--border); margin-top: 5px; padding-top: 4px; }
+.k-print-legend-sum div { display: flex; justify-content: space-between; gap: 10px; }
+.k-print-swatch { display: inline-block; width: 11px; height: 11px; border: 1px solid rgba(0, 0, 0, 0.35); border-radius: 2px; flex: 0 0 auto; vertical-align: -1px; }
+.k-print-scale { margin: 4px 0; }
+.k-print-scalebar { height: 10px; border: 1px solid var(--border); }
+.k-print-scalelabels { display: flex; justify-content: space-between; color: var(--text-muted); }
+.k-print-vslider { position: absolute; right: 14px; top: 40px; bottom: 60px; width: 54px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.k-print-vslider input[type='range'] { writing-mode: vertical-lr; direction: rtl; flex: 1; width: 22px; accent-color: #3f7fc4; }
+.k-print-vslider input.k-print-lo { position: absolute; top: 44px; bottom: 30px; opacity: 0.55; pointer-events: auto; left: 34px; width: 14px; }
+.k-print-vlabel { background: var(--bg-panel); border: 1px solid var(--border); font-size: 11px; padding: 1px 5px; text-align: center; min-width: 36px; color: var(--text); }
+.k-print-hslider { position: absolute; left: 30%; right: 90px; bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+.k-print-hslider input { flex: 1; accent-color: #3f7fc4; }
+.k-print-progress { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: 320px; height: 22px; background: var(--bg-panel); border: 1px solid var(--border); font-size: 12px; }
+.k-print-progress div { position: absolute; inset: 0 auto 0 0; background: #a9cbea; }
+.k-print-progress span { position: relative; display: block; text-align: center; line-height: 20px; color: var(--text); }
+.k-print-platetabs { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); display: flex; gap: 2px; }
+.k-print-platetabs button { border: 1px solid var(--border); background: var(--bg-panel); padding: 2px 10px; font-size: 12px; }
+.k-print-platetabs button.active { background: #dbe8f6; }
+.k-print-pm .k-print-row { justify-content: space-between; }
+.k-print-pm .k-print-label { flex: 0 0 auto; min-width: 104px; color: var(--text); font-size: 12px; }
+.k-print-pm .k-print-row > .k-input, .k-print-pm .k-print-row > select { flex: 1; min-width: 0; }
+.k-print-pm .k-print-facts { margin-top: 4px; font-size: 11px; }
+.k-print-untested { color: #8a5a00; font-size: 11px; }
+.k-print-slot { gap: 4px; }
+.k-print-slotnr { width: 14px; text-align: center; font-weight: 600; color: var(--text); }
+.k-print-color { width: 26px; height: 22px; padding: 0; border: 1px solid var(--border); background: none; }
+.k-print-parts { border: 1px solid var(--border); background: var(--bg-panel); max-height: 160px; overflow: auto; margin-bottom: 4px; }
+.k-print-part { display: flex; align-items: center; gap: 5px; padding: 2px 4px; cursor: default; }
+.k-print-part.selected { background: #cfe3fb; }
+.k-print-out { color: #c62828; }
+.k-print-outlabel { margin-left: auto; font-size: 11px; }
+.k-print-plates { display: flex; gap: 2px; margin-bottom: 4px; }
+.k-print-plates .k-btn.active { background: #dbe8f6; }
+.k-print-summary { width: 100%; font-size: 12px; border-collapse: collapse; }
+.k-print-summary td { padding: 2px 2px; border-bottom: 1px solid var(--border); }
+.k-print-summary td:last-child { text-align: right; }
+.k-print-legendrow { display: flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 12px; }
+.k-print-legendrow .k-muted { font-size: 11px; }
+:root[data-theme='dark'] .k-print-part.selected, :root[data-theme='dark'] .k-print-platetabs button.active { background: #2d4a6b; }
+:root[data-theme='dark'] .k-print-untested { color: #e0b050; }

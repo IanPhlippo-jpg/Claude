@@ -73,9 +73,11 @@ const MaterialDialog = lazyNamed(() => import('./materialDialog'), 'MaterialDial
 const DrawingSheetView = lazyNamed(() => import('./drawing/DrawingSheetView'), 'DrawingSheetView', true);
 const SheetFormatDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'SheetFormatDialog');
 const SheetPropertiesDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'SheetPropertiesDialog');
+// the graphics area of the 3D Print tab lies over the model view (which stays mounted)
+const PlateView = lazyNamed(() => import('./print/PlateView'), 'PlateView', false);
 
 export function App() {
-  const st = useStore(useShallow((s) => ({ theme: s.theme, selectedConstraint: s.selectedConstraint, selectConstraint: s.selectConstraint, panels: s.panels, prefs: s.prefs, managerCollapsed: s.managerCollapsed, hasDocument: s.hasDocument, doc: s.doc, viewportLayout: s.viewportLayout, setPanel: s.setPanel, dialog: s.dialog, confirmDelete: s.confirmDelete, motionOpen: s.motionOpen, setMotionOpen: s.setMotionOpen, ask: s.ask })));
+  const st = useStore(useShallow((s) => ({ theme: s.theme, selectedConstraint: s.selectedConstraint, selectConstraint: s.selectConstraint, panels: s.panels, prefs: s.prefs, managerCollapsed: s.managerCollapsed, hasDocument: s.hasDocument, doc: s.doc, viewportLayout: s.viewportLayout, setPanel: s.setPanel, dialog: s.dialog, confirmDelete: s.confirmDelete, printTab: s.tab === 'print3d', motionOpen: s.motionOpen, setMotionOpen: s.setMotionOpen, ask: s.ask })));
   const [editDim, setEditDim] = useState<string | null>(null);
   const [shortcutBar, setShortcutBar] = useState(false);
 
@@ -154,6 +156,7 @@ export function App() {
               <div className="k-viewgrid-main"><Viewport onEditDimension={onEditDimension} /></div>
             </div>
           )}
+          {st.printTab && st.hasDocument && st.doc.kind !== 'drawing' && <PlateView />}
           {managerSide === 'float' && manager}
           {st.panels.shortcuts.visible && (
             <Dialog title="Keyboard Shortcuts" onClose={() => st.setPanel('shortcuts', { visible: false })}>

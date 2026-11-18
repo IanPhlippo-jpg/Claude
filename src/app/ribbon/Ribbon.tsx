@@ -17,6 +17,8 @@ const ShareTab = lazyNamed(() => import('./AssemblyTab'), 'ShareTab', true);
 const AnnotationTab = lazyNamed(() => import('./DrawingTabs'), 'AnnotationTab', true);
 const SheetFormatTab = lazyNamed(() => import('./DrawingTabs'), 'SheetFormatTab', true);
 const ViewLayoutTab = lazyNamed(() => import('./DrawingTabs'), 'ViewLayoutTab', true);
+// the 3D Print extension: its tab is a chunk of its own, loaded when first shown (docs/34 6.4)
+const PrintTab = lazyNamed(() => import('../print/PrintTab'), 'PrintTab', false);
 
 /**
  * Command Ribbon laid out like the desktop original: a 3×3 block with the menu-bar
@@ -39,6 +41,7 @@ const ASSEMBLY_TABS: { id: RibbonTab; label: string }[] = [
   { id: 'sketch', label: 'Sketch' },
   { id: 'markup', label: 'Markup' },
   { id: 'evaluate', label: 'Evaluate' },
+  { id: 'print3d', label: '3D Print' },
   { id: 'render', label: 'Render Tools' },
   { id: 'lifecycle', label: 'Share' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
@@ -51,6 +54,7 @@ const TABS: { id: RibbonTab; label: string }[] = [
   { id: 'sheetmetal', label: 'Sheet Metal' },
   { id: 'weldments', label: 'Frames' },
   { id: 'evaluate', label: 'Evaluate' },
+  { id: 'print3d', label: '3D Print' },
   { id: 'mbd', label: 'Product Dimensions' },
   { id: 'render', label: 'Render Tools' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
@@ -604,6 +608,12 @@ export function Ribbon() {
     mbd: mbdTab,
     render: renderTab,
     addins: addinsTab,
+    print3d: st.doc.kind === 'drawing' ? undefined : (
+      <>
+        {menuBlock}
+        <PrintTab />
+      </>
+    ),
   };
 
   return (

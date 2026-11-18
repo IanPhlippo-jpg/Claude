@@ -1524,9 +1524,21 @@ elease; README en docs/04 bijgewerkt
 
 ## Extensie "3D Print": volledige slicer in SOLIDWORKS-stijl voor Bambu Lab en Elegoo (2026-11-18)
 - [x] Eisen en antwoorden van Ian vastleggen (docs/33-eisen-3d-print-extensie.md)
-- [~] Fase 1: tabblad "3D Print", printerdatabase Bambu Lab + Elegoo (ook aangekondigd) met bronnen, plaat (plaatsen, plat op vlak, oriënteren, schikken)
-- [ ] Fase 2: slicerkern (lagen, wanden, boven/onder, infill, skirt/brim, support) en laagpreview met tijd en gram
-- [ ] Fase 3: G-code en bestanden (.gcode.3mf Bambu, .gcode Elegoo Klipper/Marlin, .3mf-project)
+- [x] Fase 1: tabblad "3D Print", printerdatabase Bambu Lab + Elegoo (ook aangekondigd) met bronnen, plaat (plaatsen, plat op vlak, oriënteren, schikken)
+- [x] Fase 2: slicerkern (lagen, wanden, boven/onder, infill, skirt/brim, support) en laagpreview met tijd en gram
+  - [x] types.ts + loader printerdatabase/materialen (fixture tot de JSON er is), procesprofielen per nozzle
+  - [x] Eigen polygoon-boolean en offset op int-rooster (0,1 µm, windinggetallen) achter één interface + rasterorakel-test
+  - [x] Mesh lassen/topologie, lagen snijden (half-eenheid-truc, ketenen via rand-id), open mesh-waarschuwing
+  - [x] Wanden, boven/onder, infill (rechtlijnig, raster, gyroid, honingraat), skirt/brim, naad, bruggen
+  - [x] Support normaal + boom, variabele laaghoogte, meerkleuren (filament per stuk, toolwissel, spoeltoren)
+  - [x] Trapezium-tijdschatter, gram/meter/euro; slice-worker met voortgang en annuleren
+  - [x] Tabblad 3D Print (lui), PropertyManager, plaatweergave (bed, rooster, volume, rood buiten volume), preview met schuiven en legenda
+- [x] Fase 3: G-code en bestanden (.gcode.3mf Bambu, .gcode Elegoo Klipper/Marlin, .3mf-project)
+  - [x] G-code-schrijver (Bambu/Klipper/Marlin, eigen start/eind, één getalformatter, ASCII), import startcode uit Bambu Studio
+  - [x] MD5, PNG, miniaturen (PNG-blok, ColPic), zip met deflate, .gcode.3mf, .3mf-project
+  - [x] Exportblokkades (verouderd, buiten bed, temperatuur, lege plaat, onbekende variabele, aangekondigd = bevestigen)
+  - [x] Tests (kubus, cilinder, gaten, overhang, deurkruk, parser, zip, negatief), e2e tabblad, foto's, graphify update
+  - [ ] Open: Clipper2 (installatie geweigerd door toestemmingscontrole), plaat in het document bewaren, referentiebestand Bambu Studio vergelijken, proefprints (Ian)
 - [ ] Fase 4: Elegoo-harsprinters (.goo)
 - [ ] Tests, foto's, commit en push; proefprint per printer als vrijgave (Ian)
 - [ ] Daarna: extensies Lasconstructies+, Lasersnijden/plooien, Offerte uit model

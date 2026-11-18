@@ -33,3 +33,23 @@ Ian wil extensies die SOLIDWORKS niet heeft, maar wel in SOLIDWORKS-stijl. De ee
 - Printers: Ian heeft er nog geen. Elke printer blijft "nog te printen" tot een proefkubus geslaagd is.
 - Meerkleurig (AMS): meteen in v1, met een kleur per part, gereedschapswissels, een prime tower, spoelvolumes en het verbruik per slot.
 - Hars: alleen .goo, geen .ctb.
+
+## Stand fase 1 tot 3 (2026-11-18)
+
+**Nog te printen: kalibratiekubus 20 mm per printer.** Niets is op een echte printer geprint. Elke printer staat in de interface en in de G-code als "nog te printen"; de proefprint per printer is de stap van Ian.
+
+### Wat er is
+- Tabblad **3D Print** (part en assembly, niet bij een tekening), lui geladen (`src/app/print/`): Print Setup, Add to Plate (part, elke body, elke component, assembly als één stuk), Lay Flat (vlak onder de muis licht op), Auto Orient, Arrange, Scale, New Plate, Slice Plate / Cancel Slicing, Preview, Export (printbestand of .3mf-project).
+- Property Panel links met tabbladen Settings en Preview; plaatweergave met bed, raster 10/50 mm, printernaam, bouwvolume, rood buiten het volume, laagschuif met twee grepen, bewegingsschuif, legenda met tijd, gram, meter en euro.
+- Slicerkern in `src/print/` (puur TypeScript, draait in `src/workers/slice.worker.ts` met voortgang en annuleren): eigen polygoon-boolean en offset op een geheeltallig rooster van 0,1 µm met windinggetallen (`geom/`, achter één interface `geom/polygons.ts`), lagen met ketenen via meshranden en een vereniging van losse segmenten voor meshes die niet waterdicht zijn, wanden, boven/onder, bruggen, infill (rechtlijnig, raster, gyroid, honingraat), skirt/brim, naad, support normaal en boom, variabele laaghoogte, minimale laagtijd, volumetrische snelheidsgrens, meerdere filamenten met toolwissel en prime tower.
+- Tijd met een trapeziumplanner met vooruitkijken (`motion.ts`), los nagerekend door de G-code-analyser (`gcode/analyse.ts`).
+- Uitvoer: Bambu `.gcode.3mf` (G-code, MD5, plaatafbeeldingen, slice_info met de AMS-filamentlijst, model_settings, project_settings), Elegoo `.gcode` in Klipper- of Marlin-dialect met miniaturen (PNG-blok; ColPic `;gimage:`/`;simage:` voor de Neptune-schermen), `.3mf`-project zonder G-code. Eén ZIP-schrijver met deflate (`src/core/document/zip.ts`).
+- Eigen start- en eindcode per dialect; knop **Import from Bambu Studio…** leest het machineprofiel van de gebruiker (alleen in zijn instellingen, nooit in de repo).
+
+### Gedeeltelijk of open
+- **Clipper2:** Ian gaf akkoord, maar de installatie van `clipper2-ts` (Boost Software License 1.0) werd door de toestemmingscontrole van de sessie geweigerd. De eigen boolean/offset blijft in gebruik achter de interface; wisselen kan in `geom/polygons.ts`.
+- Mesh: de slicer neemt de body uit de rebuild; een exact (B-rep) body is getesselleerd met koordefout 0,01 mm en hoektolerantie 0,1 rad (5,7°, iets boven de gevraagde 5°). Een gefacetteerde body (mesh-kern) geeft een melding.
+- Bambu: printermodel-id's en de verplichte sleutels van slice_info/project_settings komen uit openbare beschrijvingen; te vergelijken met een referentiebestand uit Bambu Studio. Bambu-specifieke commando's (`G29`, `M620/M621`, `M991`, `M73 L`) zijn uit gemeenschapsbronnen.
+- ColPic: oriëntatie en regelsplitsing op het Neptune-scherm onbekend tot een printer het toont.
+- De plaat wordt nog niet in het document bewaard (alleen in de sessie); instellingen wel (per gebruiker).
+- Niet gebouwd: gap fill, Arachne, ironing, bogen (G2/G3 standaard uit), firmware-retractie en pressure advance standaard uit, schilderen per vlak voor meerkleuren, harsprinters (fase 4).

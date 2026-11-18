@@ -4,7 +4,9 @@
  * Reader: the end of central directory record, the central directory, then each entry from its local header; stored
  * (method 0) and deflate (method 8) entries, inflated with the platform's DecompressionStream('deflate-raw') (async),
  * the CRC-32 checked. No ZIP64, no encryption, no multi-disk archives: these give an error.
- * Writer: stored entries with their CRC-32 and UTF-8 names, which every ZIP and Office reader opens.
+ * Writer: stored entries with their CRC-32 and UTF-8 names, which every ZIP and Office reader opens; writeZipDeflate
+ * compresses the entries with the platform's CompressionStream('deflate-raw') (async). This is the one ZIP writer of the
+ * program (the 3MF export and the 3D Print packages use it too, docs/34 6.1); the writer has no size limit of its own.
  */
 
 export interface ZipEntry {
@@ -128,22 +130,45 @@ function dosTime(d: Date): { time: number; date: number } {
   };
 }
 
+interface Prepared { name: Uint8Array; data: Uint8Array; crc: number; size: number; method: number }
+
 /** a ZIP archive of stored entries (no compression), UTF-8 names */
 export function writeZip(files: { name: string; data: Uint8Array }[], when = new Date()): Uint8Array {
   const enc = new TextEncoder();
+  return assemble(files.map((f) => ({ name: enc.encode(f.name), data: f.data, crc: crc32(f.data), size: f.data.length, method: 0 })), when);
+}
+
+/** deflate raw data with the platform's CompressionStream */
+async function deflateRaw(bytes: Uint8Array): Promise<Uint8Array> {
+  const stream = new Blob([bytes as BlobPart]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+/** a ZIP archive with deflated entries (an entry that does not get smaller is stored) */
+export async function writeZipDeflate(files: { name: string; data: Uint8Array }[], when = new Date()): Promise<Uint8Array> {
+  const enc = new TextEncoder();
+  const prepared: Prepared[] = [];
+  for (const f of files) {
+    const packed = f.data.length > 64 ? await deflateRaw(f.data) : f.data;
+    const deflated = packed !== f.data && packed.length < f.data.length;
+    prepared.push({ name: enc.encode(f.name), data: deflated ? packed : f.data, crc: crc32(f.data), size: f.data.length, method: deflated ? 8 : 0 });
+  }
+  return assemble(prepared, when);
+}
+
+function assemble(entries: Prepared[], when: Date): Uint8Array {
   const { time, date } = dosTime(when);
-  const entries = files.map((f) => ({ name: enc.encode(f.name), data: f.data, crc: crc32(f.data) }));
   const localSize = entries.reduce((n, e) => n + 30 + e.name.length + e.data.length, 0);
   const cdSize = entries.reduce((n, e) => n + 46 + e.name.length, 0);
   const out = new Uint8Array(localSize + cdSize + 22);
   const v = new DataView(out.buffer);
   const offsets: number[] = [];
   let p = 0;
-  // version needed 2.0, flag 0x0800 (UTF-8 names), method 0 (stored)
-  const header = (at: number, e: (typeof entries)[number]) => {
-    v.setUint16(at, 20, true); v.setUint16(at + 2, 0x0800, true); v.setUint16(at + 4, 0, true);
+  // version needed 2.0, flag 0x0800 (UTF-8 names), method 0 (stored) or 8 (deflate)
+  const header = (at: number, e: Prepared) => {
+    v.setUint16(at, 20, true); v.setUint16(at + 2, 0x0800, true); v.setUint16(at + 4, e.method, true);
     v.setUint16(at + 6, time, true); v.setUint16(at + 8, date, true); v.setUint32(at + 10, e.crc, true);
-    v.setUint32(at + 14, e.data.length, true); v.setUint32(at + 18, e.data.length, true); v.setUint16(at + 22, e.name.length, true);
+    v.setUint32(at + 14, e.data.length, true); v.setUint32(at + 18, e.size, true); v.setUint16(at + 22, e.name.length, true);
     v.setUint16(at + 24, 0, true);
   };
   for (const e of entries) {

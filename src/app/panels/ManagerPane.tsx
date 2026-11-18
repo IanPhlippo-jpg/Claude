@@ -55,6 +55,8 @@ const ExplodePM = lazyNamed(() => import('./AssemblyPM'), 'ExplodePM', true);
 const InsertComponentPM = lazyNamed(() => import('./AssemblyPM'), 'InsertComponentPM', true);
 const MatePM = lazyNamed(() => import('./AssemblyPM'), 'MatePM', true);
 const PropertyPanelBody = lazyNamed(() => import('./PropertyPanel'), 'PropertyPanelBody', true);
+// the Property Panel of the 3D Print tab (its own chunk, loaded with the tab)
+const PrintPM = lazyNamed(() => import('../print/PrintPM'), 'PrintPM', false);
 
 /**
  * The manager pane on the left: tab strip (Feature Tree,
@@ -63,7 +65,7 @@ const PropertyPanelBody = lazyNamed(() => import('./PropertyPanel'), 'PropertyPa
  * tree; the fly-out tree can be expanded on top of it.
  */
 export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
-  const st = useStore(useShallow((s) => ({ curveColorEdit: s.curveColorEdit, autoToleranceEdit: s.autoToleranceEdit, managerTab: s.managerTab, commandActive: isCommandActive(s), analysis: s.analysis, hasDocument: s.hasDocument, managerCollapsed: s.managerCollapsed, setManagerCollapsed: s.setManagerCollapsed, setManagerTab: s.setManagerTab, configEdit: s.configEdit, decalEdit: s.decalEdit, offsetSurfEdit: s.offsetSurfEdit, refEdit: s.refEdit, sceneEdit: s.sceneEdit, fastenerEdit: s.fastenerEdit, motorEdit: s.motorEdit, motionEdit: s.motionEdit, sensorEdit: s.sensorEdit, sketch3dEdit: s.sketch3dEdit, patternEdit: s.patternEdit, explodeEdit: s.explodeEdit, sectionEdit: s.sectionEdit, planeEdit: s.planeEdit, drawingEdit: s.drawingEdit, doc: s.doc, selectedDrawingDimensionId: s.selectedDrawingDimensionId, selectedDrawingViewId: s.selectedDrawingViewId, mateEdit: s.mateEdit, insertingComponent: s.insertingComponent, prefs: s.prefs, treeFilter: s.treeFilter, setTreeFilter: s.setTreeFilter })));
+  const st = useStore(useShallow((s) => ({ curveColorEdit: s.curveColorEdit, autoToleranceEdit: s.autoToleranceEdit, managerTab: s.managerTab, commandActive: isCommandActive(s), analysis: s.analysis, hasDocument: s.hasDocument, managerCollapsed: s.managerCollapsed, setManagerCollapsed: s.setManagerCollapsed, setManagerTab: s.setManagerTab, configEdit: s.configEdit, decalEdit: s.decalEdit, offsetSurfEdit: s.offsetSurfEdit, refEdit: s.refEdit, sceneEdit: s.sceneEdit, fastenerEdit: s.fastenerEdit, motorEdit: s.motorEdit, motionEdit: s.motionEdit, sensorEdit: s.sensorEdit, sketch3dEdit: s.sketch3dEdit, patternEdit: s.patternEdit, explodeEdit: s.explodeEdit, sectionEdit: s.sectionEdit, planeEdit: s.planeEdit, drawingEdit: s.drawingEdit, doc: s.doc, selectedDrawingDimensionId: s.selectedDrawingDimensionId, selectedDrawingViewId: s.selectedDrawingViewId, mateEdit: s.mateEdit, insertingComponent: s.insertingComponent, prefs: s.prefs, printTab: s.tab === 'print3d' && s.doc.kind !== 'drawing', treeFilter: s.treeFilter, setTreeFilter: s.setTreeFilter })));
   // Show Tolerance Status is a display of the Tolerance Tree, not a command with its own Property Panel
   const showProps = !!st.autoToleranceEdit || autoShowPropertyPanel(st.managerTab, st.commandActive && st.analysis?.kind !== 'tolerance'); // General ▸ Auto-show Property Panel
 
@@ -105,7 +107,9 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
         </div>
       }
     >
-      {st.configEdit ? (
+      {st.printTab ? (
+        <div className="k-pm-host"><PrintPM /></div>
+      ) : st.configEdit ? (
         <ConfigurationPM />
       ) : st.managerTab === 'configurations' ? (
         <ConfigurationPanelBody />
