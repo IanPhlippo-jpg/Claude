@@ -1542,3 +1542,11 @@ elease; README en docs/04 bijgewerkt
 - [ ] Fase 4: Elegoo-harsprinters (.goo)
 - [ ] Tests, foto's, commit en push; proefprint per printer als vrijgave (Ian)
 - [ ] Daarna: extensies Lasconstructies+, Lasersnijden/plooien, Offerte uit model
+
+## Review Fable 5.2 van de 3D Print-extensie fase 1-3 (2026-11-18)
+- [x] Acceptatiecriteria uit docs/34 (3.1, 3.2, 3.3) en eisen docs/33 naast de code leggen
+- [x] Tests zelf draaien (vitest src/print) en eigen meetscripts in de scratchpad (oppervlak, volume, fuzz, bed, retractie, determinisme, snelheid)
+- [x] Kruk.gcode en Kruk.gcode.3mf met de hand nalopen (startcode, temperaturen, grenzen, AMS, miniaturen, MD5, dialect)
+- [x] Foto's naast SOLIDWORKS- en Bambu Studio-gewoontes leggen
+- [x] Code nalopen op fouten en risico's (polygonen, support, naad, bruggen, meerkleuren, tijd, worker, verouderde slice)
+- [x] Verslag docs/35-review-fable-3d-print-fase1-3.md met tabel, bevindingen P1/P2/P3 en oordeel per fase (geen codewijziging, geen commit)
