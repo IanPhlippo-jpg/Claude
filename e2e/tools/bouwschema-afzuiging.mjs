@@ -268,11 +268,11 @@ function annotaties(s, b) {
     gezien.add(naam);
     ballonnen.push({ id: c.id, tekst: pos.get(naam) ?? naam });
   }
-  return { lijnen, ballonnen };
+  return { lijnen, ballonnen, ids: toon.map((c) => c.id) };
 }
 
 /** in de pagina: een SVG over de viewport met de explodelijnen en de ballonnen (geprojecteerd met de camera van de app) */
-function overlay({ lijnen, ballonnen, clip }) {
+function overlay({ lijnen, ballonnen, ids, clip }) {
   const scene = window.__phlippoScene, cam = window.__phlippoCamera.camera, proj = window.__phlippoProjectWorld;
   const meshes = new Map();
   scene.traverse((o) => { if (o.isMesh && o.geometry?.attributes?.position && !meshes.has(o.name)) meshes.set(o.name, o); });
@@ -282,7 +282,7 @@ function overlay({ lijnen, ballonnen, clip }) {
   // een zichtbaar punt van het onderdeel: hoekpunten van het onderdeel, het dichtst bij het midden van zijn beeld eerst; een
   // straal van de camera naar het punt mag geen ander onderdeel eerder raken (echte zichtbaarheid, geen schatting)
   const C = window.__phlippoCamera;
-  const alle = [...meshes.values()].filter((m) => m.visible !== false);
+  const alle = [...meshes.values()].filter((m) => m.visible !== false && ids.includes(m.name)); // alleen de onderdelen (geen vloer, randen)
   const driehoeken = new Map(); // per mesh de hoekpunten in wereldcoördinaten (eenmalig)
   const wereld = (m) => {
     if (driehoeken.has(m)) return driehoeken.get(m);
@@ -313,20 +313,23 @@ function overlay({ lijnen, ballonnen, clip }) {
     }
     return wie;
   };
-  // zichtbaar: het punt zelf en minstens 3 van de 4 pixels rondom (3 px) tonen hetzelfde onderdeel (geen glimp door een venstertje)
+  // zichtbaar: het punt zelf en de 4 pixels rondom (5 px; voor kleine delen zoals schroeven 2 px) tonen hetzelfde onderdeel
   const zichtbaar = (m, w) => {
     const px = C.worldToPixel(w), ray = C.pixelToRay(px.x, px.y);
     if (eerste(px.x, px.y, w.clone().sub(ray.origin).dot(ray.direction), m) !== m) return false;
-    return [[3, 0], [-3, 0], [0, 3], [0, -3]].filter(([dx, dy]) => eerste(px.x + dx, px.y + dy) === m).length >= 3;
+    return [[5, 0], [-5, 0], [0, 5], [0, -5]].every(([dx, dy]) => eerste(px.x + dx, px.y + dy) === m)
+      || [[2, 0], [-2, 0], [0, 2], [0, -2]].every(([dx, dy]) => eerste(px.x + dx, px.y + dy) === m && m.geometry.attributes.position.count < 3000);
   };
-  const punt = (m) => {
-    const { pts } = wereld(m), c = centrum(m), cp = C.worldToPixel(c);
-    const stap = Math.max(1, Math.floor(pts.length / 400));
+  /** zichtbare punten van het onderdeel (tot 16), in de volgorde van `sleutel` (schermcoördinaten van de pagina) */
+  const punten = (m, sleutel) => {
+    const { pts } = wereld(m);
+    const stap = Math.max(1, Math.floor(pts.length / 600));
     const kand = [];
-    for (let k = 0; k < pts.length; k += stap) { const q = C.worldToPixel(pts[k]); kand.push({ w: pts[k], d: Math.hypot(q.x - cp.x, q.y - cp.y) }); }
+    for (let k = 0; k < pts.length; k += stap) { const q = proj(pts[k].x, pts[k].y, pts[k].z); kand.push({ w: pts[k], d: sleutel(q.x, q.y) }); }
     kand.sort((a, b) => a.d - b.d);
-    for (const k of kand.slice(0, 250)) if (zichtbaar(m, k.w)) return k.w;
-    return null; // niet zichtbaar op dit beeld: geen ballon
+    const zicht = [];
+    for (const k of kand) { if (zichtbaar(m, k.w)) zicht.push(k.w); if (zicht.length >= 16) break; }
+    return zicht; // leeg: niet zichtbaar op dit beeld, geen ballon
   };
   void kijk;
   const ns = 'http://www.w3.org/2000/svg';
@@ -340,34 +343,88 @@ function overlay({ lijnen, ballonnen, clip }) {
     const c = centrum(m), a = proj(c.x - v[0], c.y - v[1], c.z - v[2]), q = proj(c.x, c.y, c.z);
     el('line', { x1: a.x, y1: a.y, x2: q.x, y2: q.y, stroke: '#3a3a3a', 'stroke-width': 1.3, 'stroke-dasharray': '7 4' });
   }
-  // ballonnen rond het beeld, elk op de richting van zijn punt vanuit het midden, zonder overlap
-  const lijst = ballonnen.map((bal) => { const m = meshes.get(bal.id); if (!m) return null; const p = punt(m); return p ? { ...bal, a: proj(p.x, p.y, p.z) } : null; }).filter(Boolean);
+  // ballonnen zoals de automatische ballonnen van SOLIDWORKS: buiten het silhouet van de delen, aan de kant die het dichtst bij
+  // het ankerpunt ligt, rond het beeld gespreid, met een zo kort mogelijke aanwijslijn, en nooit twee lijnen die elkaar kruisen
+  let kruisingen = 0;
+  // silhouet: de convexe omhullende van alle zichtbare delen op het scherm
+  const sp = [];
+  for (const o of alle) {
+    const { pts } = wereld(o), stap = Math.max(1, Math.floor(pts.length / 1500));
+    for (let k = 0; k < pts.length; k += stap) { const q = proj(pts[k].x, pts[k].y, pts[k].z); sp.push([q.x, q.y]); }
+  }
+  sp.sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+  const kr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const onder = [], boven = [];
+  for (const q of sp) { while (onder.length >= 2 && kr(onder[onder.length - 2], onder[onder.length - 1], q) <= 0) onder.pop(); onder.push(q); }
+  for (const q of [...sp].reverse()) { while (boven.length >= 2 && kr(boven[boven.length - 2], boven[boven.length - 1], q) <= 0) boven.pop(); boven.push(q); }
+  const romp = [...onder.slice(0, -1), ...boven.slice(0, -1)];
+  const binnen = (x, y) => romp.every((q, k) => kr(q, romp[(k + 1) % romp.length], [x, y]) >= 0);
+  const afstand = (x, y) => Math.min(...romp.map((q, k) => {
+    const r = romp[(k + 1) % romp.length], dx = r[0] - q[0], dy = r[1] - q[1], l2 = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((x - q[0]) * dx + (y - q[1]) * dy) / l2));
+    return Math.hypot(x - q[0] - t * dx, y - q[1] - t * dy);
+  }));
+  // het ankerpunt: van de zichtbare punten het punt het dichtst bij de rand van het silhouet (de kortste aanwijslijn)
+  const lijst = ballonnen.map((bal) => {
+    const m = meshes.get(bal.id); if (!m) return null;
+    const ps = punten(m, afstand).map((p) => proj(p.x, p.y, p.z));
+    if (!ps.length) return null;
+    ps.sort((p, q) => afstand(p.x, p.y) - afstand(q.x, q.y));
+    return { ...bal, a: ps[0] };
+  }).filter(Boolean);
   if (lijst.length) {
-    const mx = lijst.reduce((t, l) => t + l.a.x, 0) / lijst.length, my = lijst.reduce((t, l) => t + l.a.y, 0) / lijst.length;
-    const cx = clip.x + clip.width / 2, cy = clip.y + clip.height / 2;
-    const ox = (mx + cx) / 2, oy = (my + cy) / 2;
-    const R = Math.min(clip.width, clip.height) * 0.42;
-    for (const l of lijst) l.hoek = Math.atan2(l.a.y - oy, l.a.x - ox);
-    lijst.sort((p, q) => p.hoek - q.hoek);
-    const min = 0.42;
-    for (let k = 0; k < 40; k++) for (let j = 0; j < lijst.length; j++) {
-      const p = lijst[j], q = lijst[(j + 1) % lijst.length];
-      let d = q.hoek - p.hoek; if (j === lijst.length - 1) d += 2 * Math.PI;
-      if (lijst.length > 1 && d < min) { p.hoek -= (min - d) / 2; q.hoek += (min - d) / 2; }
-    }
+    const R = 15, marge = R + 10;
+    const snijdt = (p1, p2, p3, p4) => {
+      const d = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+      const d1 = d(p3, p4, p1), d2 = d(p3, p4, p2), d3 = d(p1, p2, p3), d4 = d(p1, p2, p4);
+      return ((d1 > 0) !== (d2 > 0)) && ((d3 > 0) !== (d4 > 0));
+    };
+    // afstand van een punt tot een lijnstuk (een aanwijslijn mag een andere ballon niet raken)
+    const totLijn = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2)); return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); };
+    const inBeeld = (x, y) => x > clip.x + R + 4 && x < clip.x + clip.width - R - 4 && y > clip.y + R + 4 && y < clip.y + clip.height - R - 4;
+    // per ankerpunt de kandidaten: in elke richting (om de 5°) het eerste punt buiten het silhouet met marge; kort eerst
     for (const l of lijst) {
-      const bx = Math.min(clip.x + clip.width - 26, Math.max(clip.x + 26, ox + Math.cos(l.hoek) * R * 1.25));
-      const by = Math.min(clip.y + clip.height - 20, Math.max(clip.y + 20, oy + Math.sin(l.hoek) * R));
-      el('line', { x1: l.a.x, y1: l.a.y, x2: bx, y2: by, stroke: '#1d1d1f', 'stroke-width': 1 });
+      l.kand = [];
+      for (let g = 0; g < 360; g += 5) {
+        const h = (g * Math.PI) / 180, ux = Math.cos(h), uy = Math.sin(h);
+        for (let d = 20; d < 900; d += 4) {
+          const x = l.a.x + ux * d, y = l.a.y + uy * d;
+          if (!inBeeld(x, y)) break;
+          if (!binnen(x, y) && afstand(x, y) >= marge) { for (const extra of [0, 25, 50, 80]) if (inBeeld(x + ux * extra, y + uy * extra)) l.kand.push({ x: x + ux * extra, y: y + uy * extra, d: d + extra }); break; }
+        }
+      }
+      l.kand.sort((p, q) => p.d - q.d);
+    }
+    // gretig, de ankers met de kortste beste lijn eerst; een kandidaat mag geen lijn kruisen, geen ballon raken en geen
+    // andere lijn te dicht naderen
+    const gezet = [];
+    for (const l of [...lijst].sort((p, q) => (p.kand[0]?.d ?? 1e9) - (q.kand[0]?.d ?? 1e9))) {
+      const ok = l.kand.find((c) => gezet.every((o) => {
+        const a1 = [l.a.x, l.a.y], b1 = [c.x, c.y], a2 = [o.a.x, o.a.y], b2 = [o.b.x, o.b.y];
+        return Math.hypot(c.x - o.b.x, c.y - o.b.y) > 2 * R + 8 && !snijdt(a1, b1, a2, b2)
+          && totLijn(b2, a1, b1) > R + 4 && totLijn(b1, a2, b2) > R + 4;
+      }));
+      l.b = ok ?? l.kand[0] ?? { x: l.a.x + 60, y: l.a.y - 60 };
+      gezet.push(l);
+    }
+    for (let p = 0; p < gezet.length; p++) for (let q = p + 1; q < gezet.length; q++) {
+      if (snijdt([gezet[p].a.x, gezet[p].a.y], [gezet[p].b.x, gezet[p].b.y], [gezet[q].a.x, gezet[q].a.y], [gezet[q].b.x, gezet[q].b.y])) kruisingen++;
+    }
+    for (const l of gezet) {
+      const bx = l.b.x, by = l.b.y;
+      // de lijn stopt aan de rand van de ballon
+      const dx = bx - l.a.x, dy = by - l.a.y, len = Math.hypot(dx, dy) || 1;
+      el('line', { x1: l.a.x, y1: l.a.y, x2: bx - (dx / len) * R, y2: by - (dy / len) * R, stroke: '#1d1d1f', 'stroke-width': 1 });
       el('circle', { cx: l.a.x, cy: l.a.y, r: 2.6, fill: '#1d1d1f' });
       const kort = String(l.tekst).length <= 3;
-      if (kort) el('circle', { cx: bx, cy: by, r: 14, fill: '#fff', stroke: '#1d1d1f', 'stroke-width': 1.4 });
+      if (kort) el('circle', { cx: bx, cy: by, r: R, fill: '#fff', stroke: '#1d1d1f', 'stroke-width': 1.4 });
       else el('rect', { x: bx - 6 * String(l.tekst).length / 2 - 8, y: by - 12, width: 6 * String(l.tekst).length + 16, height: 24, rx: 12, fill: '#fff', stroke: '#1d1d1f', 'stroke-width': 1.4 });
       const t = el('text', { x: bx, y: by + 5, 'text-anchor': 'middle', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': kort ? 15 : 11, 'font-weight': 'bold', fill: '#1d1d1f' });
       t.textContent = l.tekst;
     }
   }
   document.body.appendChild(svg);
+  return { kruisingen, ballonnen: lijst.length };
 }
 
 let n = 0;
@@ -392,7 +449,11 @@ for (const [i, s] of STAPPEN.entries()) {
     const clip = { x: vb.x + 2, y: vb.y + 44, width: vb.width - 4, height: vb.height - 104 };
     // 7.4 (vraag van Ian over stap 6): uitgeschoven delen krijgen een gestippelde explodelijn naar hun plaats, en de delen
     // van de stap een ballon met hun positie in de stuklijst (zoals een exploded view in SOLIDWORKS)
-    if (!b.snede) await page.evaluate(overlay, { ...annotaties(s, b), clip });
+    if (!b.snede) {
+      const r = await page.evaluate(overlay, { ...annotaties(s, b), clip });
+      // controle (SOLIDWORKS-regel): geen twee aanwijslijnen die elkaar kruisen
+      if (r.kruisingen) throw new Error(`stap ${i + 1}: ${r.kruisingen} aanwijslijnen kruisen elkaar`);
+    }
     await page.screenshot({ path: f, type: 'jpeg', quality: 88, clip });
     await page.evaluate(() => document.getElementById('bs-overlay')?.remove());
     s.foto.push(f);
