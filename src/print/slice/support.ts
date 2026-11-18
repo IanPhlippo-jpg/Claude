@@ -39,8 +39,13 @@ export function overhangs(regions: Paths[], heights: number[], thresholdDeg: num
     if (!regions[i].length) continue;
     const reach = (heights[i] * U) / t;
     const below = poly.offset(regions[i - 1], reach);
-    // pieces narrower than a line width are not worth supporting
-    out[i] = poly.opening(poly.difference(regions[i], below), lineWidth);
+    // the part beyond the reach is only a sliver under a 20 to 28 degree slope (docs/35 P2-2): it marks where the slope
+    // is too shallow, and the whole new area of the layer around it needs support, so the strips of the layers above
+    // one another join into the area under the slope
+    const beyond = poly.opening(poly.difference(regions[i], below), 0.005 * U);
+    if (!beyond.length) continue;
+    const added = poly.difference(regions[i], regions[i - 1]);
+    out[i] = added.length ? poly.union(beyond, poly.intersection(added, poly.offset(beyond, reach + lineWidth))) : beyond;
   }
   return out;
 }
@@ -67,8 +72,10 @@ export function normalSupport(inp: SupportInput): SupportLayers {
     let near: Paths = [];
     for (let k = 1; k <= inp.interfaceLayers + inp.zGapLayers && j + k < n; k++) if (inp.regions[j + k].length) near = near.length ? poly.union(near, inp.regions[j + k]) : inp.regions[j + k];
     const top = near.length ? poly.intersection(out, poly.offset(near, inp.lineWidth)) : [];
-    iface[j] = top;
-    base[j] = top.length ? poly.difference(out, top) : out;
+    // islands smaller than two line widths square are not worth a support line
+    const keep = (a: Paths) => a.filter((p) => Math.abs(poly.area([p])) >= (2 * inp.lineWidth) ** 2 || poly.area([p]) < 0);
+    iface[j] = keep(top);
+    base[j] = keep(top.length ? poly.difference(out, top) : out);
   }
   return { base, interface: iface };
 }

@@ -7,8 +7,7 @@
  *   - open ends of a damaged mesh joined by distance (up to 2 mm), and counted for the warning
  * The contours of a layer run counter-clockwise around material; the caller unites them (positive fill rule).
  */
-import { UNITS, type Paths } from '../geom/polygons';
-import { openChains, unionSegments } from '../geom/boolean';
+import { poly, UNITS, type Paths } from '../geom/polygons';
 
 export interface SlicedLayer { contours: Paths; repaired: number }
 
@@ -91,14 +90,14 @@ export function sliceMesh(pos: Float32Array, planes: number[]): SlicedLayer[] {
   return out;
 }
 
-/** the segments of one plane chained into loops (by edge key), open chains joined by distance */
+/** the segments of one plane chained into loops (by edge key); open chains joined by their end points */
 function chain(sx: number[], sy: number[], ex: number[], ey: number[], startKey: number[], endKey: number[]): SlicedLayer {
   const n = sx.length;
   const byStart = new Map<number, number[]>();
   for (let i = 0; i < n; i++) { const l = byStart.get(startKey[i]); if (l) l.push(i); else byStart.set(startKey[i], [i]); }
   const used = new Uint8Array(n);
   const loops: Paths = [];
-  const open: number[][] = [];
+  const open: { pts: number[]; x: number; y: number }[] = [];
   for (let s = 0; s < n; s++) {
     if (used[s]) continue;
     const pts: number[] = [];
@@ -112,16 +111,40 @@ function chain(sx: number[], sy: number[], ex: number[], ey: number[], startKey:
       if (nxt === undefined) break;
       i = nxt;
     }
-    if (closed) { if (pts.length >= 6) loops.push(pts); } else open.push(pts);
+    // an open chain keeps the end point of its last segment (a loop does not need it: it is its first point)
+    if (closed) { if (pts.length >= 6) loops.push(pts); } else open.push({ pts: [...pts, ex[i], ey[i]], x: ex[i], y: ey[i] });
   }
-  // a mesh that is not watertight (T-junctions of a boolean, slivers): the chains through the mesh edges break off,
-  // but the segments still close geometrically; their union (positive winding) gives the contours
-  if (open.length) {
-    const flat: number[] = [];
-    for (let k = 0; k < n; k++) flat.push(sx[k], sy[k], ex[k], ey[k]);
-    const contours = unionSegments(flat, UNITS * UNITS * 1e-4);
-    // only gaps that stay open after joining the T-junctions count as repairs
-    return { contours, repaired: openChains };
+  const repaired = joinOpen(open, loops);
+  const rounded = loops.map((p) => p.map((v) => Math.round(v)));
+  // a mesh that was not watertight, or whose loops run either way: the non-zero union makes clean contours
+  return { contours: open.length ? poly.unionNonZero(rounded) : rounded, repaired };
+}
+
+/**
+ * Open chains of a mesh that is not watertight: a T-junction of a boolean leaves the two sides of an edge a few
+ * micrometres apart (SNAP joins those silently); a real hole leaves loose ends, which are joined end to the nearest
+ * start, the shortest way (each such join counts as a repair, docs/34 2.2 step 8).
+ */
+function joinOpen(open: { pts: number[]; x: number; y: number }[], loops: Paths): number {
+  const SNAP = 0.02 * UNITS;
+  let repaired = 0;
+  const left = open.slice();
+  while (left.length) {
+    let cur = left.pop()!;
+    for (;;) {
+      const sx = cur.pts[0], sy = cur.pts[1];
+      const self = Math.hypot(cur.x - sx, cur.y - sy);
+      let best = -1, bd = Infinity;
+      for (let k = 0; k < left.length; k++) { const d = Math.hypot(left[k].pts[0] - cur.x, left[k].pts[1] - cur.y); if (d < bd) { bd = d; best = k; } }
+      if (self <= SNAP || (self <= bd && best >= 0 && self <= bd) || best < 0) {
+        if (self > SNAP) repaired++;
+        if (cur.pts.length >= 6) loops.push(cur.pts);
+        break;
+      }
+      if (bd > SNAP) repaired++;
+      const nx = left.splice(best, 1)[0];
+      cur = { pts: cur.pts.concat(nx.pts), x: nx.x, y: nx.y };
+    }
   }
-  return { contours: loops.map((p) => p.map((v) => Math.round(v))), repaired: 0 };
+  return repaired;
 }

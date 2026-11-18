@@ -15,8 +15,8 @@ describe('file format 3: program version, warnings (QA 0.5.14 P2-7)', () => {
   it('writes the format number and the program version that wrote the file; neither stays in the document', () => {
     const text = serializeDocument(createDocument('Kruk'));
     const raw = JSON.parse(text);
-    expect(FILE_VERSION).toBe(3);
-    expect(raw.version).toBe(3);
+    expect(FILE_VERSION).toBe(4);
+    expect(raw.version).toBe(4);
     expect(raw.app).toBe(APP_VERSION);
     expect(typeof raw.app).toBe('string');
     const back = parseDocument(text) as unknown as Record<string, unknown>;

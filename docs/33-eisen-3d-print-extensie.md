@@ -47,7 +47,7 @@ Ian wil extensies die SOLIDWORKS niet heeft, maar wel in SOLIDWORKS-stijl. De ee
 - Eigen start- en eindcode per dialect; knop **Import from Bambu Studio…** leest het machineprofiel van de gebruiker (alleen in zijn instellingen, nooit in de repo).
 
 ### Gedeeltelijk of open
-- **Clipper2:** Ian gaf akkoord, maar de installatie van `clipper2-ts` (Boost Software License 1.0) werd door de toestemmingscontrole van de sessie geweigerd. De eigen boolean/offset blijft in gebruik achter de interface; wisselen kan in `geom/polygons.ts`.
+- **Clipper2 (bijgewerkt na de review, docs/35):** `clipper2-ts` 2.0.1-18 is geïnstalleerd met akkoord van Ian. Licentie: Boost Software License 1.0 (Angus Johnson, Clipper2; TypeScript-port countertype/clipper2-ts). Alle booleans en offsets van de slicer lopen erdoor, achter `src/print/geom/polygons.ts`. De eigen kern (`geom/boolean.ts`, `geom/offset.ts`) blijft alleen als onafhankelijk orakel in de tests, naast het rasterorakel.
 - Mesh: de slicer neemt de body uit de rebuild; een exact (B-rep) body is getesselleerd met koordefout 0,01 mm en hoektolerantie 0,1 rad (5,7°, iets boven de gevraagde 5°). Een gefacetteerde body (mesh-kern) geeft een melding.
 - Bambu: printermodel-id's en de verplichte sleutels van slice_info/project_settings komen uit openbare beschrijvingen; te vergelijken met een referentiebestand uit Bambu Studio. Bambu-specifieke commando's (`G29`, `M620/M621`, `M991`, `M73 L`) zijn uit gemeenschapsbronnen.
 - ColPic: oriëntatie en regelsplitsing op het Neptune-scherm onbekend tot een printer het toont.

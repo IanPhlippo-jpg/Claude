@@ -1,10 +1,10 @@
 /**
- * The one interface the slicer uses for polygon work (docs/34 R3): booleans, offset and line clipping on the integer
- * grid. The engine behind it is our own (boolean.ts, offset.ts); a library such as a Clipper2 port can replace it here
- * without touching the slicer.
+ * The one interface the slicer uses for polygon work (docs/34 R3): booleans and offset on the integer grid by Clipper2
+ * (clipper2-ts, Boost Software License 1.0, approved by Ian; docs/35 P1-2), and line clipping. Our own engine
+ * (boolean.ts, offset.ts) stays as an independent oracle in the tests.
  */
-import { contains, difference, intersection, totalArea, union, type Path, type Paths } from './boolean';
-import { offset, opening } from './offset';
+import { difference as cDifference, EndType, FillRule, inflatePaths, intersect as cIntersect, JoinType, union as cUnion, type Paths64 } from 'clipper2-ts';
+import { contains, totalArea, type Path, type Paths } from './boolean';
 
 export type { Path, Paths };
 
@@ -14,6 +14,8 @@ export const toUnits = (mm: number) => Math.round(mm * UNITS);
 
 export interface PolygonEngine {
   union(a: Paths, b?: Paths): Paths;
+  /** union with the non-zero rule (contours of a mesh whose loops may run either way) */
+  unionNonZero(a: Paths): Paths;
   difference(a: Paths, b: Paths): Paths;
   intersection(a: Paths, b: Paths): Paths;
   /** delta in grid units; positive grows the filled side */
@@ -23,12 +25,29 @@ export interface PolygonEngine {
   area(a: Paths): number;
 }
 
+const toC = (ps: Paths): Paths64 => ps.filter((p) => p.length >= 6).map((p) => {
+  const o = new Array(p.length / 2);
+  for (let i = 0; i < o.length; i++) o[i] = { x: Math.round(p[2 * i]), y: Math.round(p[2 * i + 1]) };
+  return o;
+});
+const fromC = (ps: Paths64): Paths => ps.filter((p) => p.length >= 3).map((p) => {
+  const o: number[] = new Array(p.length * 2);
+  for (let i = 0; i < p.length; i++) { o[2 * i] = p[i].x; o[2 * i + 1] = p[i].y; }
+  return o;
+}).filter((p) => Math.abs(totalArea([p])) >= 1);
+
+/** the largest distance of a round join from the true arc, grid units (0.5 µm: +d then -d stays within 2 µm) */
+const ARC_TOL = 5;
+
+const offset = (a: Paths, d: number): Paths => (!a.length ? [] : d === 0 ? fromC(cUnion(toC(a), FillRule.Positive)) : fromC(inflatePaths(toC(a), d, JoinType.Round, EndType.Polygon, 2, ARC_TOL)));
+
 export const poly: PolygonEngine = {
-  union,
-  difference,
-  intersection,
-  offset: (a, d) => offset(a, d, 50),
-  opening: (a, d) => opening(a, d, 50),
+  union: (a, b = []) => (!a.length && !b.length ? [] : fromC(b.length ? cUnion(toC(a), toC(b), FillRule.Positive) : cUnion(toC(a), FillRule.Positive))),
+  unionNonZero: (a) => (!a.length ? [] : fromC(cUnion(toC(a), FillRule.NonZero))),
+  difference: (a, b) => (!a.length ? [] : fromC(b.length ? cDifference(toC(a), toC(b), FillRule.Positive) : cUnion(toC(a), FillRule.Positive))),
+  intersection: (a, b) => (!a.length || !b.length ? [] : fromC(cIntersect(toC(a), toC(b), FillRule.Positive))),
+  offset,
+  opening: (a, d) => offset(offset(a, -d), d),
   contains,
   area: totalArea,
 };

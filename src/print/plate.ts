@@ -5,15 +5,26 @@
 import { bounds, CAD_TO_PLATE, multiply, rotation, rotationBetween, scaling, transformPositions, translation, type Bounds, type Mat4 } from './mesh';
 import { printableArea } from './database';
 import { contains } from './geom/boolean';
-import type { PlateItem, Printer } from './types';
+import type { ItemSource, PlateItem, Printer } from './types';
+
+/** a fingerprint of a mesh: count and a sampled sum (cheap; a change of the part changes it) */
+export function meshHash(p: Float32Array): string {
+  let a = 0, b = 0;
+  const step = Math.max(1, Math.floor(p.length / 4096));
+  for (let i = 0; i < p.length; i += step) { a = (a + p[i] * (i + 1)) % 1e9; b = (b * 31 + Math.round(p[i] * 1000)) % 2147483647; }
+  return `${p.length}:${a.toFixed(3)}:${b}`;
+}
+
+/** a new id for an item read back from the document */
+export const newItemId = () => `pi${nextId++}`;
 
 let nextId = 1;
 export const worldPositions = (it: PlateItem) => transformPositions(it.positions, it.matrix);
 export const worldBounds = (it: PlateItem): Bounds => bounds(worldPositions(it));
 
 /** a part from CAD (Y up) onto the plate: Z up, centred at (cx, cy), resting on the bed */
-export function makeItem(name: string, cadPositions: Float32Array, cx: number, cy: number, filament = 0, source?: string): PlateItem {
-  const it: PlateItem = { id: `pi${nextId++}`, name, positions: cadPositions, matrix: CAD_TO_PLATE.slice(), filament, source };
+export function makeItem(name: string, cadPositions: Float32Array, cx: number, cy: number, filament = 0, source?: ItemSource): PlateItem {
+  const it: PlateItem = { id: `pi${nextId++}`, name, positions: cadPositions, matrix: CAD_TO_PLATE.slice(), filament, source, hash: meshHash(cadPositions) };
   return placeAt(dropToBed(it), cx, cy);
 }
 
@@ -112,23 +123,46 @@ export function autoOrient(it: PlateItem, thresholdDeg = 30): PlateItem {
   return best;
 }
 
-/** Arrange: footprints packed in rows (tallest first) from the front left, centred on the bed, `gap` mm apart */
-export function arrange(items: PlateItem[], printer: Printer, gap = 6): PlateItem[] {
+/**
+ * Arrange: footprints packed in rows (deepest first) from the front left, `gap` mm apart, around the excluded zones
+ * (docs/35 P3-8); what does not fit is returned apart (the caller puts it on a new plate). Deterministic.
+ */
+export function arrangeFit(items: PlateItem[], printer: Printer, gap = 6): { placed: PlateItem[]; overflow: PlateItem[] } {
   const [bx, by] = printer.buildVolume;
-  const fp = items.map((it) => { const b = worldBounds(it); return { it, w: b.max[0] - b.min[0], d: b.max[1] - b.min[1], h: b.max[2] - b.min[2] }; });
-  const order = fp.map((f, i) => ({ ...f, i })).sort((a, b) => b.d - a.d || b.w - a.w || a.i - b.i);
+  const zones = (printer.excludeAreas ?? []).map((z) => {
+    const xs = z.map((p) => p[0]), ys = z.map((p) => p[1]);
+    return { x0: Math.min(...xs) - gap, y0: Math.min(...ys) - gap, x1: Math.max(...xs) + gap, y1: Math.max(...ys) + gap };
+  });
+  const fp = items.map((it, i) => { const b = worldBounds(it); return { i, w: b.max[0] - b.min[0], d: b.max[1] - b.min[1] }; });
+  const order = fp.slice().sort((a, b) => b.d - a.d || b.w - a.w || a.i - b.i);
   const placed: { i: number; x: number; y: number }[] = [];
-  let x = 0, y = 0, rowD = 0, usedW = 0;
+  const overflow: number[] = [];
+  let x = 0, y = 0, rowD = 0;
+  const hit = (x0: number, y0: number, w: number, d: number) => zones.find((z) => x0 < z.x1 && x0 + w > z.x0 && y0 < z.y1 && y0 + d > z.y0);
   for (const f of order) {
-    if (x > 0 && x + f.w > bx) { y += rowD + gap; x = 0; rowD = 0; }
+    let tries = 0;
+    for (;;) {
+      if (x > 0 && x + f.w > bx) { y += rowD + gap; x = 0; rowD = 0; }
+      const z = hit(x, y, f.w, f.d);
+      if (z && tries++ < 50) { x = z.x1; continue; }
+      break;
+    }
+    if (y + f.d > by || f.w > bx || hit(x, y, f.w, f.d)) { overflow.push(f.i); continue; }
     placed.push({ i: f.i, x: x + f.w / 2, y: y + f.d / 2 });
-    x += f.w + gap; rowD = Math.max(rowD, f.d); usedW = Math.max(usedW, x - gap);
+    x += f.w + gap; rowD = Math.max(rowD, f.d);
   }
-  const usedD = y + rowD;
-  const ox = Math.max(0, (bx - usedW) / 2), oy = Math.max(0, (by - usedD) / 2);
-  const out = items.slice();
-  for (const p of placed) out[p.i] = placeAt(items[p.i], ox + p.x, oy + p.y);
-  return out;
+  // centre the block on the bed when no zone is in the way
+  let ux = 0, uy = 0;
+  for (const p of placed) { const f = fp[p.i]; ux = Math.max(ux, p.x + f.w / 2); uy = Math.max(uy, p.y + f.d / 2); }
+  const ox = zones.length ? 0 : Math.max(0, (bx - ux) / 2), oy = zones.length ? 0 : Math.max(0, (by - uy) / 2);
+  return { placed: placed.map((p) => placeAt(items[p.i], ox + p.x, oy + p.y)), overflow: overflow.map((i) => items[i]) };
+}
+
+/** Arrange within one plate (parts that do not fit stay where they were) */
+export function arrange(items: PlateItem[], printer: Printer, gap = 6): PlateItem[] {
+  const r = arrangeFit(items, printer, gap);
+  const byId = new Map(r.placed.map((p) => [p.id, p]));
+  return items.map((it) => byId.get(it.id) ?? it);
 }
 
 /** inside the printable area and below the build height (with 0.01 mm of slack) */

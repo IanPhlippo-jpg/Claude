@@ -84,7 +84,7 @@ function commandPrompt(s: { tool: string; activeSketchId: string | null; selecte
 }
 
 export function StatusBar({ hint: hint0 }: { hint: string }) {
-  const st = useStore(useShallow((s) => ({ messages: s.messages, doc: s.doc, selection: s.selection, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFace: s.selectedFace, selectedFaces: s.selectedFaces, planePick: s.planePick, activeSketchId: s.activeSketchId, cursor: s.cursor, hasDocument: s.hasDocument, selectedDrawingViewId: s.selectedDrawingViewId, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem, setDialog: s.setDialog })));
+  const st = useStore(useShallow((s) => ({ messages: s.messages, doc: s.doc, tab: s.tab, selection: s.selection, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFace: s.selectedFace, selectedFaces: s.selectedFaces, planePick: s.planePick, activeSketchId: s.activeSketchId, cursor: s.cursor, hasDocument: s.hasDocument, selectedDrawingViewId: s.selectedDrawingViewId, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem, setDialog: s.setDialog })));
   const focusLocked = useStore((s) => s.sketchFocusLocked);
   const dialogPrompt = useStore((s) => (s.dialog === 'appearance' ? 'Pick the faces, features or bodies to colour.' : ''));
   const commandText = useStore(useShallow((s) => commandPrompt({ tool: s.tool, activeSketchId: s.activeSketchId, selectedConstraint: s.selectedConstraint, contourPick: s.contourPick, featureEdit: s.featureEdit })));
@@ -231,7 +231,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
         // bodies the B-rep kernel did not rebuild are shown (and written to STEP) as facets: say so (QA F99)
         <span className="k-status-cell" data-testid="status-faceted" title={`${faceted} of ${st.rebuild.bodies.length} ${st.rebuild.bodies.length === 1 ? 'body is' : 'bodies are'} faceted (mesh kernel), not exact surfaces; STEP writes them as sewn facets.`}>Faceted {faceted}/{st.rebuild.bodies.length}</span>
       )}
-      <span className="k-status-cell">{!st.hasDocument ? '' : sketchName ? `Editing ${sketchName}${focusLocked ? ' (Locked Focus)' : ''}` : (st.doc.kind === 'assembly' ? 'Editing Assembly' : st.doc.kind === 'drawing' ? `Editing ${st.doc.sheets?.[0]?.views.find((v) => v.id === st.selectedDrawingViewId)?.name ?? st.doc.sheets?.[0]?.name ?? 'Sheet1'}` : 'Editing Part')}</span>
+      <span className="k-status-cell">{!st.hasDocument ? '' : sketchName ? `Editing ${sketchName}${focusLocked ? ' (Locked Focus)' : ''}` : (st.tab === 'print3d' && st.doc.kind !== 'drawing' ? 'Editing Plate' : st.doc.kind === 'assembly' ? 'Editing Assembly' : st.doc.kind === 'drawing' ? `Editing ${st.doc.sheets?.[0]?.views.find((v) => v.id === st.selectedDrawingViewId)?.name ?? st.doc.sheets?.[0]?.name ?? 'Sheet1'}` : 'Editing Part')}</span>
       {st.doc.kind === 'drawing' && st.doc.sheets?.[0] && <span className="k-status-cell" data-testid="sheet-scale">{st.doc.sheets[0].scale[0]} : {st.doc.sheets[0].scale[1]}</span>}
       <span className="k-status-cell" style={{ position: 'relative' }}>
         <button className="k-status-units" onClick={() => setUnits(true)}>

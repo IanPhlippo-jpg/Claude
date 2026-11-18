@@ -102,6 +102,16 @@ export function decodeColpic(text: string): { width: number; height: number; pix
 }
 
 /** the Neptune block: the first image as ;gimage:, the next as ;simage: */
-export function colpicBlock(images: { rgba: Uint8Array; width: number; height: number }[]): string {
-  return images.map((im, i) => `\n;${i === 0 ? 'gimage' : 'simage'}:${colpicText(colpicBytes(im.rgba, im.width, im.height))}\n`).join('');
+export function colpicBlock(images: { rgba: Uint8Array; width: number; height: number }[], maxLine = 0): string {
+  // with maxLine (Marlin: 96 characters, docs/35 P3-2) the text is split into lines that each repeat the prefix (how
+  // the screen joins them is still to be checked on a printer: nog te printen)
+  return images.map((im, i) => {
+    const prefix = `;${i === 0 ? 'gimage' : 'simage'}:`;
+    const text = colpicText(colpicBytes(im.rgba, im.width, im.height));
+    if (!maxLine) return `\n${prefix}${text}\n`;
+    const step = maxLine - prefix.length;
+    const parts: string[] = [];
+    for (let k = 0; k < text.length; k += step) parts.push(prefix + text.slice(k, k + step));
+    return `\n${parts.join('\n')}\n`;
+  }).join('');
 }

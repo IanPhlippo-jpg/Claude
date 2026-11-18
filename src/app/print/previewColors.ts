@@ -17,7 +17,7 @@ export const LINE_COLORS: Record<LineType, string> = {
 export const LINE_LABELS: Record<LineType, string> = {
   outerWall: 'Outer wall',
   innerWall: 'Inner wall',
-  skin: 'Top and bottom',
+  skin: 'Solid infill',
   bridge: 'Bridge',
   infill: 'Sparse infill',
   support: 'Support',

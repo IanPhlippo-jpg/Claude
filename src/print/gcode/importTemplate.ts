@@ -10,17 +10,24 @@
  */
 export type Vars = Record<string, string | number | boolean | (string | number)[]>;
 
-/** the Bambu names we can fill, from our own variables */
-export function bambuVars(v: { nozzle_temp: number; bed_temp: number; first_layer_height: number; max_z: number; bed_x: number; bed_y: number; nozzle: number; layer_height: number;
-  filament_type: string; printer_model: string; bed_type?: string }): Vars {
+/**
+ * The Bambu names we can fill, every one from the real slice (docs/35 P1-5): temperatures of the first filament, the
+ * layer count, the box of the first layer, the first filament, the plate type of the settings. A name that is not here
+ * has no real value and makes the code refuse.
+ */
+export function bambuVars(v: { nozzle_temp: number; bed_temp: number; first_layer_height: number; max_z: number; nozzle: number; layer_height: number;
+  filament_type: string; printer_model: string; layers: number; first_layer_min: [number, number]; first_layer_size: [number, number]; initial_extruder: number;
+  bed_type: string; outer_wall_volumetric_speed: number }): Vars {
+  // the plate temperatures: the bed temperature of the chosen material on the chosen plate
+  const plate = () => [v.bed_temp];
   return {
     nozzle_temperature_initial_layer: [v.nozzle_temp], nozzle_temperature: [v.nozzle_temp], bed_temperature_initial_layer_single: v.bed_temp,
-    bed_temperature_initial_layer: [v.bed_temp], bed_temperature: [v.bed_temp], hot_plate_temp_initial_layer: [v.bed_temp], hot_plate_temp: [v.bed_temp],
-    textured_plate_temp_initial_layer: [v.bed_temp], textured_plate_temp: [v.bed_temp], cool_plate_temp_initial_layer: [v.bed_temp], eng_plate_temp_initial_layer: [v.bed_temp],
-    initial_extruder: 0, initial_layer_print_height: v.first_layer_height, max_layer_z: v.max_z, layer_z: v.max_z, layer_height: v.layer_height,
-    nozzle_diameter: [v.nozzle], filament_type: [v.filament_type], printer_model: v.printer_model, curr_bed_type: v.bed_type ?? 'Textured PEI Plate',
-    total_layer_count: 0, timelapse_type: 0, outer_wall_volumetric_speed: 10, first_layer_print_min: [0, 0], first_layer_print_size: [v.bed_x, v.bed_y],
-    bed_width: v.bed_x, bed_depth: v.bed_y,
+    bed_temperature_initial_layer: [v.bed_temp], bed_temperature: [v.bed_temp], hot_plate_temp_initial_layer: plate(), hot_plate_temp: plate(),
+    textured_plate_temp_initial_layer: plate(), textured_plate_temp: plate(), cool_plate_temp_initial_layer: plate(),
+    eng_plate_temp_initial_layer: plate(), initial_extruder: v.initial_extruder, initial_layer_print_height: v.first_layer_height,
+    max_layer_z: v.max_z, layer_height: v.layer_height, nozzle_diameter: [v.nozzle], filament_type: [v.filament_type], printer_model: v.printer_model,
+    curr_bed_type: v.bed_type, total_layer_count: v.layers, timelapse_type: 0, outer_wall_volumetric_speed: Math.round(v.outer_wall_volumetric_speed * 10) / 10,
+    first_layer_print_min: v.first_layer_min, first_layer_print_size: v.first_layer_size,
   };
 }
 
@@ -110,13 +117,21 @@ export function fillBambuTemplate(text: string, vars: Vars): string {
   }
 }
 
-/** the start and end G-code of a Bambu Studio machine profile (JSON) or plain G-code text */
-export function readMachineProfile(text: string): { start?: string; end?: string; name?: string } {
-  try {
-    const j = JSON.parse(text) as Record<string, unknown>;
-    const s = j.machine_start_gcode, e = j.machine_end_gcode;
-    return { start: typeof s === 'string' ? s : undefined, end: typeof e === 'string' ? e : undefined, name: typeof j.name === 'string' ? j.name : undefined };
-  } catch {
-    return { start: text };
-  }
+/**
+ * The start, end and filament-change G-code of a Bambu Studio machine profile (JSON), with the printer it is for
+ * (printer_model, else the profile name). Plain G-code text is refused: its printer cannot be checked (docs/35 P1-5).
+ */
+export function readMachineProfile(text: string): { start?: string; end?: string; change?: string; printerModel?: string; name?: string } {
+  let j: Record<string, unknown>;
+  try { j = JSON.parse(text) as Record<string, unknown>; } catch { return {}; }
+  const str = (k: string) => (typeof j[k] === 'string' ? (j[k] as string) : undefined);
+  const name = str('name');
+  const model = str('printer_model') ?? (name ? name.replace(/\s+\d+(\.\d+)?\s*nozzle.*$/i, '').trim() : undefined);
+  return { start: str('machine_start_gcode'), end: str('machine_end_gcode'), change: str('change_filament_gcode'), printerModel: model, name };
+}
+
+/** the imported code belongs to this printer: the profile names the same model ("Bambu Lab P1S" is not a P1P or X1E) */
+export function sameModel(profileModel: string, printer: { brand: string; model: string }): boolean {
+  const norm = (t: string) => t.toLowerCase().replace(/bambu\s*lab/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  return norm(profileModel) === norm(printer.model) || norm(profileModel) === norm(`${printer.brand} ${printer.model}`);
 }

@@ -6,7 +6,7 @@
  * flow model: w - h (1 - pi/4)), the fill area inside the walls, top and bottom skins from the regions of the
  * neighbouring layers, bridges (skin over air, lines across the shortest span), sparse infill, support, skirt and brim.
  */
-import { poly, UNITS, type Paths } from '../geom/polygons';
+import { poly, RegionIndex, UNITS, type Paths } from '../geom/polygons';
 import { area } from '../geom/boolean';
 import { flipped, signedVolume, topology } from '../mesh';
 import { sliceMesh } from './contours';
@@ -16,7 +16,13 @@ import type { LineType, PlateMesh, ProcessSettings, SliceLayer, ToolPath } from 
 
 const U = UNITS;
 
-export interface SliceCore { meshes: PlateMesh[]; process: ProcessSettings; nozzle: number }
+export interface SliceCore {
+  meshes: PlateMesh[];
+  process: ProcessSettings;
+  nozzle: number;
+  /** where lines may go: the printable area minus the excluded zones (grid units); skirt, brim and support are cut to it */
+  bed?: Paths;
+}
 export type Progress = (stage: string, fraction: number) => void;
 export class SliceCancelled extends Error { constructor() { super('Slicing was cancelled.'); } }
 
@@ -101,7 +107,7 @@ export function slicePaths(core: SliceCore, progress: Progress = () => {}, cance
     const which = open.length ? ` (${open.map((x) => `${x.m.name}: ${x.t.openEdges} open edges`).join(', ')})` : '';
     warnings.push(`The mesh is not closed${which}: ${repaired} gap(s) in the layer contours were closed straight. Check the model for holes.`);
   }
-  for (const pf of perFil) for (let i = 0; i < n; i++) pf[i] = pf[i].length ? poly.union(pf[i]) : [];
+  for (const pf of perFil) for (let i = 0; i < n; i++) pf[i] = pf[i].length ? poly.unionNonZero(pf[i]) : [];
   const all: Paths[] = Array.from({ length: n }, (_, i) => (filaments.length === 1 ? perFil[0][i] : poly.union(perFil.flatMap((pf) => pf[i]))));
 
   // support from the union of all parts
@@ -111,6 +117,7 @@ export function slicePaths(core: SliceCore, progress: Progress = () => {}, cance
     const inp = { regions: all, heights: plan.h, thresholdDeg: s.supportAngle, zGapLayers: s.supportZGapLayers, xyGap: s.supportXYGap, lineWidth: s.lineWidth * U,
       interfaceLayers: s.supportInterfaceLayers };
     support = s.support === 'tree' ? treeSupport(inp) : normalSupport(inp);
+    if (cancelled()) throw new SliceCancelled();
   }
 
   const layers: SliceLayer[] = [];
@@ -146,65 +153,124 @@ export function slicePaths(core: SliceCore, progress: Progress = () => {}, cance
         // a little more than the exposed part, so the skin rests on the walls around it (docs/34 2.4)
         solid = exposed.length ? poly.intersection(poly.offset(exposed, w), C) : [];
       }
-      const bridge = !first && solid.length ? poly.opening(poly.difference(solid, all[i - 1]), w) : [];
+      // a bridge: solid area over air; its lines run along the span, anchored 1.5 line widths on the material below
+      // (docs/35 P2-3)
+      const air = !first && solid.length ? poly.opening(poly.difference(solid, all[i - 1]), w) : [];
+      const bridge = air.length ? poly.intersection(poly.offset(air, 1.5 * w), C) : [];
       const skin = bridge.length ? poly.difference(solid, bridge) : solid;
       const sparse = solid.length ? poly.difference(C, solid) : C;
       const skinAngle = i % 2 ? (3 * Math.PI) / 4 : Math.PI / 4;
-      if (skin.length) {
-        const lines = parallelLines(skin, boxOf(skin), sp, skinAngle);
-        for (let q = 0; q < lines.length; q += 4) push('skin', lines.slice(q, q + 4), false, s.speedSkin, fil);
-      }
+      if (skin.length) for (const l of connectLines(parallelLines(skin, boxOf(skin), sp, skinAngle), skin, sp)) push('skin', l, false, s.speedSkin, fil);
       if (bridge.length) {
-        const ang = bridgeAngle(bridge, sp);
-        const lines = parallelLines(bridge, boxOf(bridge), sp, ang);
-        for (let q = 0; q < lines.length; q += 4) push('bridge', lines.slice(q, q + 4), false, s.speedBridge, fil);
+        const ang = bridgeAngle(bridge, all[i - 1], sp);
+        for (const l of connectLines(parallelLines(bridge, boxOf(bridge), sp, ang), bridge, sp)) push('bridge', l, false, s.speedBridge, fil);
       }
       if (sparse.length && s.infillDensity > 0 && Math.abs(poly.area(sparse)) > (2 * w) ** 2) {
-        for (const l of infill(sparse, s.infillPattern, s.infillDensity, sp, i, plan.z[i] * U)) push('infill', l, false, s.speedInfill, fil);
+        const lines = infill(sparse, s.infillPattern, s.infillDensity, sp, i, plan.z[i] * U);
+        // sparse lines are not joined (a joining piece along the wall would raise the density); a short hop between
+        // them inside the area needs no retraction (build.ts)
+        for (const l of lines) push('infill', l, false, s.speedInfill, fil);
       }
     });
     if (support) {
       const sw = s.lineWidth * U;
       const fil = filaments[0];
-      if (support.interface[i].length) {
-        const lines = parallelLines(support.interface[i], boxOf(support.interface[i]), sw / 0.7, i % 2 ? 0 : Math.PI / 2);
-        for (let q = 0; q < lines.length; q += 4) push('supportInterface', lines.slice(q, q + 4), false, s.speedSupport, fil, sw);
+      // support stays on the bed (docs/35 P1-3)
+      const onBed = (a: Paths) => (core.bed && a.length ? poly.intersection(a, core.bed) : a);
+      const iface = onBed(support.interface[i]), base = onBed(support.base[i]);
+      if (iface.length) {
+        for (const l of connectLines(parallelLines(iface, boxOf(iface), sw / 0.7, i % 2 ? 0 : Math.PI / 2), iface, sw / 0.7)) push('supportInterface', l, false, s.speedSupport, fil, sw);
       }
-      if (support.base[i].length) {
-        if (s.support === 'tree') for (const l of support.base[i]) if (area(l) > 0) push('support', l, true, s.speedSupport, fil, sw);
-        const lines = parallelLines(support.base[i], boxOf(support.base[i]), sw / Math.max(0.05, s.supportDensity), 0);
-        for (let q = 0; q < lines.length; q += 4) push('support', lines.slice(q, q + 4), false, s.speedSupport, fil, sw);
+      if (base.length) {
+        if (s.support === 'tree') for (const l of base) if (area(l) > 0) push('support', l, true, s.speedSupport, fil, sw);
+        const gap = sw / Math.max(0.05, s.supportDensity);
+        for (const l of connectLines(parallelLines(base, boxOf(base), gap, 0), base, gap)) push('support', l, false, s.speedSupport, fil, sw);
       }
     }
-    if (first) skirtAndBrim(all[0], s, w, sp, (pts) => push('skirt', pts, true, s.speedFirstLayer, filaments[0]));
+    if (first) skirtAndBrim(all[0], s, w, sp, core.bed, (pts) => push('skirt', pts, true, s.speedFirstLayer, filaments[0]), warnings);
     layers.push({ z: plan.z[i], height: h, paths });
     if (i % 4 === 0) progress('Walls, skins and infill', 0.25 + (0.6 * (i + 1)) / n);
   }
   return { layers, warnings, regions: all };
 }
 
-/** brim loops around the first layer, then the skirt loops at their distance */
-function skirtAndBrim(first: Paths, s: ProcessSettings, w: number, sp: number, add: (pts: number[]) => void) {
+/**
+ * Brim loops around the first layer, then the skirt loops at their distance; each loop is the boundary of its offset
+ * area cut to the bed, so nothing leaves the printable area (docs/35 P1-3).
+ */
+function skirtAndBrim(first: Paths, s: ProcessSettings, w: number, sp: number, bed: Paths | undefined, add: (pts: number[]) => void, warnings: string[]) {
   if (!first.length) return;
+  const loops = (d: number) => { const a = poly.offset(first, d); return bed ? poly.intersection(a, bed) : a; };
   const brimLoops = Math.round((s.brimWidth * U) / sp);
-  for (let k = 0; k < brimLoops; k++) for (const l of poly.offset(first, w / 2 + k * sp)) if (area(l) > 0) add(l);
+  let cut = false;
+  for (let k = 0; k < brimLoops; k++) for (const l of loops(w / 2 + k * sp)) add(l);
   if (s.skirtLoops > 0) {
     const d = s.skirtDistance * U + brimLoops * sp + w / 2;
-    for (let k = 0; k < s.skirtLoops; k++) for (const l of poly.offset(first, d + k * sp)) if (area(l) > 0) add(l);
+    for (let k = 0; k < s.skirtLoops; k++) {
+      const full = poly.offset(first, d + k * sp);
+      const inBed = bed ? poly.intersection(full, bed) : full;
+      if (Math.abs(poly.area(inBed) - poly.area(full)) > 1) cut = true;
+      for (const l of inBed) add(l);
+    }
   }
+  if (cut) warnings.push('The skirt was cut short at the edge of the bed.');
 }
 
-/** the direction of bridge lines: the angle (of 12) with the shortest mean span */
-function bridgeAngle(region: Paths, spacing: number): number {
-  let best = 0, bestLen = Infinity;
-  for (let k = 0; k < 12; k++) {
-    const ang = (k * Math.PI) / 12;
+/**
+ * Parallel lines joined into zigzags: the end of one line is joined to the nearest end of a line within 1.6 spacings
+ * when the joining piece stays inside the area (grown a little), so the nozzle does not travel between them.
+ */
+export function connectLines(segs: number[], region: Paths, spacing: number): number[][] {
+  const n = segs.length / 4;
+  if (!n) return [];
+  const idx = new RegionIndex(poly.offset(region, spacing * 0.05 + 1));
+  const used = new Uint8Array(n);
+  const out: number[][] = [];
+  const reach = spacing * 1.6;
+  for (let s0 = 0; s0 < n; s0++) {
+    if (used[s0]) continue;
+    used[s0] = 1;
+    const pl = [segs[4 * s0], segs[4 * s0 + 1], segs[4 * s0 + 2], segs[4 * s0 + 3]];
+    for (;;) {
+      const ex = pl[pl.length - 2], ey = pl[pl.length - 1];
+      let best = -1, bd = reach, rev = false;
+      for (let k = 0; k < n; k++) {
+        if (used[k]) continue;
+        const d0 = Math.hypot(segs[4 * k] - ex, segs[4 * k + 1] - ey), d1 = Math.hypot(segs[4 * k + 2] - ex, segs[4 * k + 3] - ey);
+        if (d0 < bd) { bd = d0; best = k; rev = false; }
+        if (d1 < bd) { bd = d1; best = k; rev = true; }
+      }
+      if (best < 0) break;
+      const q = 4 * best;
+      const [ax, ay, bx, by] = rev ? [segs[q + 2], segs[q + 3], segs[q], segs[q + 1]] : [segs[q], segs[q + 1], segs[q + 2], segs[q + 3]];
+      const cross = idx.crossings(ex, ey, ax, ay).filter((t) => t > 1e-6 && t < 1 - 1e-6);
+      if (cross.length || !idx.contains((ex + ax) / 2, (ey + ay) / 2)) break;
+      used[best] = 1;
+      pl.push(ax, ay, bx, by);
+    }
+    out.push(pl);
+  }
+  return out;
+}
+
+/**
+ * The direction of bridge lines (docs/35 P2-3): the angle (of 24) at which the most lines rest on material of the
+ * layer below at both ends; among equals the shortest lines.
+ */
+function bridgeAngle(region: Paths, below: Paths, spacing: number): number {
+  const rest = new RegionIndex(poly.offset(below, spacing * 0.5));
+  let best = 0, bestScore = -1, bestLen = Infinity;
+  for (let k = 0; k < 24; k++) {
+    const ang = (k * Math.PI) / 24;
     const segs = parallelLines(region, boxOf(region), spacing * 2, ang);
     if (!segs.length) continue;
-    let L = 0;
-    for (let q = 0; q < segs.length; q += 4) L += Math.hypot(segs[q + 2] - segs[q], segs[q + 3] - segs[q + 1]);
-    const mean = L / (segs.length / 4);
-    if (mean < bestLen) { bestLen = mean; best = ang; }
+    let both = 0, L = 0;
+    for (let q = 0; q < segs.length; q += 4) {
+      L += Math.hypot(segs[q + 2] - segs[q], segs[q + 3] - segs[q + 1]);
+      if (rest.contains(segs[q], segs[q + 1]) && rest.contains(segs[q + 2], segs[q + 3])) both++;
+    }
+    const score = both / (segs.length / 4), mean = L / (segs.length / 4);
+    if (score > bestScore + 1e-9 || (Math.abs(score - bestScore) < 1e-9 && mean < bestLen)) { bestScore = score; bestLen = mean; best = ang; }
   }
   return best;
 }

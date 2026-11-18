@@ -1552,16 +1552,16 @@ elease; README en docs/04 bijgewerkt
 - [x] Verslag docs/35-review-fable-3d-print-fase1-3.md met tabel, bevindingen P1/P2/P3 en oordeel per fase (geen codewijziging, geen commit)
 
 ## 3D Print: review Fable 5.2 (docs/35) verwerken (2026-11-18)
-- [ ] Clipper2 achter geom/polygons.ts (eigen kern alleen als testorakel); licentie in docs/33
-- [ ] P1-1 geen G1 X0 Y0 Z0: onbekende beginpositie, terugtrekken zonder XY, eerst Z dan XY; proef op travelLimits per beweging
-- [ ] P1-2 bijna gelijke veelhoeken (300 paren) en cilinder/buis zonder skin in tussenlagen
-- [ ] P1-3 elke beweging binnen printableArea min excludeAreas; skirt/brim/support afknippen; spoeltoren zonder botsing; export weigeren
-- [ ] P1-4 meerkleuren Bambu alleen met geïmporteerde wisselcode; één kleur AMS laden of melding
-- [ ] P1-5 geïmporteerde startcode alleen bij het juiste printermodel; echte waarden
-- [ ] Alle P2's (gyroid, supportdrempel, brugrichting, dubbele terugtrek, laagtijd, mesh-herstel, verouderd part, preview in worker, toleranties terug, nivellering Elegoo, AANNAME-bevestiging, plaat in document, travel)
-- [ ] Fase-1-voorwaarden: tessellatie 0,1 %, uitsluitzones in Arrange, OK/Annuleren/Esc, e2e assembly en tekening
-- [ ] Alle P3's
-- [ ] Typecheck, vitest, e2e, poorten, graphify, foto's print-fase1-3b, statustabel onder docs/35
+- [x] Clipper2 achter geom/polygons.ts (eigen kern alleen als testorakel); licentie in docs/33
+- [x] P1-1 geen G1 X0 Y0 Z0: onbekende beginpositie, terugtrekken zonder XY, eerst Z dan XY; proef op travelLimits per beweging
+- [x] P1-2 bijna gelijke veelhoeken (300 paren) en cilinder/buis zonder skin in tussenlagen
+- [x] P1-3 elke beweging binnen printableArea min excludeAreas; skirt/brim/support afknippen; spoeltoren zonder botsing; export weigeren
+- [x] P1-4 meerkleuren Bambu alleen met geïmporteerde wisselcode; één kleur AMS laden of melding
+- [x] P1-5 geïmporteerde startcode alleen bij het juiste printermodel; echte waarden
+- [x] Alle P2's (gyroid, supportdrempel, brugrichting, dubbele terugtrek, laagtijd, mesh-herstel, verouderd part, preview in worker, toleranties terug, nivellering Elegoo, AANNAME-bevestiging, plaat in document, travel)
+- [x] Fase-1-voorwaarden: tessellatie 0,1 %, uitsluitzones in Arrange, OK/Annuleren/Esc, e2e assembly en tekening
+- [~] Alle P3's (deels: P3-11, P3-13, P3-14, P3-15 zie docs/35 hoofdstuk 8)
+- [x] Typecheck, vitest, e2e, poorten, graphify, foto's print-fase1-3b, statustabel onder docs/35
 
 ## Nachtwerk 18 → 19 november: alles doorwerken zonder vragen (2026-11-18)
 - [~] 3D Print: alle punten van de Fable-review oplossen (P1 eerst, Clipper2), daarna opnieuw laten nakijken door Fable tot het vrijgegeven is

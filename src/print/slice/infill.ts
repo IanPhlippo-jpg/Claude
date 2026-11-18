@@ -5,6 +5,9 @@
 import { RegionIndex, clipPolyline, clipSegments, type Paths } from '../geom/polygons';
 import type { InfillPattern } from '../types';
 
+/** line length per area of the gyroid slice, times the period (averaged over z; calibrated in slicer.test.ts) */
+export const GYROID_K = 2.6;
+
 export interface Box { x0: number; y0: number; x1: number; y1: number }
 
 export function boxOf(region: Paths): Box {
@@ -36,36 +39,62 @@ export function parallelLines(region: Paths | RegionIndex, box: Box, spacing: nu
   return clipSegments(segs, region);
 }
 
-/** gyroid wave lines at height z (grid units): the level curve of the gyroid, solved per column (docs/34 2.4) */
-function gyroidLines(box: Box, period: number, z: number): number[][] {
+/**
+ * Gyroid lines at height z (grid units): the level curve sin x cos y + sin y cos z + sin z cos x = 0 of the slice,
+ * traced with marching squares on a grid of period/24 and chained into polylines (docs/35 P2-1: no clamped solution,
+ * so no doubled lines where the curve turns).
+ */
+export function gyroidLines(box: Box, period: number, z: number): number[][] {
   const k = (2 * Math.PI) / period;
-  const zz = z * k;
-  const sz = Math.sin(zz), cz = Math.cos(zz);
-  // sin x cos y + sin y cos z + sin z cos x = 0; the lines run along X when |cos z| > |sin z|, else along Y
-  const alongX = Math.abs(cz) >= Math.abs(sz);
-  const lines: number[][] = [];
-  const step = period / 16;
-  const [a0, a1, b0, b1] = alongX ? [box.x0, box.x1, box.y0, box.y1] : [box.y0, box.y1, box.x0, box.x1];
-  const startRow = Math.floor((b0 * k) / (2 * Math.PI)) - 1, endRow = Math.ceil((b1 * k) / (2 * Math.PI)) + 1;
-  for (let row = startRow; row <= endRow; row++) {
-    for (const branch of [1, -1]) {
-      const pts: number[] = [];
-      for (let a = Math.floor(a0 / step) * step - step; a <= a1 + step; a += step) {
-        const t = a * k;
-        // along X (t = x): A cos y + B sin y = C with A = sin x, B = cos z, C = -sin z cos x
-        // along Y (t = y): A cos x + B sin x = C with A = sin z, B = cos y, C = -sin y cos z
-        const A = alongX ? Math.sin(t) : sz, B = alongX ? cz : Math.cos(t);
-        const C = alongX ? -sz * Math.cos(t) : -Math.sin(t) * cz;
-        const R = Math.hypot(A, B);
-        const ratio = Math.max(-1, Math.min(1, C / (R || 1e-12)));
-        const phi = Math.atan2(B, A);
-        const u = phi + branch * Math.acos(ratio) + 2 * Math.PI * row;
-        const b = u / k;
-        if (alongX) pts.push(a, b); else pts.push(b, a);
-      }
-      lines.push(pts);
+  const sz = Math.sin(z * k), cz = Math.cos(z * k);
+  const cell = period / 24;
+  const x0 = Math.floor(box.x0 / cell) * cell - cell, y0 = Math.floor(box.y0 / cell) * cell - cell;
+  const nx = Math.ceil((box.x1 - x0) / cell) + 2, ny = Math.ceil((box.y1 - y0) / cell) + 2;
+  const f = new Float64Array((nx + 1) * (ny + 1));
+  for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) {
+    const x = (x0 + i * cell) * k, y = (y0 + j * cell) * k;
+    const v = Math.sin(x) * Math.cos(y) + Math.sin(y) * cz + sz * Math.cos(x);
+    f[j * (nx + 1) + i] = v === 0 ? 1e-12 : v;
+  }
+  const F = (i: number, j: number) => f[j * (nx + 1) + i];
+  // edge ids: horizontal edge (i, j)-(i+1, j) = 2 * (j * (nx + 1) + i), vertical (i, j)-(i, j+1) = that + 1
+  const hEdge = (i: number, j: number) => 2 * (j * (nx + 1) + i), vEdge = (i: number, j: number) => 2 * (j * (nx + 1) + i) + 1;
+  const point = (e: number): [number, number] => {
+    const id = e >> 1, i = id % (nx + 1), j = Math.floor(id / (nx + 1));
+    const [a, b] = e & 1 ? [F(i, j), F(i, j + 1)] : [F(i, j), F(i + 1, j)];
+    const t = a / (a - b);
+    return e & 1 ? [x0 + i * cell, y0 + (j + t) * cell] : [x0 + (i + t) * cell, y0 + j * cell];
+  };
+  const links = new Map<number, number[]>();
+  const link = (a: number, b: number) => { (links.get(a) ?? links.set(a, []).get(a)!).push(b); (links.get(b) ?? links.set(b, []).get(b)!).push(a); };
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const e: number[] = [];
+    const corners = [F(i, j), F(i + 1, j), F(i + 1, j + 1), F(i, j + 1)];
+    const edges = [hEdge(i, j), vEdge(i + 1, j), hEdge(i, j + 1), vEdge(i, j)];
+    for (let q = 0; q < 4; q++) if ((corners[q] > 0) !== (corners[(q + 1) % 4] > 0)) e.push(edges[q]);
+    if (e.length === 2) link(e[0], e[1]);
+    else if (e.length === 4) {
+      // a saddle: decided by the value in the middle of the cell
+      const mid = (corners[0] + corners[1] + corners[2] + corners[3]) / 4;
+      if ((mid > 0) === (corners[0] > 0)) { link(e[0], e[1]); link(e[2], e[3]); } else { link(e[0], e[3]); link(e[1], e[2]); }
     }
   }
+  const seen = new Set<number>();
+  const lines: number[][] = [];
+  const walk = (start: number) => {
+    const ids = [start];
+    seen.add(start);
+    let cur = start;
+    for (;;) {
+      const nxt = (links.get(cur) ?? []).find((n) => !seen.has(n));
+      if (nxt === undefined) break;
+      seen.add(nxt); ids.push(nxt); cur = nxt;
+    }
+    return ids;
+  };
+  // open chains from their ends first, then the closed loops
+  for (const [e, l] of links) if (l.length === 1 && !seen.has(e)) lines.push(walk(e).flatMap(point));
+  for (const e of links.keys()) if (!seen.has(e)) { const ids = walk(e); lines.push([...ids, ids[0]].flatMap(point)); }
   return lines;
 }
 
@@ -105,8 +134,9 @@ export function infill(region: Paths, pattern: InfillPattern, density: number, l
     case 'grid':
       return segsToLines([...parallelLines(idx, box, (2 * lineWidth) / d, Math.PI / 4), ...parallelLines(idx, box, (2 * lineWidth) / d, (3 * Math.PI) / 4)]);
     case 'gyroid': {
-      // two wave lines per period; their length is about 1.2 x straight, so the period follows from the density
-      const period = (2 * 1.2 * lineWidth) / d;
+      // the gyroid slice has about 2.6 / period length per area (measured over a whole period of layers, slicer test),
+      // so the period follows from the density
+      const period = (GYROID_K * lineWidth) / d;
       return gyroidLines(box, period, z).flatMap((l) => clipPolyline(l, idx));
     }
     case 'honeycomb': {

@@ -141,9 +141,11 @@ export interface ProcessSettings {
   /** multi-material: purge volume per tool change, mm³ */
   flushVolume: number;
   primeTowerWidth: number;
-  /** prime tower position (front-left corner on the bed), mm */
+  /** prime tower position (front-left corner on the bed), mm; placed free of the parts by the slicer */
   primeTowerX: number;
   primeTowerY: number;
+  /** the build plate type (a Bambu start code reads it as curr_bed_type) */
+  bedType: string;
 }
 
 /** one filament slot (AMS tray or the single spool): data model for multi-material (docs/34 E8) */
@@ -177,8 +179,20 @@ export interface PlateItem {
   /** placement: column-major 4x4 matrix, part -> plate */
   matrix: number[];
   filament: number;
-  /** from a body or a component: the source label */
-  source?: string;
+  /** where the mesh comes from: refreshed from the model after a rebuild, and how the plate is stored in the document */
+  source?: ItemSource;
+  /** a fingerprint of the mesh (a changed part makes the slice stale: docs/35 P2-8) */
+  hash?: string;
+}
+
+/** the origin of a part on the plate */
+export type ItemSource = { kind: 'part' } | { kind: 'body'; index: number } | { kind: 'component'; id: string } | { kind: 'assembly' } | { kind: 'mesh' };
+
+/** the plates as stored in the document (file format 4, docs/35 P2-12): the meshes come back from the model by source */
+export interface PrintDocData {
+  printerId?: string;
+  nozzle?: number;
+  plates: { name: string; items: { name: string; source: ItemSource; matrix: number[]; filament: number }[] }[];
 }
 
 export interface Plate {
@@ -230,8 +244,8 @@ export interface SliceStats {
 }
 
 /**
- * Flat preview data (docs/34 2.1: no object per segment): per segment 10 floats
- * x0, y0, x1, y1, z, width, height, type, speed (mm/s), filament; `layerStart[i]` is the first segment of layer i.
+ * Flat preview data (docs/34 2.1: no object per segment): per segment 11 floats
+ * x0, y0, x1, y1, z, width, height, type, speed (mm/s), filament, fan (%); `layerStart[i]` is the first segment of layer i.
  */
 export interface PreviewData {
   segs: Float32Array;
@@ -239,11 +253,25 @@ export interface PreviewData {
   layerZ: Float32Array;
   layerHeight: Float32Array;
 }
-export const SEG_STRIDE = 10;
+export const SEG_STRIDE = 11;
+
+/** start, end and filament-change G-code imported from the user's own Bambu Studio machine profile (docs/35 P1-4, P1-5) */
+export interface MachineCode {
+  start?: string;
+  end?: string;
+  change?: string;
+  /** the printer the profile is for ("Bambu Lab P1S"); the code is only used on that model */
+  printerModel: string;
+  profileName: string;
+}
+
+/** the preview as a triangle mesh, built in the worker: 8 vertices and 18 indices per segment of PreviewData */
+export interface PreviewMeshData { positions: Float32Array; normals: Int8Array; index: Uint32Array }
 
 export interface SliceResult {
   stats: SliceStats;
   preview: PreviewData;
+  mesh: PreviewMeshData;
   /** the G-code as chunks of ASCII bytes (docs/34 2.1: no single string) */
   gcode: Uint8Array[];
   /** a hash of the inputs (stale detection) */

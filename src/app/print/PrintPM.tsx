@@ -4,7 +4,7 @@ import './print.css';
  * Filament · Quality · Strength · Speed · Support · Others · Machine G-code, and the parts on the plate in tree style.
  * Every change updates the plate and marks a slice as out of date.
  */
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
@@ -15,9 +15,11 @@ import { insideVolume, worldBounds } from '../../print/plate';
 import { LINE_TYPES, type InfillPattern, type LineType, type ProcessSettings, type SeamPosition, type SupportKind } from '../../print/types';
 import { NOT_PRINTED } from '../../print/gcode/dialects';
 import {
-  addSlot, clearBambuProfile, currentPrinter, currentProcess, deletePlate, fmtTime, importBambuProfile, isStale, moveSelected, patchProcess, removeSelected, removeSlot,
-  resetProcess, rotateSelected, selectItem, setItemFilament, setNozzle, setPlateIndex, setPreset, setPrinter, setSlot, undoPlate, usePrint, type ColorBy,
+  addSlot, beginSession, cancelSession, clearBambuProfile, currentPrinter, currentProcess, deletePlate, fmtTime, importBambuProfile, isStale, moveSelectedToPlate, okSession,
+  patchProcess, placeSelected, removeSelected, removeSlot, resetProcess, rotateSelected, selectedCentre, selectItem, setItemFilament, setNozzle, setPlateIndex, setPreset,
+  setPrinter, setSlot, undoPlate, usePrint, type ColorBy,
 } from './printStore';
+import { sameModel } from '../../print/gcode/importTemplate';
 import { LINE_COLORS, LINE_LABELS } from './previewColors';
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -33,6 +35,19 @@ export function PrintPM() {
   const [filter, setFilter] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const printers = useMemo(() => (s.db ? fdmPrinters(s.db) : []), [s.db]);
+  const setTabRef = useRef(setTab);
+  setTabRef.current = setTab;
+  // the tab works as a command: the state when it opened; OK keeps the changes, Cancel and Esc go back (docs/35 P3-9)
+  useEffect(() => {
+    beginSession();
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || (e.target as HTMLElement)?.closest?.('input, select, textarea') || useStore.getState().ask) return;
+      cancelSession();
+      setTabRef.current(useStore.getState().doc.kind === 'assembly' ? 'assembly' : 'features');
+    };
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, []);
   if (!s.db || !printer || !proc) return <div className="k-pm" data-testid="print-pm"><p className="k-pm-message">Loading the printer database…</p></div>;
   const items = s.plates[s.plateIndex].items;
   const sel = items.find((i) => i.id === s.selected) ?? null;
@@ -43,14 +58,14 @@ export function PrintPM() {
   const shown = printers.filter((p) => !filter || printerName(p).toLowerCase().includes(filter.toLowerCase()));
   const label = (p: typeof printer) => `${printerName(p)}${isAnnounced(p) ? ' (announced)' : isDiscontinued(p) ? ' (discontinued)' : ''}`;
   const stale = isStale(s);
-  const close = () => setTab(kind === 'assembly' ? 'assembly' : 'features');
+  const close = (ok: boolean) => { if (ok) okSession(); else cancelSession(); setTab(kind === 'assembly' ? 'assembly' : 'features'); };
   return (
     <div className="k-pm k-print-pm" data-testid="print-pm">
       <div className="k-pm-head">
         <div className="k-pm-title"><PrintIcon.Printer /> <b>3D Print</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
         <div className="k-pm-buttons">
-          <button className="k-pm-ok k-tip" data-tip="OK" onClick={close}><Icon.Check /></button>
-          <button className="k-pm-cancel k-tip" data-tip="Cancel" onClick={close}><Icon.Close /></button>
+          <button className="k-pm-ok k-tip" data-tip="OK" data-testid="print-ok" onClick={() => close(true)}><Icon.Check /></button>
+          <button className="k-pm-cancel k-tip" data-tip="Cancel (Esc)" data-testid="print-cancel" onClick={() => close(false)}><Icon.Close /></button>
         </div>
       </div>
       <div className="k-pm-tabs">
@@ -148,16 +163,24 @@ export function PrintPM() {
               </select>
             </Row>
             {canWriteMultiMaterial(printer) && num('flushVolume', 'Flush volume (mm³)', { step: 10 })}
+            <Row label="Build plate">
+              <select className="k-input" value={proc.bedType} onChange={(e) => patchProcess({ bedType: e.target.value })}>
+                {['Textured PEI Plate', 'Smooth PEI Plate', 'Cool Plate', 'Engineering Plate', 'High Temp Plate'].map((b) => <option key={b}>{b}</option>)}
+              </select>
+            </Row>
             <button className="k-btn" onClick={resetProcess} disabled={!Object.keys(s.overrides).length}>Back to Profile</button>
           </Section>
           {printer.gcodeFlavor === 'bambu' && (
             <Section title="Machine G-code" defaultOpen={false}>
-              <div className="k-muted">{s.bambuProfileName ? `Imported: ${s.bambuProfileName}` : 'Own minimal start and end sequence.'}</div>
+              <div className="k-muted" data-testid="print-machine">{s.machine
+                ? `Imported: ${s.machine.profileName} (${s.machine.printerModel})${s.machine.change ? ', with filament change' : ''}`
+                : 'Own minimal start and end sequence. It does not load filament from the AMS: load it by hand. Multi-colour needs the imported code.'}</div>
+              {s.machine && !sameModel(s.machine.printerModel, printer) && <p className="k-pm-message">The imported code is for the {s.machine.printerModel}: it is not used on this printer.</p>}
               <input ref={fileRef} type="file" accept=".json,.gcode,.txt" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0];
                 if (f) void f.text().then((t) => importBambuProfile(t, f.name)); e.target.value = ''; }} />
               <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                 <button className="k-btn" data-testid="print-import-bambu" onClick={() => fileRef.current?.click()}>Import from Bambu Studio…</button>
-                {s.bambuProfileName && <button className="k-btn" onClick={clearBambuProfile}>Use Own</button>}
+                {s.machine && <button className="k-btn" onClick={clearBambuProfile}>Use Own</button>}
               </div>
             </Section>
           )}
@@ -183,12 +206,14 @@ export function PrintPM() {
               <>
                 <div className="k-muted">{(() => { const b = worldBounds(sel);
                   return `${(b.max[0] - b.min[0]).toFixed(1)} x ${(b.max[1] - b.min[1]).toFixed(1)} x ${(b.max[2] - b.min[2]).toFixed(1)} mm`; })()}</div>
+                <PartPlacement key={sel.id + (selectedCentre() ?? []).join(',')} />
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
-                  <button className="k-btn" onClick={() => rotateSelected(90)}>Rotate 90°</button>
-                  <button className="k-btn" onClick={() => moveSelected(-10, 0)}>X -10</button>
-                  <button className="k-btn" onClick={() => moveSelected(10, 0)}>X +10</button>
-                  <button className="k-btn" onClick={() => moveSelected(0, 10)}>Y +10</button>
-                  <button className="k-btn" onClick={() => moveSelected(0, -10)}>Y -10</button>
+                  {s.plates.length > 1 && (
+                    <select className="k-input" style={{ width: 'auto' }} value="" onChange={(e) => moveSelectedToPlate(Number(e.target.value))} aria-label="Move to Plate">
+                      <option value="">Move to Plate…</option>
+                      {s.plates.map((p, i) => (i === s.plateIndex ? null : <option key={p.id} value={i}>{p.name}</option>))}
+                    </select>
+                  )}
                   <button className="k-btn" onClick={removeSelected}>Remove</button>
                 </div>
               </>
@@ -227,7 +252,8 @@ function PreviewTab() {
       </Section>
       <Section title="Color Scheme">
         <select className="k-input" data-testid="print-colorby" value={s.colorBy} onChange={(e) => usePrint.setState({ colorBy: e.target.value as ColorBy })}>
-          <option value="type">Line Type</option><option value="speed">Speed</option><option value="height">Layer Height</option><option value="filament">Filament</option>
+          <option value="type">Line Type</option><option value="speed">Speed</option><option value="height">Layer Height</option><option value="width">Line Width</option>
+          <option value="flow">Flow</option><option value="fan">Fan Speed</option><option value="filament">Filament</option>
         </select>
       </Section>
       <Section title="Line Types">
@@ -239,6 +265,22 @@ function PreviewTab() {
           </label>
         ))}
       </Section>
+    </>
+  );
+}
+
+/** the selected part: its centre on the bed and a rotation about Z, typed in (docs/35 P3-15) */
+function PartPlacement() {
+  const c = selectedCentre() ?? [0, 0];
+  const [rot, setRot] = useState(90);
+  return (
+    <>
+      <Row label="Centre X"><NumberField value={c[0]} unit="mm" step={1} onChange={(v) => placeSelected(v, c[1])} /></Row>
+      <Row label="Centre Y"><NumberField value={c[1]} unit="mm" step={1} onChange={(v) => placeSelected(c[0], v)} /></Row>
+      <Row label="Rotate Z">
+        <NumberField value={rot} unit="deg" step={15} onChange={setRot} />
+        <button className="k-btn" onClick={() => rotateSelected(rot)}>Rotate</button>
+      </Row>
     </>
   );
 }

@@ -46,3 +46,17 @@ export const calibrationCube = (x = 0, y = 0, size = 20) => box(x, y, 0, x + siz
 
 /** a T: a 10 x 10 stem 20 high carrying a 40 x 10 bar 5 thick (15 mm overhangs both sides) */
 export const tPiece = (x = 0, y = 0) => concat(box(x + 15, y, 0, x + 25, y + 10, 20), box(x, y, 20, x + 40, y + 10, 25));
+
+/** a box leaning over by `deg` from the horizontal on its +X side (an overhang test piece: docs/34 T5) */
+export function leaningBox(x: number, y: number, deg: number, h = 10, w = 10, d = 10): Float32Array {
+  const dx = h / Math.tan((deg * Math.PI) / 180);
+  const v = [[x, y, 0], [x + w, y, 0], [x + w, y + d, 0], [x, y + d, 0], [x, y, h], [x + w + dx, y, h], [x + w + dx, y + d, h], [x, y + d, h]];
+  const quads = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]];
+  const out: number[] = [];
+  for (const [a, b, c, e] of quads) out.push(...v[a], ...v[b], ...v[c], ...v[a], ...v[c], ...v[e]);
+  return Float32Array.from(out);
+}
+
+/** two pillars carrying a slab: a bridge of `span` mm along X (docs/34 T6) */
+export const bridgePiece = (x: number, y: number, span: number) => concat(box(x, y, 0, x + 10, y + 10, 10), box(x + 10 + span, y, 0, x + 20 + span, y + 10, 10), box(x, y, 10, x + 20 + span,
+  y + 10, 12));

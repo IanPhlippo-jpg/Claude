@@ -626,7 +626,7 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       return S(t(mk.Shape()));
     },
     tessellate(shape) {
-      const m = (replicad.cast(R(shape)) as any).mesh({ tolerance: opts.tolerance ?? 0.01, angularTolerance: opts.angularTolerance ?? 0.1 });
+      const m = (replicad.cast(R(shape)) as any).mesh({ tolerance: opts.tolerance ?? 0.01, angularTolerance: opts.angularTolerance ?? 0.07 });
       const n = m.triangles.length;
       const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3);
       for (let i = 0; i < n; i++) {

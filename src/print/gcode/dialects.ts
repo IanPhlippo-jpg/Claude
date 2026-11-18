@@ -21,7 +21,6 @@ export interface Dialect {
   fan(pct: number): string;
   accel(a: number): string;
   progress(pct: number, minutesLeft: number): string;
-  toolChange(slot: number): string[];
   /** longest line the dialect accepts (Marlin: 96, docs/34 E13) */
   maxLine: number;
 }
@@ -29,7 +28,7 @@ export interface Dialect {
 const FEATURE_NAMES: Record<string, [string, string]> = {
   outerWall: ['Outer wall', 'External perimeter'],
   innerWall: ['Inner wall', 'Perimeter'],
-  skin: ['Top surface', 'Solid infill'],
+  skin: ['Internal solid infill', 'Solid infill'],
   bridge: ['Bridge', 'Bridge infill'],
   infill: ['Sparse infill', 'Internal infill'],
   support: ['Support', 'Support material'],
@@ -48,7 +47,8 @@ const purge = [
 ];
 
 const BAMBU_START = [
-  '; Phlippo CAD start G-code for Bambu Lab: own minimal sequence (' + NOT_PRINTED + ')',
+  '; Phlippo CAD start G-code for Bambu Lab, own minimal sequence',
+  `; ${NOT_PRINTED}`,
   'M73 P0 R{print_minutes}',
   'M140 S{bed_temp} ; bed to temperature',
   'M104 S140 ; nozzle warm but not oozing while homing',
@@ -62,7 +62,7 @@ const BAMBU_START = [
 ].join('\n');
 
 const BAMBU_END = [
-  '; Phlippo CAD end G-code (' + NOT_PRINTED + ')',
+  '; Phlippo CAD end G-code',
   'M400',
   'G1 E-{retract} F1800',
   'G1 Z{park_z} F600',
@@ -76,20 +76,29 @@ const BAMBU_END = [
   'M73 P100 R0',
 ].join('\n');
 
-const GENERIC_START = (flavor: string) => [
-  `; Phlippo CAD start G-code (${flavor}): own minimal sequence (${NOT_PRINTED})`,
+// levelling after homing (docs/35 P2-9): Marlin turns the saved mesh back on (G28 turns it off), Klipper loads the
+// saved profile "default"; the Centauri levels by itself. Per printer still to be checked (nog te printen).
+const LEVEL: Record<string, string[]> = {
+  marlin: ['M420 S1 ; saved bed mesh on'],
+  klipper: ['BED_MESH_PROFILE LOAD=default ; saved bed mesh'],
+  centauri: [],
+};
+const GENERIC_START = (flavor: string, level: string[]) => [
+  `; Phlippo CAD start (${flavor}), own sequence`,
+  `; ${NOT_PRINTED}`,
   'M140 S{bed_temp} ; bed to temperature',
   'M104 S{nozzle_temp} ; nozzle to temperature',
   'G90',
   'M83 ; relative extrusion',
   'G28 ; home all axes',
+  ...level,
   'M190 S{bed_temp} ; wait for the bed',
   'M109 S{nozzle_temp} ; wait for the nozzle',
   ...purge,
 ].join('\n');
 
 const GENERIC_END = [
-  `; Phlippo CAD end G-code (${NOT_PRINTED})`,
+  '; Phlippo CAD end G-code',
   'M400',
   'G1 E-{retract} F1800',
   'G1 Z{park_z} F600',
@@ -105,7 +114,7 @@ export function dialectFor(p: Printer): Dialect {
   const bambu = flavor === 'bambu';
   return {
     flavor,
-    startTemplate: bambu ? BAMBU_START : GENERIC_START(flavor === 'marlin' ? 'Marlin' : 'Klipper'),
+    startTemplate: bambu ? BAMBU_START : GENERIC_START(flavor === 'marlin' ? 'Marlin' : 'Klipper', LEVEL[p.thumbnailFormat === 'elegoo-centauri' ? 'centauri' : flavor]),
     endTemplate: bambu ? BAMBU_END : GENERIC_END,
     layerChange: (i, z, h) => (bambu
       ? ['; CHANGE_LAYER', `; Z_HEIGHT: ${fmt(z, 3)}`, `; LAYER_HEIGHT: ${fmt(h, 3)}`, `M73 L${i + 1}`, `M991 S0 P${i} ;notify layer change`]
@@ -114,8 +123,6 @@ export function dialectFor(p: Printer): Dialect {
     fan: (pct) => { const v = Math.round(Math.max(0, Math.min(100, pct)) * 2.55); return bambu ? `M106 P1 S${v}` : v === 0 ? 'M107' : `M106 S${v}`; },
     accel: (a) => (bambu ? `M204 S${Math.round(a)}` : flavor === 'klipper' ? `SET_VELOCITY_LIMIT ACCEL=${Math.round(a)}` : `M204 P${Math.round(a)} T${Math.round(a)}`),
     progress: (pct, min) => (flavor === 'klipper' ? `M73 P${Math.round(pct)}` : `M73 P${Math.round(pct)} R${Math.max(0, Math.round(min))}`),
-    // Bambu AMS: select the tray, change, confirm (community description of M620/M621; nog te printen)
-    toolChange: (slot) => (bambu ? [`M620 S${slot}A`, `T${slot}`, `M621 S${slot}A`] : [`T${slot}`]),
     maxLine: flavor === 'marlin' ? 96 : 255,
   };
 }

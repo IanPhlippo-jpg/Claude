@@ -103,7 +103,7 @@ describe.each([['mesh', false], ['B-rep', true]] as const)('stable body ids (QA 
     };
     delete old.app;
     const back = parseDocument(JSON.stringify(old));
-    expect(back.version).toBe(3);
+    expect(back.version).toBe(4);
     const c1 = back.features.find((f) => f.id === 'c1') as ExtrudeFeature;
     expect(c1.scope).toEqual(['e1#0']);
     expect(back.hiddenBodies).toEqual(['e2#0']);

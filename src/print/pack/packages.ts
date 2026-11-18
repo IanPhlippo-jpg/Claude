@@ -91,7 +91,16 @@ export interface BambuPack {
   plateSmall: Uint8Array;
   appVersion: string;
   objects: string[];
+  /** the parts in plate coordinates: they go into 3D/3dmodel.model and plate_1.json */
+  meshes?: { name: string; positions: Float32Array }[];
 }
+
+/**
+ * Generic filament ids of Bambu Studio's library per material type (AANNAME: community knowledge, to be checked
+ * against a reference file; the printer uses them to match the AMS tray).
+ */
+const TRAY_INFO: Record<string, string> = { PLA: 'GFL99', PETG: 'GFG99', ABS: 'GFB99', ASA: 'GFB98', TPU: 'GFU99', PA: 'GFN99', PC: 'GFC99' };
+const trayInfo = (type: string) => TRAY_INFO[type.toUpperCase().replace(/[^A-Z]+.*$/, '')] ?? '';
 
 export async function bambuGcode3mf(p: BambuPack): Promise<Uint8Array> {
   const gcode = new Uint8Array(p.gcode.reduce((s, c) => s + c.length, 0));
@@ -112,18 +121,27 @@ export async function bambuGcode3mf(p: BambuPack): Promise<Uint8Array> {
     // the AMS filament list: one entry per slot used (multi-material data model, docs/34 M3)
     ...used.map((f) => {
       const s = p.slots[f.slot] ?? p.slots[0];
-      return `    <filament id="${f.slot + 1}" tray_info_idx="" type="${xml(s.material.type ?? s.material.name)}" color="${xml(s.color.toUpperCase())}"`
+      return `    <filament id="${f.slot + 1}" tray_info_idx="${trayInfo(s.material.type ?? s.material.name)}" type="${xml(s.material.type ?? s.material.name)}" color="${xml(s.color.toUpperCase())}"`
         + ` used_m="${(f.length / 1000).toFixed(2)}" used_g="${f.grams.toFixed(2)}" />`;
     }),
     '  </plate>', '</config>', '',
   ].join('\n');
   const modelSettings = ['<?xml version="1.0" encoding="UTF-8"?>', '<config>', '  <plate>', meta('plater_id', 1), meta('plater_name', ''), meta('locked', 'false'),
-    meta('gcode_file', 'Metadata/plate_1.gcode'), meta('thumbnail_file', 'Metadata/plate_1.png'), meta('top_file', ''), meta('pick_file', ''), '  </plate>', '</config>', ''].join('\n');
+    meta('gcode_file', 'Metadata/plate_1.gcode'), meta('thumbnail_file', 'Metadata/plate_1.png'), meta('thumbnail_no_light_file', 'Metadata/plate_no_light_1.png'),
+    meta('top_file', 'Metadata/top_1.png'), meta('pick_file', 'Metadata/pick_1.png'), meta('pattern_bbox_file', 'Metadata/plate_1.json'), '  </plate>', '</config>', ''].join('\n');
+  // the box of every part on the plate (plate_1.json)
+  const boxes = (p.meshes ?? []).map((m, i) => {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (let k = 0; k < m.positions.length; k += 3) { x0 = Math.min(x0, m.positions[k]); x1 = Math.max(x1, m.positions[k]); y0 = Math.min(y0, m.positions[k + 1]); y1 = Math.max(y1,
+      m.positions[k + 1]); }
+    return { id: i + 1, name: m.name, bbox: [x0, y0, x1, y1].map((v) => Math.round(v * 1000) / 1000) };
+  });
+  const plateJson = { bed_type: p.process.bedType, nozzle_diameter: p.nozzle, version: 1, bbox_objects: boxes };
   const project = {
     printer_model: `${p.printer.brand} ${p.printer.model}`, printer_settings_id: `${p.printer.brand} ${p.printer.model} ${p.nozzle} nozzle`, nozzle_diameter: [String(p.nozzle)],
     layer_height: String(p.process.layerHeight), initial_layer_print_height: String(p.process.firstLayerHeight), wall_loops: String(p.process.wallCount),
     sparse_infill_density: `${Math.round(p.process.infillDensity * 100)}%`, filament_type: p.slots.map((s) => s.material.type ?? s.material.name),
-    filament_colour: p.slots.map((s) => s.color), nozzle_temperature: p.slots.map((s) => String(s.nozzleTemp)), curr_bed_type: 'Textured PEI Plate',
+    filament_colour: p.slots.map((s) => s.color), nozzle_temperature: p.slots.map((s) => String(s.nozzleTemp)), curr_bed_type: p.process.bedType,
     enable_support: p.process.support !== 'none' ? '1' : '0', printable_area: ['0x0', `${p.printer.buildVolume[0]}x0`, `${p.printer.buildVolume[0]}x${p.printer.buildVolume[1]}`,
       `0x${p.printer.buildVolume[1]}`],
     printable_height: String(p.printer.buildVolume[2]), from: 'Phlippo CAD', version: p.appVersion, note: 'nog te printen: kalibratiekubus 20 mm per printer',
@@ -132,15 +150,21 @@ export async function bambuGcode3mf(p: BambuPack): Promise<Uint8Array> {
   const rels = relsXml(rel('/3D/3dmodel.model', 'rel-1', REL_MODEL), rel('/Metadata/plate_1.png', 'rel-2', REL_THUMB),
     rel('/Metadata/plate_1.png', 'rel-4', `${BBL}cover-thumbnail-middle`), rel('/Metadata/plate_1_small.png', 'rel-5', `${BBL}cover-thumbnail-small`));
   const modelRels = relsXml(rel('/Metadata/plate_1.gcode', 'rel-1', `${BBL}gcode`));
-  const emptyModel = `<?xml version="1.0" encoding="UTF-8"?>\n<model unit="millimeter" xml:lang="en-US" xmlns="${CORE_NS}">\n <resources/>\n <build/>\n</model>\n`;
+  const identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  const model = p.meshes?.length ? modelXml(p.meshes.map((m) => ({ name: m.name, positions: m.positions, matrix: identity })))
+    : `<?xml version="1.0" encoding="UTF-8"?>\n<model unit="millimeter" xml:lang="en-US" xmlns="${CORE_NS}">\n <resources/>\n <build/>\n</model>\n`;
   return writeZipDeflate([
-    { name: '[Content_Types].xml', data: enc.encode(contentTypes('<Default Extension="gcode" ContentType="text/x.gcode"/>')) },
+    { name: '[Content_Types].xml', data: enc.encode(contentTypes('<Default Extension="gcode" ContentType="text/x.gcode"/><Default Extension="json" ContentType="application/json"/>')) },
     { name: '_rels/.rels', data: enc.encode(rels) },
-    { name: '3D/3dmodel.model', data: enc.encode(emptyModel) },
+    { name: '3D/3dmodel.model', data: enc.encode(model) },
     { name: 'Metadata/plate_1.gcode', data: gcode },
     { name: 'Metadata/plate_1.gcode.md5', data: enc.encode(sum) },
     { name: 'Metadata/plate_1.png', data: p.plateImage },
+    { name: 'Metadata/plate_no_light_1.png', data: p.plateImage },
+    { name: 'Metadata/top_1.png', data: p.plateImage },
+    { name: 'Metadata/pick_1.png', data: p.plateImage },
     { name: 'Metadata/plate_1_small.png', data: p.plateSmall },
+    { name: 'Metadata/plate_1.json', data: enc.encode(JSON.stringify(plateJson)) },
     { name: 'Metadata/slice_info.config', data: enc.encode(sliceInfo) },
     { name: 'Metadata/model_settings.config', data: enc.encode(modelSettings) },
     { name: 'Metadata/_rels/model_settings.config.rels', data: enc.encode(modelRels) },

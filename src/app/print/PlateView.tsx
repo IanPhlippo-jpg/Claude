@@ -9,7 +9,8 @@ import './print.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useShallow } from 'zustand/react/shallow';
-import { currentPrinter, dragItem, fmtTime, layFlatSelected, selectItem, usePrint } from './printStore';
+import { cancelSession, currentPrinter, dragItem, fmtTime, layFlatSelected, okSession, selectItem, usePrint, type ColorBy } from './printStore';
+import { useStore } from '../store';
 import { insideVolume, worldPositions } from '../../print/plate';
 import { printerName } from '../../print/database';
 import { buildPreview, indicesPerSegment } from './previewGeometry';
@@ -18,6 +19,10 @@ import { LINE_TYPES, SEG_STRIDE, type LineType } from '../../print/types';
 import { NOT_PRINTED } from '../../print/gcode/dialects';
 
 interface View { theta: number; phi: number; dist: number; target: THREE.Vector3 }
+
+const TITLES: Record<ColorBy, string> = { type: 'Line Type', speed: 'Speed (mm/s)', height: 'Layer Height (mm)', width: 'Line Width (mm)', flow: 'Flow (mm³/s)', fan: 'Fan Speed (%)',
+  filament: 'Filament' };
+const DIGITS: Partial<Record<ColorBy, number>> = { speed: 0, fan: 0, flow: 1 };
 
 function bedTexture(name: string, w: number, d: number): THREE.CanvasTexture {
   const c = document.createElement('canvas');
@@ -163,7 +168,7 @@ export function PlateView() {
   }, [items, s.selected, s.slots, printer?.id, previewOn, three.current]);
 
   // preview geometry
-  const pm = useMemo(() => (s.result ? buildPreview(s.result.preview, s.colorBy, s.hidden, s.slots.map((x) => x.color)) : null), [s.result, s.colorBy, s.hidden, s.slots]);
+  const pm = useMemo(() => (s.result ? buildPreview(s.result.preview, s.result.mesh, s.colorBy, s.hidden, s.slots.map((x) => x.color)) : null), [s.result, s.colorBy, s.hidden, s.slots]);
   const layers = s.result?.stats.layers ?? 0;
   useEffect(() => {
     const t = three.current;
@@ -308,15 +313,19 @@ export function PlateView() {
       {previewOn && st && (
         <>
           <div className="k-print-legend" data-testid="print-legend">
-            <div className="k-print-legend-title">{s.colorBy === 'type' ? 'Line Type' : s.colorBy === 'speed' ? 'Speed (mm/s)' : s.colorBy === 'height' ? 'Layer Height (mm)' : 'Filament'}</div>
-            {s.colorBy === 'type' && LINE_TYPES.filter((t) => (st.timeByType[t] ?? 0) > 0 && !s.hidden.includes(t)).map((t: LineType) => (
-              <div key={t} className="k-print-legend-row"><span className="k-print-swatch" style={{ background: LINE_COLORS[t] }} /><span>{LINE_LABELS[t]}</span><span
-                className="grow" /><span>{fmtTime(st.timeByType[t])}</span></div>
+            <div className="k-print-legend-title">{TITLES[s.colorBy]}</div>
+            {s.colorBy === 'type' && LINE_TYPES.filter((t) => (st.timeByType[t] ?? 0) > 0).map((t: LineType) => (
+              // the eye: a click shows or hides the line type (docs/34 4.5)
+              <button key={t} type="button" className={`k-print-legend-row ${s.hidden.includes(t) ? 'off' : ''}`} data-testid={`legend-${t}`}
+                onClick={() => usePrint.setState({ hidden: s.hidden.includes(t) ? s.hidden.filter((x) => x !== t) : [...s.hidden, t] })}>
+                <span className="k-print-eye">{s.hidden.includes(t) ? '○' : '◉'}</span><span className="k-print-swatch" style={{ background: LINE_COLORS[t] }} />
+                <span>{LINE_LABELS[t]}</span><span className="grow" /><span>{fmtTime(st.timeByType[t])}</span>
+              </button>
             ))}
-            {(s.colorBy === 'speed' || s.colorBy === 'height') && pm?.range && (
+            {s.colorBy !== 'type' && s.colorBy !== 'filament' && pm?.range && (
               <div className="k-print-scale"><div className="k-print-scalebar"
                 style={{ background: `linear-gradient(90deg, ${[0, 0.25, 0.5, 0.75, 1].map((v) => `rgb(${scaleColor(v).map((c) => Math.round(c * 255)).join(',')})`).join(',')})` }} /><div
-                  className="k-print-scalelabels"><span>{pm.range[0].toFixed(s.colorBy === 'speed' ? 0 : 2)}</span><span>{pm.range[1].toFixed(s.colorBy === 'speed' ? 0 : 2)}</span></div></div>
+                  className="k-print-scalelabels"><span>{pm.range[0].toFixed(DIGITS[s.colorBy] ?? 2)}</span><span>{pm.range[1].toFixed(DIGITS[s.colorBy] ?? 2)}</span></div></div>
             )}
             {s.colorBy === 'filament' && s.slots.map((sl,
               i) => <div key={i} className="k-print-legend-row"><span className="k-print-swatch" style={{ background: sl.color }} /><span>Filament {i + 1}</span></div>)}
@@ -344,6 +353,12 @@ export function PlateView() {
       )}
       {s.slicing && <div className="k-print-progress" data-testid="print-progress"><div
         style={{ width: `${Math.round(s.slicing.fraction * 100)}%` }} /><span>{s.slicing.stage} {Math.round(s.slicing.fraction * 100)} %</span></div>}
+      {/* the confirmation corner: OK keeps the plate and the settings, Cancel goes back (as Exit Sketch) */}
+      <div className="k-print-corner">
+        <button className="k-tip" data-tip="OK" onClick={() => { okSession(); useStore.getState().setTab(useStore.getState().doc.kind === 'assembly' ? 'assembly' : 'features'); }}>&#10003;</button>
+        <button className="k-tip" data-tip="Cancel" onClick={() => { cancelSession(); useStore.getState().setTab(useStore.getState().doc.kind === 'assembly' ? 'assembly' : 'features');
+          }}>&#10005;</button>
+      </div>
       <div className="k-print-badge">{printer ? printerName(printer) : ''} · {NOT_PRINTED}</div>
       {s.plates.length > 1 && <div className="k-print-platetabs">{s.plates.map((p,
         i) => <button key={p.id} className={i === s.plateIndex ? 'active' : ''} onClick={() => usePrint.setState({ plateIndex: i, selected: null, result: null })}>{p.name}</button>)}</div>}

@@ -65,6 +65,7 @@ export function analyseGcode(text: string, accel = 10000): Analysis {
     else if (cmd === 'M204') { acc = word(line, 'S') ?? word(line, 'P') ?? acc; }
     else if (cmd.startsWith('SET_VELOCITY_LIMIT')) { const m = /ACCEL=(\d+)/.exec(line); if (m) acc = Number(m[1]); }
     else if (/^T\d+$/.test(cmd)) a.toolChanges++;
+    else if (cmd === 'G4') { a.time += (word(line, 'P') ?? 0) / 1000 + (word(line, 'S') ?? 0); prevDir = null; }
     else if (cmd === 'G28') { x = 0; y = 0; z = 0; }
     else if (cmd === 'G0' || cmd === 'G1') {
       const nx = word(line, 'X'), ny = word(line, 'Y'), nz = word(line, 'Z'), e = word(line, 'E'), nf = word(line, 'F');

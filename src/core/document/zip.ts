@@ -99,13 +99,13 @@ async function inflateRaw(bytes: Uint8Array, limit: number): Promise<Uint8Array>
 }
 
 /** the uncompressed bytes of one entry; the CRC-32 is checked */
-export async function readZipEntry(data: Uint8Array, entry: ZipEntry): Promise<Uint8Array> {
+export async function readZipEntry(data: Uint8Array, entry: ZipEntry, limit = MAX_ENTRY_BYTES): Promise<Uint8Array> {
   const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
   const p = entry.offset;
   if (p + 30 > data.length || v.getUint32(p, true) !== LOC) throw new Error(`The ZIP entry ${entry.name} is damaged.`);
   const start = p + 30 + v.getUint16(p + 26, true) + v.getUint16(p + 28, true);
   if (start + entry.compressedSize > data.length) throw new Error(`The ZIP entry ${entry.name} is truncated.`);
-  if (entry.size > MAX_ENTRY_BYTES) throw new Error(`The ZIP entry ${entry.name} is too large.`);
+  if (entry.size > limit) throw new Error(`The ZIP entry ${entry.name} is too large.`);
   const raw = data.subarray(start, start + entry.compressedSize);
   let out: Uint8Array;
   if (entry.method === 0) out = raw.slice();
@@ -116,9 +116,10 @@ export async function readZipEntry(data: Uint8Array, entry: ZipEntry): Promise<U
 }
 
 /** the entries of an archive by name (optionally only the names `want` accepts) */
-export async function readZip(data: Uint8Array, want: (name: string) => boolean = () => true): Promise<Map<string, Uint8Array>> {
+/** limit: the largest entry read (a print package carries G-code of more than 64 MB: docs/35 P3-10) */
+export async function readZip(data: Uint8Array, want: (name: string) => boolean = () => true, limit = MAX_ENTRY_BYTES): Promise<Map<string, Uint8Array>> {
   const out = new Map<string, Uint8Array>();
-  for (const e of listZip(data)) if (!e.name.endsWith('/') && want(e.name)) out.set(e.name, await readZipEntry(data, e));
+  for (const e of listZip(data)) if (!e.name.endsWith('/') && want(e.name)) out.set(e.name, await readZipEntry(data, e, limit));
   return out;
 }
 

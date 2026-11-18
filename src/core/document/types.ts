@@ -1461,7 +1461,7 @@ export interface AppearanceProps {
 
 export interface Document {
   /** stable id (autosave per document, Document Recovery); files from older builds get one when opened */
-  id?: string;
+  id?: string; /** the plates of the 3D Print tab (file format 4) */ print3d?: import('../../print/types').PrintDocData;
   /** Equations ▸ Angular equation units (default degrees) */
   equationAngleUnits?: 'deg' | 'rad';
   /** Equations ▸ Link to external file: the text file the equations were read from */
@@ -1576,7 +1576,7 @@ export interface Document {
 }
 
 export function createDocument(name = 'Part1', kind: 'part' | 'assembly' | 'drawing' = 'part', sheet?: Partial<Pick<DrawingSheet, 'size' | 'landscape' | 'scale' | 'showFormat'>>): Document {
-  const doc: Document = { version: 3, name, units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [] };
+  const doc: Document = { version: 4, name, units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [] };
   if (kind === 'assembly') return { ...doc, kind, components: [], mates: [] };
   if (kind === 'drawing') return { ...doc, kind, sheets: [{ id: 'sheet1', name: 'Sheet1', size: sheet?.size ?? 'A4', landscape: sheet?.landscape ?? true, scale: sheet?.scale ?? [1, 2], showFormat: sheet?.showFormat ?? true, views: [], dimensions: [], notes: [], centerMarks: [] }] };
   return doc;

@@ -73,6 +73,27 @@ describe('packages', () => {
     expect((model.match(/<vertex /g) ?? []).length).toBe(8);
     expect(modelXml(parts)).toContain('unit="millimeter"');
   });
+  it('the .3mf project round trip: the triangles back in place within 1 µm (docs/34 3.3)', async () => {
+    const { rotation, multiply, transformPositions } = await import('../mesh');
+    const m = multiply(translation(80.123456, 40.5, 0), rotation(0, 0, 1, 0.7));
+    const pos = box(0, 0, 0, 10, 7, 3);
+    const data = await projectThreeMf([{ name: 'P', positions: pos, matrix: m }], {}, await encodePng(new Uint8Array(16), 2, 2));
+    const model = dec.decode((await readZip(data)).get('3D/3dmodel.model')!);
+    const verts = [...model.matchAll(/<vertex x="([^"]+)" y="([^"]+)" z="([^"]+)"\/>/g)].map((v) => [Number(v[1]), Number(v[2]), Number(v[3])]);
+    const tris = [...model.matchAll(/<triangle v1="(\d+)" v2="(\d+)" v3="(\d+)"\/>/g)].map((t) => [Number(t[1]), Number(t[2]), Number(t[3])]);
+    const t = /transform="([^"]+)"/.exec(model)![1].split(' ').map(Number);
+    const back = tris.flatMap((tr) => tr.flatMap((i) => { const [x, y, z] = verts[i]; return [t[0] * x + t[3] * y + t[6] * z + t[9], t[1] * x + t[4] * y + t[7] * z + t[10], t[2] * x + t[5] * y + t[8] * z + t[11]]; }));
+    const want = transformPositions(pos, m);
+    expect(back.length).toBe(want.length);
+    back.forEach((v, i) => expect(Math.abs(v - want[i])).toBeLessThan(0.001));
+  });
+  it('P3-10: readZip reads entries over its default size when the caller allows it', async () => {
+    const { writeZip } = await import('../../core/document/zip');
+    const big = new Uint8Array(3 * 1024 * 1024);
+    const z = writeZip([{ name: 'g', data: big }]);
+    await expect(readZip(z, () => true, 1024 * 1024)).rejects.toThrow(/too large/);
+    expect((await readZip(z, () => true, 4 * 1024 * 1024)).get('g')!.length).toBe(big.length);
+  });
   it('the Bambu .gcode.3mf: G-code with matching MD5, plate images, slice_info with the filament list', async () => {
     const P1S = FIXTURE_PRINTERS[0];
     const job = { meshes: [{ positions: calibrationCube(118, 118), name: 'Cube', filament: 0 }], printer: P1S, nozzle: 0.4, process: processProfile('standard', 0.4, P1S), slots: [slotFor(FIXTURE_MATERIALS[0])], name: 'Cube', appVersion: '0.5.16' };
@@ -90,7 +111,7 @@ describe('packages', () => {
     const info = dec.decode(files.get('Metadata/slice_info.config')!);
     expect(info).toContain('<metadata key="printer_model_id" value="C12"/>');
     expect(info).toContain(`<metadata key="prediction" value="${Math.round(out.stats.totalTime)}"/>`);
-    expect(info).toMatch(/<filament id="1" tray_info_idx="" type="PLA" color="#F2F2F2" used_m="[\d.]+" used_g="[\d.]+" \/>/);
+    expect(info).toMatch(/<filament id="1" tray_info_idx="GFL99" type="PLA" color="#F2F2F2" used_m="[\d.]+" used_g="[\d.]+" \/>/);
     // every relationship points at an existing part
     for (const f of ['_rels/.rels', 'Metadata/_rels/model_settings.config.rels']) for (const m of dec.decode(files.get(f)!).matchAll(/Target="\/([^"]+)"/g)) expect(files.has(m[1]), m[1]).toBe(true);
     JSON.parse(dec.decode(files.get('Metadata/project_settings.config')!));
@@ -106,18 +127,27 @@ describe('packages', () => {
   });
 });
 
-describe('start G-code imported from Bambu Studio', async () => {
-  const { fillBambuTemplate, readMachineProfile, bambuVars } = await import('../gcode/importTemplate');
-  const vars = bambuVars({ nozzle_temp: 220, bed_temp: 65, first_layer_height: 0.2, max_z: 20, bed_x: 256, bed_y: 256, nozzle: 0.4, layer_height: 0.2, filament_type: 'PLA', printer_model: 'Bambu Lab P1S' });
-  it('fills placeholders, arithmetic and conditional blocks', () => {
+describe('start G-code imported from Bambu Studio (docs/35 P1-5)', async () => {
+  const { fillBambuTemplate, readMachineProfile, bambuVars, sameModel } = await import('../gcode/importTemplate');
+  const vars = bambuVars({ nozzle_temp: 220, bed_temp: 65, first_layer_height: 0.2, max_z: 20, nozzle: 0.4, layer_height: 0.2, filament_type: 'PLA', printer_model: 'Bambu Lab P1S',
+    layers: 100, first_layer_min: [118, 118], first_layer_size: [20, 20], initial_extruder: 1, bed_type: 'Textured PEI Plate', outer_wall_volumetric_speed: 12 });
+  it('fills placeholders, arithmetic and conditional blocks with real values', () => {
     const t = 'M140 S[bed_temperature_initial_layer_single]\nM104 S{nozzle_temperature_initial_layer[initial_extruder] - 20}\n{if curr_bed_type=="Textured PEI Plate"}G29.1 Z{-0.04}{else}G29.1 Z0{endif}\n{if bed_temperature_initial_layer_single >= 60}M106 P3 S0{endif}';
     expect(fillBambuTemplate(t, vars)).toBe('M140 S65\nM104 S200\nG29.1 Z-0.04\nM106 P3 S0');
+    expect(fillBambuTemplate('M73 L[total_layer_count] T[initial_extruder] X{first_layer_print_min[0]}', vars)).toBe('M73 L100 T1 X118');
   });
-  it('refuses what it cannot fill, naming it', () => {
+  it('refuses what it cannot fill, naming it (no guessed values)', () => {
     expect(() => fillBambuTemplate('M104 S{unknown_thing}', vars)).toThrow(/unknown_thing/);
+    expect(() => fillBambuTemplate('G1 X[bed_width]', vars)).toThrow(/bed_width/);
     expect(() => fillBambuTemplate('{if a}x', vars)).toThrow();
   });
-  it('reads a machine profile', () => {
-    expect(readMachineProfile(JSON.stringify({ name: 'X', machine_start_gcode: 'G28', machine_end_gcode: 'M84' }))).toEqual({ name: 'X', start: 'G28', end: 'M84' });
+  it('reads a machine profile with its printer; plain G-code is refused', () => {
+    expect(readMachineProfile(JSON.stringify({ name: 'Bambu Lab P1S 0.4 nozzle', printer_model: 'Bambu Lab P1S', machine_start_gcode: 'G28', machine_end_gcode: 'M84', change_filament_gcode: 'T[next_extruder]' })))
+      .toEqual({ name: 'Bambu Lab P1S 0.4 nozzle', printerModel: 'Bambu Lab P1S', start: 'G28', end: 'M84', change: 'T[next_extruder]' });
+    expect(readMachineProfile(JSON.stringify({ name: 'Bambu Lab A1 mini 0.4 nozzle', machine_start_gcode: 'G28' })).printerModel).toBe('Bambu Lab A1 mini');
+    expect(readMachineProfile('G28\nG29')).toEqual({});
+    expect(sameModel('Bambu Lab P1S', { brand: 'Bambu Lab', model: 'P1S' })).toBe(true);
+    expect(sameModel('Bambu Lab P1S', { brand: 'Bambu Lab', model: 'P1P' })).toBe(false);
+    expect(sameModel('Bambu Lab A1', { brand: 'Bambu Lab', model: 'A1 mini' })).toBe(false);
   });
 });

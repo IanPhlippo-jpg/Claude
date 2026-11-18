@@ -10,7 +10,8 @@ self.onmessage = async (ev: MessageEvent<{ id: number; job: SliceJob }>) => {
   const { id, job } = ev.data;
   try {
     const out = await runSlice(job, (stage, fraction) => post({ id, progress: { stage, fraction } }));
-    const transfer: Transferable[] = [...out.gcode.map((c) => c.buffer), out.preview.segs.buffer, out.plateImage.buffer, out.plateSmall.buffer];
+    const transfer: Transferable[] = [...out.gcode.map((c) => c.buffer), out.preview.segs.buffer, out.mesh.positions.buffer, out.mesh.normals.buffer, out.mesh.index.buffer,
+      out.plateImage.buffer, out.plateSmall.buffer];
     post({ id, result: out }, transfer);
   } catch (err) {
     post({ id, error: (err as Error).message });

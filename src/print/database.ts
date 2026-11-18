@@ -210,5 +210,6 @@ export function processProfile(preset: ProcessPreset, nozzle: number, printer: P
     primeTowerWidth: 35,
     primeTowerX: Math.max(10, printer.buildVolume[0] - 60),
     primeTowerY: Math.max(10, printer.buildVolume[1] - 60),
+    bedType: 'Textured PEI Plate',
   };
 }

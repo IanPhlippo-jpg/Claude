@@ -14,7 +14,7 @@ export const FILE_EXTENSION = '.kcad';
  * The field is optional and the triangles stay as they were, so an older build opens the file and builds the same
  * mesh body; only the B-rep kernel reads the exact solid. The meaning of nothing stored before changed: no new format.
  */
-export const FILE_VERSION = 3;
+export const FILE_VERSION = 4;
 /** the program version written into every file (vite define; 'dev' where the define is absent) */
 export const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';
 const APP_COMMIT: string = typeof __APP_COMMIT__ === 'string' ? __APP_COMMIT__ : '';
@@ -156,7 +156,22 @@ const MIGRATIONS: Record<number, (raw: Raw) => Raw> = {
   // format 3 (0.5.15): validateDocument rewrites old body names (migrate.ts) and reads plain position lists, in
   // nested parts too, so a format 2 file needs nothing more here
   2: (raw) => ({ ...raw, version: 3 }),
+  // format 4 (0.5.17): the plates of the 3D Print tab (print3d, optional); a format 3 file has none
+  3: (raw) => ({ ...raw, version: 4 }),
 };
+
+/** the 3D Print plates of a document (format 4): names, matrices, filament slots and where each mesh comes from */
+function validatePrint3d(p: unknown): void {
+  const bad = (what: string) => new DocumentFormatError(`The 3D Print plates are damaged: ${what}.`);
+  if (!isObj(p) || !Array.isArray(p.plates)) throw bad('no plate list');
+  p.plates.forEach((pl, i) => {
+    if (!isObj(pl) || typeof pl.name !== 'string' || !Array.isArray(pl.items)) throw bad(`plate ${i + 1}`);
+    pl.items.forEach((it, k) => {
+      if (!isObj(it) || typeof it.name !== 'string' || !Array.isArray(it.matrix) || it.matrix.length !== 16 || !it.matrix.every(isNum)) throw bad(`part ${k + 1} of plate ${i + 1}`);
+      if (!isNum(it.filament) || (it.filament as number) < 0 || !isObj(it.source) || typeof it.source.kind !== 'string') throw bad(`part ${k + 1} of plate ${i + 1}`);
+    });
+  });
+}
 
 /** the field names of format 1 that format 2 renamed (QA F50) */
 function renameOldFields(d: Raw): void {
@@ -229,6 +244,7 @@ export function validateDocument(raw: unknown, depth = 0): Document {
     ids.add(f.id as string);
   }
   if (d.planes !== undefined && !isObj(d.planes)) throw new DocumentFormatError('The reference planes are damaged.');
+  if (d.print3d !== undefined) validatePrint3d(d.print3d);
   if (d.variables !== undefined && !isObj(d.variables)) throw new DocumentFormatError('The global variables are damaged.');
   if (d.equations !== undefined && !Array.isArray(d.equations)) throw new DocumentFormatError('The equations are damaged.');
   if (d.kind === 'assembly') {

@@ -285,3 +285,50 @@ Status: gehaald, deels, niet gehaald, niet te meten. "Meting" verwijst naar de s
 ## 7. Opmerking over de werkmap
 
 Tijdens de review stond `voorbeelden/afzuiging/tekeningen/Bouwschema-afzuiging.pdf` als gewijzigd in `git status`. Dat bestand is door deze review niet aangeraakt. Door de review gewijzigd: alleen dit document en `TASKS.md`.
+
+## 8. Stand na verwerking (bouwer, 2026-11-19)
+
+Platform: Windows 11, Node 24, vitest 5 (1149 tests groen, typecheck schoon), e2e `node e2e/print3d.mjs` 26 van 26 (Edge, software-GL). Niet gecommit. Foto's: `scratchpad/print-fase1-3b/`. Er is nog steeds niets op een printer geprint: elke printer blijft "nog te printen: kalibratiekubus 20 mm per printer".
+
+Elke P1 en P2 heeft een negatieve proef die zonder de oplossing faalt (testnaam tussen haakjes).
+
+| Nr | Stand | Wat er veranderd is | Bewijs |
+|---|---|---|---|
+| P1-1 | opgelost | Beginpositie onbekend; eerste beweging alleen Z, dan XY, dan omlaag; terugtrekken alleen `G1 E-.. F..`; `checkMoves` toetst elke beweging (Z niet onder de eerste laag, binnen travelLimits) | slicer.test "P1-1: no move to Z0 …"; e2e "no move to Z0 or the origin" |
+| P1-2 | opgelost | Clipper2 achter `geom/polygons.ts`; eigen kern alleen nog orakel | geom.test "P1-2: 300 pairs of near-equal polygons"; slicer.test "P1-2: a cylinder and a tube … no skin", "a cylinder at 100 % infill … ±3 %" |
+| P1-3 | opgelost (database-aannames blijven) | Skirt, brim en support afgeknipt op printableArea min excludeAreas; spoeltoren en spoellijn op een vrije plek; elke beweging getoetst, ook het midden van een segment in een zone; export geweigerd | slicer.test "a skirt and tree support next to the bed edge …", "a part over an excluded zone …", "… tower free of the parts" |
+| P1-4 | opgelost volgens het advies | Meerkleuren op Bambu alleen met geïmporteerde wisselcode; daarvoor terugtrekken en optillen; toren eerste laag op eerste-laagsnelheid; één kleur met eigen startcode: melding "laad het filament zelf" (PropertyManager, waarschuwing) | slicer.test "two filaments without the imported change code are refused …", "… retract and lift before the change …" |
+| P1-5 | opgelost | Profiel moet een printermodel noemen; alleen gebruikt op dat model; variabelen uit de echte slice (lagen, eerste laag, eerste filament, plaattype); onbekend = weigering | pack.test "refuses what it cannot fill …", "reads a machine profile with its printer …"; slicer.test "imported code of another printer model is refused" |
+| P2-1 | opgelost | Gyroid met marching squares, geen afgekapte oplossing; periode gekalibreerd over z | slicer.test "P2-1: gyroid density over one period …" |
+| P2-2 | opgelost | Geen opening met de lijnbreedte; de hele nieuwe strook rond de te steile rand krijgt support | slicer.test "P2-2: slopes of 20, 25 and 28 degrees …" |
+| P2-3 | opgelost | Richting = de hoek met de meeste aan beide kanten opgelegde lijnen; brug 1,5 lijnbreedte over de pijlers | slicer.test "P2-3: bridges of 10, 30 and 60 mm …" |
+| P2-4 | opgelost | Eigen startcode eindigt teruggetrokken; geen tweede terugtrek | slicer.test "P2-4: every retraction is pushed back once" |
+| P2-5 | opgelost | Eerst vertragen, dan wachten (`G4`) naast het stuk met ventilator op 100 %; de analyser leest `G4` | slicer.test "P2-5: a thin pen keeps the minimum layer time" |
+| P2-6 | opgelost | Clipper2; fuzz op offset zonder zelfdoorsnijding | geom.test "P2-6: 1500 random regions offset …" |
+| P2-7 | opgelost | Open ketens behouden hun eindpunt (de oorzaak van −50 %) en sluiten op het kortste pad; `topology()` bij Add to Plate met telling | slicer.test "P2-7: a cube with a missing side face …" |
+| P2-8 | opgelost | Elk stuk kent zijn bron (part, body, component) en een hash; elke rebuild ververst het en maakt de slice verouderd | printDoc.test "P2-8: a rebuild that changes the part …" |
+| P2-9 | deels | Klipper `BED_MESH_PROFILE LOAD=default`, Marlin `M420 S1`, Centauri zonder (nivelleert zelf); per printer te bevestigen | slicer.test "P2-9: the Elegoo start code levels …" |
+| P2-10 | opgelost | Posities, normalen en indexen in de worker; het venster vult alleen kleuren en bij verbergen een kortere indexlijst | slicer.test "preview mesh … built in the worker" |
+| P2-11 | opgelost | Bevestiging met de lijst van aannames op veiligheidsvelden; dezelfde aannames in de kop; printers met meer koppen geweigerd | printDoc.test "P2-11 …"; slicer.test "a printer with two toolheads is refused"; e2e bevestigt de vraag bij export |
+| P2-12 | opgelost | Bestandsformaat 4 met `print3d` (plaat, matrix, filament, bron, geen mesh); migratie 3 → 4; beschadigde plaat geweigerd | printDoc.test "P2-12 …", "a damaged plate in a file is refused …"; e2e "the plate is stored in the document" |
+| P2-13 | deels | Skin, brug en support als zigzag; korte sprongen tussen vullijnen zonder terugtrek; dunne infill-lijnen niet verbonden (dat zou de dichtheid verhogen). Kubus: verplaatsing nog 37 % van de tijd, kruk 29 % | foto 03, 08 |
+| P2-14 | opgelost, één verantwoording | Raster ±max(0,5 %, 0,05 mm²) met cel 0,01; 10 000 punten < 50 ms (beste van vijf CPU-metingen, tot 3 herhalingen bij drukte); 10 000 willekeurige veelhoeken met zelfdoorsnijdingsproef; kubus 100 % ±3 %; schatter tegen een simulatie met vaste tijdstap ≤ 1 %; gyroid over een periode. De analyser (eigen, eenvoudiger model) blijft een ruime controle (10 %). De snelheidsgrens 2000 mm/s volgt de database (H3C 1400 mm/s) | geom.test, slicer.test |
+| P3-1 | opgelost | cm³ in de Bambu-kop | slicer.test "P3-3 …" |
+| P3-2 | opgelost | Marlin-commentaar korter, ColPic per regel van 96 tekens met herhaald voorvoegsel (scherm: nog te printen) | slicer.test "… P3-2: Marlin lines up to 96 characters" |
+| P3-3 | opgelost | Spoellijn telt mee in kop en preview | slicer.test "P3-3 …" |
+| P3-4 | opgelost | Boogtolerantie 0,5 µm | geom.test "a convex polygon grown then shrunk …" |
+| P3-5 | opgelost | Punten < 5 µm samengevoegd, geen `E0` | slicer.test "P3-5 …" |
+| P3-6 | opgelost | Naad per lus: de dichtstbijzijnde naad van de vorige laag | `build.ts` pickSeam |
+| P3-7 | opgelost | Eén speling (0,01 mm) voor kleur en weigering | slicer.test "a part up to the very edge …" |
+| P3-8 | opgelost | Arrange om uitsluitzones heen en over extra platen | printDoc.test "P3-8 …" |
+| P3-9 | opgelost | OK bewaart, Annuleren en Esc herstellen de stand van het openen | printDoc.test "P3-9 …"; e2e OK en Esc |
+| P3-10 | opgelost | `readZip` neemt een grens als parameter | pack.test "P3-10 …" |
+| P3-11 | deels | Verplaatsingen met dezelfde versnelling als de G-code; `minimum_cruise_ratio` en een gemeten voorbereidingstijd ontbreken nog | — |
+| P3-12 | opgelost | "Internal solid infill" / "Solid infill" in G-code en preview; foto's zonder blijvende tooltip | foto's |
+| P3-13 | deels | Doorstroming schaalt met de nozzle (AANNAME tot de database waarden per nozzle heeft); databasepunten (Centauri zonder Carbon, Wikipedia-bron) horen bij de database-agent | — |
+| P3-14 | deels | `3dmodel.model` met de stukken, `plate_1.json`, `top_1.png`, `pick_1.png`, `plate_no_light_1.png`, generieke `tray_info_idx`; model-id's nog voor 8 printers; alles te vergelijken met een referentiebestand van Ian | pack.test |
+| P3-15 | deels | Getallen voor X, Y en draaien; Move to Plate; kleurmodi lijnbreedte, doorstroming, ventilator; oogje in de legenda; bevestigingshoek; "Editing Plate". De map "3D Print" in de FeatureManager ontbreekt (de PropertyManager toont de stukken) | e2e, foto's 01 tot 16 |
+
+**Fase-1-voorwaarden:** plaat in het document (P2-12) gehaald; verouderd-vlag bij een gewijzigd part (P2-8) gehaald; tessellatie: B-rep-hoektolerantie 0,1 → 0,07 rad, volume binnen 0,1 % voor cilinders van 4, 20 en 80 mm (`tessellation.test.ts`); uitsluitzones in de controle en in Arrange gehaald; OK/Annuleren/Esc gehaald; e2e voor part, assembly en tekening (geen tab bij een tekening) gehaald; foto's met de kubus (01 tot 06).
+
+**Blijft open (niet zonder Ian of een printer):** referentiebestanden uit Bambu Studio en ElegooSlicer (pakketsleutels, model-id's, tijd), echte uitsluitzones en bewegingsgrenzen in de database, de proefkubus per printer. Geen enkele printer is vrijgegeven.
