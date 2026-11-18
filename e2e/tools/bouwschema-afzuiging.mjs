@@ -104,6 +104,7 @@ const STAPPEN = [
       `Zet de ventilator op de 4 bussen van de naaf in de kuip, de aders in de groef van de naaf naar achter, en schroef hem van onderen vast met 4 x ${M4V.replace(' DIN 7991', '')} verzonken: 4 mm in de motor (de fabrikant laat 4 tot 6 mm toe), niet tot op de bodem. Hij staat star (geen rubber): zo ligt geen eigenfrequentie in het werkgebied.`,
       'Leid de vier aders door de opening onderaan de goot achteraan in de wand, door de goot naar boven en bovenaan naar buiten. Zet de uitgang dicht met siliconenkit (luchtdicht) en bind de aders met een kabelbinder vast aan het oor achteraan (trekontlasting).',
       'Krimp de stekker van de tussenstekker (Molex Micro-Fit 3.0) op de vier aders. De waaier mag nergens de wand raken: draai hem met de hand.',
+      'Op het bovenste beeld (van onderen gezien) staan de 4 schroeven uitgeschoven boven hun gaten (gestippeld). Het blokje rechts achteraan is de voet van de goot voor de aders: een deel van de kuip.',
     ],
     delen: ['San Ace C175 9TG24P0S01', 'Ventilatorkuip', M4V],
   },
@@ -246,10 +247,136 @@ function samenstelling(b) {
   doc.mates = [];
   return doc;
 }
+/** de explodelijnen (per uitgeschoven onderdeel de verschuiving, na het draaien voor "van onderen") en de ballonnen (het
+ *  eerste exemplaar van elk onderdeel uit de stuklijst van de stap dat op het beeld staat) */
+function annotaties(s, b) {
+  const doc = (b.detail ? detail : bureau);
+  const toon = doc.components.filter((c) => b.toon.some((g) => g.test(c.id)));
+  const lijnen = [];
+  for (const c of toon) {
+    let v = [0, 0, 0];
+    for (const [g, d] of b.schuif) if (g.test(c.id) && Array.isArray(d)) v = [v[0] + d[0], v[1] + d[1], v[2] + d[2]];
+    if (b.onder) v = [-v[0], -v[1], v[2]];
+    if (Math.hypot(...v) > 1) lijnen.push({ id: c.id, v });
+  }
+  const ballonnen = [];
+  const gezien = new Set();
+  // ballonnen alleen op de uitgeschoven beelden (op een overzicht of een doorsnede zouden ze door elkaar lopen)
+  if (b.schuif.length) for (const naam of s.delen) {
+    const c = toon.find((x) => x.name.replace(/<\d+>$/, '') === naam);
+    if (!c || gezien.has(naam)) continue;
+    gezien.add(naam);
+    ballonnen.push({ id: c.id, tekst: pos.get(naam) ?? naam });
+  }
+  return { lijnen, ballonnen };
+}
+
+/** in de pagina: een SVG over de viewport met de explodelijnen en de ballonnen (geprojecteerd met de camera van de app) */
+function overlay({ lijnen, ballonnen, clip }) {
+  const scene = window.__phlippoScene, cam = window.__phlippoCamera.camera, proj = window.__phlippoProjectWorld;
+  const meshes = new Map();
+  scene.traverse((o) => { if (o.isMesh && o.geometry?.attributes?.position && !meshes.has(o.name)) meshes.set(o.name, o); });
+  const V = cam.position.constructor;
+  const kijk = new V(); cam.getWorldDirection(kijk);
+  const centrum = (m) => { m.geometry.computeBoundingBox(); const c = new V(); m.geometry.boundingBox.getCenter(c); return c.applyMatrix4(m.matrixWorld); };
+  // een zichtbaar punt van het onderdeel: hoekpunten van het onderdeel, het dichtst bij het midden van zijn beeld eerst; een
+  // straal van de camera naar het punt mag geen ander onderdeel eerder raken (echte zichtbaarheid, geen schatting)
+  const C = window.__phlippoCamera;
+  const alle = [...meshes.values()].filter((m) => m.visible !== false);
+  const driehoeken = new Map(); // per mesh de hoekpunten in wereldcoördinaten (eenmalig)
+  const wereld = (m) => {
+    if (driehoeken.has(m)) return driehoeken.get(m);
+    const p = m.geometry.attributes.position, idx = m.geometry.index, pts = [];
+    for (let k = 0; k < p.count; k++) pts.push(new V(p.getX(k), p.getY(k), p.getZ(k)).applyMatrix4(m.matrixWorld));
+    const tri = idx ? Array.from(idx.array) : pts.map((_, k) => k);
+    m.geometry.computeBoundingBox();
+    const box = m.geometry.boundingBox.clone().applyMatrix4(m.matrixWorld);
+    const r = { pts, tri, box };
+    driehoeken.set(m, r);
+    return r;
+  };
+  const doel = new V();
+  /** wie raakt de straal door pixel (x, y) het eerst (tot `tot` langs de straal)? */
+  const eerste = (x, y, tot, wie0) => {
+    const ray = C.pixelToRay(x, y);
+    const tw = tot ?? Infinity;
+    let tmin = tw - 0.4, wie = wie0 ?? null;
+    for (const o of alle) {
+      const { pts, tri, box } = wereld(o);
+      if (!ray.intersectsBox(box)) continue;
+      for (let k = 0; k + 2 < tri.length; k += 3) {
+        const h = ray.intersectTriangle(pts[tri[k]], pts[tri[k + 1]], pts[tri[k + 2]], false, doel);
+        if (!h) continue;
+        const t = h.clone().sub(ray.origin).dot(ray.direction);
+        if (t < tmin) { tmin = t; wie = o; }
+      }
+    }
+    return wie;
+  };
+  // zichtbaar: het punt zelf en minstens 3 van de 4 pixels rondom (3 px) tonen hetzelfde onderdeel (geen glimp door een venstertje)
+  const zichtbaar = (m, w) => {
+    const px = C.worldToPixel(w), ray = C.pixelToRay(px.x, px.y);
+    if (eerste(px.x, px.y, w.clone().sub(ray.origin).dot(ray.direction), m) !== m) return false;
+    return [[3, 0], [-3, 0], [0, 3], [0, -3]].filter(([dx, dy]) => eerste(px.x + dx, px.y + dy) === m).length >= 3;
+  };
+  const punt = (m) => {
+    const { pts } = wereld(m), c = centrum(m), cp = C.worldToPixel(c);
+    const stap = Math.max(1, Math.floor(pts.length / 400));
+    const kand = [];
+    for (let k = 0; k < pts.length; k += stap) { const q = C.worldToPixel(pts[k]); kand.push({ w: pts[k], d: Math.hypot(q.x - cp.x, q.y - cp.y) }); }
+    kand.sort((a, b) => a.d - b.d);
+    for (const k of kand.slice(0, 250)) if (zichtbaar(m, k.w)) return k.w;
+    return null; // niet zichtbaar op dit beeld: geen ballon
+  };
+  void kijk;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.id = 'bs-overlay';
+  svg.setAttribute('style', `position:fixed;left:0;top:0;width:${innerWidth}px;height:${innerHeight}px;pointer-events:none;z-index:99999`);
+  const el = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); svg.appendChild(e); return e; };
+  for (const { id, v } of lijnen) {
+    const m = meshes.get(id);
+    if (!m) continue;
+    const c = centrum(m), a = proj(c.x - v[0], c.y - v[1], c.z - v[2]), q = proj(c.x, c.y, c.z);
+    el('line', { x1: a.x, y1: a.y, x2: q.x, y2: q.y, stroke: '#3a3a3a', 'stroke-width': 1.3, 'stroke-dasharray': '7 4' });
+  }
+  // ballonnen rond het beeld, elk op de richting van zijn punt vanuit het midden, zonder overlap
+  const lijst = ballonnen.map((bal) => { const m = meshes.get(bal.id); if (!m) return null; const p = punt(m); return p ? { ...bal, a: proj(p.x, p.y, p.z) } : null; }).filter(Boolean);
+  if (lijst.length) {
+    const mx = lijst.reduce((t, l) => t + l.a.x, 0) / lijst.length, my = lijst.reduce((t, l) => t + l.a.y, 0) / lijst.length;
+    const cx = clip.x + clip.width / 2, cy = clip.y + clip.height / 2;
+    const ox = (mx + cx) / 2, oy = (my + cy) / 2;
+    const R = Math.min(clip.width, clip.height) * 0.42;
+    for (const l of lijst) l.hoek = Math.atan2(l.a.y - oy, l.a.x - ox);
+    lijst.sort((p, q) => p.hoek - q.hoek);
+    const min = 0.42;
+    for (let k = 0; k < 40; k++) for (let j = 0; j < lijst.length; j++) {
+      const p = lijst[j], q = lijst[(j + 1) % lijst.length];
+      let d = q.hoek - p.hoek; if (j === lijst.length - 1) d += 2 * Math.PI;
+      if (lijst.length > 1 && d < min) { p.hoek -= (min - d) / 2; q.hoek += (min - d) / 2; }
+    }
+    for (const l of lijst) {
+      const bx = Math.min(clip.x + clip.width - 26, Math.max(clip.x + 26, ox + Math.cos(l.hoek) * R * 1.25));
+      const by = Math.min(clip.y + clip.height - 20, Math.max(clip.y + 20, oy + Math.sin(l.hoek) * R));
+      el('line', { x1: l.a.x, y1: l.a.y, x2: bx, y2: by, stroke: '#1d1d1f', 'stroke-width': 1 });
+      el('circle', { cx: l.a.x, cy: l.a.y, r: 2.6, fill: '#1d1d1f' });
+      const kort = String(l.tekst).length <= 3;
+      if (kort) el('circle', { cx: bx, cy: by, r: 14, fill: '#fff', stroke: '#1d1d1f', 'stroke-width': 1.4 });
+      else el('rect', { x: bx - 6 * String(l.tekst).length / 2 - 8, y: by - 12, width: 6 * String(l.tekst).length + 16, height: 24, rx: 12, fill: '#fff', stroke: '#1d1d1f', 'stroke-width': 1.4 });
+      const t = el('text', { x: bx, y: by + 5, 'text-anchor': 'middle', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': kort ? 15 : 11, 'font-weight': 'bold', fill: '#1d1d1f' });
+      t.textContent = l.tekst;
+    }
+  }
+  document.body.appendChild(svg);
+}
+
 let n = 0;
+// BS_ALLEEN=6,8: alleen de beelden van die stappen maken (om te controleren), zonder PDF
+const ALLEEN = process.env.BS_ALLEEN?.split(',').map(Number);
 for (const [i, s] of STAPPEN.entries()) {
   s.foto = [];
   for (const b of s.beelden) {
+    if (ALLEEN && !ALLEEN.includes(i + 1)) { n++; continue; }
     await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), samenstelling(b));
     await page.waitForTimeout(2500); // fixed: shot tool, time for the light and the exact bodies before the photo
     await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), b.snede ?? null);
@@ -262,10 +389,17 @@ for (const [i, s] of STAPPEN.entries()) {
     const f = `${BEELD}/stap-${String(i + 1).padStart(2, '0')}-${++n}.jpg`;
     // zonder de werkbalk bovenaan en het assenkruis onderaan
     const vb = await page.locator('.k-viewport').boundingBox();
-    await page.screenshot({ path: f, type: 'jpeg', quality: 88, clip: { x: vb.x + 2, y: vb.y + 44, width: vb.width - 4, height: vb.height - 104 } });
+    const clip = { x: vb.x + 2, y: vb.y + 44, width: vb.width - 4, height: vb.height - 104 };
+    // 7.4 (vraag van Ian over stap 6): uitgeschoven delen krijgen een gestippelde explodelijn naar hun plaats, en de delen
+    // van de stap een ballon met hun positie in de stuklijst (zoals een exploded view in SOLIDWORKS)
+    if (!b.snede) await page.evaluate(overlay, { ...annotaties(s, b), clip });
+    await page.screenshot({ path: f, type: 'jpeg', quality: 88, clip });
+    await page.evaluate(() => document.getElementById('bs-overlay')?.remove());
     s.foto.push(f);
   }
 }
+
+if (ALLEEN) { console.log('alleen de beelden van stap', ALLEEN.join(', '), '; fouten:', fouten); await browser.close(); process.exit(0); }
 
 // ---- PDF ----
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
