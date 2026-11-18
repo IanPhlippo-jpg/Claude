@@ -1521,3 +1521,12 @@ elease; README en docs/04 bijgewerkt
 - [x] Pariteit 4, 5, 6, 8, 9, 10, 12 en deels 2, 3, 11 (punt 1 blijft voorstel voor Ian)
 - [x] Lastafeltekeningen opnieuw maken met het rechtgezette projectiesymbool, tekeningenLastafel.test.ts draaien
 - [x] Versie 0.5.16, typecheck, vitest, e2e (desktop-editsave, desktop, desktop-recover, pariteit), screenshots, graphify update, statustabel docs/32
+
+## Extensie "3D Print": volledige slicer in SOLIDWORKS-stijl voor Bambu Lab en Elegoo (2026-11-18)
+- [x] Eisen en antwoorden van Ian vastleggen (docs/33-eisen-3d-print-extensie.md)
+- [~] Fase 1: tabblad "3D Print", printerdatabase Bambu Lab + Elegoo (ook aangekondigd) met bronnen, plaat (plaatsen, plat op vlak, oriënteren, schikken)
+- [ ] Fase 2: slicerkern (lagen, wanden, boven/onder, infill, skirt/brim, support) en laagpreview met tijd en gram
+- [ ] Fase 3: G-code en bestanden (.gcode.3mf Bambu, .gcode Elegoo Klipper/Marlin, .3mf-project)
+- [ ] Fase 4: Elegoo-harsprinters (.goo)
+- [ ] Tests, foto's, commit en push; proefprint per printer als vrijgave (Ian)
+- [ ] Daarna: extensies Lasconstructies+, Lasersnijden/plooien, Offerte uit model
