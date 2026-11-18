@@ -26,3 +26,10 @@ Ian wil extensies die SOLIDWORKS niet heeft, maar wel in SOLIDWORKS-stijl. De ee
 3. G-code en bestanden voor Bambu Lab en Elegoo FDM.
 4. Elegoo-harsprinters (.goo).
 5. Daarna: Lasconstructies+, Lasersnijden/plooien, Offerte uit model.
+
+## Besluiten van Ian op de vragen van Fable (2026-11-18)
+- Startcode Bambu: allebei. Een eigen minimale start- en eindcode ("nog te printen") en een knop die de code uit zijn eigen Bambu Studio-installatie inleest. Wat ingelezen wordt, komt alleen in zijn instellingen, nooit in de repo.
+- Polygon-offset: Clipper2 mag (een JS/TS-port met Boost- of MIT-licentie).
+- Printers: Ian heeft er nog geen. Elke printer blijft "nog te printen" tot een proefkubus geslaagd is.
+- Meerkleurig (AMS): meteen in v1, met een kleur per part, gereedschapswissels, een prime tower, spoelvolumes en het verbruik per slot.
+- Hars: alleen .goo, geen .ctb.
