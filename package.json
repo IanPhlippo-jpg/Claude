@@ -36,7 +36,7 @@
     "replicad-opencascadejs": "^1.1.0",
     "three": "^0.180.0",
     "three-bvh-csg": "^0.0.18",
-    "three-mesh-bvh": "^0.9.16",
+    "three-mesh-bvh": "^0.9.18",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
