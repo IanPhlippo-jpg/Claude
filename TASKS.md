@@ -1570,3 +1570,26 @@ elease; README en docs/04 bijgewerkt
 - [~] Phlippo Studio fase 0 (skelet + Pixel), daarna review door Fable en verwerken, daarna de volgende fasen volgens de A-lijst
 - [~] Afzuiging: staafje in bouwschema stap 6 verklaren en oplossen
 - [ ] 's Morgens een overzicht met foto's voor Ian
+
+## Herbeoordeling Fable 5.2 van de 3D Print-extensie fase 1-3 (2026-11-19)
+- [x] Hoofdstuk 8 van docs/35 en de diff van a57a855 lezen
+- [x] Tests en eigen meetscripts opnieuw draaien (scratchpad/review-scripts)
+- [x] Nieuwe G-code en 3MF (print-fase1-3b) met de hand nalopen
+- [x] Elk criterium opnieuw beoordelen; nieuwe bevindingen zoeken in de gewijzigde code
+- [x] Sectie "Herbeoordeling" onder docs/35 (tabel, bevindingen, oordeel per fase; geen codewijziging, geen commit)
+
+## 3D Print fase 4: Elegoo-harsprinters (.goo) (2026-11-19)
+- [~] Typen, harsprinters en harsprofielen uit de database, belichting (normaal, bodem, overgang), lift/terugtrek, grenzen met negatieve proef
+- [ ] Rasteren per laag op de lcd-resolutie en pixelmaat (scanlijnen, geen volledige bitmap), anti-aliasing als optie; volume ≤ 0,5 %
+- [ ] GOO-schrijver volgens de openbare spec (kop, voorbeelden RGB565, RLE) en een losse lezer; heen en terug pixel voor pixel; kop byte voor byte
+- [ ] Hars-support (normaal en boom, contactpunten, auto plus handmatig), vlot; eilanden en zuignappen; uithollen en afvoergaten; oriënteren voor hars
+- [ ] Tijd (belichting, lift, wachttijden), volume in ml en prijs
+- [ ] Tabblad: harsmodus bij een harsprinter, PropertyManager-secties, laagschuif met pixelmasker
+- [ ] Tests (volume, round trip, kop, 12K-laag < 150 ms, grenzen, eilanden), e2e, poorten, graphify, foto's print-fase4
+
+## Eisen en supervisie voor de extensies Lasconstructies+, Lasersnijden/plooien en Offerte uit model (2026-11-19)
+- [x] Bestaande code lezen: weldments.ts, frameBuild.ts, sheetmetal.ts, unfold.ts, tables.ts, export2d.ts, print-extensie als voorbeeld
+- [x] bibliotheek/ nalopen op herbruikbare delen (prijzen, stuklijst, zaagplan, dxf, vorm, werkwijze)
+- [x] Voorbeelden nalopen op bruikbare proefstukken (lastafel, afzuiging, taatsdeuren, fitness)
+- [x] docs/36-eisen-en-supervisie-extensies.md schrijven (eisen, interface, datamodel, normen, prijsmodel, offerte, criteria, risico's, bouwvolgorde)
+- [x] Geen codewijziging, geen installatie, geen commit

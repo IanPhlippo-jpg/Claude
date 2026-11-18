@@ -332,3 +332,161 @@ Elke P1 en P2 heeft een negatieve proef die zonder de oplossing faalt (testnaam 
 **Fase-1-voorwaarden:** plaat in het document (P2-12) gehaald; verouderd-vlag bij een gewijzigd part (P2-8) gehaald; tessellatie: B-rep-hoektolerantie 0,1 → 0,07 rad, volume binnen 0,1 % voor cilinders van 4, 20 en 80 mm (`tessellation.test.ts`); uitsluitzones in de controle en in Arrange gehaald; OK/Annuleren/Esc gehaald; e2e voor part, assembly en tekening (geen tab bij een tekening) gehaald; foto's met de kubus (01 tot 06).
 
 **Blijft open (niet zonder Ian of een printer):** referentiebestanden uit Bambu Studio en ElegooSlicer (pakketsleutels, model-id's, tijd), echte uitsluitzones en bewegingsgrenzen in de database, de proefkubus per printer. Geen enkele printer is vrijgegeven.
+
+## 9. Herbeoordeling (Fable 5.2, 2026-11-19)
+
+Beoordeeld: commit `a57a855` (de verwerking uit hoofdstuk 8). Geen code gewijzigd, niets gecommit.
+
+### 9.1 Oordeel
+
+| Fase | Oordeel |
+|---|---|
+| 1 Tabblad, database, plaat | **Vrijgegeven.** Drie restpunten zonder invloed op een proefprint (9.6). |
+| 2 Slicerkern en preview | **Nog niet vrijgegeven voor proefprinten.** Drie kleine voorwaarden: H-1, H-3 en H-4. |
+| 3 G-code en bestanden | **Nog niet vrijgegeven voor proefprinten.** Twee voorwaarden: H-1 en H-2. |
+
+Telling over dezelfde 80 criteria: **63 gehaald, 9 deels, 0 niet gehaald, 8 niet te meten** (was 32 / 25 / 15 / 8).
+
+De vijf P1's uit hoofdstuk 2 zijn opgelost; vier ervan heb ik zelf nagemeten, P1-5 steunt op de tests van de bouwer (9.3). Van de veertien P2's zijn er tien opgelost. P2-9 en P2-13 zijn deels, zoals de bouwer meldt; P2-1 en P2-10 zijn grotendeels opgelost. Nieuw gevonden: 2 × P2 en 5 × P3 (9.4). Er is geen nieuwe P1.
+
+Na H-1 tot H-4 kan de proefkubus geprint worden met **één kleur, de eigen startcode en een printer met één kop**. Alles wat alleen een printer of een referentiebestand kan bewijzen, blijft "nog te printen".
+
+### 9.2 Hoe ik gemeten heb
+
+- `npx vitest run`: 174 bestanden, 1149 tests, alle groen (144 s). `tsc -b` exit 0, `line-budget` ok. De e2e (26 controles volgens de bouwer) is niet door mij gedraaid.
+- Dezelfde meetscripts als in hoofdstuk 1, aangepast aan de nieuwe interface, in `...\scratchpad\review-scripts\r2\` (`m1`, `m2`, `m3`, `m5`, `m6`), plus drie nieuwe: `m7.ts` (verplaatsing door een uitsluitzone, wachtpauzes), `m8.ts` en `m9.ts` (bol op fijne meshes, grootte van kruisingen in Clipper-uitvoer).
+- `Kruk.gcode.3mf`, `Kalibratiekubus.gcode.3mf` en `Kruk.gcode` uit `print-fase1-3b` uitgepakt in lege mappen, met de hand gelezen en door de eigen lezer `gc.mjs` gehaald. `Expand-Archive`: 15 bestanden, MD5 gelijk.
+- Foto's 03, 05, 09 en 16 bekeken; de overige alleen op naam.
+
+### 9.3 De oude bevindingen nagemeten
+
+| Nr | Oordeel | Eigen meting |
+|---|---|---|
+| P1-1 | opgelost | Eerste beweging in alle drie de bestanden: `G0 Z0.6`, dan XY, dan `G0 Z0.2`, dan `G1 E0.8`. Laagste Z 0,2; geen regel met terugtrek én XY; kleinste X 20, Y 3 |
+| P1-2 | opgelost | Clipper2 (`clipper2-ts` 2.0.1-18, vermeld in `THIRD-PARTY-NOTICES.txt`). Bijna gelijke veelhoeken: 0 van 300 fout. Cilinder, buis, 24 en 360 segmenten: 0 van 93 tussenlagen met skin. Cilinder bij 100 %: −2,72 % |
+| P1-3 | opgelost voor alles wat extrudeert | Kubus op 0..20 met skirt: x vanaf 0,225. Brim tegen de rand: tot 255,775. Boomsupport tegen x = 0: vanaf 0,225. Toren op een vrije plek (216..251). Plaat over een zone: geweigerd. Verplaatsingen: zie H-2 |
+| P1-4 | opgelost volgens het advies | Twee kleuren zonder wisselcode: geweigerd (`run.ts:67-69`). Met wisselcode: terugtrekken, 2 mm optillen, dan de code; toren op laag 1 met `F3000`. Eén kleur: melding in de PropertyManager (foto 03) |
+| P1-5 | opgelost volgens de tests | `pack.test.ts:139`, `:144` en de slicer-test "imported code of another printer model is refused"; niet apart nagemeten |
+| P2-1 | grotendeels | Geen pieken meer (was tot 0,38). Rest: zie H-4 |
+| P2-2 | opgelost | 20°, 25°, 28°: support; 32° tot 70°: geen |
+| P2-3 | opgelost | Brug van 10, 30 en 60 mm: richting 0,0°, 0,67 mm over de pijlers |
+| P2-4 | opgelost | 0 extrusieregels met een openstaande terugtrek (was 148 323) |
+| P2-5 | opgelost, met een nieuw gebrek | Pen 6,15 s en toren 6,20 s per laag. Zie H-1 |
+| P2-6 | opgelost | 1432 gevallen: 0 buiten de eis, 0 zelfdoorsnijding; het oude foutgeval geeft 15,722 tegen 15,719 mm² |
+| P2-7 | opgelost | Zijvlak weg: 8000,0 mm³ (was 4000). Gebreken geteld bij Add to Plate (`printStore.ts:170-176`) |
+| P2-8, P2-11, P2-12 | opgelost | `printDoc.test.ts`; aannames als `; assumption:`-regels in de kop van beide bestanden; printers met meer koppen geweigerd (6 van de 30) |
+| P2-9 | deels | `BED_MESH_PROFILE LOAD=default` (Klipper) en `M420 S1` (Marlin) staan in de bestanden. Of elk model een opgeslagen mesh met die naam heeft: nog te printen |
+| P2-10 | grotendeels | Zie 2.31 |
+| P2-13 | deels | Kubus 37,2 %, kruk 28,8 % verplaatsing. Geen voorwaarde voor een proefprint |
+| P2-14 | opgelost | Toleranties terug op de eis; de grens van 2000 mm/s is verantwoord met de waarde van de H3C in de database |
+| P3-1 tot P3-10, P3-12 | opgelost | cm³ goed (15.4); Marlin langste regel 96; netto filament −0,072 %; convex 0,54 tot 0,66 µm; 22 regels `E0` in de kruk (was 14 773), 0 in de kubus |
+
+### 9.4 Nieuwe bevindingen
+
+**H-1 (P2). De kalibratiekubus pauzeert op 93 van de 100 lagen, en duwt het filament terug in de lucht.**
+- Waar: `src/print/build.ts:291-295` (één keer evenredig vertragen, daarna de rest wachten) en `:310-321` (`waitAway`).
+- Bewijs: `Kalibratiekubus.gcode.3mf`: 92 × `G4 P1500` en 1 × `G4 P1900`; wachten is 21,5 % van de printtijd. De extrusie loopt intussen nog op 113 tot 165 mm/s. Na elke pauze staat `G1 E0.8` op de wachtplek (10 mm naast het stuk, 1 mm boven de laag), waarna de volgende laag meteen weer terugtrekt.
+- Waarom fout: de vertraging raakt alleen de extrusie, niet de verplaatsing, dus de laag blijft te kort en de pauze vangt de rest op, terwijl er nog ruim vertraagd kan worden. Terugduwen in de lucht geeft bij elke laag een druppel of een draad naast het stuk. Dit is precies het stuk dat de vrijgave per printer moet bewijzen (20,00 ± 0,15 mm).
+- Oplossing: de vertraging herhalen (bijvoorbeeld halveren op de factor) tot de laagtijd gehaald is of de ondergrens van 10 mm/s bereikt is; pas dan wachten. Na het wachten niet terugduwen; de eerstvolgende verplaatsing doet dat op de plek van bestemming. Proef: de kubus van 20 mm heeft geen enkele `G4`, en er staat nergens een terugduw die niet direct door extrusie gevolgd wordt.
+
+**H-2 (P2). Verplaatsingen worden niet getoetst tegen uitsluitzones.**
+- Waar: `src/print/build.ts:392` (`it.type >= 0`: alleen extruderende bewegingen); ook de wachtplek van H-1 wordt niet getoetst.
+- Bewijs (m7): twee kubussen met een zone ertussen: de slice wordt aanvaard met 149 verplaatsingen dwars door de zone.
+- Waarom: het criterium (docs/34 R9 en 3.3) noemt verplaatsingen uitdrukkelijk. Vandaag is het onzichtbaar omdat de database geen zones heeft; zodra het referentiebestand van Ian er echte in zet, rijdt de kop erdoor.
+- Oplossing: in de database twee soorten zones onderscheiden ("niet bedrukken" en "niet komen"). Voor "niet komen": verplaatsingen eromheen leiden, of de slice weigeren. Zolang dat onderscheid er niet is: elke zone als "niet komen" behandelen en weigeren.
+
+**H-3 (P3). De legenda telt het wachten niet mee.** Foto 03 (kubus): 12,4 + 8,0 + 8,1 + 12,6 + 0,3 + 37,2 = 78,6 %; de ontbrekende 21,5 % is `wait` (`stats.timeByType.wait`, geen rij in `PlateView.tsx` of `PrintPM.tsx`). Het criterium vraagt 100 % ± 0,1. Vervalt grotendeels met H-1, maar de rij hoort er te staan.
+
+**H-4 (P3). Gyroid ligt gemiddeld 5,3 % te laag.** Kubus 60 mm, ingesteld 0,15, binnen de wanden gemeten over 50 lagen: gemiddeld 0,142, per laag 0,119 tot 0,169. Bij 0,40: −3,9 tot −10,4 % op drie lagen. De test van de bouwer meet op het hele vlak zonder wanden en haalt daar ±5 %. Oplossing: de periode kalibreren op het gebied binnen de wanden; de spreiding per laag mag blijven.
+
+**H-5 (P3). Stompjes infill van een honderdste millimeter met een volledige terugtrek en Z-hop.** Kubus, laag 40: `G1 X118.972 Y118.983 E0.00055`, voorafgegaan en gevolgd door terugtrekken, optillen en verplaatsen. Vullijnen korter dan een lijnbreedte weglaten.
+
+**H-6 (P3). De hoektolerantie van de kernel is voor het hele programma veranderd.** `src/core/occt/brep.ts:629`: 0,1 → 0,07 rad. Dat haalt 1.8, maar geeft ook op het scherm en bij elke rebuild ongeveer 40 % meer segmenten op ronde vlakken (berekend uit de verhouding van de hoeken). Beter: een eigen, fijnere tessellatie alleen voor de plaat. De rebuildbudgetten uit 0.5.16 opnieuw meten.
+
+**H-7 (P3). Clipper2 rondt snijpunten af.** Bij 12 van 10 000 willekeurige (zelfdoorsnijdende) invoeren kruisen twee randen van de uitkomst elkaar, met een diepte van hoogstens 0,08 µm. Oppervlak en herhaalde vereniging kloppen. Geen gevolg voor een print; hier genoteerd omdat het criterium "zonder zelfdoorsnijding" letterlijk anders zegt.
+
+**Verder gezien, geen bevinding:** het hoogste product breedte × hoogte × snelheid is nu 22,1 mm³/s bij Qmax 20. De werkelijke doorstroming (doorsnede van de rups × snelheid) is 20,0; de grens wordt dus op het juiste getal toegepast. In het Bambu-pakket zijn `top_1.png`, `pick_1.png` en `plate_no_light_1.png` kopieën van `plate_1.png`; dat hoort bij P3-14.
+
+### 9.5 Criteria opnieuw
+
+Regels waarvan de status veranderd is of die niet "gehaald" zijn, staan voluit; de rest staat in de laatste regel per fase.
+
+**Fase 1** (15 gehaald, 3 deels)
+
+| Nr | Criterium | Was | Nu | Bewijs |
+|---|---|---|---|---|
+| 1.3 | Telling per reeks | deels | deels | Centauri zonder Carbon ontbreekt nog (werk van de database-agent) |
+| 1.4 | Plausibiliteitsgrenzen | deels | gehaald | Grens 2000 mm/s verantwoord (H3C 1400 mm/s in de database) |
+| 1.7 | Doorstroming per nozzle | deels | deels | Schaalt nu met het kwadraat van de nozzle (`build.ts:52`), als AANNAME |
+| 1.8 | Tessellatie ≤ 0,1 % | niet gehaald | gehaald | `tessellation.test.ts`: cilinders van 4, 20 en 80 mm; zie H-6 |
+| 1.10 | Schikken | deels | gehaald | m2: 0 van 20 in een zone; overloop naar extra platen (`printStore.ts:185-198`, `printDoc.test.ts:88`) |
+| 1.11 | Oriënteren, ook T12 | deels | deels | Nog geen proef dat de kruk minder overhang krijgt |
+| 1.12 | Buiten het volume en uitsluitzone | deels | gehaald | m2: plaat over een zone geweigerd; één speling van 0,01 mm (`run.ts:34`) |
+| 1.13 | Opslaan en heropenen | niet gehaald | gehaald | Formaat 4, `printDoc.test.ts:49` (matrix tot 1e-9), `:62` |
+| 1.14 | Meerdere platen | deels | gehaald | Move to Plate (`printStore.ts:248`, `PrintPM.tsx:212`) |
+| 1.16 | e2e part, assembly, tekening; OK, Annuleren, Esc | deels | gehaald | `e2e/print3d.mjs:106`, `:116`, `:199`, `:212` (door de bouwer gedraaid), foto 16; `printDoc.test.ts:69` |
+| 1.18 | Foto's | deels | gehaald | Kubus op de plaat en in de preview (03, 05), assembly (16) |
+| overig | 1.1, 1.2, 1.5, 1.6, 1.9, 1.15, 1.17 | gehaald | gehaald | Opnieuw gedraaid |
+
+**Fase 2** (27 gehaald, 5 deels, 5 niet te meten)
+
+| Nr | Criterium | Was | Nu | Bewijs |
+|---|---|---|---|---|
+| 2.2 | Oppervlak per laag T3 | deels | gehaald | m9: bol met 180 × 90 tot 720 × 720 vlakken: grootste fout 0,33 tot 0,07 % (de 2,7 % van eerder kwam van mijn grove proefbol) |
+| 2.5 | T15 kapotte meshes | niet gehaald | gehaald | Zijvlak weg 0,000 %; telling bij Add to Plate |
+| 2.6 | 10 000 willekeurige polygonen | niet gehaald | gehaald | 0 uitzonderingen, 0 NaN, bijna gelijke veelhoeken 0 van 300; zie H-7 |
+| 2.7 | Rasterorakel | niet gehaald | gehaald | 0 van 1432 buiten de eis |
+| 2.8 | Convex +d dan −d | niet gehaald | gehaald | 0,54 tot 0,66 µm |
+| 2.10 | Offset 10 000 punten < 50 ms | niet gehaald | gehaald | 32 tot 37 ms |
+| 2.11 | Hartlijn binnen de contour | deels | gehaald | Kubus, cilinder, T-stuk, plaat: 0; bol: 1 infillpunt van 49 396 |
+| 2.13 | Extrusie bij 100 % | niet gehaald | gehaald | T1 −2,64 %, T2 −2,72 %, T12 in `deurkruk.test.ts` |
+| 2.15 | Infilldichtheid ±5 % | niet gehaald | deels | Rechtlijnig, raster, honingraat binnen 2 %; gyroid −5,3 % (H-4) |
+| 2.18 | Skirt en brim binnen het bed | niet gehaald | gehaald | m2: afgeknipt op 0,225 mm van de rand |
+| 2.21 | T5 per trede | niet gehaald | gehaald | Zie P2-2 |
+| 2.22 | Elk overhangpunt gedragen | deels | gehaald | T9: laag 0 tot 98 onder de arm op 100; hellingen volgens 2.21 |
+| 2.24 | Boomsupport | deels | deels | Binnen het bed. Nog geen Z-afstand boven het model en geen proef op zwevende delen |
+| 2.25 | T6 bruggen | niet gehaald | deels | Richting en oplegging goed. Er is geen instelling voor de bruglengte; onder elke brug komt support (veilig, kost materiaal) |
+| 2.27 | Schatter tegen een tweede simulatie ≤ 1 % | niet gehaald | gehaald | `slicer.test.ts:213` (vaste tijdstap); analyser −0,83 % |
+| 2.30 | T1, T12, T16 | deels | gehaald | 60 tot 170 ms; 3,8 s; 24,9 s (Node, zonder andere last) |
+| 2.31 | Hoofdthread ≤ 50 ms; annuleren | deels | deels | Mesh uit de worker. Venster: 18 ms bij 96 000 segmenten; bij 1,6 miljoen 539 ms voor de eerste opbouw en 298 ms per kleurwissel |
+| 2.36 | Legenda, som 100 % | gehaald | deels | H-3 |
+| 2.37 | Foto's | deels | gehaald | Kubus in soort en laaghoogte, halverwege (03, 05); kruk halverwege met support (09) |
+| niet te meten | 2.17, 2.28, 2.29, 2.32, 2.33 | | | Referentiebestand, printer of hardware-GL nodig. T16 onder Node: +1,1 GB na afloop, piek niet gemeten |
+| overig | 2.1, 2.3, 2.4, 2.9, 2.12, 2.14, 2.16, 2.19, 2.20, 2.23, 2.26, 2.34, 2.35 | gehaald | gehaald | Opnieuw gemeten; de toren houdt zich nu ook aan de eerste-laagsnelheid |
+
+**Fase 3** (21 gehaald, 1 deels, 3 niet te meten)
+
+| Nr | Criterium | Was | Nu | Bewijs |
+|---|---|---|---|---|
+| 3.1 | XY binnen het gebied, start en eind binnen `travelLimits` | niet gehaald | deels | Alles wat extrudeert en alle 24 printers met één kop: binnen. Verplaatsingen door een zone: H-2 |
+| 3.2 | Z niet dalend | deels | gehaald | Laagste Z 0,2; 0 dalingen |
+| 3.3 | Temperaturen, ook het materiaalbereik | deels | gehaald | `run.ts:79` |
+| 3.6 | Retractie in balans | deels | gehaald | 0 extrusie met openstaande terugtrek; aan het eind alleen de terugtrek van de eindcode |
+| 3.7 | Netto filament = kop ± 0,1 % | deels | gehaald | Kubus −0,072 %, kruk −0,013 % |
+| 3.9 | ASCII, getallen, Marlin ≤ 96 | deels | gehaald | Neptune 3-reeks: langste regel 96 |
+| 3.12 | Weigert uitsluitzone | deels | gehaald | m2 |
+| 3.14 | Verouderd na wijziging van het part | niet gehaald | gehaald | `printDoc.test.ts:37` |
+| 3.15 | AANNAME: bevestiging en kop | deels | gehaald | `printStore.ts:322-328`; `; assumption:`-regels in beide bestanden |
+| 3.20 | `.3mf`-project heen en terug | deels | gehaald | `pack.test.ts:76` |
+| 3.21 | `.gcode.3mf` | deels | gehaald (meetbare deel) | MD5 `4E7C4A84…A847` gelijk; PNG's geldig; 952 s en 3.30 g gelijk aan de kop; 15 delen. De vergelijking met een referentie valt onder 3.24 |
+| niet te meten | 3.11, 3.24, 3.25 | | | Bogen niet gebouwd; stappen van Ian; nog te printen |
+| overig | 3.4, 3.5, 3.8, 3.10, 3.13, 3.16, 3.17, 3.18, 3.19, 3.22, 3.23 | gehaald | gehaald | Opnieuw gemeten op de 24 printers met één kop |
+
+### 9.6 Wat er nog moet gebeuren
+
+**Voorwaarden voor de proefprint (klein werk)**
+1. H-1: geen pauze waar vertragen volstaat; geen terugduw in de lucht.
+2. H-2: verplaatsingen en de wachtplek toetsen tegen uitsluitzones.
+3. H-3: rij "wachten" in de legenda, som 100 %.
+4. H-4: gyroid kalibreren binnen de wanden.
+
+**Restpunten, geen voorwaarde**
+- Fase 1: Centauri zonder Carbon in de database; doorstroming per nozzle uit een fabrikantbron; proef voor het oriënteren van de kruk.
+- Fase 2: Z-afstand en zweefproef voor boomsupport; instelling voor bruglengte; opbouw van de preview bij meer dan een miljoen segmenten; verplaatsingstijd (P2-13); H-5, H-6.
+- Fase 3: P3-11, P3-13, P3-14, P3-15 zoals de bouwer ze meldt.
+
+**Blijft "nog te printen" of wacht op Ian**
+- Referentiebestanden uit Bambu Studio en ElegooSlicer: pakketsleutels, model-id's, echte uitsluitzones en bewegingsgrenzen, tijd.
+- Nivellering per Elegoo-model (P2-9), miniaturen op de schermen, `G29` op elke Bambu-reeks.
+- Meerkleuren: alleen met de wisselcode uit de eigen Bambu Studio, en pas na een eigen proef.
+- De proefkubus van 20 mm per printer; daarna de kruk.
