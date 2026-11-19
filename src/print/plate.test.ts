@@ -58,11 +58,11 @@ describe('the plate', () => {
 });
 
 describe('printer database', () => {
-  it('every entry of the real database passes validation (51 printers)', () => {
+  it('every entry of the real database passes validation (52 printers: 51 + the Centauri, docs/35 9.6)', () => {
     const file = 'src/print/printerDatabase.json';
     if (!existsSync(file)) return;
     const raw = JSON.parse(readFileSync(file, 'utf8')) as unknown[];
-    expect(raw).toHaveLength(51);
+    expect(raw).toHaveLength(52);
     const problems = (raw as Parameters<typeof validatePrinter>[0][]).flatMap((p) => validatePrinter(p).map((e) => `${p.id}: ${e}`));
     expect(problems).toEqual([]);
     const ids = (raw as { id: string }[]).map((p) => p.id);
@@ -70,7 +70,7 @@ describe('printer database', () => {
     const mats = JSON.parse(readFileSync('src/print/materialProfiles.json', 'utf8'));
     const db = buildDatabase(raw, mats);
     expect(db.fromFixture).toBe(false);
-    expect(db.printers).toHaveLength(51);
+    expect(db.printers).toHaveLength(52);
     for (const m of db.materials) {
       expect(m.density).toBeGreaterThan(0.8);
       expect(m.nozzleTemp.min).toBeLessThan(m.nozzleTemp.max);

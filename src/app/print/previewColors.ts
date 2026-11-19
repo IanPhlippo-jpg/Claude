@@ -1,5 +1,5 @@
 /** Colours and names of the line types in the layer preview, and the colour scale of the continuous modes. */
-import type { LineType } from '../../print/types';
+import { LINE_TYPES, type LineType } from '../../print/types';
 
 export const LINE_COLORS: Record<LineType, string> = {
   outerWall: '#f28c28',
@@ -39,3 +39,13 @@ export const hexRgb = (h: string): [number, number, number] => {
   const v = parseInt(h.replace('#', ''), 16);
   return [((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255];
 };
+
+/**
+ * The rows of the line-type legend: every line type with time (travel always), then the time spent waiting for the
+ * minimum layer time (docs/35 H-3); the shares add up to 100 % of the print time.
+ */
+export function legendRows(timeByType: Record<string, number>): { key: LineType | 'wait'; label: string; time: number; pct: number }[] {
+  const total = Object.values(timeByType).reduce((a, b) => a + b, 0) || 1;
+  const keys: (LineType | 'wait')[] = [...LINE_TYPES.filter((t) => (timeByType[t] ?? 0) > 0 || t === 'travel'), ...((timeByType.wait ?? 0) > 0 ? ['wait' as const] : [])];
+  return keys.map((k) => ({ key: k, label: k === 'wait' ? 'Wait (minimum layer time)' : LINE_LABELS[k], time: timeByType[k] ?? 0, pct: ((timeByType[k] ?? 0) / total) * 100 }));
+}

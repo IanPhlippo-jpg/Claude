@@ -56,6 +56,7 @@ Regels die voor elke waarde gelden:
 | Neptune 4 Plus | leverbaar | 2023-09 | 320 x 320 x 385 | 300 °C | 100 °C | nee | 1 | - | 500 mm/s | 8000 mm/s² | klipper | .gcode | 8 |
 | Neptune 4 Max | leverbaar | 2023-09 | 420 x 420 x 480 | 300 °C | 100 °C | nee | 1 | - | 500 mm/s | 8000 mm/s² | klipper | .gcode | 7 |
 | OrangeStorm Giga | leverbaar | 2024-05 | 800 x 800 x 1000 | 300 °C | 100 °C | nee | 1 | Optional dual or quad extrusion upgrade kit | 300 mm/s | 3000 mm/s² | klipper | .gcode | 8 |
+| Centauri | uit productie (AANNAME) | onbekend | 256 x 256 x 256 | 320 °C | 100 °C | nee (AANNAME) | 1 | - | 500 mm/s | 20000 mm/s² | klipper | .gcode | 10 |
 | Centauri Carbon | uit productie | 2025-02 | 256 x 256 x 256 | 320 °C | 110 °C | ja | 1 | - | 500 mm/s | 20000 mm/s² | klipper | .gcode | 9 |
 | Centauri Carbon 2 | leverbaar | 2026-05 | 256 x 256 x 256 | 350 °C | 110 °C | ja | 1 | CANVAS optional (4 colours) | 500 mm/s | 20000 mm/s² | klipper | .gcode | 8 |
 | Centauri Carbon 2 Combo | leverbaar | 2026-01 | 256 x 256 x 256 | 350 °C | 110 °C | ja | 1 | CANVAS, 4 colours | 500 mm/s | 20000 mm/s² | klipper | .gcode | 6 |
@@ -253,3 +254,6 @@ Datums van aankondiging zonder fabrikantdatum komen uit de publicatiedatum in de
 ## Controle
 
 Beide JSON-bestanden zijn gecontroleerd met een Node-script: verplichte sleutels, toegestane waarden, unieke id's, bronnen zijn https en geen GitHub- of slicerprofiel, plausibiliteit (bed 50-1100 mm, nozzle 240-500 °C, bed 50-150 °C, snelheid 50-2000 mm/s, versnelling 500-50 000 mm/s², printableArea binnen bouwvolume en binnen travelLimits, hars: pixelmaat lcd tegen XY-resolutie), materialen (bereik min ≤ standaard ≤ max, dichtheid 0,9-1,6, prijs en belichting gemarkeerd als AANNAME).
+
+## Toegevoegd na de herbeoordeling (docs/35 9.6, 2026-11-19)
+- **Elegoo Centauri** (zonder Carbon): bron 3DJake (https://www.3djake.com/elegoo/centauri): 256 x 256 x 256 mm, CoreXY, ≤ 500 mm/s, 20 000 mm/s², nozzle 320 °C, bed 100 °C, geen verwarmde kamer, 0,4 mm; "no longer sells this product". De fabrikantpagina (https://www.elegoo.com/products/centauri) gaf HTTP 429 en is niet gelezen: te controleren. Datum, kast en firmware zijn AANNAME.

@@ -13,7 +13,10 @@ import { plateProblems, printerFile, projectFile, type SliceJob, type SliceOutpu
 import { readMachineProfile, sameModel } from '../../print/gcode/importTemplate';
 import { fromDocData, refreshPlates, saveToDocument, sourcesToAdd } from './printDoc';
 import { cancelSlice, sliceInWorker } from './sliceClient';
+import { requestFineMeshes } from './fineMesh';
 import { topology } from '../../print/mesh';
+import { platePrinter } from '../../print/resin/profile';
+import { resinAutoOrient } from '../../print/resin/orient';
 import type { FilamentSlot, LineType, MachineCode, Plate, PlateItem, Printer, ProcessPreset, ProcessSettings, SliceProgress } from '../../print/types';
 
 const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';
@@ -88,11 +91,15 @@ export async function initPrint(): Promise<void> {
   if (S().db) return;
   const db = await loadDatabase();
   const fdm = fdmPrinters(db);
-  const keep = fdm.find((p) => p.id === S().printerId) ?? fdm.find((p) => p.id === 'bambu-p1s') ?? fdm[0];
+  const keep = db.printers.find((p) => p.id === S().printerId) ?? fdm.find((p) => p.id === 'bambu-p1s') ?? fdm[0];
   usePrint.setState({ db, printerId: keep.id, nozzle: keep.nozzles.some((n) => n.diameter === S().nozzle) ? S().nozzle : defaultNozzle(keep) });
 }
 
-export const currentPrinter = (s: PrintState = S()): Printer | null => s.db?.printers.find((p) => p.id === s.printerId) ?? null;
+/** the chosen printer; a resin printer as its LCD from the front left corner (the plate of the tab) */
+export const currentPrinter = (s: PrintState = S()): Printer | null => {
+  const p = s.db?.printers.find((x) => x.id === s.printerId);
+  return !p ? null : p.technology === 'resin' ? platePrinter(p) : p;
+};
 export function currentProcess(s: PrintState = S()): ProcessSettings | null {
   const p = currentPrinter(s);
   return p ? { ...processProfile(s.preset, s.nozzle, p), ...s.overrides } : null;
@@ -116,8 +123,11 @@ export function setPrinter(id: string) {
   if (!p) return;
   // the user's changes stay (support, infill, walls); speeds and the nozzle-bound sizes come from the new profile
   const nozzle = p.nozzles.some((n) => n.diameter === S().nozzle) ? S().nozzle : defaultNozzle(p);
+  // another kind of printer (FDM or resin): the slice of the other kind is gone
+  if (currentPrinter()?.technology !== p.technology) usePrint.setState({ result: null, resultKey: null });
   set({ printerId: id, nozzle, overrides: keepOverrides(S().overrides, nozzle !== S().nozzle) });
   if (isAnnounced(p)) msg(`${printerName(p)} is announced, not yet for sale: its values are partly assumptions.`, 'warn');
+  if (p.technology === 'resin' && p.fileFormat !== 'goo') msg(`${printerName(p)} takes .${p.fileFormat} files: the plate can be sliced and checked, but only .goo files are written.`, 'warn');
 }
 export const setNozzle = (n: number) => set({ nozzle: n, overrides: keepOverrides(S().overrides, true) });
 const SPEED_KEYS = ['speedOuterWall', 'speedInnerWall', 'speedInfill', 'speedSkin', 'speedFirstLayer', 'speedTravel', 'speedSupport', 'speedBridge', 'accel', 'primeTowerX', 'primeTowerY'];
@@ -176,6 +186,7 @@ export function addToPlate(mode: 'part' | 'bodies' | 'components' | 'assembly' =
   }
   if (plate().items.length || added.length > 1) editArranged((items) => [...items, ...added], p); else editPlate((items) => [...items, ...added]);
   usePrint.setState({ selected: added[added.length - 1]?.id ?? null });
+  requestFineMeshes(refreshFromModel);
   const out = plate().items.filter((it) => !insideVolume(it, p));
   if (out.length) msg(`${out.map((i) => i.name).join(', ')} does not fit in the build volume of the ${p.model}.`, 'warn');
 }
@@ -224,7 +235,8 @@ export function dragItem(id: string, dx: number, dy: number, first: boolean) {
 export function autoOrientPlate() {
   const s = S(), proc = currentProcess();
   const ids = s.selected ? [s.selected] : plate().items.map((i) => i.id);
-  editPlate((items) => items.map((it) => (ids.includes(it.id) ? autoOrient(it, proc?.supportAngle ?? 30) : it)));
+  const resin = currentPrinter()?.technology === 'resin';
+  editPlate((items) => items.map((it) => (!ids.includes(it.id) ? it : resin ? resinAutoOrient(it) : autoOrient(it, proc?.supportAngle ?? 30))));
 }
 export function arrangePlate() { const p = currentPrinter(); if (p) editArranged((items) => items, p); }
 /** typed position of the selected part: the centre of its footprint (mm) */
@@ -294,7 +306,7 @@ export const fmtTime = (sec: number) => {
   return `${Math.floor(s / 60)}m ${s % 60}s`;
 };
 
-async function save(file: { name: string; data: Uint8Array; mime: string }, ext: string, label: string) {
+export async function saveFile(file: { name: string; data: Uint8Array; mime: string }, ext: string, label: string) {
   const api = desktop();
   const buf = file.data.buffer.slice(file.data.byteOffset, file.data.byteOffset + file.data.byteLength) as ArrayBuffer;
   if (api) {
@@ -329,7 +341,7 @@ export async function exportPrinterFile(confirmed = false): Promise<void> {
     return;
   }
   const file = await printerFile(s.result, job);
-  await save(file, file.name.endsWith('.gcode.3mf') ? '3mf' : 'gcode', file.name.endsWith('.3mf') ? 'Bambu Lab print file' : 'G-code');
+  await saveFile(file, file.name.endsWith('.gcode.3mf') ? '3mf' : 'gcode', file.name.endsWith('.3mf') ? 'Bambu Lab print file' : 'G-code');
 }
 
 export async function exportProject(): Promise<void> {
@@ -338,7 +350,7 @@ export async function exportProject(): Promise<void> {
   const infos = slotInfos(s);
   const file = await projectFile(plate(s).items.map((it) => ({ name: it.name, positions: it.positions, matrix: it.matrix })), { printer: s.printerId, nozzle: s.nozzle,
     process: currentProcess(s), slots: s.slots, from: `Phlippo CAD ${APP_VERSION}` }, plate(s).items.map((it) => infos[it.filament]?.color ?? '#cfd3d8'), useStore.getState().doc.name);
-  await save(file, '3mf', '3MF project');
+  await saveFile(file, '3mf', '3MF project');
 }
 
 /** the safety fields of a printer that rest on an assumption (AANNAME) */
@@ -383,6 +395,12 @@ export function cancelSession() {
   store();
 }
 
+/** the parts on the plates take the current mesh of the model (a changed mesh makes the slice stale) */
+function refreshFromModel() {
+  const plates = refreshPlates(S().plates);
+  if (plates) usePrint.setState({ plates });
+}
+
 // ---- following the model: a rebuild refreshes the parts (stale slice); another document brings its own plates
 if (typeof window !== 'undefined') {
   let docId: string | undefined;
@@ -397,8 +415,9 @@ if (typeof window !== 'undefined') {
       return;
     }
     if (st.rebuild !== prev.rebuild && !st.rebuild.pending) {
-      const plates = refreshPlates(S().plates);
-      if (plates) usePrint.setState({ plates });
+      refreshFromModel();
+      // parts of the model on a plate: the slicer's finer tessellation of the exact bodies follows (docs/35 H-6)
+      if (S().plates.some((p) => p.items.some((i) => i.source?.kind === 'part' || i.source?.kind === 'body'))) requestFineMeshes(refreshFromModel);
     }
   });
 }

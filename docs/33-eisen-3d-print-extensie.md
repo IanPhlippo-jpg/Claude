@@ -48,8 +48,38 @@ Ian wil extensies die SOLIDWORKS niet heeft, maar wel in SOLIDWORKS-stijl. De ee
 
 ### Gedeeltelijk of open
 - **Clipper2 (bijgewerkt na de review, docs/35):** `clipper2-ts` 2.0.1-18 is geïnstalleerd met akkoord van Ian. Licentie: Boost Software License 1.0 (Angus Johnson, Clipper2; TypeScript-port countertype/clipper2-ts). Alle booleans en offsets van de slicer lopen erdoor, achter `src/print/geom/polygons.ts`. De eigen kern (`geom/boolean.ts`, `geom/offset.ts`) blijft alleen als onafhankelijk orakel in de tests, naast het rasterorakel.
-- Mesh: de slicer neemt de body uit de rebuild; een exact (B-rep) body is getesselleerd met koordefout 0,01 mm en hoektolerantie 0,1 rad (5,7°, iets boven de gevraagde 5°). Een gefacetteerde body (mesh-kern) geeft een melding.
+- Mesh: de slicer neemt de body uit de rebuild; voor een exact (B-rep) body vraagt het tabblad een eigen tessellatie met koordefout 0,01 mm en hoektolerantie 0,07 rad (4°); scherm en rebuild houden 0,1 rad (docs/35 H-6). Componenten van een assembly gebruiken nog het schermmesh. Een gefacetteerde body (mesh-kern) geeft een melding.
 - Bambu: printermodel-id's en de verplichte sleutels van slice_info/project_settings komen uit openbare beschrijvingen; te vergelijken met een referentiebestand uit Bambu Studio. Bambu-specifieke commando's (`G29`, `M620/M621`, `M991`, `M73 L`) zijn uit gemeenschapsbronnen.
 - ColPic: oriëntatie en regelsplitsing op het Neptune-scherm onbekend tot een printer het toont.
 - De plaat wordt nog niet in het document bewaard (alleen in de sessie); instellingen wel (per gebruiker).
 - Niet gebouwd: gap fill, Arachne, ironing, bogen (G2/G3 standaard uit), firmware-retractie en pressure advance standaard uit, schilderen per vlak voor meerkleuren, harsprinters (fase 4).
+
+## Stand fase 4: Elegoo-harsprinters (.goo) (2026-11-19)
+
+**Nog te printen: per harsprinter een proefprint.** Niets is op een harsprinter geprint, en het `.goo`-bestand is nog niet geopend in de slicer van Elegoo. Beide blijven de stap van Ian (docs/34 3.4).
+
+### Wat er is
+- Zelfde tabblad **3D Print**; kies je een harsprinter (in de lijst gemarkeerd met "(resin)", 21 stuks uit de database), dan schakelt het paneel naar hars: Resin (harsprofiel uit `materialProfiles.json`, laaghoogte 0,02 tot 0,1 mm, anti-aliasing 1/2/4/8), Exposure (normaal, bodem, aantal bodemlagen, overgangslagen, wachttijd, lichtvermogen), Lift and Retract, Hollow (wanddikte, afvoergaten), Supports (geen, normaal, boom; drempelhoek, afstand, contactpunt, steun, optillen, vlot; punten met de hand toevoegen en weghalen). Waarden buiten de grenzen staan in rood en de slice weigert ze (`src/print/resin/profile.ts`, `LIMITS`).
+- Plaat = het lcd vanaf de linkervoorhoek (0 tot de lcd-maat); de `.goo`-afbeelding beslaat het hele lcd.
+- Slicen in dezelfde worker (`src/print/resin/slice.ts`): de stukken worden op hun steunen getild, per laag gesneden, uitgehold (wand in XY en Z gelijk dik, venster over 2k+1 lagen met prefix/suffix-doorsneden), afvoergaten geboord, steunen en vlot als schijven per laag toegevoegd, eilanden en zuignappen/gesloten holtes gezocht (`analyze.ts`), en elke laag met scanlijnen op de lcd-resolutie en de pixelmaat (X en Y apart: Saturn 4 Ultra 19 x 24 µm) direct in de RLE-code van `.goo` gerasterd, zonder volledige bitmap (`raster.ts`).
+- `.goo`-schrijver (`goo.ts`) volgens "Goo Format Spec V1.2" van Elegoo: kop van 195 477 bytes veld voor veld, voorbeelden 116² en 290² in RGB565, per laag de laagdefinitie (66 bytes), datagrootte, beeld (0x55, RLE, controlesom), scheiding, eindstring. Een losse lezer (`gooReader.ts`) met een eigen veldentabel leest alles terug, controleert magic, scheidingen, controlesommen en eindstring en decodeert ook de "diff"-chunks; de laagpreview gebruikt diezelfde lezer.
+- Preview: samenvatting (printtijd, lagen, hars in ml, gram, euro, aantal steunpunten), lijst eilanden/zuignappen/holtes (klik = naar die laag), het pixelmasker van de laag in de plaatweergave met laagschuif (pijltjes), in 3D de steunen, het vlot en een vlak op de laaghoogte.
+- Auto Orient voor hars: kantelingen om X en Y per 15°; score = vlak oppervlak evenwijdig aan het lcd + 0,3 × te steunen oppervlak + 0,5 × hoogte.
+- Printtijd = som per laag van belichting + wachttijd + lift/liftsnelheid + lift/terugtreksnelheid; volume = belichte pixels (grijs naar waarde) × pixeloppervlak × laaghoogte; gram = ml × dichtheid; prijs = kg × €/kg.
+- Export alleen voor printers met `fileFormat: goo`; een `.ctb`-printer (Mars 3, Saturn, Saturn 2 …) slicet wel, maar exporteert niet. Voor de export eerst een bevestiging.
+
+### Getest
+- Volume pixels tegen mesh: kubus 20 mm en cilinder Ø20 ≤ 0,5 %, bol Ø20 ≤ 1,5 %, deurkruk (T12) ≤ 0,5 %. Scanlijnrasteraar pixel voor pixel gelijk aan een brute-force-rasteraar; met anti-aliasing oppervlak ≤ 0,5 %.
+- Kop: elk veld op de plaats uit de specificatie (opgeteld uit de veldtabel), magic, scheidingen, big-endian, bestandsgrootte = som van de delen, controlesommen, eindstring. Heen en terug met de losse lezer pixel voor pixel; voorbeelden uit de specificatie (lange runs, diff-chunks) gedecodeerd.
+- Eén 12K-laag (11 520 x 5 120, 60 cilinders en een plaat met 200 gaten) < 150 ms; 3000 lagen op 12K ver onder 1 GB.
+- Grenzen: tien instellingen buiten de grens geven elk precies één melding; de slice weigert 90 s belichting.
+- Eilanden (zwevend blok), zuignap, gesloten holte, afvoergat dat de holte opent, uithollen met wand boven/onder/opzij; deurkruk met steunen zonder eiland.
+- e2e `e2e/print3dResin.mjs` (15 controles).
+
+### Aannames (te controleren tegen een bestand uit de slicer van Elegoo of een print)
+- Getallen big-endian; "Data size" telt 0x55, de chunks en de controlesom; controlesom = one's complement van de bytesom; voorbeelden RGB565 big-endian; rij 0 = achterrand van het lcd, geen spiegeling; advance mode 1 (de printer neemt belichting en lift per laag); grey level 0/1, blur 0; tweede lift/terugtrek-fase afstand 0. Het voorbeeld in de spec noemt offset 0x2FAB7, de veldtabel telt 195 477 (0x2FB95): de veldtabel is gevolgd.
+- Grenzen van belichting en lift zijn MSLA-praktijk, niet per printer uit een bron.
+
+### Open
+- Steunpunten met de hand gaan nu met getallen (X/Y/Z); klikken op het stuk in 3D volgt.
+- Geen .ctb (besluit van Ian).

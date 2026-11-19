@@ -12,7 +12,7 @@ import { useStore } from '../store';
 import { PrintIcon } from './printIcons';
 import { canWriteMultiMaterial, fdmPrinters, isAnnounced, isDiscontinued, layerHeightsFor, printerName } from '../../print/database';
 import { insideVolume, worldBounds } from '../../print/plate';
-import { LINE_TYPES, type InfillPattern, type LineType, type ProcessSettings, type SeamPosition, type SupportKind } from '../../print/types';
+import { type InfillPattern, type LineType, type ProcessSettings, type SeamPosition, type SupportKind } from '../../print/types';
 import { NOT_PRINTED } from '../../print/gcode/dialects';
 import {
   addSlot, beginSession, cancelSession, clearBambuProfile, currentPrinter, currentProcess, deletePlate, fmtTime, importBambuProfile, isStale, moveSelectedToPlate, okSession,
@@ -20,7 +20,9 @@ import {
   setPrinter, setSlot, undoPlate, usePrint, type ColorBy,
 } from './printStore';
 import { sameModel } from '../../print/gcode/importTemplate';
-import { LINE_COLORS, LINE_LABELS } from './previewColors';
+import { LINE_COLORS, legendRows } from './previewColors';
+import { ResinFacts, ResinPreview, ResinSections } from './ResinPM';
+import { resinStale, useResin } from './resinStore';
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return <div className="k-pm-valuerow k-print-row"><span className="k-print-label">{label}</span>{children}</div>;
@@ -29,12 +31,14 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 export function PrintPM() {
   const s = usePrint(useShallow((x) => x));
   const setTab = useStore((x) => x.setTab);
+  const r = useResin(useShallow((x) => ({ result: x.result, overrides: x.overrides, resinId: x.resinId, layerHeight: x.layerHeight })));
   const kind = useStore((x) => x.doc.kind);
   const printer = currentPrinter(s);
   const proc = currentProcess(s);
   const [filter, setFilter] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
-  const printers = useMemo(() => (s.db ? fdmPrinters(s.db) : []), [s.db]);
+  // FDM printers first, then the resin printers
+  const printers = useMemo(() => (s.db ? [...fdmPrinters(s.db), ...s.db.printers.filter((p) => p.technology === 'resin')] : []), [s.db]);
   const setTabRef = useRef(setTab);
   setTabRef.current = setTab;
   // the tab works as a command: the state when it opened; OK keeps the changes, Cancel and Esc go back (docs/35 P3-9)
@@ -56,8 +60,9 @@ export function PrintPM() {
       onChange={(v) => patchProcess({ [k]: Math.max(opts.min ?? 0, v) / (opts.scale ?? 1) } as Partial<ProcessSettings>)} /></Row>
   );
   const shown = printers.filter((p) => !filter || printerName(p).toLowerCase().includes(filter.toLowerCase()));
-  const label = (p: typeof printer) => `${printerName(p)}${isAnnounced(p) ? ' (announced)' : isDiscontinued(p) ? ' (discontinued)' : ''}`;
-  const stale = isStale(s);
+  const label = (p: typeof printer) => `${printerName(p)}${p.technology === 'resin' ? ' (resin)' : ''}${isAnnounced(p) ? ' (announced)' : isDiscontinued(p) ? ' (discontinued)' : ''}`;
+  const resin = printer.technology === 'resin';
+  const stale = resin ? resinStale() : isStale(s);
   const close = (ok: boolean) => { if (ok) okSession(); else cancelSession(); setTab(kind === 'assembly' ? 'assembly' : 'features'); };
   return (
     <div className="k-pm k-print-pm" data-testid="print-pm">
@@ -76,7 +81,7 @@ export function PrintPM() {
         {s.slicing ? `${s.slicing.stage}: ${Math.round(s.slicing.fraction * 100)} %`
           : !items.length ? 'Add to Plate puts the open part on the plate.'
           : stale ? 'The plate or the settings changed: slice again.'
-          : !s.result ? 'Slice Plate makes the layers and the G-code.' : 'Sliced: check the layers, then Export.'}
+          : !(resin ? r.result : s.result) ? `Slice Plate makes the layers and the ${resin ? 'pixel masks' : 'G-code'}.` : 'Sliced: check the layers, then Export.'}
         <br /><span className="k-print-untested">{NOT_PRINTED}</span>
       </p>
       {s.pmTab === 'settings' ? (
@@ -85,17 +90,22 @@ export function PrintPM() {
             <input className="k-input" placeholder="Search printers" value={filter} onChange={(e) => setFilter(e.target.value)} onKeyDown={(e) => e.stopPropagation()}
               data-testid="print-printer-search" />
             <select className="k-input" data-testid="print-printer" value={printer.id} onChange={(e) => setPrinter(e.target.value)} style={{ marginTop: 4 }}>
-              {!shown.includes(printer) && <option value={printer.id}>{label(printer)}</option>}
+              {!shown.some((p) => p.id === printer.id) && <option value={printer.id}>{label(printer)}</option>}
               {shown.map((p) => <option key={p.id} value={p.id}>{label(p)}</option>)}
             </select>
-            <Row label="Nozzle">
-              <select className="k-input" value={s.nozzle} onChange={(e) => setNozzle(Number(e.target.value))}>{printer.nozzles.map((n) => <option key={n.diameter}
-                value={n.diameter}>{n.diameter} mm</option>)}</select>
-            </Row>
-            <div className="k-muted k-print-facts">{printer.buildVolume.join(' x ')} mm
-              {' · '}{printer.gcodeFlavor === 'bambu' ? 'Bambu .gcode.3mf' : `${printer.gcodeFlavor === 'marlin' ? 'Marlin' : 'Klipper'} .gcode`}
-              {' · '}{printer.maxSpeed} mm/s · not print-tested</div>
+            {resin ? <ResinFacts printer={printer} /> : (
+              <>
+                <Row label="Nozzle">
+                  <select className="k-input" value={s.nozzle} onChange={(e) => setNozzle(Number(e.target.value))}>{printer.nozzles.map((n) => <option key={n.diameter}
+                    value={n.diameter}>{n.diameter} mm</option>)}</select>
+                </Row>
+                <div className="k-muted k-print-facts">{printer.buildVolume.join(' x ')} mm
+                  {' · '}{printer.gcodeFlavor === 'bambu' ? 'Bambu .gcode.3mf' : `${printer.gcodeFlavor === 'marlin' ? 'Marlin' : 'Klipper'} .gcode`}
+                  {' · '}{printer.maxSpeed} mm/s · not print-tested</div>
+              </>
+            )}
           </Section>
+          {resin ? <ResinSections /> : (<>
           <Section title="Filament">
             {s.slots.map((sl, i) => (
               <div className="k-pm-valuerow k-print-slot" key={i} data-testid={`print-slot-${i}`}>
@@ -184,6 +194,7 @@ export function PrintPM() {
               </div>
             </Section>
           )}
+          </>)}
           <Section title={`Plate ${s.plateIndex + 1} of ${s.plates.length}`}>
             {s.plates.length > 1 && (
               <div className="k-print-plates">{s.plates.map((p,
@@ -222,7 +233,7 @@ export function PrintPM() {
           </Section>
         </>
       ) : (
-        <PreviewTab />
+        resin ? <ResinPreview /> : <PreviewTab />
       )}
     </div>
   );
@@ -233,7 +244,6 @@ function PreviewTab() {
   const st = s.result?.stats;
   if (!st) return <Section title="Summary"><div className="k-muted">Slice the plate first.</div></Section>;
   const mats = s.db?.materials ?? [];
-  const total = Object.values(st.timeByType).reduce((a, b) => a + b, 0) || 1;
   return (
     <>
       <Section title="Summary">
@@ -257,11 +267,15 @@ function PreviewTab() {
         </select>
       </Section>
       <Section title="Line Types">
-        {LINE_TYPES.filter((t) => st.timeByType[t] || t === 'travel').map((t: LineType) => (
-          <label key={t} className="k-check k-print-legendrow">
-            <input type="checkbox" checked={!s.hidden.includes(t)} onChange={(e) => usePrint.setState({ hidden: e.target.checked ? s.hidden.filter((x) => x !== t) : [...s.hidden, t] })} />
-            <span className="k-print-swatch" style={{ background: LINE_COLORS[t] }} /> {LINE_LABELS[t]}<span className="grow" /><span
-              className="k-muted">{(((st.timeByType[t] ?? 0) / total) * 100).toFixed(1)} %</span>
+        {legendRows(st.timeByType).map((r) => r.key === 'wait' ? (
+          <div key="wait" className="k-check k-print-legendrow" data-testid="print-wait-row"><span style={{ width: 13 }} /><span className="k-print-swatch k-print-swatch-wait" /> {r.label}
+            <span className="grow" /><span className="k-muted">{r.pct.toFixed(1)} %</span></div>
+        ) : (
+          <label key={r.key} className="k-check k-print-legendrow">
+            <input type="checkbox" checked={!s.hidden.includes(r.key as LineType)} onChange={(e) => usePrint.setState({ hidden: e.target.checked ? s.hidden.filter((x) => x !== r.key)
+              : [...s.hidden, r.key as LineType] })} />
+            <span className="k-print-swatch" style={{ background: LINE_COLORS[r.key as LineType] }} /> {r.label}<span className="grow" /><span
+              className="k-muted">{r.pct.toFixed(1)} %</span>
           </label>
         ))}
       </Section>

@@ -3,7 +3,8 @@
  * terminated and replaced; docs/34 E12: cancel under 200 ms).
  */
 import type { SliceJob, SliceOutput } from '../../print/run';
-import type { SliceProgress } from '../../print/types';
+import type { ResinJob, ResinOutput } from '../../print/resin/slice';
+import type { PlateMesh, SliceProgress } from '../../print/types';
 
 let worker: Worker | null = null;
 let seq = 0;
@@ -20,14 +21,14 @@ export function cancelSlice(): boolean {
   return true;
 }
 
-export function sliceInWorker(job: SliceJob, onProgress: (p: SliceProgress) => void): Promise<SliceOutput> {
+function inWorker<T>(job: { meshes: PlateMesh[] }, extra: Record<string, unknown>, onProgress: (p: SliceProgress) => void): Promise<T> {
   cancelSlice();
   if (!worker) worker = spawn();
   const id = ++seq;
   const w = worker;
-  return new Promise<SliceOutput>((resolve, reject) => {
+  return new Promise<T>((resolve, reject) => {
     pending = { id, reject };
-    w.onmessage = (ev: MessageEvent<{ id: number; progress?: SliceProgress; result?: SliceOutput; error?: string }>) => {
+    w.onmessage = (ev: MessageEvent<{ id: number; progress?: SliceProgress; result?: T; error?: string }>) => {
       const m = ev.data;
       if (m.id !== id) return;
       if (m.progress) { onProgress(m.progress); return; }
@@ -36,6 +37,9 @@ export function sliceInWorker(job: SliceJob, onProgress: (p: SliceProgress) => v
     };
     w.onerror = (e) => { pending = null; worker = null; reject(new Error(e.message || 'The slicer stopped.')); };
     const transfer = job.meshes.map((m) => m.positions.slice().buffer);
-    w.postMessage({ id, job: { ...job, meshes: job.meshes.map((m, i) => ({ ...m, positions: new Float32Array(transfer[i]) })) } }, transfer);
+    w.postMessage({ id, ...extra, job: { ...job, meshes: job.meshes.map((m, i) => ({ ...m, positions: new Float32Array(transfer[i]) })) } }, transfer);
   });
 }
+
+export const sliceInWorker = (job: SliceJob, onProgress: (p: SliceProgress) => void) => inWorker<SliceOutput>(job, {}, onProgress);
+export const sliceResinInWorker = (job: ResinJob, onProgress: (p: SliceProgress) => void) => inWorker<ResinOutput>(job, { resin: true }, onProgress);

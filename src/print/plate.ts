@@ -43,7 +43,7 @@ export function placeAt(it: PlateItem, x: number, y: number): PlateItem {
 export const moveBy = (it: PlateItem, dx: number, dy: number): PlateItem => ({ ...it, matrix: multiply(translation(dx, dy, 0), it.matrix) });
 
 /** a rotation of the world matrix about the centre of the footprint, then back on the bed */
-function rotateAboutCentre(it: PlateItem, r: Mat4): PlateItem {
+export function rotateAboutCentre(it: PlateItem, r: Mat4): PlateItem {
   const b = worldBounds(it);
   const cx = (b.min[0] + b.max[0]) / 2, cy = (b.min[1] + b.max[1]) / 2, cz = (b.min[2] + b.max[2]) / 2;
   const m = multiply(translation(cx, cy, cz), multiply(r, multiply(translation(-cx, -cy, -cz), it.matrix)));

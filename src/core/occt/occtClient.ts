@@ -154,6 +154,12 @@ export async function refineRebuild(doc: import('../document/types').Document, u
   return { bodies: r.bodies ?? [], stopped: !!r.stopped, ms: r.ms ?? 0 };
 }
 
+/** the exact bodies of a part tessellated finer for the slicer (null: not exact; the mesh body is used) (docs/35 H-6) */
+export async function printMeshes(doc: import('../document/types').Document): Promise<{ id: string; positions: Float32Array | null }[]> {
+  const r = await call<{ bodies: { id: string; positions: Float32Array | null }[] }>({ op: 'printMesh', doc }, [], 120_000);
+  return r.bodies ?? [];
+}
+
 /** what an IGES export returns: the bytes, per body its volume, how many bodies are exact, the trimmed surfaces */
 export interface IgesResult { bytes: Uint8Array; volumes: number[]; exact: number; faces: number; approximated: number }
 

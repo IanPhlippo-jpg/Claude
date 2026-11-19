@@ -53,3 +53,12 @@
 .k-print-legendrow .k-muted { font-size: 11px; }
 :root[data-theme='dark'] .k-print-part.selected, :root[data-theme='dark'] .k-print-platetabs button.active { background: #2d4a6b; }
 :root[data-theme='dark'] .k-print-untested { color: #e0b050; }
+/* resin mode: the pixel mask of a layer (black LCD, lit pixels white), islands and cups in the panel */
+.k-print-mask { position: absolute; left: 10px; bottom: 14px; width: min(46%, 560px); background: color-mix(in srgb, var(--bg-panel) 94%, transparent); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); font-size: 12px; padding: 6px 8px; color: var(--text); }
+.k-print-mask canvas { display: block; width: 100%; height: auto; background: #000; image-rendering: pixelated; margin: 2px 0 4px; }
+.k-print-error { color: #c62828; }
+.k-print-subtitle { font-weight: 600; margin: 6px 0 2px; font-size: 12px; }
+.k-print-issue { display: flex; width: 100%; border: 0; background: none; font: inherit; color: inherit; text-align: left; gap: 6px; }
+.k-print-issue-island { color: #c62828; }
+.k-print-issue-suction, .k-print-issue-cavity { color: #b26a00; }
+.k-print-swatch-wait { background: repeating-linear-gradient(45deg, #b0b4ba 0 3px, #e4e6e9 3px 6px); }

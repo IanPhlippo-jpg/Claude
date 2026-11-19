@@ -490,3 +490,18 @@ Regels waarvan de status veranderd is of die niet "gehaald" zijn, staan voluit; 
 - Nivellering per Elegoo-model (P2-9), miniaturen op de schermen, `G29` op elke Bambu-reeks.
 - Meerkleuren: alleen met de wisselcode uit de eigen Bambu Studio, en pas na een eigen proef.
 - De proefkubus van 20 mm per printer; daarna de kruk.
+
+## 10. Verwerking van de herbeoordeling (bouwer, 2026-11-19)
+
+Niets gecommit. Elke bevinding heeft een proef in `src/print/review9.test.ts` (of de genoemde test) die op de code van `a57a855` faalt; nagegaan door de oude `build.ts` en `infill.ts` terug te zetten: 6 van de 7 proeven faalden (H-3 is een weergavefout: de proef op `legendRows` bestaat pas met de oplossing).
+
+| Nr | Status | Wat er veranderd is | Proef |
+|---|---|---|---|
+| H-1 | opgelost | `build.ts`: de minimale laagtijd rekt eerst de extrusietijd op, in rondes (versnelling en verplaatsing schalen niet mee), tot 10 mm/s (`MIN_SPEED`); pas daarna wachten. Na het wachten blijft het filament teruggetrokken: de volgende laag laat zijn eigen terugtrek vallen, of duwt het filament terug vlak voor zijn eerste extrusie, boven het stuk. Op de laatste laag geen pauze. De wachtplek ligt in het printbare gebied en buiten elke zone (rechts, links, voor of achter het stuk), anders een melding en geen pauze | Kubus 20 mm: 0 × `G4`, wachttijd 0. Pen: pauze pas bij F600, elke terugduw direct gevolgd door extrusie, laagtijd gehaald |
+| H-2 | opgelost | `detour()` in `build.ts`: een verplaatsing door een zone gaat via één of twee hoeken van het vak van de zone (3 mm marge), de kortste weg binnen het gebied. `checkMoves` toetst nu ook verplaatsingen; wat niet om kan, wordt geweigerd. Eén soort zone ("niet komen") zolang de database geen onderscheid maakt | Twee kubussen met een zone ertussen: 0 bewegingen door de zone. Zone over het hele bed: geweigerd, `detour` geeft null |
+| H-3 | opgelost | `legendRows()` (`previewColors.ts`) met een rij "Wait (minimum layer time)"; PropertyManager en legenda in de plaatweergave tonen hem | Pen: rij Wait > 1 %, som 100 % ± 0,1 |
+| H-4 | opgelost | `GYROID_K` 2,6 → 2,525: gemeten over tien perioden en een hele periode lagen (de oude waarde gaf 2,9 % te weinig, de rest kwam van de randen) | Kubus 60 mm, 15 %: gemiddelde binnen de wanden over 50 lagen binnen ±5 % |
+| H-5 | opgelost | Een open vullijn korter dan zijn lijnbreedte wordt weggelaten, met zijn verplaatsing en terugtrek | Kubus: geen extrusieloop korter dan 0,2 mm |
+| H-6 | opgelost | Hoektolerantie terug naar 0,1 rad voor scherm en rebuild (`brep.ts`). De 3D Print-tab vraagt per rebuild één keer de exacte bodies van het part op 0,07 rad (`PRINT_ANGULAR_TOLERANCE`, nieuwe opdracht `printMesh` in de OpenCascade-worker, `src/app/print/fineMesh.ts`) en gebruikt die zodra ze er zijn. Componenten van een assembly houden nog het schermmesh | `tessellation.test.ts`: het slicermesh binnen 0,1 % op 4, 20 en 80 mm; het schermmesh heeft minder driehoeken waar de hoek bepaalt. Rebuildbudgetten niet opnieuw gemeten (zelfde tolerantie als vóór 0.5.16) |
+| H-7 | genoteerd | Clipper2 rondt snijpunten af op het rooster van 0,1 µm; bij zelfdoorsnijdende invoer kunnen twee randen van de uitkomst elkaar tot 0,08 µm kruisen. Oppervlak en herhaalde vereniging kloppen; geen gevolg voor een print. Geen wijziging | - |
+| 1.3 | aangevuld | Elegoo Centauri (zonder Carbon) in de database (52 printers), bron 3DJake; de pagina van Elegoo gaf HTTP 429 en is niet gelezen: waarden te controleren (docs/33-printers-bronnen.md) | `plate.test.ts`: 52 printers geldig |

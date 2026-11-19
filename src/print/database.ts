@@ -5,6 +5,8 @@
  * file (min/max/default as an object, as a range or as separate fields) and checks the plausibility limits of docs/34.
  */
 import type { Material, Printer, ProcessPreset, ProcessSettings } from './types';
+import { resinsOf } from './resin/profile';
+import type { Resin } from './resin/types';
 
 /** the fixture printers (values from the manufacturer pages; the full database replaces them) */
 export const FIXTURE_PRINTERS: Printer[] = [
@@ -98,7 +100,7 @@ export function validatePrinter(p: Printer): string[] {
   return e;
 }
 
-export interface PrintDatabase { printers: Printer[]; materials: Material[]; fromFixture: boolean; problems: string[] }
+export interface PrintDatabase { printers: Printer[]; materials: Material[]; fromFixture: boolean; problems: string[]; /** the resins (phase 4) */ resins: Resin[] }
 
 /** the database from parsed JSON (either file may be missing: the fixture fills in) */
 export function buildDatabase(printersRaw: unknown, materialsRaw: unknown): PrintDatabase {
@@ -107,7 +109,7 @@ export function buildDatabase(printersRaw: unknown, materialsRaw: unknown): Prin
   const valid = printers.filter((p) => { const e = validatePrinter(p); if (e.length) problems.push(`${p.id}: ${e.join(', ')}`); return !e.length; });
   const materials = listOf(materialsRaw, 'materials').map(normalizeMaterial);
   const fromFixture = !valid.length || !materials.length;
-  return { printers: valid.length ? valid : FIXTURE_PRINTERS, materials: materials.length ? materials : FIXTURE_MATERIALS, fromFixture, problems };
+  return { printers: valid.length ? valid : FIXTURE_PRINTERS, materials: materials.length ? materials : FIXTURE_MATERIALS, fromFixture, problems, resins: resinsOf(materialsRaw) };
 }
 
 let cached: Promise<PrintDatabase> | null = null;

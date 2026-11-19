@@ -10,7 +10,7 @@ import { slotFor, beadArea } from './build';
 import { analyseGcode } from './gcode/analyse';
 import { planTimes } from './motion';
 import { previewMesh } from './previewMesh';
-import { gyroidLines, lineLength } from './slice/infill';
+import { GYROID_K, gyroidLines, lineLength } from './slice/infill';
 import type { PlateMesh, Printer, ProcessSettings } from './types';
 
 const P1S = FIXTURE_PRINTERS.find((p) => p.id === 'bambu-p1s')!;
@@ -104,7 +104,7 @@ describe('slicing: walls, skins, infill, support, bridges', () => {
     }
   });
   it('P2-1: gyroid density over one period of layers: mean within ±5 %, no layer above +30 %', () => {
-    const sp = 0.407 * UNITS, d = 0.15, period = (2.6 * sp) / d;
+    const sp = 0.407 * UNITS, d = 0.15, period = (GYROID_K * sp) / d;
     const box60 = { x0: 0, y0: 0, x1: 60 * UNITS, y1: 60 * UNITS };
     const per: number[] = [];
     for (let k = 0; k < 40; k++) per.push((lineLength(gyroidLines(box60, period, (k / 40) * period)) * sp) / (60 * UNITS) ** 2);

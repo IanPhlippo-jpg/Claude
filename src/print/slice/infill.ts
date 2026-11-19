@@ -5,8 +5,8 @@
 import { RegionIndex, clipPolyline, clipSegments, type Paths } from '../geom/polygons';
 import type { InfillPattern } from '../types';
 
-/** line length per area of the gyroid slice, times the period (averaged over z; calibrated in slicer.test.ts) */
-export const GYROID_K = 2.6;
+/** line length per area of the gyroid slice, times the period (averaged over z on a plane of ten periods; docs/35 H-4) */
+export const GYROID_K = 2.525;
 
 export interface Box { x0: number; y0: number; x1: number; y1: number }
 
@@ -134,7 +134,7 @@ export function infill(region: Paths, pattern: InfillPattern, density: number, l
     case 'grid':
       return segsToLines([...parallelLines(idx, box, (2 * lineWidth) / d, Math.PI / 4), ...parallelLines(idx, box, (2 * lineWidth) / d, (3 * Math.PI) / 4)]);
     case 'gyroid': {
-      // the gyroid slice has about 2.6 / period length per area (measured over a whole period of layers, slicer test),
+      // the gyroid slice has about 2.525 / period length per area (measured over a whole period of layers, slicer test),
       // so the period follows from the density
       const period = (GYROID_K * lineWidth) / d;
       return gyroidLines(box, period, z).flatMap((l) => clipPolyline(l, idx));

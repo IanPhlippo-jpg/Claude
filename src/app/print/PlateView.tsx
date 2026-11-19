@@ -17,6 +17,7 @@ import { buildPreview, indicesPerSegment } from './previewGeometry';
 import { LINE_COLORS, LINE_LABELS, scaleColor } from './previewColors';
 import { LINE_TYPES, SEG_STRIDE, type LineType } from '../../print/types';
 import { NOT_PRINTED } from '../../print/gcode/dialects';
+import { ResinMaskView, useResinScene } from './ResinView';
 
 interface View { theta: number; phi: number; dist: number; target: THREE.Vector3 }
 
@@ -304,6 +305,8 @@ export function PlateView() {
   });
   const layerMoves = (l: number) => (pm ? (pm.layerStart[l + 1] ?? pm.count) - pm.layerStart[l] : 0);
 
+  const resin = printer?.technology === 'resin';
+  useResinScene(resin ? three.current : null);
   const st = s.result?.stats;
   const zOf = (l: number) => s.result?.preview.layerZ[l] ?? 0;
   const hiMoves = layerMoves(s.layerHi);
@@ -322,6 +325,11 @@ export function PlateView() {
                 <span>{LINE_LABELS[t]}</span><span className="grow" /><span>{fmtTime(st.timeByType[t])}</span>
               </button>
             ))}
+            {s.colorBy === 'type' && (st.timeByType.wait ?? 0) > 0 && (
+              // the minimum layer time spent waiting beside the part (docs/35 H-3): the rows add up to the print time
+              <div className="k-print-legend-row" data-testid="legend-wait"><span className="k-print-eye" /><span className="k-print-swatch k-print-swatch-wait" />
+                <span>Wait</span><span className="grow" /><span>{fmtTime(st.timeByType.wait)}</span></div>
+            )}
             {s.colorBy !== 'type' && s.colorBy !== 'filament' && pm?.range && (
               <div className="k-print-scale"><div className="k-print-scalebar"
                 style={{ background: `linear-gradient(90deg, ${[0, 0.25, 0.5, 0.75, 1].map((v) => `rgb(${scaleColor(v).map((c) => Math.round(c * 255)).join(',')})`).join(',')})` }} /><div
@@ -351,6 +359,7 @@ export function PlateView() {
           </div>
         </>
       )}
+      {resin && <ResinMaskView />}
       {s.slicing && <div className="k-print-progress" data-testid="print-progress"><div
         style={{ width: `${Math.round(s.slicing.fraction * 100)}%` }} /><span>{s.slicing.stage} {Math.round(s.slicing.fraction * 100)} %</span></div>}
       {/* the confirmation corner: OK keeps the plate and the settings, Cancel goes back (as Exit Sketch) */}

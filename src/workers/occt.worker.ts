@@ -7,7 +7,7 @@ import wasmUrl from 'replicad-opencascadejs/wasm?url';
 import { meshesToStep, shapesToStep, stepItems, stepToMeshes } from '../core/occt/step';
 import { shapesToIges } from '../core/occt/iges';
 import { occtKernel } from '../core/occt/brep';
-import { brepKernel, setBrepKernel } from '../core/features/brepKernel';
+import { brepKernel, PRINT_ANGULAR_TOLERANCE, setBrepKernel } from '../core/features/brepKernel';
 import { rebuildDocument, setRebuildBudget } from '../core/features/rebuild';
 import { isFatalKernelError } from '../core/occt/kernelPolicy';
 import type { Document } from '../core/document/types';
@@ -19,7 +19,8 @@ export type OcctRequest =
   | { id: number; op: 'import'; bytes: Uint8Array; tolerance?: number }
   | { id: number; op: 'export'; bodies: { name: string; positions: Float32Array }[]; unit: 'mm' | 'cm' | 'm' | 'in'; format?: ExchangeFormat; fileName?: string }
   | { id: number; op: 'rebuild'; doc: Document; upTo: number | null; budgetMs?: number }
-  | { id: number; op: 'exportDoc'; doc: Document; upTo: number | null; unit: 'mm' | 'cm' | 'm' | 'in'; format?: ExchangeFormat; fileName?: string };
+  | { id: number; op: 'exportDoc'; doc: Document; upTo: number | null; unit: 'mm' | 'cm' | 'm' | 'in'; format?: ExchangeFormat; fileName?: string }
+  | { id: number; op: 'printMesh'; doc: Document };
 
 /** one body of a B-rep rebuild: the tessellation of the exact solid (only bodies that stayed exact carry it) */
 export interface RefinedBody {
@@ -88,6 +89,21 @@ async function handle(req: OcctRequest) {
     } else if (req.op === 'export') {
       const r = await meshesToStep(replicad, req.bodies, req.unit);
       post({ id: req.id, bytes: r.bytes, volumes: r.volumes }, [r.bytes.buffer]);
+    } else if (req.op === 'printMesh') {
+      // the exact bodies tessellated finer for the slicer (the 3D Print tab); the others are null (the mesh body is used)
+      try {
+        const r = rebuildDocument(req.doc, null);
+        const K = brepKernel();
+        const bodies = r.bodies.map((b) => {
+          const shape = r.brep?.[b.id];
+          if (!b.exact || !shape || !K) return { id: b.id, positions: null };
+          const g = K.tessellate(shape, PRINT_ANGULAR_TOLERANCE);
+          return { id: b.id, positions: new Float32Array(g.getAttribute('position').array) };
+        });
+        post({ id: req.id, bodies }, bodies.flatMap((b) => (b.positions ? [b.positions.buffer] : [])));
+      } finally {
+        brepKernel()?.release();
+      }
     } else if (req.op === 'exportDoc') {
       // the part rebuilt with the B-rep kernel: exact bodies go out as their B-rep, the rest as sewn meshes
       try {

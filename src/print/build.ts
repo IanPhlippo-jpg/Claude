@@ -55,6 +55,37 @@ export interface BuildResult { gcode: Uint8Array[]; stats: SliceStats; preview: 
 
 const rotateTo = (pts: number[], k: number) => [...pts.slice(2 * k), ...pts.slice(0, 2 * k)];
 const FILL = new Set<LineType>(['skin', 'infill', 'support', 'supportInterface', 'bridge', 'primeTower']);
+/** the slowest the minimum layer time slows the extrusion to, mm/s */
+const MIN_SPEED = 10;
+const polyLength = (p: number[]) => { let L = 0; for (let i = 2; i + 1 < p.length; i += 2) L += Math.hypot(p[i] - p[i - 2], p[i + 1] - p[i - 1]); return L; };
+
+/**
+ * A travel from a to b around the excluded zones (docs/35 H-2): direct when it touches none, else through one or two
+ * corners of a zone's box grown by `margin`, the shortest way that stays in the printable area and clear of every zone.
+ * Returns the points in between (empty: direct), or null when there is no way round.
+ */
+export function detour(zones: number[][], area: number[], ax: number, ay: number, bx: number, by: number, margin = 3): number[][] | null {
+  const clear = (x0: number, y0: number, x1: number, y1: number) => zones.every((z) => !segmentTouches(z, x0, y0, x1, y1));
+  if (clear(ax, ay, bx, by)) return [];
+  const corners: number[][] = [];
+  for (const z of zones) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (let i = 0; i < z.length; i += 2) { x0 = Math.min(x0, z[i]); x1 = Math.max(x1, z[i]); y0 = Math.min(y0, z[i + 1]); y1 = Math.max(y1, z[i + 1]); }
+    for (const c of [[x0 - margin, y0 - margin], [x1 + margin, y0 - margin], [x1 + margin, y1 + margin], [x0 - margin, y1 + margin]]) {
+      if (contains([area], c[0], c[1]) && zones.every((q) => !contains([q], c[0], c[1]))) corners.push(c);
+    }
+  }
+  let best: number[][] | null = null, bestLen = Infinity;
+  const tryPath = (via: number[][]) => {
+    const pts = [[ax, ay], ...via, [bx, by]];
+    let L = 0;
+    for (let i = 1; i < pts.length; i++) { if (!clear(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1])) return; L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); }
+    if (L < bestLen) { bestLen = L; best = via; }
+  };
+  for (const c of corners) tryPath([c]);
+  for (const c of corners) for (const d of corners) if (c !== d) tryPath([c, d]);
+  return best;
+}
 
 export function buildGcode(layers: SliceLayer[], job: BuildJob): BuildResult {
   const s = job.process, P = job.printer;
@@ -119,6 +150,7 @@ export function buildGcode(layers: SliceLayer[], job: BuildJob): BuildResult {
     const retract = () => { if (!retracted && s.retractLength > 0) { out.push({ k: 'e', e: -s.retractLength, v: s.retractSpeed }); retracted = true; } };
     const unretract = () => { if (retracted && s.retractLength > 0) { out.push({ k: 'e', e: s.retractLength, v: s.retractSpeed }); } retracted = false; };
     const hop = z + Math.max(s.zHop, 0.2);
+    const zones = (P.excludeAreas ?? []).map((q) => q.flat()), area = printableArea(P).flat();
     const travel = (x: number, y: number, next?: LineType) => {
       if (!Number.isFinite(cx) || !Number.isFinite(cz)) {
         // unknown position: up first (Z only), then XY above the layer, then down
@@ -131,11 +163,14 @@ export function buildGcode(layers: SliceLayer[], job: BuildJob): BuildResult {
       }
       const d = Math.hypot(x - cx, y - cy);
       if (d < 1e-4 && Math.abs(cz - z) < 1e-6) return;
+      // around the excluded zones (docs/35 H-2); a travel that cannot go round is left straight and refused by checkMoves
+      const via = zones.length ? detour(zones, area, cx, cy, x, y) ?? [] : [];
       // a short hop from one fill line to the next of the same kind stays inside that area: no retraction, no Z hop
-      const inside = !!next && next === lastType && FILL.has(next) && d < 5;
-      if (!inside && d > s.retractMinTravel) {
+      const inside = !!next && next === lastType && FILL.has(next) && d < 5 && !via.length;
+      if (!inside && (d > s.retractMinTravel || via.length)) {
         retract();
         if (s.zHop > 0) move(cx, cy, Math.max(cz, z + s.zHop), zv);
+        for (const [vx, vy] of via) move(vx, vy, cz, travelV);
         move(x, y, cz, travelV);
         if (Math.abs(cz - z) > 1e-6) move(x, y, z, zv);
       } else {
@@ -145,6 +180,8 @@ export function buildGcode(layers: SliceLayer[], job: BuildJob): BuildResult {
     };
     const setFan = (pct: number) => { if (pct !== fanNow) { out.push({ k: 'raw', text: D.fan(pct) }); fanNow = pct; } };
     const extrudePath = (p: ToolPath) => {
+      // a fill stub shorter than its line width is left out: no retraction and hop for a hundredth of a millimetre (H-5)
+      if (!p.closed && FILL.has(p.type) && p.type !== 'primeTower' && polyLength(p.points) < p.width) return;
       const mat = job.slots[p.filament]?.material ?? job.slots[0].material;
       const bridge = p.type === 'bridge';
       const A = beadArea(p.width, bridge ? p.width : h);
@@ -269,7 +306,8 @@ export function buildGcode(layers: SliceLayer[], job: BuildJob): BuildResult {
     return out;
   }
 
-  // time per layer; the minimum layer time: slow down (to 10 mm/s at most), then wait away from the part (P2-5)
+  // time per layer; the minimum layer time: slow the extrusion down, in rounds, to MIN_SPEED at the slowest; only then
+  // wait away from the part (P2-5, docs/35 H-1)
   let pos = { x: job.purge?.x1 ?? P.buildVolume[0] / 2, y: job.purge?.y ?? P.buildVolume[1] / 2, z: 1 };
   const plan = (list: Item[], from: { x: number; y: number; z: number }) => {
     const moves: PlanMove[] = [], idx: number[] = [];
@@ -289,11 +327,23 @@ export function buildGcode(layers: SliceLayer[], job: BuildJob): BuildResult {
   for (let li = 0; li < items.length; li++) {
     let r = plan(items[li], pos);
     if (r.total < s.minLayerTime && r.total > 0 && li > 0) {
-      const f = Math.max(0.05, Math.min(1, r.total / s.minLayerTime));
-      for (const it of items[li]) if (it.k === 'move' && it.type >= 0) it.v = Math.max(10, it.v * f);
-      r = plan(items[li], pos);
-      if (r.total < s.minLayerTime - 0.05) waitAway(items[li], layers[li].z, s.minLayerTime - r.total, r.end);
-      r = plan(items[li], pos);
+      // the extrusion time is stretched to what the layer lacks; acceleration and travel do not scale, so a few rounds
+      for (let round = 0; round < 12 && r.total < s.minLayerTime - 0.02; round++) {
+        let ext = 0;
+        r.idx.forEach((i, k) => { const it = items[li][i]; if (it.k === 'move' && it.type >= 0) ext += r.t[k]; });
+        const want = s.minLayerTime - (r.total - ext);
+        if (ext <= 0 || want <= ext) break;
+        const f = ext / want;
+        let slowed = false;
+        for (const it of items[li]) if (it.k === 'move' && it.type >= 0 && it.v > MIN_SPEED) { it.v = Math.max(MIN_SPEED, it.v * f); slowed = true; }
+        if (!slowed) break;
+        r = plan(items[li], pos);
+      }
+      // still too short at the slowest speed: wait beside the part (not on the last layer: nothing is printed on it)
+      if (r.total < s.minLayerTime - 0.05 && li < items.length - 1) {
+        if (waitAway(items[li], items[li + 1], layers[li].z, s.minLayerTime - r.total, r.end)) r = plan(items[li], pos);
+        else warnings.push(`Layer ${li + 1}: no free spot beside the part to wait for the minimum layer time.`);
+      }
     }
     r.idx.forEach((i, k) => {
       const it = items[li][i];
@@ -306,20 +356,39 @@ export function buildGcode(layers: SliceLayer[], job: BuildJob): BuildResult {
     layerTimes.push(r.total);
     pos = r.end;
   }
-  /** a layer still too short: retract, lift, move beside the part, wait the rest with the fan at full speed */
-  function waitAway(list: Item[], z: number, sec: number, at: { x: number; y: number; z: number }) {
-    let maxX = -Infinity;
-    for (const it of list) if (it.k === 'move' && it.type >= 0) maxX = Math.max(maxX, it.x);
-    const [bx] = P.buildVolume;
-    const x = maxX + 10 <= bx - 5 ? maxX + 10 : Math.max(5, at.x - 20);
+  /**
+   * A layer still too short at the slowest speed: retract, lift, move beside the part to a spot in the printable area
+   * and clear of the excluded zones, wait the rest with the fan at full speed. The filament stays retracted: the next
+   * layer pushes it back above the part, right before its first extrusion (no blob in the air: docs/35 H-1). False when
+   * there is no free spot.
+   */
+  function waitAway(list: Item[], next: Item[], z: number, sec: number, at: { x: number; y: number; z: number }): boolean {
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    for (const it of list) if (it.k === 'move' && it.type >= 0) { x0 = Math.min(x0, it.x); x1 = Math.max(x1, it.x); y0 = Math.min(y0, it.y); y1 = Math.max(y1, it.y); }
+    const area = printableArea(P).flat(), zones = (P.excludeAreas ?? []).map((q) => q.flat());
+    const free = (x: number, y: number) => contains([area], x, y) && !onEdge(area, x, y) && zones.every((q) => !contains([q], x, y) && !segmentTouches(q, at.x, at.y, x, y));
+    const spot = [[x1 + 10, at.y], [x0 - 10, at.y], [at.x, y0 - 10], [at.x, y1 + 10]].find(([x, y]) => free(x, y) && free(x + Math.sign(x - at.x) * 5, y + Math.sign(y - at.y) * 5));
+    if (!spot) return false;
     const zz = Math.min(P.buildVolume[2], z + Math.max(1, s.zHop));
-    if (s.retractLength > 0) list.push({ k: 'e', e: -s.retractLength, v: s.retractSpeed });
+    // already retracted when the layer ended with a retraction after its last extrusion
+    let open = false;
+    for (let i = list.length - 1; i >= 0; i--) { const it = list[i]; if (it.k === 'e') { open = it.e < 0; break; } if (it.k === 'move' && it.type >= 0) break; }
+    if (!open && s.retractLength > 0) {
+      list.push({ k: 'e', e: -s.retractLength, v: s.retractSpeed });
+      // the next layer: its own retraction before the first extrusion is dropped (it is retracted already), or, when it
+      // has none, the filament is pushed back right before that first extrusion, above the part
+      const first = next.findIndex((it) => it.k === 'e' || (it.k === 'move' && it.type >= 0));
+      if (first >= 0) {
+        const it = next[first];
+        if (it.k === 'e' && it.e < 0) next.splice(first, 1);
+        else if (it.k === 'move') next.splice(first, 0, { k: 'e', e: s.retractLength, v: s.retractSpeed });
+      }
+    }
     list.push({ k: 'move', x: at.x, y: at.y, z: zz, e: 0, v: zv, type: -1, w: 0, h: 0, fil: 0, fan: 100 });
-    list.push({ k: 'move', x, y: at.y, z: zz, e: 0, v: travelV, type: -1, w: 0, h: 0, fil: 0, fan: 100 });
+    list.push({ k: 'move', x: spot[0], y: spot[1], z: zz, e: 0, v: travelV, type: -1, w: 0, h: 0, fil: 0, fan: 100 });
     list.push({ k: 'raw', text: D.fan(100) }, { k: 'wait', s: Math.ceil(sec * 10) / 10 }, { k: 'raw', text: D.fan(fanNowOf(list)) });
-    if (s.retractLength > 0) list.push({ k: 'e', e: s.retractLength, v: s.retractSpeed });
-    // the next layer's first travel starts from here
     list.push({ k: 'raw', text: '; minimum layer time' });
+    return true;
   }
   function fanNowOf(list: Item[]): number { for (let i = list.length - 1; i >= 0; i--) { const it = list[i]; if (it.k === 'move') return it.fan; } return 0; }
   const printTime = layerTimes.reduce((a, b) => a + b, 0);
@@ -389,7 +458,8 @@ export function checkMoves(items: Item[][], P: Printer, firstLayer: number, purg
     if (!Number.isFinite(it.x) || !Number.isFinite(it.y)) continue;
     if (it.x < tl.x[0] - eps || it.x > tl.x[1] + eps || it.y < tl.y[0] - eps || it.y > tl.y[1] + eps) report(`${what} outside the travel limits`);
     if (!inArea(it.x, it.y)) report(`${what} outside the printable area`);
-    if (it.type >= 0 && Number.isFinite(px)) for (const zone of zones) if (segmentTouches(zone, px, py, it.x, it.y)) report(`${what} in an excluded zone`);
+    // travel too (docs/35 H-2): the head does not come into an excluded zone
+    if (Number.isFinite(px)) for (const zone of zones) if (segmentTouches(zone, px, py, it.x, it.y)) report(`${what} in an excluded zone`);
     px = it.x; py = it.y;
   }
   return [...bad.entries()].map(([w, n]) => `${n} x ${w}`);

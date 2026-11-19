@@ -10,6 +10,7 @@ import { componentBody, componentMatrix, partRebuild } from '../../core/assembly
 import { documentForConfiguration } from '../../core/document/configurations';
 import { meshHash, newItemId } from '../../print/plate';
 import { transformPositions } from '../../print/mesh';
+import { fineMesh } from './fineMesh';
 import type { ItemSource, Plate, PlateItem, PrintDocData } from '../../print/types';
 
 const posOf = (g: BufferGeometry) => { const n = g.index ? g.toNonIndexed() : g; return new Float32Array(n.getAttribute('position').array as ArrayLike<number>); };
@@ -34,8 +35,10 @@ export function positionsFor(source: ItemSource): Float32Array | null {
     return null;
   }
   const bodies = st.rebuild.bodies.filter((b) => !(st.rebuild.autoHidden ?? []).includes(b.id));
-  if (source.kind === 'part') return bodies.length ? join(bodies.map((b) => posOf(b.geometry))) : null;
-  if (source.kind === 'body') return bodies[source.index] ? posOf(bodies[source.index].geometry) : null;
+  // an exact body: the slicer's own finer tessellation once it is there (docs/35 H-6)
+  const mesh = (b: (typeof bodies)[number]) => fineMesh(b.id) ?? posOf(b.geometry);
+  if (source.kind === 'part') return bodies.length ? join(bodies.map(mesh)) : null;
+  if (source.kind === 'body') return bodies[source.index] ? mesh(bodies[source.index]) : null;
   return null;
 }
 
@@ -50,7 +53,7 @@ export function sourcesToAdd(mode: 'part' | 'bodies' | 'components' | 'assembly'
     });
   }
   const bodies = st.rebuild.bodies.filter((b) => !(st.rebuild.autoHidden ?? []).includes(b.id));
-  if (mode === 'bodies') return bodies.map((b, i) => ({ name: `${st.doc.name} body ${i + 1}`, positions: posOf(b.geometry), source: { kind: 'body', index: i } as ItemSource }));
+  if (mode === 'bodies') return bodies.map((b, i) => ({ name: `${st.doc.name} body ${i + 1}`, positions: fineMesh(b.id) ?? posOf(b.geometry), source: { kind: 'body', index: i } as ItemSource }));
   const p = positionsFor({ kind: 'part' });
   return p ? [{ name: st.doc.name, positions: p, source: { kind: 'part' } }] : [];
 }

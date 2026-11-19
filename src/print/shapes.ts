@@ -34,6 +34,22 @@ export function cylinder(cx: number, cy: number, z0: number, r: number, h: numbe
   return Float32Array.from(out);
 }
 
+/** a UV sphere (T3): `n` segments around, n / 2 from pole to pole */
+export function sphere(cx: number, cy: number, cz: number, r: number, n = 96): Float32Array {
+  const out: number[] = [];
+  const m = n / 2;
+  const P = (i: number, j: number) => {
+    const th = (Math.PI * j) / m, ph = (2 * Math.PI * i) / n;
+    return [cx + r * Math.sin(th) * Math.cos(ph), cy + r * Math.sin(th) * Math.sin(ph), cz - r * Math.cos(th)];
+  };
+  for (let j = 0; j < m; j++) for (let i = 0; i < n; i++) {
+    const a = P(i, j), b = P(i + 1, j), c = P(i + 1, j + 1), d = P(i, j + 1);
+    if (j > 0) out.push(...a, ...b, ...c);
+    if (j < m - 1) out.push(...a, ...c, ...d);
+  }
+  return Float32Array.from(out);
+}
+
 export const concat = (...parts: Float32Array[]): Float32Array => {
   const out = new Float32Array(parts.reduce((s, p) => s + p.length, 0));
   let o = 0;

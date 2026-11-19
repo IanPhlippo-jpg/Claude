@@ -625,8 +625,9 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       if (!mk.IsDone()) throw new Error('the offset failed');
       return S(t(mk.Shape()));
     },
-    tessellate(shape) {
-      const m = (replicad.cast(R(shape)) as any).mesh({ tolerance: opts.tolerance ?? 0.01, angularTolerance: opts.angularTolerance ?? 0.07 });
+    tessellate(shape, angularTolerance) {
+      // 0.1 rad for the screen and the rebuild; the 3D Print tab asks for its own, finer one (docs/35 H-6)
+      const m = (replicad.cast(R(shape)) as any).mesh({ tolerance: opts.tolerance ?? 0.01, angularTolerance: angularTolerance ?? opts.angularTolerance ?? 0.1 });
       const n = m.triangles.length;
       const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3);
       for (let i = 0; i < n; i++) {

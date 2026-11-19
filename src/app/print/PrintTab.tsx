@@ -7,11 +7,21 @@ import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '../store';
 import { BigButton as Big, Group, SmallButton as Small } from '../ribbon/Ribbon';
 import { PrintIcon } from './printIcons';
-import { addToPlate, arrangePlate, autoOrientPlate, cancelSlicing, exportPrinterFile, exportProject, initPrint, isStale, newPlate, scaleSelected, slicePlate, usePrint } from './printStore';
+import { addToPlate, arrangePlate, autoOrientPlate, cancelSlicing, currentPrinter, exportPrinterFile, exportProject, initPrint, isStale, newPlate, scaleSelected, slicePlate,
+  usePrint } from './printStore';
+import { exportGoo, resinStale, sliceResin, useResin } from './resinStore';
 
 export function PrintTab() {
   const st = usePrint(useShallow((s) => ({ tool: s.tool, pmTab: s.pmTab, slicing: s.slicing, result: s.result, items: s.plates[s.plateIndex].items.length, selected: s.selected, stale: isStale(s) })));
   const kind = useStore((s) => s.doc.kind);
+  // resin mode: the same buttons slice into pixel masks and export a .goo file
+  const resinResult = useResin((s) => s.result);
+  const rStale = useResin(() => resinStale()), pStale = usePrint(() => resinStale());
+  usePrint((s) => s.printerId);
+  const resin = currentPrinter()?.technology === 'resin';
+  const result = resin ? resinResult : st.result, stale = resin ? rStale || pStale : st.stale;
+  const slice = () => void (resin ? sliceResin() : slicePlate());
+  const exportFile = () => void (resin ? exportGoo() : exportPrinterFile());
   useEffect(() => { void initPrint(); }, []);
   const assembly = kind === 'assembly';
   const ask = useStore((s) => s.setAsk);
@@ -41,12 +51,12 @@ export function PrintTab() {
       <Group>
         {st.slicing
           ? <Big label="Cancel Slicing" icon={<PrintIcon.Cancel />} active onClick={cancelSlicing} />
-          : <Big label="Slice Plate" icon={<PrintIcon.Slice />} disabled={!st.items} onClick={() => void slicePlate()} />}
-        <Big label="Preview" icon={<PrintIcon.Preview />} disabled={!st.result} active={st.pmTab === 'preview' && !!st.result} onClick={() => usePrint.setState({ pmTab: 'preview' })} />
+          : <Big label="Slice Plate" icon={<PrintIcon.Slice />} disabled={!st.items} onClick={slice} />}
+        <Big label="Preview" icon={<PrintIcon.Preview />} disabled={!result} active={st.pmTab === 'preview' && !!result} onClick={() => usePrint.setState({ pmTab: 'preview' })} />
       </Group>
       <Group>
-        <Big label="Export" icon={<PrintIcon.Export />} disabled={!st.result || st.stale} onClick={() => void exportPrinterFile()} flyout={[
-          { label: 'Export Print File', icon: <PrintIcon.Export />, disabled: !st.result || st.stale, onSelect: () => void exportPrinterFile() },
+        <Big label="Export" icon={<PrintIcon.Export />} disabled={!result || stale} onClick={exportFile} flyout={[
+          { label: resin ? 'Export .goo' : 'Export Print File', icon: <PrintIcon.Export />, disabled: !result || stale, onSelect: exportFile },
           { label: 'Export 3MF Project', icon: <PrintIcon.Export />, disabled: !st.items, onSelect: () => void exportProject() },
         ]} />
       </Group>

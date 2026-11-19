@@ -2117,6 +2117,90 @@
     ]
   },
   {
+    "id": "elegoo-centauri",
+    "brand": "Elegoo",
+    "model": "Centauri",
+    "technology": "fdm",
+    "status": "discontinued",
+    "buildVolume": [
+      256,
+      256,
+      256
+    ],
+    "bedShape": "rect",
+    "nozzles": [
+      {
+        "diameter": 0.4,
+        "default": true
+      }
+    ],
+    "toolheads": 1,
+    "maxNozzleTemp": 320,
+    "maxBedTemp": 100,
+    "enclosure": false,
+    "multiMaterial": "",
+    "maxSpeed": 500,
+    "maxAccel": 20000,
+    "gcodeFlavor": "klipper",
+    "fileFormat": "gcode",
+    "firmware": "ELEGOO OS (Klipper-based)",
+    "printableArea": [
+      [
+        0,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        0,
+        256
+      ]
+    ],
+    "excludeAreas": [],
+    "travelLimits": {
+      "x": [
+        0,
+        256
+      ],
+      "y": [
+        0,
+        256
+      ],
+      "z": [
+        0,
+        256
+      ]
+    },
+    "origin": "front-left",
+    "thumbnailFormat": "elegoo-centauri",
+    "validatie": "nog te printen",
+    "notes": [
+      "Zelfde CoreXY-platform als de Centauri Carbon, zonder verwarmde kamer (3DJake: \"Heated chamber: No\")"
+    ],
+    "sources": [
+      "https://www.3djake.com/elegoo/centauri",
+      "https://www.elegoo.com/products/centauri"
+    ],
+    "assumptions": [
+      "buildVolume, maxSpeed, maxAccel, maxNozzleTemp, maxBedTemp, nozzle 0.4, CoreXY: van de productpagina van 3DJake (2026-11-19); de fabrikantpagina gaf HTTP 429 en is niet gelezen: te controleren",
+      "enclosure: false (AANNAME: 3DJake noemt alleen \"Heated chamber: No\"; of de printer een kast heeft, staat er niet)",
+      "status: discontinued (AANNAME: 3DJake \"Our shop no longer sells this product\"; geen bericht van Elegoo gevonden)",
+      "announced: onbekend (geen datum gevonden)",
+      "gcodeFlavor: klipper (AANNAME: zelfde ELEGOO OS als de Centauri Carbon; te verifiëren)",
+      "printableArea: rechthoek 0..256 x 0..256 (AANNAME: afgeleid van het bouwvolume; ligging op het bed niet gepubliceerd)",
+      "excludeAreas: [] (AANNAME: geen uitgesloten zones gevonden)",
+      "travelLimits: gelijk aan het bouwvolume (AANNAME: werkelijke machinegrenzen niet gepubliceerd)",
+      "origin: front-left (AANNAME: gangbaar voor CoreXY-printers, niet in de specificatie)",
+      "thumbnailFormat: elegoo-centauri (AANNAME: zoals de Centauri Carbon; nog te verifiëren)"
+    ]
+  },
+  {
     "id": "elegoo-centauri-carbon",
     "brand": "Elegoo",
     "model": "Centauri Carbon",

@@ -1579,13 +1579,23 @@ elease; README en docs/04 bijgewerkt
 - [x] Sectie "Herbeoordeling" onder docs/35 (tabel, bevindingen, oordeel per fase; geen codewijziging, geen commit)
 
 ## 3D Print fase 4: Elegoo-harsprinters (.goo) (2026-11-19)
-- [~] Typen, harsprinters en harsprofielen uit de database, belichting (normaal, bodem, overgang), lift/terugtrek, grenzen met negatieve proef
-- [ ] Rasteren per laag op de lcd-resolutie en pixelmaat (scanlijnen, geen volledige bitmap), anti-aliasing als optie; volume ≤ 0,5 %
-- [ ] GOO-schrijver volgens de openbare spec (kop, voorbeelden RGB565, RLE) en een losse lezer; heen en terug pixel voor pixel; kop byte voor byte
-- [ ] Hars-support (normaal en boom, contactpunten, auto plus handmatig), vlot; eilanden en zuignappen; uithollen en afvoergaten; oriënteren voor hars
-- [ ] Tijd (belichting, lift, wachttijden), volume in ml en prijs
-- [ ] Tabblad: harsmodus bij een harsprinter, PropertyManager-secties, laagschuif met pixelmasker
-- [ ] Tests (volume, round trip, kop, 12K-laag < 150 ms, grenzen, eilanden), e2e, poorten, graphify, foto's print-fase4
+- [x] Typen, harsprinters en harsprofielen uit de database, belichting (normaal, bodem, overgang), lift/terugtrek, grenzen met negatieve proef
+- [x] Rasteren per laag op de lcd-resolutie en pixelmaat (scanlijnen, geen volledige bitmap), anti-aliasing als optie; volume ≤ 0,5 %
+- [x] GOO-schrijver volgens de openbare spec (kop, voorbeelden RGB565, RLE) en een losse lezer; heen en terug pixel voor pixel; kop byte voor byte
+- [x] Hars-support (normaal en boom, contactpunten, auto plus handmatig), vlot; eilanden en zuignappen; uithollen en afvoergaten; oriënteren voor hars
+- [x] Tijd (belichting, lift, wachttijden), volume in ml en prijs
+- [x] Tabblad: harsmodus bij een harsprinter, PropertyManager-secties, laagschuif met pixelmasker
+- [x] Tests (volume, round trip, kop, 12K-laag < 150 ms, grenzen, eilanden), e2e, poorten, graphify, foto's print-fase4
+
+## 3D Print: herbeoordeling Fable fase 2-3 (docs/35 hfst. 9) (2026-11-19)
+- [x] H-1: minimale laagtijd eerst door herhaald vertragen tot 10 mm/s, pas dan G4; geen terugduw in de lucht (pas boven het stuk bij de volgende extrusie)
+- [x] H-2: verplaatsingen en wachtplek toetsen tegen uitsluitzones; omleiden rond de zone of weigeren
+- [x] H-3: rij Wachten/Wait in de legenda en de PropertyManager; som 100 %
+- [x] H-4: gyroid binnen de wanden op ±5 % van de ingestelde dichtheid
+- [x] H-5: infillstompjes korter dan een lijnbreedte weglaten (geen terugtrek en Z-hop ervoor)
+- [x] H-6: hoektolerantie 0,1 rad voor scherm en rebuild; 0,07 rad alleen voor de tessellatie van de slicer
+- [x] H-7: alleen documenteren (Clipper2 rondt snijpunten af); Centauri (zonder Carbon) in de database als hij bestaat
+- [x] Negatieve test per punt, typecheck, vitest, e2e, poorten, graphify
 
 ## Eisen en supervisie voor de extensies Lasconstructies+, Lasersnijden/plooien en Offerte uit model (2026-11-19)
 - [x] Bestaande code lezen: weldments.ts, frameBuild.ts, sheetmetal.ts, unfold.ts, tables.ts, export2d.ts, print-extensie als voorbeeld
@@ -1593,3 +1603,18 @@ elease; README en docs/04 bijgewerkt
 - [x] Voorbeelden nalopen op bruikbare proefstukken (lastafel, afzuiging, taatsdeuren, fitness)
 - [x] docs/36-eisen-en-supervisie-extensies.md schrijven (eisen, interface, datamodel, normen, prijsmodel, offerte, criteria, risico's, bouwvolgorde)
 - [x] Geen codewijziging, geen installatie, geen commit
+
+## Extensies Lasconstructies+, Lasersnijden/plooien, Offerte uit model: bouw (2026-11-19)
+- [~] F0 werkplaatskern src/fab/: instellingen per gebruiker (bron, AANNAME, datum), herkenning profiel/plaat/onbekend, kostenregel in eurocent, verouderd-vlag, BE-notatie, doc.fab + formaat + migratie
+- [ ] P1 uitslag en plaatgegevens: W4 nameten (edge flanges, gaten), uitslag met echte bogen en cirkels (W5), DIN 6935
+- [ ] P2 DXF per plaat: R12 met bulge-bogen, CIRCLE, lagen CONTOUR/GATEN/ZETLIJN_OP/ZETLIJN_NEER/TEKST, controles P-4, ZIP + lijst
+- [ ] L1 voorraad en herkenning van profielen: kg/m, staalsoort, voorraad en restanten, overschrijven
+- [ ] L2 zaagstaat en zaagplan: posities, langste zijde, FFD met restanten en ondergrens, PDF en XLSX
+- [ ] L4 + P5 kostprijs per stuk en per plaat (verbruikt/aangekocht, uitbesteed/eigen, geen stille nul)
+- [ ] O1 kostprijsmodel: Cost Manager, No cost assigned, override, reeks 1/5/20
+- [ ] O2 offerte en PDF: BE-opmaak, ONTWERP-watermerk, btw-regimes, 6 % met voorwaarden, AANNAME-bevestiging, geen netwerk
+- [ ] P3 nesting (rechthoek, onafhankelijke geldigheidscontrole, geneste DXF)
+- [ ] L3 lasnaden en lasvolgorde (auto-voorstel, ISO 2553-tekst, EXC-waarschuwing, nooit "conform")
+- [ ] P4 plooivolgorde (voorstel, perskracht, flenslengte, 2D-botsing prismatisch, plooiblad)
+- [ ] O3 offertebeheer: nummering, bevriezen, revisie, kopie zonder klantgegevens
+- [ ] Tabbladen (Frames-groep/Weld Shop, Laser & Bend, Quote), PropertyManagers, e2e, poorten, graphify, foto's, besluiten in docs/36

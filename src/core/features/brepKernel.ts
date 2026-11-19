@@ -81,13 +81,20 @@ export interface BrepKernel {
    * the angle in degrees (its sign follows OpenCascade's convention; the rebuild checks it against the mesh kernel)
    */
   draft(shape: BrepShape, faces: { normal: [number, number, number]; point: [number, number, number] }[] | 'sides', pull: [number, number, number], angle: number, neutral: { origin: [number, number, number]; normal: [number, number, number] }): BrepShape;
-  /** triangles for the viewport and the mesh kernel (non-indexed, with the normals of the surfaces) */
-  tessellate(shape: BrepShape): THREE.BufferGeometry;
+  /** triangles for the viewport and the mesh kernel (non-indexed, with the normals of the surfaces); the angular
+   * tolerance in radians when not the kernel's own (the slicer asks for a finer one: PRINT_ANGULAR_TOLERANCE) */
+  tessellate(shape: BrepShape, angularTolerance?: number): THREE.BufferGeometry;
   volume(shape: BrepShape): number;
   /** frees what the kernel made since the last call (OpenCascade objects live outside the JS heap), except `keep` and
    * the pinned solids (pinnedShapes: the states the rebuild cache keeps) */
   release(keep?: BrepShape[]): void;
 }
+
+/**
+ * The angular tolerance of the slicer's own tessellation (docs/34 3.1: mesh volume within 0.1 % of the kernel; docs/35
+ * H-6): finer than the screen's 0.1 rad, asked for only by the 3D Print tab.
+ */
+export const PRINT_ANGULAR_TOLERANCE = 0.07;
 
 let current: BrepKernel | null = null;
 
