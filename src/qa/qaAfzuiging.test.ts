@@ -288,7 +288,7 @@ describe('afzuiging, luchtdicht', () => {
   const opHoek = (g: THREE.BufferGeometry, a: number, r: number, y: number) => g.rotateY(-a).translate(r * Math.cos(a), y, r * Math.sin(a));
   const dicht = [
     new THREE.CylinderGeometry(1.8, 1.8, 14, 16).translate(-55, -54, -85), // messingbuisje (meetpunt)
-    opHoek(new THREE.BoxGeometry(5, 7, 7), ga, 97, -59.5), // uitgang van de goot voor de aders, met kit
+    opHoek(new THREE.BoxGeometry(6, 7, 7), ga, 98, -59.5), // uitgang van de goot voor de aders, met kit
     // de 4 schroeven M4 van de buffers in de bodem (de kop dicht de verzinking af)
     ...[[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([a, b]) => new THREE.CylinderGeometry(4.3, 2.3, 6, 16).translate(a * 20.506, -134, b * 20.506)),
     // afdekking lamellen: per sector een dicht blok (r 84 tot 100, -125 tot -55): de goot achteraan blijft vrij

@@ -104,7 +104,7 @@ const STAPPEN = [
       `Zet de ventilator op de 4 bussen van de naaf in de kuip, de aders in de groef van de naaf naar achter, en schroef hem van onderen vast met 4 x ${M4V.replace(' DIN 7991', '')} verzonken: 4 mm in de motor (de fabrikant laat 4 tot 6 mm toe), niet tot op de bodem. Hij staat star (geen rubber): zo ligt geen eigenfrequentie in het werkgebied.`,
       'Leid de vier aders door de opening onderaan de goot achteraan in de wand, door de goot naar boven en bovenaan naar buiten. Zet de uitgang dicht met siliconenkit (luchtdicht) en bind de aders met een kabelbinder vast aan het oor achteraan (trekontlasting).',
       'Krimp de stekker van de tussenstekker (Molex Micro-Fit 3.0) op de vier aders. De waaier mag nergens de wand raken: draai hem met de hand.',
-      'Op het bovenste beeld (van onderen gezien) staan de 4 schroeven uitgeschoven boven hun gaten (gestippeld). Het blokje rechts achteraan is de voet van de goot voor de aders: een deel van de kuip.',
+      'Op het bovenste beeld (van onderen gezien) staan de 4 schroeven uitgeschoven boven hun gaten (gestippeld). De richel rechts achteraan op de kuip is de goot voor de aders (een deel van de kuip, ballon 9): ze volgt de bolle vorm tot op het bed.',
     ],
     delen: ['San Ace C175 9TG24P0S01', 'Ventilatorkuip', M4V],
   },
@@ -208,7 +208,7 @@ const browser = await chromium.launch(process.platform === 'win32' ? { channel: 
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
 const fouten = [];
 page.on('pageerror', (e) => fouten.push(e.message));
-await page.goto(process.env.E2E_URL ?? 'http://localhost:5184/');
+await page.goto(process.env.E2E_URL ?? 'http://localhost:5184/', { timeout: 300000 }); // op een drukke machine laadt de dev-server traag
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');

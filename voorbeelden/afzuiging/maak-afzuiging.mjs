@@ -93,7 +93,9 @@ export const M = {
     lamel: { hoeken: [15, 37.5, 60], breed: 32, rijen: 10, steek: 6, sleuf: 3.5, boven: -57.5 },
     ringen: [[46, 50], [54, 58], [62, 66], [70, 74]], spaken: 8, spaak: 6,
     rib: { r: 84, naaf: 37.5, laag: 7.5, hoog: 15 }, bus: { d: 12, h: 8 },
-    goot: { hoek: -100, r: [88, 97.5], b: 10, kanaal: { r: [92.5, 95.5], b: 5 }, onder: -127, boven: -53, uit: [-62, -57], in: [-127, -121] } },
+    // goot (7.4b): een strook van 5 mm die de buitenkant van de kuip volgt (van het bed tot onder de rand), 10 breed, met
+    // binnenin een kanaal 5 x 3 tegen de wand van de kuip; niets steekt onder of naast de bolle vorm uit
+    goot: { hoek: -100, dik: 5, b: 10, kanaal: { r: [0.3, 3.3], b: 5 }, onder: -128, boven: -53, uit: [-62, -57], in: [-127, -121] } },
   // rubberbuffer Ø15 x 10 M4 (7.2 en de ronde variant): in 7.4 niet meer gebruikt (dwars en kantelend eigenfrequenties in het
   // werkgebied 13 tot 65 Hz, docs/Berekeningen.md 3d)
   buffer: { d: 15, h: 10, draad: 4 },
@@ -376,6 +378,25 @@ export function kuipProfiel() {
   return { Ro, C, pO, bO, pI, bI, yv0 };
 }
 
+/** de buitencontour van de kuip in (r, y) met de normaal naar buiten, van de bodem tot `boven` (afschuining 45°, boog,
+ *  rechte wand); fijn bemonsterd */
+export function kuipBuiten(boven = M.kuip.rand) {
+  const K = M.kuip, { C, pO, bO } = kuipProfiel(), uit = [];
+  const a = Math.SQRT1_2;
+  for (let t = 0; t <= 1.0001; t += 0.1) uit.push({ r: bO[0] + (pO[0] - bO[0]) * t, y: bO[1] + (pO[1] - bO[1]) * t, nr: a, ny: -a });
+  for (let g = -45; g <= 0.001; g += 2.5) { const h = (g * Math.PI) / 180; uit.push({ r: C[0] + K.boog * Math.cos(h), y: C[1] + K.boog * Math.sin(h), nr: Math.cos(h), ny: Math.sin(h) }); }
+  for (let y = K.recht + 2; y <= boven + 0.001; y += 2) uit.push({ r: K.binnen + K.wand, y, nr: 1, ny: 0 });
+  if (uit[uit.length - 1].y < boven) uit.push({ r: K.binnen + K.wand, y: boven, nr: 1, ny: 0 });
+  return uit;
+}
+/** de straal van de buitenkant van de kuip op hoogte y */
+export function kuipBuitenR(y) {
+  const K = M.kuip, { C, pO, bO } = kuipProfiel();
+  if (y >= K.recht) return K.binnen + K.wand;
+  if (y >= pO[1]) return C[0] + Math.sqrt(K.boog * K.boog - (y - C[1]) ** 2);
+  return bO[0] + (y - bO[1]);
+}
+
 /** de ronde kuip onder de romp (rechtop geprint, de bodem op het bed): een omwenteling van het profiel, 4 oren op de
  *  wandbussen van de romp, lamellen onder 45° opzij (12 sectoren) en 4 ringsleuven in de bodem; in het midden zitten de
  *  de naaf met 8 ribben en 4 bussen voor de ventilator (4 x M4 x 16 verzonken van onderen) en achteraan de goot voor de aders */
@@ -454,23 +475,34 @@ export function kuip() {
     o.schets(yv('groef', yv0 + Rb.laag + 0.5, 'reference', 'Plane groef naaf'), (s) => s.lusW([q(-2, -3), q(Rb.naaf + 1, -3), q(Rb.naaf + 1, 3), q(-2, 3)]));
     o.extrude('cut', 4.5, { omkeren: true, naam: 'Groef aders' });
   }
-  // 7.4 (P2-5): goot voor de aders in de wand achteraan (hoek -100°, de dichte wand tussen de lamellen): een kolom van het
-  // bed tot onder de rand, met binnenin een kanaal 5 x 3; onderaan (onder de waaier) een opening naar binnen, bovenaan (in de
-  // dode ruimte van de romp) een opening naar buiten, dicht te zetten met kit
+  // 7.4 (P2-5): goot voor de aders achteraan (hoek -100°, de dichte wand tussen de lamellen): een strook die de bolle
+  // buitenkant van de kuip volgt (van het bed tot onder de rand, 5 mm dik), met binnenin een kanaal 5 x 3 tegen de wand;
+  // onderaan (onder de waaier) een opening naar binnen, bovenaan (in de dode ruimte van de romp) een opening naar buiten,
+  // dicht te zetten met kit. Op het bed en met hellingen van hoogstens 45°: zonder support
   const Gt = K.goot, ga = (Gt.hoek * Math.PI) / 180, gc = Math.cos(ga), gs = Math.sin(ga);
   const gp = (r, t) => [r * gc - t * gs, 0, r * gs + t * gc];
   const blok = (r0, r1, b) => [gp(r0, -b / 2), gp(r1, -b / 2), gp(r1, b / 2), gp(r0, b / 2)];
-  o.schets(yv('gootvoet', K.bodem, 'reference', 'Plane voet goot'), (s) => s.lusW(blok(Gt.r[0], Gt.r[1], Gt.b)));
-  o.extrude('boss', Gt.boven - K.bodem, { naam: 'Goot aders' });
-  // het kanaal begint 1 mm onder de bovenkant van de kolom (dicht dak) en loopt tot onder de waaier
-  o.schets(yv('gootkanaal', Gt.boven - 1, 'reference', 'Plane kanaal goot'), (s) => s.lusW(blok(Gt.kanaal.r[0], Gt.kanaal.r[1], Gt.kanaal.b)));
-  o.extrude('cut', Gt.boven - 1 - Gt.onder, { omkeren: true, naam: 'Kanaal aders' });
+  const goot = { id: 'gootvlak', name: 'Plane goot', origin: [0, 0, 0], u: [gc, 0, gs], v: [0, 1, 0], n: [-gs, 0, gc], kind: 'reference' };
+  const lijn = kuipBuiten(Gt.boven);
+  const strook = (d0, d1, y0, y1) => {
+    // de buitencontour verschoven over d0 en d1 langs de normaal, tussen y0 en y1, afgesneden op het bed
+    const k = lijn.filter((q) => q.y >= y0 && q.y <= y1);
+    const binnen = k.map((q) => [q.r + q.nr * d0, q.y + q.ny * d0]);
+    const buiten = k.map((q) => [q.r + q.nr * d1, q.y + q.ny * d1]).reverse();
+    const pts = [...binnen, ...buiten].map(([r, y]) => [r, Math.max(y, K.bodem)]);
+    return pts.filter((q, k2) => k2 === 0 || Math.hypot(q[0] - pts[k2 - 1][0], q[1] - pts[k2 - 1][1]) > 0.05);
+  };
+  o.schets(goot, (s) => s.lus(strook(-0.5, Gt.dik, K.bodem, Gt.boven)));
+  o.extrude('boss', Gt.b / 2, { terug: Gt.b / 2, naam: 'Goot aders' });
+  o.schets(goot, (s) => s.lus(strook(Gt.kanaal.r[0], Gt.kanaal.r[1], Gt.onder, Gt.boven - 1.5)));
+  o.extrude('cut', Gt.kanaal.b / 2, { terug: Gt.kanaal.b / 2, naam: 'Kanaal aders' });
   const radiaal = (id, naam, r0, r1, y0, y1) => {
     o.schets(yv(id, y1, 'reference', `Plane ${naam}`), (s) => s.lusW(blok(r0, r1, Gt.kanaal.b)));
     o.extrude('cut', y1 - y0, { omkeren: true, naam });
   };
-  radiaal('gootin', 'Opening goot binnen', Gt.r[0] - 4, Gt.kanaal.r[0] + 0.5, Gt.in[0], Gt.in[1]);
-  radiaal('gootuit', 'Opening goot buiten', Gt.kanaal.r[1] - 0.5, Gt.r[1] + 1, Gt.uit[0], Gt.uit[1]);
+  const rIn = kuipBuitenR((Gt.in[0] + Gt.in[1]) / 2), rUit = kuipBuitenR((Gt.uit[0] + Gt.uit[1]) / 2);
+  radiaal('gootin', 'Opening goot binnen', rIn - 8, rIn + Gt.kanaal.r[0] + 1, Gt.in[0], Gt.in[1]);
+  radiaal('gootuit', 'Opening goot buiten', rUit + Gt.kanaal.r[1] - 0.5, rUit + Gt.dik + 1, Gt.uit[0], Gt.uit[1]);
   return o.doc();
 }
 

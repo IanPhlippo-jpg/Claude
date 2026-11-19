@@ -244,8 +244,8 @@
 <line x1="299.90" y1="93.81" x2="299.68" y2="93.29" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="299.68" y1="93.29" x2="299.55" y2="92.77" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="299.55" y1="92.77" x2="299.50" y2="92.23" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="299.50" y1="92.23" x2="299.52" y2="91.97" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="404.48" y1="72.82" x2="404.50" y2="73.09" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="299.50" y1="92.23" x2="299.51" y2="92.12" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="404.49" y1="72.97" x2="404.50" y2="73.09" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="404.50" y1="73.09" x2="404.45" y2="73.62" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="404.45" y1="73.62" x2="404.32" y2="74.14" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="404.32" y1="74.14" x2="404.10" y2="74.66" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -272,7 +272,7 @@
 <line x1="330.20" y1="112.06" x2="329.46" y2="111.74" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="329.46" y1="111.74" x2="328.78" y2="111.38" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="328.78" y1="111.38" x2="302.25" y2="96.06" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="340.43" y1="89.02" x2="339.95" y2="88.77" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="340.35" y1="88.97" x2="339.95" y2="88.77" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="339.95" y1="88.77" x2="339.11" y2="88.41" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="339.11" y1="88.41" x2="338.22" y2="88.10" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="338.22" y1="88.10" x2="337.27" y2="87.84" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -287,7 +287,7 @@
 <line x1="329.14" y1="87.84" x2="328.19" y2="88.10" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="328.19" y1="88.10" x2="327.30" y2="88.41" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="327.30" y1="88.41" x2="326.46" y2="88.77" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="326.46" y1="88.77" x2="326.07" y2="88.97" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="326.46" y1="88.77" x2="326.06" y2="88.97" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="301.08" y1="73.91" x2="301.63" y2="73.48" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="301.63" y1="73.48" x2="302.25" y2="73.09" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="302.25" y1="73.09" x2="361.95" y2="38.62" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -386,7 +386,7 @@
 <line x1="343.79" y1="86.44" x2="343.63" y2="87.04" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="343.63" y1="87.04" x2="343.38" y2="87.62" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="343.38" y1="87.62" x2="343.03" y2="88.19" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="343.03" y1="88.19" x2="342.80" y2="88.46" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="343.03" y1="88.19" x2="342.96" y2="88.27" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="343.03" y1="83.49" x2="343.38" y2="84.06" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="343.38" y1="84.06" x2="343.63" y2="84.64" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="343.53" y1="68.24" x2="345.90" y2="69.26" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
@@ -463,14 +463,14 @@
 <line x1="330.12" y1="79.97" x2="331.13" y2="79.82" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="338.22" y1="80.43" x2="337.44" y2="80.09" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="337.44" y1="80.09" x2="337.27" y2="80.17" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="323.60" y1="88.46" x2="323.38" y2="88.19" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="323.45" y1="88.27" x2="323.38" y2="88.19" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="342.58" y1="82.95" x2="343.03" y2="83.49" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="404.50" y1="57.77" x2="404.50" y2="73.09" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <line x1="299.50" y1="76.91" x2="299.50" y2="92.23" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="319.05" y1="86.36" x2="320.16" y2="87.00" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="346.25" y1="87.00" x2="347.36" y2="86.36" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="322.57" y1="85.84" x2="322.57" y2="87.12" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
-<line x1="343.84" y1="87.12" x2="343.84" y2="85.84" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="319.05" y1="86.36" x2="319.26" y2="86.48" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="347.15" y1="86.48" x2="347.36" y2="86.36" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="322.57" y1="85.84" x2="322.57" y2="86.06" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
+<line x1="343.84" y1="86.06" x2="343.84" y2="85.84" stroke="#111" stroke-width="0.35" stroke-linecap="round" />
 <text x="352.00" y="19.00" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Isometrie (schaal vrij)</text>
 <text x="292.00" y="137.00" font-size="3.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Belangrijke maten en bewerkingen</text>
 <text x="292.00" y="142.20" font-size="2.5" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">9 x 16.5 x 3, lip van 8 mm over de adapter</text>
