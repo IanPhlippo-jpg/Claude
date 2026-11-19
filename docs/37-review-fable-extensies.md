@@ -636,3 +636,76 @@ Gemeten op de werkmap: `tsc` (app) schoon; `vitest run` 187 bestanden, 1347 test
 | zomen en jogs | deels | open zoom: ontvouwen en exact, binnenstraal gap / 2 = 0,5 gemeten, 80 + pi (r + K t) + (10 - (r + t)) = 92,212 met de hand tegen 92,199 (facetten van 180 graden). Gesloten, druppel en gerold zoom en de jog: geweigerd ("meer dan twee zijden"): bij een gesloten zoom raken de twee lagen elkaar, en de jog van de kern geeft een derde zijde die ik niet heb kunnen verklaren | unfold37 hems en jogs |
 
 Nog open: P2.8 (DXF buiten de app), ballonnen bij de cut list, gesloten zomen en jogs, O1.6 arbeid.
+
+## 13. Vierde controle (Fable 5.2, 2026-11-19, commit 997f3a5)
+
+Beoordeeld op een schone `git archive` van 997f3a5 (`scratchpad/review-fab4`). Geen code gewijzigd, niets gecommit.
+
+### 13.1 Wat ik gedraaid heb
+
+| Stap | Resultaat |
+|---|---|
+| `vitest run src/fab src/app/fab src/app/drawing/fabTables.test.ts` | 150 van 150 groen (de tijdgevoelige test van N-13 ook) |
+| `VOORBEELDEN=1` `fabVoorbeelden.test.ts` + `fabOrakel.test.ts` | 16 van 16 groen |
+| `tsc -b`, build, bundel- en regelbudget | schoon; hoofdchunk 796,33 kB (budget 800) |
+| `e2e/fab.mjs` | exit 0 |
+| mijn scripts van ronde 3 ongewijzigd opnieuw (`scripts3/zzRound3.test.ts`, `zzHole.test.ts`), uitvoer in `scratchpad/rlog8.txt` | zie 13.2 |
+
+Niet gedaan: de volledige `vitest run`, mijn eigen e2e-script van ronde 2 en 3 (de offertestroom is in deze commit niet geraakt), de tabellen op een tekenblad en de korte lassen in de app met de hand doorgeklikt.
+
+### 13.2 De bevindingen uit hoofdstuk 11
+
+| Nr | Oordeel | Gemeten |
+|---|---|---|
+| N-9 | **opgelost** | tab 400 x 600 met flensstraal 6: 624,988 tegen 624,996 met de hand (0,008), plooihoek 90°, "exact". Flensstraal 5: 105,418 tegen 105,425; flensstraal 0,5: 107,355 tegen 107,356 (waren geweigerd). Standaardstraal ongewijzigd: 106,709 / 106,160 / 105,924 |
+| N-10 | **opgelost** | Ø8, Ø9, Ø20 in de L: één CIRCLE in de DXF, via de ontvouwer r = 3,9994 / 4,4997 / 9,9993, via de uitslag van het model 3,9969 / 4,4966 / 9,9932. Hijsoog lastafel: 1 cirkel, snijlengte 360,9 (bestaande DXF 360,9) |
+| N-11 | **opgelost** | jog die niet bouwt: "geen uitslag: herbouw met fouten: The jog line does not cross the sheet." |
+| korte lassen | **opgelost** | lijncontact van 20 en 29 mm komt nu terug als contact (was: geen naad); de markering "kort, niet meegeteld" en max(30, 6a) gelezen in `weld.ts` en `weldEdge.ts`, test van de bouwer groen. Niet in de app bekeken |
+| N-12 | opgelost | `e: 150` in `weld.ts` (gelezen); test groen |
+| N-13 | **opgelost** | de test slaagt in de volledige fab-run |
+| N-14 | **verklaard** | oog cilinder: nu 4 stuks, exact, als veelhoek zoals getekend (snijlengte 294,1). Lipplaat: het model heeft geen boring; dat is een zaak van de generator van de lastafel, niet van de extensies |
+| N-15 | opgelost voor het verversen | test groen; ballonnen niet gebouwd |
+| zomen en jogs | zoals gemeld | open zoom: 92,199, exact (hand van de bouwer 92,212). Gesloten, druppel, gerold en jog: geweigerd met reden |
+
+De radius uit de uitslag van het model ligt tot 0,007 mm onder de nominale (9,9932 voor r 10): de cirkel gaat door de hoekpunten van de facetten van de kern. Binnen elke snijtolerantie; ik meld het alleen.
+
+### 13.3 Opmerkingen (P3)
+
+- De weigering bij een open mesh hangt aan de Engelse tekst van de waarschuwing (`/not closed|opening/` in `src/fab/bodies.ts`). Wijzigt die tekst, dan valt de controle stil weg. Beter een code op de waarschuwing.
+- De cirkelpassing (0,02 mm) maakt ook van een zeer fijn getekende veelhoek een cirkel. De rem (gemiddeld meer dan 0,05 mm naast de veelhoek blijft veelhoek) werkt op de achtkoorde R34; een bewust getekende fijne veelhoek in een klein gat wordt een cirkel. Dat is voor een laser wat je wilt.
+- Gesloten zomen en jogs blijven geweigerd; de ontvouwer dekt randflenzen (ook met eigen straal) en open zomen.
+
+### 13.4 Criteria
+
+Telling over de 92 criteria: **79 gehaald, 12 deels, 1 niet gehaald** (was 76 / 15 / 1).
+
+| Criterium | Nu | Opmerking |
+|---|---|---|
+| P1.7 | gehaald (terug) | N-10 |
+| P1.4 | gehaald | het criterium vraagt PP3 (randflenzen, gat): uitslag binnen 0,01, gat behouden als cirkel; wat niet kan wordt geweigerd |
+| P4.8 | gehaald | tabel met dezelfde plooien, ververst mee (test van de bouwer) |
+| L2.8 | deels | tabel staat op het blad en ververst; geen ballonnen |
+| L1.2, L1.5, L2.7, P1.6, P2.6, P3.4, P4.6, P5.3, O1.6, O2.9, O3.3 | deels | ongewijzigd |
+| P2.8 | niet gehaald | DXF nog niet buiten de app geopend |
+
+### 13.5 Oordeel per fase
+
+Er staat geen P1 of P2 meer open.
+
+| Fase | Oordeel | Open |
+|---|---|---|
+| F0 | vrijgegeven | |
+| L1 voorraad en herkenning | vrijgegeven als voorstel dat Ian naleest | LF4/LF5 alleen via het orakel |
+| L2 zaagstaat en zaagplan | **vrijgegeven**, status "nog te zagen" tot LF1 gezaagd en nagemeten is | ballonnen (L2.8) |
+| L3 lasnaden en lasvolgorde | **vrijgegeven als voorstel**; het lasplan zegt dat het een vuistregel is en dat EXC2 niet gecontroleerd wordt | |
+| L4 kostprijs per stuk | **vrijgegeven**; alle prijzen blijven AANNAME tot Ian ze invult | |
+| P1 uitslag | **vrijgegeven** voor vlakke platen, ketens uit de basisflens, randflenzen (ook met eigen straal) en open zomen; gesloten zomen en jogs worden geweigerd | |
+| P2 DXF | **vrijgegeven**, status "nog te openen bij de lasersnijder" tot P2.8 | P2.8 |
+| P3 nesting | **vrijgegeven** | vrije vormnesting (P3.4) |
+| P4 plooivolgorde | **vrijgegeven voor een proefstrook**, status "nog te plooien"; de botsingscontrole is beperkt en het blad zegt dat | |
+| P5 prijs per plaat | **vrijgegeven** | |
+| O1 kostprijsmodel | **vrijgegeven** | O1.6: arbeid 6,89 u tegen 8,54 u bij de taatsdeur |
+| O2 offerte en PDF | vrijgegeven als ONTWERP; een echte offerte na de bedrijfsgegevens en nadat de boekhouder de btw-regels en vermeldingen las | O2.9 |
+| O3 offertebeheer | **vrijgegeven** | |
+
+Wat nu nog tussen "vrijgegeven" en "in gebruik" staat, is werk van Ian en niet van de bouwer: een DXF openen bij een lasersnijder (P2.8), LF1 zagen en nameten, een proefstrook plooien, eigen prijzen en bedrijfsgegevens invullen, de offertesjabloon laten nalezen door de boekhouder.

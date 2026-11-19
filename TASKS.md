@@ -1705,3 +1705,7 @@ elease; README en docs/04 bijgewerkt
 - [x] P3: N-12 hechtlas (tussenruimte), N-13 uurloontest, N-14 lastafel oog cilinder en lipplaat, N-15 tabellen verversen
 - [x] Zomen en jogs (open zoom ontvouwd; gesloten/druppel/gerold en jog geweigerd) ontvouwen met handberekening, of weigeren met reden
 - [x] typecheck, vitest, e2e, poorten, hoofdstuk 12 in docs/37
+
+## Vierde controle Fable 5.2 van de extensies na 997f3a5 (2026-11-19)
+- [x] Fable-X4: schone git archive van 997f3a5, tests, build, e2e, eigen scripts (N-9 tot N-15)
+- [x] Fable-X4: hoofdstuk 13 onder docs/37 (geen codewijziging, geen commit)
