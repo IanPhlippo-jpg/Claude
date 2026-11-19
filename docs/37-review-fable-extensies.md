@@ -618,3 +618,21 @@ Telling over de 92 criteria: **76 gehaald, 15 deels, 1 niet gehaald** (was 63 / 
 | O3 offertebeheer | **vrijgegeven** | |
 
 Herstelvolgorde: N-9 (of tijdelijk weigeren), N-11, N-10, dan de korte lassen en de P3-lijst.
+
+## 12. Status na hoofdstuk 11 (bouwer, 2026-11-19, niet gecommit)
+
+Gemeten op de werkmap: `tsc` (app) schoon; `vitest run` 187 bestanden, 1347 tests, waarvan 1 time-out van 120 s in `qaBrep.test.ts` (loft op de B-rep-kern, geen fab-code) onder volle belasting; die file alleen: 37 van 37 groen. `VOORBEELDEN=1` fabVoorbeelden + fabOrakel 16 van 16; `e2e/fab.mjs` zonder fout; line-budget en line-length groen; hoofdchunk 796,44 kB. Beelden en PDF-renders in `scratchpad/extensies-v4/`. Nieuwe tests in `src/fab/unfold37.test.ts` (16), `fabTables.test.ts` (N-15), `fabVoorbeelden.test.ts` (N-10/N-14).
+
+| Nr | Status | Wat er nu is | Test |
+|---|---|---|---|
+| N-9 | opgelost | de ontvouwer vouwt twee keer uit: eerst om de plooizones te vinden (de facetten die de kern als gebogen markeert), dan met per zone de straal uit de koorden: W = n 2 rho sin(Theta / 2n); binnenstraal = rho (binnenkant) of rho - t (buitenkant); K per plooi (DIN 6935 voor die straal, of de K van het model). Ongelijke koorden (> 15 %) of een negatieve straal: geweigerd. Plooilijn met hoek en gemeten straal | unfold37: tab 400 x 600 met flens r 6: 624,996 met de hand, binnen 0,05, 90 graden, r 6; flens r 5 en r 0,5 (waren geweigerd); standaardstraal ongewijzigd |
+| N-11 | opgelost | een herbouwfout of een waarschuwing "not closed / opening" in het part geeft geen uitslag (`betrouwbaar: 'geen'`, "geen uitslag: herbouw met fouten: …"), ook niet voor een vlakke plaat | unfold37 N-11 (randflens die niet bouwt) |
+| N-10 | opgelost | `fitArcs`: cirkel met kleinste kwadraten door alle punten, tolerantie 0,02 mm, de knikcontrole (30 graden) op punten minstens 0,05 mm uit elkaar (zigzag van naden). Een gepaste lus die gemiddeld meer dan 0,05 mm van de veelhoek ligt (oppervlakteverschil / omtrek), blijft de veelhoek | unfold37: Ø8, Ø9, Ø20 in de L met en zonder randflens: één CIRCLE in de DXF; voorbeelden: hijsoog Ø30 één cirkel |
+| korte lassen | opgelost | een lijncontact korter dan max(30 mm, 6a) (in de code, `shortWeld`) wordt voorgesteld als "korte las, niet dragend (EN 1993-1-8, 4.5.1)", uitgevinkt; telling en vinkje in de PM; op het lasplan met de opmerking "korte las, niet dragend, niet meegeteld"; in de kostprijs alleen aangevinkt. Puntcontacten onder 5 mm blijven geen naad | unfold37: 20 mm kort, 60 mm normaal; 6a: a 7 geeft 40 kort, 50 niet; kost alleen aangevinkt |
+| N-12 | opgelost | hechtlas 50 om 200 hart op hart: `n x 50 (150)` (tussenruimte) | unfold37 N-12 |
+| N-13 | opgelost | de `beforeEach` van `fabStore.test.ts` opent LF1 en kreeg de standaard 10 s van een hook; nu 120 s. De test zelf rekent deterministisch (geen tijd in de uitkomst) | |
+| N-14 | verklaard en deels opgelost | oog cilinder: de generator tekent de kop R34 als 8 koorden van 22,5 graden; `fitArcs` maakte er een boog van (0,8 % meer oppervlak) en de volumecontrole weigerde. Nu blijft zo'n grove veelhoek zoals getekend: 4 stuks, exact. Lipplaat: de generator tekent de plaat zonder boring, de pen Ø40 loopt erdoor (`maak-lastafel.mjs` cilinderbok); het model mist het gat, niet de kern | voorbeelden N-10/N-14 (overlap pen en lipplaat gemeten) |
+| N-15 | opgelost | een Frame Cut List of Bend Table bewaart de sleutel van het model van zijn view (`bron`); na elke wijziging van de tekening krijgen de tabellen met een andere sleutel nieuwe cellen. Ballonnen met positienummers: niet gebouwd | fabTables.test N-15 |
+| zomen en jogs | deels | open zoom: ontvouwen en exact, binnenstraal gap / 2 = 0,5 gemeten, 80 + pi (r + K t) + (10 - (r + t)) = 92,212 met de hand tegen 92,199 (facetten van 180 graden). Gesloten, druppel en gerold zoom en de jog: geweigerd ("meer dan twee zijden"): bij een gesloten zoom raken de twee lagen elkaar, en de jog van de kern geeft een derde zijde die ik niet heb kunnen verklaren | unfold37 hems en jogs |
+
+Nog open: P2.8 (DXF buiten de app), ballonnen bij de cut list, gesloten zomen en jogs, O1.6 arbeid.

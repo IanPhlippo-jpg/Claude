@@ -13,7 +13,7 @@ import type { FabBody } from './bodies';
 import type { ExecutionClass, Recognition, WeldJoint } from './types';
 import { cross, dot, frameOf, hull, planeGroups, triangle, unit, type V3 } from './geom';
 import { profileById } from './catalog';
-import { lineContact, LINE_GAP } from './weldEdge';
+import { lineContact, LINE_GAP, shortWeld } from './weldEdge';
 
 // ---- execution class (EN 1090-2, te verifiëren)
 
@@ -102,12 +102,16 @@ export function proposeJoints(bodies: FabBody[], recs: Recognition[], exc: Execu
   // seams together run over 400 mm gets stitches of 50 mm every 200 mm, not a continuous seam (AANNAME, the workshop
   // rule of the bibliotheek, docs/37 ch. 9)
   const thinPlate = (key: string) => { const r = recs.find((x) => x.key === key); return !!r && r.soort === 'plaat' && (r.t ?? 99) <= 10; };
-  const stitch = (c: Contact) => (c.lijn && 2 * c.lengte > 400 && (thinPlate(c.a) || thinPlate(c.b)) ? { n: Math.max(2, Math.round(c.lengte / 200)), l: 50, e: 200 } : null);
-  return contacts(bodies).map((c, k) => ({
-    id: `W${k + 1}`, bodies: [c.a, c.b], soort: 'hoeklas', maat: { letter: 'a', mm: proposedThroat(Math.min(wall(c.a), wall(c.b))) },
-    lengte: Math.round(c.lengte * 10) / 10, tweezijdig: !!c.lijn, rondom: !c.lijn, montage: false, onderbroken: stitch(c), proces: '135', positie: 'PB', niveau,
-    stap: 0, hechten: true, bevestigd: false, punt: c.punt,
-  }));
+  // ISO 2553 writes n x l (e) with e the gap between two stitches: 50 every 200 mm centre to centre is (150) (N-12)
+  const stitch = (c: Contact) => (c.lijn && 2 * c.lengte > 400 && (thinPlate(c.a) || thinPlate(c.b)) ? { n: Math.max(2, Math.round(c.lengte / 200)), l: 50, e: 150 } : null);
+  return contacts(bodies).map((c, k) => {
+    const a = proposedThroat(Math.min(wall(c.a), wall(c.b))), kort = !!c.lijn && shortWeld(c.lengte, a);
+    return {
+      id: `W${k + 1}`, bodies: [c.a, c.b], soort: 'hoeklas', maat: { letter: 'a', mm: a },
+      lengte: Math.round(c.lengte * 10) / 10, tweezijdig: !!c.lijn, rondom: !c.lijn, montage: false, onderbroken: stitch(c), proces: '135', positie: 'PB', niveau,
+      stap: 0, hechten: true, bevestigd: false, punt: c.punt, ...(kort ? { kort: true, meetellen: false } : {}),
+    };
+  });
 }
 
 // ---- ISO 2553 system A as text (the drawing symbol is drawn from the same fields)
@@ -203,7 +207,7 @@ export function reconcileJoints(saved: WeldJoint[], proposed: WeldJoint[], exc: 
 }
 
 /** the joints that are costed and printed on the weld plan (a lapsed joint is not) */
-export const activeJoints = (js: WeldJoint[]) => js.filter((j) => j.status !== 'vervallen');
+export const activeJoints = (js: WeldJoint[]) => js.filter((j) => j.status !== 'vervallen' && !(j.kort && !j.meetellen));
 
 /**
  * L3.5: a weld step moved to place `to` of the order (dragged in the tree or the panel). Step 1 is tacking, the welds

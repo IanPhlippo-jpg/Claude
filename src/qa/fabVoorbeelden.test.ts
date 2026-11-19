@@ -64,6 +64,28 @@ describe('fabrication on the example models', () => {
     expect(ond.filter((r) => r.soort === 'plaat').every((r) => !/Langsligger|Rolbaan/.test(r.naam))).toBe(true);
   }, 300000);
 
+  // docs/37 N-10, N-14: the lifting eye cuts its Ø30 as one CIRCLE; the cylinder eye (R34 drawn by the generator as 8
+  // chords) is cut as drawn and is exact; the lip plate has no bore because the generator draws it solid with the pin
+  // Ø40 through it (maak-lastafel.mjs cilinderbok: profX without a hole, cilX for the pin): the model, not the core
+  it('N-10 / N-14 lastafel: hole of the lifting eye a circle; cylinder eye exact as drawn; lip plate without bore as modelled', () => {
+    const ond = analyze(lees('voorbeelden/lastafel/delen/Onderframe.kcad'), defaultSettings());
+    const oog = ond.flats.find((f) => f.naam === 'Hijsoog')!;
+    expect([oog.gaten.length, oog.binnen.length]).toEqual([1, 0]);
+    expect(Math.abs(oog.gaten[0].r - 15)).toBeLessThan(0.02);
+    const armB = analyze(lees('voorbeelden/lastafel/delen/Armpaar-B.kcad'), defaultSettings());
+    const cyl = armB.flats.find((f) => f.naam === 'Oog cilinder')!;
+    expect([cyl.betrouwbaar, cyl.n]).toEqual(['exact', 4]);
+    expect(cyl.buiten.every((sg) => sg.bulge === 0)).toBe(true);
+    const bok = lees('voorbeelden/lastafel/delen/Cilinderbok.kcad');
+    const lip = analyze(bok, defaultSettings()).flats.find((f) => f.naam === 'Lipplaat')!;
+    expect([lip.gaten.length, lip.binnen.length]).toEqual([0, 0]);
+    // the pin body runs through the lip plate: the bore is missing in the model itself
+    const bodies = documentBodies(bok), box = (k: string) => { const b = bodies.find((x) => x.naam === k)!; const lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
+      for (let i = 0; i < b.soup.length; i += 3) for (let q = 0; q < 3; q++) { lo[q] = Math.min(lo[q], b.soup[i + q]); hi[q] = Math.max(hi[q], b.soup[i + q]); } return { lo, hi }; };
+    const L = box('Lipplaat'), P = box('Cilinderpen Ø40');
+    expect([0, 1, 2].every((q) => Math.min(L.hi[q], P.hi[q]) - Math.max(L.lo[q], P.lo[q]) > 5)).toBe(true);
+  }, 300000);
+
   // rooster.dxf holds 197 closed LWPOLYLINE: 195 on layer SNIJDEN (the outline and 194 holes, as rooster.loops of the
   // generator) and 2 on layer 0 (not cut); its round holes are polylines, no CIRCLE. The SNIJDEN layer is compared.
   it('P2.6 the grille of the extraction: the same contours as the cut layer of rooster.dxf, cut length within 0.5 %', () => {

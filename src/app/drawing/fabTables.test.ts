@@ -131,4 +131,19 @@ describe('P4.8 Bend Table on a drawing sheet', { timeout: 120000 }, () => {
     expect((st().doc.sheets![0].tables ?? []).some((x) => x.kind === 'bendTable')).toBe(false);
     expect(bendTableCells(lf1(), P)).toBeNull();
   });
+  it('N-15 the cut list follows its model: a member suppressed in the part of the view gives new rows, without inserting again', async () => {
+    const { refreshFabTables } = await import('./fabTableCommand');
+    drawingWith(lf1());
+    await insertFabTable('cutList');
+    const before = st().doc.sheets![0].tables!.find((x) => x.kind === 'cutList')!.cells!;
+    const sheet = st().doc.sheets![0], v = sheet.views[0];
+    const fi = v.model.features.map((f, i) => ({ f, i })).filter((x) => x.f.type !== 'sketch').pop()!.i;
+    const model = { ...v.model, features: v.model.features.map((f, i) => (i === fi ? { ...f, suppressed: true } : f)) };
+    st().applyDocument('change part', { ...st().doc, sheets: [{ ...sheet, views: sheet.views.map((x) => (x.id === v.id ? { ...x, model } : x)) }] });
+    await refreshFabTables();
+    for (let i = 0; i < 20 && st().doc.sheets![0].tables!.find((x) => x.kind === 'cutList')!.cells === before; i++) await new Promise((r) => setTimeout(r, 20));
+    const after = st().doc.sheets![0].tables!.find((x) => x.kind === 'cutList')!.cells!;
+    expect(after).not.toEqual(before);
+    expect(after).toEqual(cutListCells(model)!.cells);
+  });
 });

@@ -64,7 +64,8 @@ const labour = (s: FabSettings, id: string, cat: CostCategory, text: string, hou
 
 export function costModel(inp0: CostInput): CostModel {
   // a weld joint whose bodies no longer touch is not costed (docs/37 B-8)
-  const inp = { ...inp0, joints: inp0.joints.filter((j) => j.status !== 'vervallen') };
+  // a lapsed joint and an unticked short weld (not load-bearing) are not costed
+  const inp = { ...inp0, joints: inp0.joints.filter((j) => j.status !== 'vervallen' && !(j.kort && !j.meetellen)) };
   const S = inp.settings, M = S.machines, regels: CostLine[] = [];
   const profiles = inp.recs.filter((r) => r.soort === 'profiel');
   // ---- material: profiles

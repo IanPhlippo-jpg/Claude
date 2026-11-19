@@ -93,7 +93,16 @@ export function plateOutline(s: Float64Array, n: V3, hi: number, thickness: numb
   const all = [...outers[0], ...inners.flat()].map(rot);
   const x0 = Math.min(...all.map((p) => p.x)), y0 = Math.min(...all.map((p) => p.y));
   const place = (p: P2): P2 => { const q = rot(p); return { x: q.x - x0, y: q.y - y0 }; };
-  const fit = (p: P2[]) => fitArcs(p.map(place));
+  // arcs where the model has them; a coarse polygon the model draws on purpose (8 chords for R34, docs/37 N-14) stays a
+  // polygon: when the fitted loop lies on average more than 0.05 mm from the polygon (area difference / perimeter),
+  // the polygon is what is cut. A tessellated circle of a CAD lies far closer (Ø30 in 64 chords: 0.012 mm)
+  const fit = (p0: P2[]): ReturnType<typeof fitArcs> => {
+    const p = p0.map(place), f = fitArcs(p);
+    const polyA = Math.abs(area(p)), fitA = 'circle' in f ? Math.PI * f.circle.r ** 2 : Math.abs(loopAreaB(f.loop));
+    const perim = p.reduce((t, q, i) => t + Math.hypot(p[(i + 1) % p.length].x - q.x, p[(i + 1) % p.length].y - q.y), 0);
+    if (Math.abs(fitA - polyA) / Math.max(perim, 1e-9) <= 0.05) return f;
+    return { loop: p.map((a) => ({ a, bulge: 0 })) };
+  };
   const o = fit(outers[0]);
   const buiten: Loop = 'loop' in o ? o.loop : circleLoop(o.circle);
   const binnen: Loop[] = [], gaten: { c: P2; r: number }[] = [];
@@ -154,6 +163,7 @@ export function flatOfPlate(b: FabBody, naam: string, n: number, materiaal: stri
   const pl = plateAnalysis(b);
   const empty = { key: b.key, naam, n, materiaal, t: 0, dichtheid: b.dichtheid, buiten: [], binnen: [], gaten: [], plooien: [], bbox: { l: 0, b: 0, draai: 0 }, oppervlak: 0,
     snijlengte: { buiten: 0, binnen: 0 }, insteken: 0, kg: 0 };
+  if (b.warning) return { ...empty, betrouwbaar: 'geen', fout: `geen uitslag: ${b.warning}` };
   if (!('t' in pl)) return { ...empty, betrouwbaar: 'geen', fout: pl.reason };
   const o = plateOutline(b.soup, pl.n, pl.hi, pl.t);
   if ('fout' in o) return { ...empty, t: pl.t, betrouwbaar: 'geen', fout: o.fout };
@@ -176,11 +186,18 @@ export function flatOfSheet(doc: Document, folded: FabBody, naam: string, n: num
     : kBron === 'din6935' ? `DIN 6935, K = ${k.toFixed(3)}` : `model, K = ${k.toFixed(3)}`;
   // W4: the core unfolds cuts and holes only when every bend comes from the base flange (sheetMetalBuild.ts bentOnly);
   // these features switch that off and the flat falls back to the developed sketch chain without the cut-outs
+  // a part whose rebuild failed has no geometry that is the model: no flat at all (docs/37 N-11)
+  if (folded.warning) {
+    return { key: folded.key, naam, n, materiaal, t: sm.thickness, dichtheid: folded.dichtheid, buiten: [], binnen: [], gaten: [], plooien: [], bbox: { l: 0, b: 0, draai: 0 },
+      oppervlak: 0, snijlengte: { buiten: 0, binnen: 0 }, insteken: 0, kg: 0, kBron: label, betrouwbaar: 'geen', fout: `geen uitslag: ${folded.warning}` };
+  }
   const notFromBase = doc.features.filter((f) => !f.suppressed && NOT_FROM_BASE.has(f.type));
   // those parts go through the general unfolder of the mesh (docs/37 ch. 9, P1.4); it works with a K-factor
   if (notFromBase.length) {
-    const kU = kType === 'kFactor' ? k : din6935K(sm.bendRadius, sm.thickness);
-    return flatByUnfolding(folded, naam, n, materiaal, sm.thickness, sm.bendRadius, kU, kType === 'kFactor' ? label : `DIN 6935, K = ${kU.toFixed(3)}`);
+    // K per bend: DIN 6935 for the radius measured on that bend, or the K of the model
+    const din = kBron === 'din6935' || kType !== 'kFactor';
+    const kU = din ? (rIn: number) => din6935K(rIn, sm.thickness) : sm.kFactor;
+    return flatByUnfolding(folded, naam, n, materiaal, sm.thickness, sm.bendRadius, kU, din ? 'DIN 6935 per plooi' : label);
   }
   const has = doc.features.some((f) => f.type === 'flatPattern');
   const features: Feature[] = has ? doc.features.map((f) => (f.type === 'flatPattern' ? { ...f, suppressed: false } : f)) : [...doc.features, { id: 'fab-flat', type: 'flatPattern',

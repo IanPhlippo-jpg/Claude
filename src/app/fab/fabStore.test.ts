@@ -14,10 +14,11 @@ import { settingsKey } from '../../fab/analyze';
 
 setRebuildBudget(Infinity);
 const st = () => useStore.getState();
+// docs/37 N-13: opening LF1 rebuilds it; under load that takes longer than the default 10 s of a hook
 beforeEach(() => {
   useFab.setState({ settings: defaultSettings(), result: null, modelKey: '' });
   st().openDocument({ ...lf1(), id: `doc-${Math.random()}` });
-});
+}, 120_000);
 
 describe('B-1 prices follow the settings', () => {
   it('a new hourly rate reprices Cost and the quote at once; the result is not stale', () => {

@@ -253,6 +253,9 @@ type V3w = [number, number, number];
  * The weld plan (A4 landscape): a view of the construction with the numbered joints, the table with the positions of
  * the saw list and the ISO 2553 symbol per joint, the execution class and its warning, the remark about the rules.
  */
+/** the remark of a joint on the weld plan: proposal, lapsed, short weld (not load-bearing, counted or not) */
+const remark = (j: WeldJoint) => `${j.bevestigd ? '' : 'voorstel'}${j.status ? ` ${j.status}` : ''}${j.kort ? ` korte las, niet dragend${j.meetellen ? '' : ', niet meegeteld'}` : ''}`.trim();
+
 export function weldPlanPdf(joints0: WeldJoint[], steps: WeldStep[], exc: ExecutionClass, m: SheetMeta, naam: (key: string) => string, view: WeldView[] = []): Uint8Array {
   const joints = joints0.filter((j) => j.status !== 'vervallen');
   const doc = new PdfDoc(297, 210, `${NL.lasplan} ${m.model}`);
@@ -289,7 +292,7 @@ export function weldPlanPdf(joints0: WeldJoint[], steps: WeldStep[], exc: Execut
     { t: K[7], w: 13 }, { t: K[8], w: 12 }, { t: 'Symbool (ISO 2553 A)', w: 70 }, { t: K[9], w: 40 }];
   const sorted = [...joints].sort((a, b) => a.stap - b.stap);
   const rows = sorted.map((j) => [j.id, String(j.stap), `${naam(j.bodies[0])} / ${naam(j.bodies[1])}`.slice(0, 28), j.soort, `${j.maat.letter}${num(j.maat.mm, j.maat.mm % 1 ? 1 : 0)}`,
-    mm(j.lengte), j.proces, j.positie, j.niveau, '', `${j.bevestigd ? '' : 'voorstel'}${j.status ? ` ${j.status}` : ''}`.trim()]);
+    mm(j.lengte), j.proces, j.positie, j.niveau, '', remark(j)]);
   // the symbol rows are taller: draw the table row by row with the symbol in its cell
   const x0 = 12, rowH = 12;
   const head = (yy: number) => {

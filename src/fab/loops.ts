@@ -48,12 +48,18 @@ const turn = (a: P2, b: P2, c: P2) => Math.atan2((b.x - a.x) * (c.y - b.y) - (b.
  * way by less than 30 degrees each and lie on one circle within `tol` become one arc. A loop that is one circle is
  * returned as such.
  */
-export function fitArcs(pts0: P2[], tol = 0.005): { loop: Loop } | { circle: { c: P2; r: number } } {
+export function fitArcs(pts0: P2[], tol = 0.02): { loop: Loop } | { circle: { c: P2; r: number } } {
   const n = pts0.length;
   if (n >= 8) {
-    const c = circle3(pts0[0], pts0[Math.floor(n / 3)], pts0[Math.floor((2 * n) / 3)]);
+    // the circle of least squares through all points (a CSG mesh puts its points up to ~0.01 mm off, docs/37 N-10)
+    const c = circleFit(pts0);
     // a full circle also needs small turns at every point: an octagon has all its corners on one circle (docs/37 P2.7)
-    const smallTurns = pts0.every((p, i) => Math.abs(turn(pts0[(i + n - 1) % n], p, pts0[(i + 1) % n])) <= Math.PI / 6);
+    // (on the points at least 0.05 mm apart: the seams of a mesh leave tiny zig-zags)
+    const q: P2[] = [];
+    for (const p of pts0) if (!q.length || Math.hypot(p.x - q[q.length - 1].x, p.y - q[q.length - 1].y) >= 0.05) q.push(p);
+    while (q.length > 3 && Math.hypot(q[0].x - q[q.length - 1].x, q[0].y - q[q.length - 1].y) < 0.05) q.pop();
+    const m = q.length;
+    const smallTurns = m >= 8 && q.every((p, i) => Math.abs(turn(q[(i + m - 1) % m], p, q[(i + 1) % m])) <= Math.PI / 6);
     if (c && smallTurns && pts0.every((p) => Math.abs(Math.hypot(p.x - c.c.x, p.y - c.c.y) - c.r) <= tol)) return { circle: c };
   }
   // start after the longest segment (a line, or the joint of two arcs), so no arc is cut in two
@@ -108,3 +114,20 @@ export function arcPoints(a: P2, b: P2, bulge: number, steps: number): P2[] {
   return Array.from({ length: steps + 1 }, (_, k) => ({ x: cx + r * Math.cos(a0 + (th * k) / steps), y: cy + r * Math.sin(a0 + (th * k) / steps) }));
 }
 
+
+/** the circle of least squares (Kasa): x^2 + y^2 + D x + E y + F = 0 over all points, or null */
+export function circleFit(pts: P2[]): { c: P2; r: number } | null {
+  const n = pts.length;
+  if (n < 3) return null;
+  const mx = pts.reduce((a, p) => a + p.x, 0) / n, my = pts.reduce((a, p) => a + p.y, 0) / n;
+  let suu = 0, svv = 0, suv = 0, suuu = 0, svvv = 0, suvv = 0, svuu = 0;
+  for (const p of pts) {
+    const u = p.x - mx, v = p.y - my;
+    suu += u * u; svv += v * v; suv += u * v; suuu += u * u * u; svvv += v * v * v; suvv += u * v * v; svuu += v * u * u;
+  }
+  const det = suu * svv - suv * suv;
+  if (Math.abs(det) < 1e-12) return null;
+  const a = (suuu + suvv) / 2, b = (svvv + svuu) / 2;
+  const uc = (a * svv - b * suv) / det, vc = (b * suu - a * suv) / det;
+  return { c: { x: uc + mx, y: vc + my }, r: Math.sqrt(uc * uc + vc * vc + (suu + svv) / n) };
+}

@@ -53,6 +53,9 @@ export function partBodies(doc: Document, path: string[] = [], aantal = 1, rebui
   const mat = doc.material;
   const prop = doc.properties?.['fab.soort'];
   const errs = Object.values(r.errors ?? {});
+  // a warning that the geometry itself is wrong (an open mesh) counts as an error for the flat (docs/37 N-11); the
+  // note that a body has no exact B-rep version does not
+  const open = Object.values(r.warnings ?? {}).filter((w) => /not closed|opening/i.test(w));
   return r.bodies.map((b) => {
     const s = soup(b.geometry);
     return {
@@ -71,7 +74,7 @@ export function partBodies(doc: Document, path: string[] = [], aantal = 1, rebui
       eigenschap: typeof prop === 'string' ? prop : undefined,
       sheet,
       exact: !!b.exact,
-      ...(errs.length ? { warning: `herbouw met fouten: ${errs[0]}` } : {}),
+      ...(errs.length ? { warning: `herbouw met fouten: ${errs[0]}` } : open.length ? { warning: `herbouw met waarschuwing: ${open[0]}` } : {}),
     };
   });
 }

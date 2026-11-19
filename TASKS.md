@@ -1696,3 +1696,12 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable-X3: schone git archive van dd2ab32, tests, build, e2e, eigen scripts opnieuw
 - [x] Fable-X3: ontvouwer, tabellen, lasregels en de twee besluiten van de bouwer nalopen; open criteria nameten
 - [x] Fable-X3: hoofdstuk 11 onder docs/37 (geen codewijziging, geen commit)
+
+## Extensies: derde beoordeling docs/37 hoofdstuk 11 verwerken (2026-11-19)
+- [x] N-9: straal per plooi uit de facetten van de plooistrook (gebogen vlakken van de kern), anders weigeren
+- [x] N-11: herbouwfout of waarschuwing in het part: geen uitslag "exact"
+- [x] N-10: fitArcs met kleinste-kwadratencirkel (0,02 mm), CIRCLE/ARC voor gaten in gezette en vlakke platen
+- [x] Korte lassen (< max(30, 6a)) tonen als "korte las, niet dragend", standaard uitgevinkt, telling in de PM
+- [x] P3: N-12 hechtlas (tussenruimte), N-13 uurloontest, N-14 lastafel oog cilinder en lipplaat, N-15 tabellen verversen
+- [x] Zomen en jogs (open zoom ontvouwd; gesloten/druppel/gerold en jog geweigerd) ontvouwen met handberekening, of weigeren met reden
+- [x] typecheck, vitest, e2e, poorten, hoofdstuk 12 in docs/37

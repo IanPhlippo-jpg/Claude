@@ -293,11 +293,18 @@ function WeldPanel() {
         {d.waarschuwing && <p className="k-fab-error" data-testid="fab-exc-warning">{d.waarschuwing}</p>}
       </Section>
       <Section title={`Weld Joints (${r.joints.length})`} defaultOpen={focus === 'joints'}>
+        {r.joints.some((j) => j.kort) && <p className="k-pm-message" data-testid="fab-short-welds">{r.joints.filter((j) => j.kort).length} short welds (under 30 mm or 6a): not load-bearing
+          (EN 1993-1-8, 4.5.1), counted only when ticked.</p>}
         {r.joints.map((j) => (
           <div key={j.id} className={`k-fab-item ${j.status === 'vervallen' ? 'onbekend' : ''}`} data-testid="fab-weld">
             <span className="k-fab-symbol" dangerouslySetInnerHTML={{ __html: weldSymbolSvg(j) }} />
             <span className="k-fab-name">{j.id} {j.maat.letter}{num(j.maat.mm, j.maat.mm % 1 ? 1 : 0)} x {mm(j.lengte)}</span>
             <span className="k-fab-what">{names.get(j.bodies[0])} / {names.get(j.bodies[1])}{j.bevestigd ? '' : ' · proposal'}{j.status ? ` · ${j.status}` : ''}</span>
+            {j.kort && <label className="k-fab-what" title="korte las, niet dragend (EN 1993-1-8, 4.5.1)"><input type="checkbox" data-testid="fab-short-weld" checked={!!j.meetellen}
+              onChange={(e) => {
+                const on = e.target.checked;
+                patchFab('Short Weld', (f) => ({ ...f, welds: r.joints.map((x) => ({ ...x, bevestigd: true, ...(x.id === j.id ? { meetellen: on } : {}) })) }));
+                recompute(); }} /> short weld, count</label>}
           </div>
         ))}
         <button className="k-btn"

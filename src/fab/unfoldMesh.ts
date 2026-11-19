@@ -16,8 +16,8 @@ import type { P2, V3 } from './geom';
 import { areaD, EndType, FillRule, inflatePathsD, JoinType, unionD, type PathsD } from 'clipper2-ts';
 import { cross, dot, triangle, triCount, unit } from './geom';
 
-interface Tri { v: [number, number, number]; n: V3; c: V3; area: number }
-export interface UnfoldBend { a: P2; b: P2; hoek: number; richting: 'op' | 'neer' }
+interface Tri { v: [number, number, number]; n: V3; c: V3; area: number; /** index in the soup */ src: number }
+export interface UnfoldBend { a: P2; b: P2; hoek: number; richting: 'op' | 'neer'; /** inner radius measured on the facets */ r: number }
 export interface Unfolded { soup: Float64Array; plooien: UnfoldBend[]; oppervlak: number; /** through holes of the folded part: rings of wall faces besides the outer one */ gaten: number }
 
 const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -34,7 +34,8 @@ function ray(o: V3, d: V3, a: V3, b: V3, c: V3): number | null {
   return t > 1e-6 ? t : null;
 }
 
-export function unfoldMesh(s: Float64Array, t: number, r: number, k: number): Unfolded | { fout: string } {
+export function unfoldMesh(s: Float64Array, t: number, r: number, k: number | ((rIn: number) => number), curved?: Set<number>): Unfolded | { fout: string } {
+  const kOf = typeof k === 'number' ? () => k : k;
   // ---- weld the vertices, the triangles and their edges
   const verts: V3[] = [], ids = new Map<string, number>();
   const vid = (p: V3) => { const key = p.map((x) => Math.round(x * 1e4)).join(','); let i = ids.get(key); if (i === undefined) { i = verts.length; verts.push(p); ids.set(key, i); } return i; };
@@ -43,7 +44,7 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number): Un
     const g = triangle(s, i);
     // slivers (CSG seams along a line) carry no area and would join edges across a hole
     if (g.area < 1e-9) continue;
-    tris.push({ v: [vid(g.p[0]), vid(g.p[1]), vid(g.p[2])], n: g.n, area: g.area, c: [0, 1, 2].map((j) => (g.p[0][j] + g.p[1][j] + g.p[2][j]) / 3) as V3 });
+    tris.push({ src: i, v: [vid(g.p[0]), vid(g.p[1]), vid(g.p[2])], n: g.n, area: g.area, c: [0, 1, 2].map((j) => (g.p[0][j] + g.p[1][j] + g.p[2][j]) / 3) as V3 });
   }
   const adj = adjacency(tris, verts);
   const nb = (i: number, j: number) => adj[i][j];
@@ -101,36 +102,38 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number): Un
   }
   const rArea = regions.map((l) => l.reduce((x, i) => x + tris[i].area, 0));
   const rNormal = regions.map((l) => tris[l[0]].n);
-  // ---- 3. unfold, breadth first from the biggest region
-  const pos2 = regions.map(() => new Map<number, P2>());
-  const placed = new Array<boolean>(regions.length).fill(false);
-  const isStrip = new Array<boolean>(regions.length).fill(false);
-  const convex = new Array<boolean>(regions.length).fill(false);
-  const parentOf = new Array<number>(regions.length).fill(-1);
+  // ---- 3. unfold, breadth first from the biggest region; twice: first to find the bend zones and measure their radius
+  // from the facets, then with every strip stretched to the neutral fibre of its own radius (docs/37 N-9)
   const root = rArea.indexOf(Math.max(...rArea));
-  {
-    const n = rNormal[root], big = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
-    const u = unit(cross(big as V3, n)), v = cross(n, u), o = verts[tris[regions[root][0]].v[0]];
-    for (const i of regions[root]) for (const w of tris[i].v) pos2[root].set(w, { x: dot(sub(verts[w], o), u), y: dot(sub(verts[w], o), v) });
-    placed[root] = true;
-  }
-  const queue = [root];
-  const rho = (cvx: boolean) => (cvx ? r + t : r), neutral = r + k * t;
-  while (queue.length) {
-    const P = queue.shift()!;
-    // every region next to P, turned about the longest edge they share (a short T-junction edge gives a poor direction)
-    const best = new Map<number, { a: number; b: number; L: number }>();
-    for (const i of regions[P]) for (let j = 0; j < 3; j++) {
-      const a = tris[i].v[j], b = tris[i].v[(j + 1) % 3];
-      for (const o of nb(i, j)) {
-        const R2 = region[o];
-        if (R2 < 0 || R2 === P || placed[R2] || !inA(o)) continue;
-        const L = Math.hypot(...sub(verts[b], verts[a]));
-        if (!best.has(R2) || L > best.get(R2)!.L) best.set(R2, { a, b, L });
-      }
+  const curvedR = regions.map((l) => (curved ? l.filter((ti) => curved.has(tris[ti].src)).length > l.length / 2 : null));
+  const place = (scaleOf: (R: number) => number) => {
+    const pos2 = regions.map(() => new Map<number, P2>());
+    const placed = new Array<boolean>(regions.length).fill(false);
+    const isStrip = new Array<boolean>(regions.length).fill(false);
+    const convex = new Array<boolean>(regions.length).fill(false);
+    const parentOf = new Array<number>(regions.length).fill(-1);
+    const width = new Array<number>(regions.length).fill(0);
+    {
+      const n = rNormal[root], big = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+      const u = unit(cross(big as V3, n)), v = cross(n, u), o = verts[tris[regions[root][0]].v[0]];
+      for (const i of regions[root]) for (const w of tris[i].v) pos2[root].set(w, { x: dot(sub(verts[w], o), u), y: dot(sub(verts[w], o), v) });
+      placed[root] = true;
     }
-    for (const [R, { a, b }] of best) {
-      {
+    const queue = [root];
+    while (queue.length) {
+      const P = queue.shift()!;
+      // every region next to P, turned about the longest edge they share (a short T-junction edge gives a poor direction)
+      const best = new Map<number, { a: number; b: number; L: number }>();
+      for (const i of regions[P]) for (let j = 0; j < 3; j++) {
+        const a = tris[i].v[j], b = tris[i].v[(j + 1) % 3];
+        for (const o of nb(i, j)) {
+          const R2 = region[o];
+          if (R2 < 0 || R2 === P || placed[R2] || !inA(o)) continue;
+          const L = Math.hypot(...sub(verts[b], verts[a]));
+          if (!best.has(R2) || L > best.get(R2)!.L) best.set(R2, { a, b, L });
+        }
+      }
+      for (const [R, { a, b }] of best) {
         // the crease (a, b): turn region R about it into the plane of P
         const pa = verts[a], pb = verts[b], e = unit(sub(pb, pa)), nR = rNormal[R];
         let f = cross(nR, e);
@@ -145,13 +148,12 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number): Un
         const cP = [...pos2[P].values()].reduce((acc, q) => ({ x: acc.x + q.x, y: acc.y + q.y }), { x: 0, y: 0 });
         const nP = pos2[P].size;
         if ((cP.x / nP - A2.x) * F.x + (cP.y / nP - A2.y) * F.y > 0) F = { x: -F.x, y: -F.y };
-        // a bend strip: a facet of a cylinder of radius r or r + t is a chord 2 rho sin(delta / 2), and its turn against the
-        // neighbour is delta or delta / 2; a flange is far wider. Stretched to the neutral fibre.
-        const width = Math.max(...regions[R].flatMap((ti) => tris[ti].v.map((w) => dot(sub(verts[w], pa), f))));
+        // a bend strip: a facet of a cylinder (the kernel marks it curved); without that mark, a narrow region for its turn
+        const w0 = Math.max(...regions[R].flatMap((ti) => tris[ti].v.map((w) => dot(sub(verts[w], pa), f))));
         const turn = Math.acos(Math.max(-1, Math.min(1, dot(rNormal[P], nR))));
-        const strip = turn > 0.03 && turn < 0.6 && width < 2.4 * (r + t) * Math.sin(turn) + 0.01;
-        const sc = strip ? neutral / rho(cvx) : 1;
-        isStrip[R] = strip; convex[R] = cvx; parentOf[R] = P;
+        const strip = turn > 0.03 && turn < 0.6 && (curvedR[R] ?? w0 < 2.4 * (r + t) * Math.sin(turn) + 0.01);
+        isStrip[R] = strip; convex[R] = cvx; parentOf[R] = P; width[R] = w0;
+        const sc = strip ? scaleOf(R) : 1;
         for (const ti of regions[R]) for (const w of tris[ti].v) {
           const d = sub(verts[w], pa), x = dot(d, e), y = dot(d, f) * sc;
           pos2[R].set(w, { x: A2.x + x * E.x + y * F.x, y: A2.y + x * E.y + y * F.y });
@@ -160,7 +162,35 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number): Un
         queue.push(R);
       }
     }
+    return { pos2, placed, isStrip, convex, parentOf, width };
+  };
+  const first = place(() => 1);
+  if (first.placed.some((x) => !x)) return { fout: 'de zijde valt in losse delen uiteen' };
+  // the bend zones: chains of strips from a flange to a flange; the radius of this side from its chords:
+  // n equal chords of an arc of angle Theta: W = n 2 rho sin(Theta / 2n)
+  const zones: { strips: number[]; hoek: number; rIn: number; cvx: boolean }[] = [];
+  const zoneOf = new Map<number, number>();
+  for (let R = 0; R < regions.length; R++) {
+    if (!first.isStrip[R] || first.isStrip[first.parentOf[R]]) continue;
+    const strips: number[] = [];
+    let cur = R;
+    while (cur >= 0 && first.isStrip[cur]) { strips.push(cur); cur = first.parentOf.findIndex((p, j) => p === cur && first.isStrip[j]); }
+    const last = strips[strips.length - 1], out = first.parentOf.findIndex((p, j) => p === last && !first.isStrip[j]);
+    const nIn = rNormal[first.parentOf[R]], nOut = out >= 0 ? rNormal[out] : rNormal[last];
+    const theta = Math.acos(Math.max(-1, Math.min(1, dot(nIn, nOut))));
+    const ws = strips.map((z) => first.width[z]), W = ws.reduce((x, y) => x + y, 0), n = strips.length;
+    const rhoA = W / (2 * n * Math.sin(theta / (2 * n)));
+    const cvx = first.convex[R], rIn = cvx ? rhoA - t : rhoA;
+    if (Math.max(...ws) > 1.15 * Math.min(...ws) || !(rIn > -0.05)) return { fout: 'de straal van een plooi is niet uit de facetten te halen' };
+    zones.push({ strips, hoek: (theta * 180) / Math.PI, rIn: Math.max(0, rIn), cvx });
+    for (const z of strips) zoneOf.set(z, zones.length - 1);
   }
+  const { pos2, placed, isStrip, convex, parentOf } = place((R) => {
+    const z = zones[zoneOf.get(R)!];
+    if (!z) return 1;
+    const rhoA = z.cvx ? z.rIn + t : z.rIn;
+    return rhoA > 1e-9 ? (z.rIn + kOf(z.rIn) * t) / rhoA : 1;
+  });
   if (placed.some((x) => !x)) return { fout: 'de zijde valt in losse delen uiteen' };
   // ---- 4. the flat as a plate: bottom, top and the walls of the boundary of side A
   const out: number[] = [];
@@ -214,7 +244,8 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number): Un
     const nx = { x: -ax.y, y: ax.x };
     const along = pts.map((p) => p.x * ax.x + p.y * ax.y), across = pts.map((p) => p.x * nx.x + p.y * nx.y);
     const m = (Math.min(...across) + Math.max(...across)) / 2, a0 = Math.min(...along), a1 = Math.max(...along);
-    plooien.push({ a: { x: ax.x * a0 + nx.x * m, y: ax.y * a0 + nx.y * m }, b: { x: ax.x * a1 + nx.x * m, y: ax.y * a1 + nx.y * m }, hoek, richting: convex[R] ? 'neer' : 'op' });
+    plooien.push({ a: { x: ax.x * a0 + nx.x * m, y: ax.y * a0 + nx.y * m }, b: { x: ax.x * a1 + nx.x * m, y: ax.y * a1 + nx.y * m }, hoek,
+      richting: convex[R] ? 'neer' : 'op', r: zones[zoneOf.get(R) ?? -1]?.rIn ?? r });
   });
   // the holes of the folded part, counted on its own walls: every closed ring of wall faces but the outer one
   const ring = new Array<number>(tris.length).fill(-1);

@@ -165,6 +165,9 @@ export interface WeldJoint {
   niveauHandmatig?: boolean;
   /** compared with the model at the last analysis: a confirmed joint whose bodies no longer touch, or whose length changed */
   status?: 'nieuw' | 'vervallen' | 'lengte gewijzigd';
+  /** shorter than max(30 mm, 6 a): not load-bearing (EN 1993-1-8, 4.5.1); counted only when ticked (`meetellen`) */
+  kort?: boolean;
+  meetellen?: boolean;
 }
 
 export type ExecutionClass = 'geen' | 'EXC1' | 'EXC2' | 'EXC3';

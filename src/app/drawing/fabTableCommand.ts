@@ -3,7 +3,7 @@
  * on demand (src/fab stays out of the main chunk), its rows are written into the table, the table is saved with the
  * drawing and drawn like a General Table. Inserted again on the same view, the table is refreshed in place.
  */
-import type { DrawingSheet, DrawingView } from '../../core/document/types';
+import type { Document, DrawingSheet, DrawingView } from '../../core/document/types';
 import { freeSpot } from '../../core/drawing/tables';
 import { newId } from '../../core/sketch/model';
 import { bomTableGrid as tableGrid } from '../prefsTables';
@@ -39,10 +39,44 @@ export async function insertFabTable(kind: Kind): Promise<void> {
   const sheet = st.doc.sheets?.[0];
   if (!sheet || !sheet.views.some((x) => x.id === v.id)) return;
   const old = (sheet.tables ?? []).find((t) => t.kind === kind && t.viewId === v.id);
-  const t: NonNullable<DrawingSheet['tables']>[number] = { id: old?.id ?? newId('tb'), kind, viewId: v.id, cells, position: old?.position };
+  const t: NonNullable<DrawingSheet['tables']>[number] = { id: old?.id ?? newId('tb'), kind, viewId: v.id, cells, position: old?.position, bron: modelKey(v.model) };
   if (!t.position) { const g = tableGrid(sheet, t); t.position = freeSpot(sheet, g?.w ?? 80, g?.h ?? 20); }
   const tables = old ? (sheet.tables ?? []).map((x) => (x.id === old.id ? t : x)) : [...(sheet.tables ?? []), t];
   st.applyDocument(LABEL[kind], { ...st.doc, sheets: [{ ...sheet, tables }, ...(st.doc.sheets ?? []).slice(1)] });
   // a new table follows the cursor until a click places it, like the Hole Table
   if (!old) st.setDrawingTool({ kind: 'placeTable', id: t.id });
 }
+
+/** the key of a view's model: what changes the cut list or the bend table (features, sketches, parts, sheet metal) */
+export function modelKey(m: Document): string {
+  const text = JSON.stringify([m.features, m.sketches, m.components, m.sheetMetal, m.properties, m.activeConfiguration, m.material]);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(36);
+}
+
+/**
+ * docs/37 N-15: a Frame Cut List or Bend Table follows its model. After every change of the drawing (a view updated
+ * from its part, a configuration) the tables whose model key changed get new cells; nothing happens without them.
+ */
+let refreshing = false;
+export async function refreshFabTables(): Promise<number> {
+  if (refreshing) return 0;
+  const doc = useStore.getState().doc;
+  const stale = (doc.sheets ?? []).flatMap((sh, si) => (sh.tables ?? []).filter((t) => t.kind === 'cutList' || t.kind === 'bendTable')
+    .map((t) => ({ si, t, v: sh.views.find((x) => x.id === t.viewId) })))
+    .filter((x) => x.v && x.t.bron !== modelKey(x.v.model));
+  if (!stale.length) return 0;
+  refreshing = true;
+  try {
+    const fresh = await Promise.all(stale.map(async (x) => ({ ...x, cells: await fabTableCells(x.t.kind as Kind, x.v!).catch(() => 'error'), bron: modelKey(x.v!.model) })));
+    const st = useStore.getState();
+    const sheets = (st.doc.sheets ?? []).map((sh, si) => ({ ...sh, tables: (sh.tables ?? []).map((t) => {
+      const f = fresh.find((x) => x.si === si && x.t.id === t.id);
+      return f ? { ...t, bron: f.bron, ...(typeof f.cells === 'string' ? {} : { cells: f.cells }) } : t;
+    }) }));
+    st.applyDocument('Update Tables', { ...st.doc, sheets });
+    return fresh.length;
+  } finally { refreshing = false; }
+}
+useStore.subscribe((s, prev) => { if (s.doc !== prev.doc && s.doc.kind === 'drawing') void refreshFabTables(); });

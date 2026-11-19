@@ -10,8 +10,13 @@ import { dot, planeGroups, triangle, triCount, unit, frameOf, type V3 } from './
 import { FillRule, unionD } from 'clipper2-ts';
 
 export const LINE_GAP = 0.6;
-/** a fillet weld shorter than 30 mm (or 6 a) does not count as a seam (EN 1993-1-8, 4.5.1): a lath corner is no joint */
-export const LINE_MIN = 30;
+/** a line contact shorter than this is a point (a corner touching a corner), no seam at all */
+export const LINE_POINT = 5;
+/**
+ * A fillet weld shorter than 30 mm or 6 a (the larger) is not load-bearing (EN 1993-1-8, 4.5.1): it is still proposed,
+ * as "korte las, niet dragend", unticked (docs/37 ch. 11). The rule is a design rule, no ban on welding.
+ */
+export const shortWeld = (lengte: number, a: number) => lengte < Math.max(30, 6 * a);
 
 interface Seg { a: V3; b: V3 }
 
@@ -79,7 +84,7 @@ function coveredLength(segs: { a: { x: number; y: number }; b: { x: number; y: n
   return best;
 }
 
-/** the line contact of body a against the planar faces of body b, or null (shorter than LINE_MIN) */
+/** the line contact of body a against the planar faces of body b, or null (shorter than LINE_POINT) */
 export function lineContact(a: Pick<FabBody, 'soup'>, b: Pick<FabBody, 'soup'>): { lengte: number; punt: V3 } | null {
   const edges = sharpEdges(a);
   let best: { lengte: number; punt: V3 } | null = null;
@@ -92,7 +97,7 @@ export function lineContact(a: Pick<FabBody, 'soup'>, b: Pick<FabBody, 'soup'>):
     const segs = on.map((e) => ({ a: { x: dot(e.a, u), y: dot(e.a, v) }, b: { x: dot(e.b, u), y: dot(e.b, v) } }))
       .filter((s) => inside(poly, s.a.x, s.a.y) && inside(poly, s.b.x, s.b.y) && inside(poly, (s.a.x + s.b.x) / 2, (s.a.y + s.b.y) / 2));
     const c = coveredLength(segs);
-    if (c.len >= LINE_MIN && (!best || c.len > best.lengte)) {
+    if (c.len >= LINE_POINT && (!best || c.len > best.lengte)) {
       best = { lengte: c.len, punt: [0, 1, 2].map((k) => u[k] * c.mid.x + v[k] * c.mid.y + n[k] * g.d) as V3 };
     }
   }
