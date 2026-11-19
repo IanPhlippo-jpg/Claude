@@ -60,7 +60,7 @@ function clipPolyAll(poly: V[], hs: Half[]): V[] {
 }
 
 /** the cross-section of a closed mesh by a plane: loops of points (chained cut segments) */
-function sectionLoops(pos: THREE.BufferAttribute, c: Cut): THREE.Vector3[][] {
+export function sectionLoops(pos: THREE.BufferAttribute, c: Cut): THREE.Vector3[][] {
   const segs: [THREE.Vector3, THREE.Vector3][] = [];
   const a = new THREE.Vector3(), b = new THREE.Vector3(), d = new THREE.Vector3();
   for (let i = 0; i + 2 < pos.count; i += 3) {
@@ -82,38 +82,84 @@ function sectionLoops(pos: THREE.BufferAttribute, c: Cut): THREE.Vector3[][] {
     }
     if (pts.length === 2 && pts[0].distanceToSquared(pts[1]) > 1e-14) segs.push([pts[0], pts[1]]);
   }
-  // chain the segments by their (rounded) end points
-  const key = (p: THREE.Vector3) => `${Math.round(p.x * 1e4)},${Math.round(p.y * 1e4)},${Math.round(p.z * 1e4)}`;
-  const adj = new Map<string, number[]>();
-  segs.forEach(([p, q], i) => {
-    for (const k of [key(p), key(q)]) adj.set(k, [...(adj.get(k) ?? []), i]);
-  });
-  const used = new Uint8Array(segs.length);
-  const loops: THREE.Vector3[][] = [];
-  for (let s0 = 0; s0 < segs.length; s0++) {
-    if (used[s0]) continue;
-    used[s0] = 1;
-    const loop = [segs[s0][0], segs[s0][1]];
-    const startKey = key(segs[s0][0]);
-    let cur = segs[s0][1];
-    for (let guard = 0; guard < segs.length; guard++) {
-      const ck = key(cur);
-      if (ck === startKey) break;
-      const next = (adj.get(ck) ?? []).find((j) => !used[j]);
-      if (next === undefined) break;
-      used[next] = 1;
-      const [p, q] = segs[next];
-      cur = key(p) === ck ? q : p;
-      loop.push(cur);
+  return chainLoops(segs);
+}
+
+/**
+ * Chains cut segments into closed loops. A tessellated B-rep or a CSG result is rarely watertight: faces meet at
+ * T-junctions and float32 positions differ in the last bits, so the end points are welded within `tol` (mm), a segment
+ * that occurs twice cancels out (a face touching the plane from the kept side), and chains that stay open are joined
+ * end to nearest end. An open chain must never reach the triangulator: it closes it with one straight line across the
+ * section, a wedge of cap over a hole (the diagonal in the section of the fan housing, 0.5.14).
+ */
+export function chainLoops(segs: [THREE.Vector3, THREE.Vector3][], tol = 1e-3): THREE.Vector3[][] {
+  // weld the end points: a grid of cells of size tol, a point merges with a point within tol in a neighbouring cell
+  const pts: THREE.Vector3[] = [];
+  const grid = new Map<string, number[]>();
+  const weld = (p: THREE.Vector3) => {
+    const cx = Math.floor(p.x / tol), cy = Math.floor(p.y / tol), cz = Math.floor(p.z / tol);
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) {
+      for (const n of grid.get(`${cx + i},${cy + j},${cz + k}`) ?? []) if (pts[n].distanceToSquared(p) <= tol * tol) return n;
     }
-    if (key(loop[loop.length - 1]) === startKey) loop.pop();
-    if (loop.length >= 3) loops.push(loop);
+    const n = pts.push(p) - 1, key = `${cx},${cy},${cz}`;
+    grid.set(key, [...(grid.get(key) ?? []), n]);
+    return n;
+  };
+  const edgeMap = new Map<string, [number, number]>();
+  for (const [p, q] of segs) {
+    const a = weld(p), b = weld(q);
+    if (a === b) continue;
+    const k = a < b ? `${a},${b}` : `${b},${a}`;
+    if (edgeMap.has(k)) edgeMap.delete(k); else edgeMap.set(k, [a, b]);
   }
-  return loops;
+  const E = [...edgeMap.values()];
+  const adj = new Map<number, number[]>();
+  E.forEach(([a, b], i) => { for (const v of [a, b]) adj.set(v, [...(adj.get(v) ?? []), i]); });
+  const used = new Uint8Array(E.length);
+  const extend = (ch: number[]) => {
+    for (let cur = ch[ch.length - 1]; ;) {
+      const e = adj.get(cur)!.find((j) => !used[j]);
+      if (e === undefined) return;
+      used[e] = 1;
+      cur = E[e][0] === cur ? E[e][1] : E[e][0];
+      ch.push(cur);
+      if (cur === ch[0]) return;
+    }
+  };
+  // walks from the points of odd degree first (they end at an open end), then the rest (they close on their start)
+  const closed: number[][] = [], open: number[][] = [];
+  const starts = [...adj.keys()].sort((p, q) => (adj.get(q)!.length % 2) - (adj.get(p)!.length % 2));
+  for (const s of starts) {
+    while (adj.get(s)!.some((j) => !used[j])) {
+      const ch = [s];
+      extend(ch);
+      if (ch.length > 1 && ch[ch.length - 1] === s) { ch.pop(); closed.push(ch); } else open.push(ch);
+    }
+  }
+  // stitch the open chains: the end to the nearest end of another open chain, or to its own start
+  while (open.length) {
+    const ch = open.pop()!;
+    for (;;) {
+      const end = pts[ch[ch.length - 1]];
+      let best = pts[ch[0]].distanceToSquared(end), bi = -1, rev = false;
+      open.forEach((o, i) => {
+        const ds = pts[o[0]].distanceToSquared(end), de = pts[o[o.length - 1]].distanceToSquared(end);
+        if (ds < best) { best = ds; bi = i; rev = false; }
+        if (de < best) { best = de; bi = i; rev = true; }
+      });
+      if (bi < 0) break;
+      const o = open.splice(bi, 1)[0];
+      if (rev) o.reverse();
+      ch.push(...(o[0] === ch[ch.length - 1] ? o.slice(1) : o));
+    }
+    if (ch.length > 1 && ch[0] === ch[ch.length - 1]) ch.pop();
+    closed.push(ch);
+  }
+  return closed.filter((l) => l.length >= 3).map((l) => l.map((n) => pts[n]));
 }
 
 /** the section face on a plane: the loops triangulated (outer loops with their holes) */
-function capTriangles(loops: THREE.Vector3[][], c: Cut): THREE.Vector3[][] {
+export function capTriangles(loops: THREE.Vector3[][], c: Cut): THREE.Vector3[][] {
   const n = c.normal;
   const u = new THREE.Vector3(Math.abs(n.x) < 0.9 ? 1 : 0, Math.abs(n.x) < 0.9 ? 0 : 1, 0).cross(n).normalize();
   const v = n.clone().cross(u);
