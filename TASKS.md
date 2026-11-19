@@ -1641,3 +1641,7 @@ elease; README en docs/04 bijgewerkt
 - [ ] Fable-X: PDF's, DXF's en schermafbeeldingen nalopen (ISO 7200/128, Belgische offerte, watermerk, "conform", EXC2, SW-conventies)
 - [ ] Fable-X: fouten en risico's zoeken (afronding, verouderd, formaat 5 + migratie, klantgegevens, K-factor, herkenning)
 - [ ] Fable-X: docs/37-review-fable-extensies.md schrijven (geen codewijziging, geen commit)
+
+## Herbeoordeling fase 4 door Fable 5.2 (2026-11-19)
+- [x] Fable-R3: hoofdstuk 12 lezen, eigen GOO-lezer en meetscripts opnieuw draaien, R-1 tot R-7 nameten
+- [x] Fable-R3: hoofdstuk 13 onder docs/35 (tabel, bevindingen, oordeel; geen codewijziging, geen commit)

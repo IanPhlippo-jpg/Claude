@@ -647,3 +647,84 @@ Niets gecommit. Proeven in `src/print/resin/review11.test.ts`; op de code van `e
 | H-6 rest | opgelost | Ook componenten van een assembly krijgen het fijne mesh (0,07 rad) van hun part, per configuratie, zodra het er is (`fineMesh.ts`); een onderdeel met meer zichtbare bodies houdt het schermmesh | Niet automatisch getest: de e2e draait op de meshkern; op de code nagelezen |
 
 e2e: `print3dResin.mjs` 19/19, `print3d.mjs` 26/26. Foto's in `scratchpad\print-fase4b\` (08 steunpunt aangeklikt, 09 proefstuk).
+
+## 13. Herbeoordeling fase 4 (Fable 5.2, 2026-11-19)
+
+Beoordeeld: commit `427904a` (de verwerking uit hoofdstuk 12). Geen code gewijzigd, niets gecommit.
+
+### 13.1 Oordeel
+
+**Fase 4 is vrijgegeven voor de proefprint van het asymmetrische proefstuk (L met F) op één harsprinter die `.goo` leest.**
+
+Binnen deze grenzen:
+- het proefstuk uit de knop **Add Test Piece (L with F)**, met de standaardinstellingen van het harsprofiel en anti-aliasing uit;
+- één printer; elke andere harsprinter blijft "nog te printen" tot hij zijn eigen proefstuk gehad heeft;
+- onder toezicht, omdat geen enkel bestand van deze slicer ooit op een printer gestaan heeft.
+
+Alle meetbare criteria van fase 4 zijn gehaald: **6 gehaald, 0 deels, 2 niet te meten** (was 3 / 3 / 2). R-1 tot R-4 en R-6 zijn opgelost en nagemeten; R-5 is voldoende; R-7 blijft genoteerd. Er is geen nieuwe P1 of P2.
+
+### 13.2 Hoe ik gemeten heb
+
+- `npx vitest run`: 182 bestanden, 1257 tests, alle groen; `tsc -b` exit 0. De e2e is niet door mij gedraaid.
+- De eigen lezer `gooread.mjs` (hoofdstuk 11) op de nieuwe `Kruk.goo` uit `print-fase4b`: 0 problemen, zelfde uitkomst als de vorige ronde (2266 lagen, volume en tijd gelijk aan de kop).
+- `m10.ts` en `m11.ts` opnieuw; nieuw `m12.ts` in `...\scratchpad\review-scripts\r2\`: het proefstuk met alle vier de spiegelstanden, omgekeerde normalen, de lege slice, 14 foute instellingen, anti-aliasing (tijd, oppervlak, grijsniveaus).
+- Foto 09 (proefstuk op de Mars 5 Ultra) bekeken.
+
+### 13.3 R-1 tot R-7 nagemeten
+
+| Nr | Oordeel | Eigen meting |
+|---|---|---|
+| R-1 | opgelost | Kubus met de normalen naar binnen: 8001,6 mm³ (+0,020 %) met de melding "the faces pointed inwards". Een plat driehoekje: geweigerd ("no exposed pixel") |
+| R-2 | opgelost | Proefstuk op de Mars 5 Ultra (8520 × 4320), eigen lezer tegen een eigen beschrijving van de vorm: L op laag 30 en F op laag 75, in alle vier de spiegelstanden **0 pixels verschil**; de vlaggen X mirror en Y mirror in de kop volgen het veld. Alle 21 harsprinters hebben `mirror` (false/false, AANNAME). De tekst in de harsmodus is "nog te printen: asymmetrisch proefstuk (L met F) per harsprinter" (foto 09, `dialects.ts:15`) |
+| R-3 | opgelost | Saturn 4 Ultra, 400 cirkels: anti-aliasing uit 29 tot 37 ms, 4: 93 tot 122 ms, 8: 104 tot 133 ms (eis 150). Oppervlak binnen 0,003 %. Zie N-1 |
+| R-4 | opgelost | Wachttijd −1 en 600 s, anti-aliasing 3, tip dikker dan de steun, lifthoogte −3, steunafstand 0, terugtreksnelheid 0, overgang −1, vlot 50 mm, bodemlift 0, bodemlicht 0: alle geweigerd met een duidelijke zin |
+| R-5 | voldoende | Belichting onder de helft van het harsprofiel geweigerd (0,8 s bij 2,5 s; bodem 5 s bij 25 s); stuk + steunen + lift binnen de bouwhoogte. Grenzen per printermodel publiceert Elegoo niet; meer is zonder printer niet te onderbouwen |
+| R-6 | opgelost | `formatVersion` V3.0 bij de `.goo`-printers; de afwijkende pixelmaat van Saturn S, 2 en 8K staat als AANNAME; uit de test `review11.test.ts:177` |
+| R-7 | genoteerd | Printernaam en "MSLA" in de kop: alleen een printer of een bestand uit Elegoo's slicer kan het zeggen |
+| Steunpunten aanklikken | aanwezig | e2e van de bouwer (19 van 19), foto 08; niet door mij gedraaid |
+| Fijn mesh voor componenten | niet getest | Zoals de bouwer meldt: geen e2e. Raakt het proefstuk niet |
+
+### 13.4 Criteria fase 4 opnieuw
+
+| Nr | Criterium | Was | Nu | Bewijs |
+|---|---|---|---|---|
+| 4.1 | Database: resolutie, pixelmaat, bouwvolume, formaat en versie, met bron | deels | gehaald | 21 printers met resolutie, LCD-maat, bron, `formatVersion` en `mirror`; pixelmaat X en Y uit maat ÷ resolutie, afwijkingen gemarkeerd |
+| 4.2 | Volume ≤ 0,5 % (T1, T2), ≤ 1,5 % (T3) | gehaald | gehaald | Saturn 4 Ultra +0,020 / +0,003 / 0,000 %; Mars 4 DLP +0,238 / +0,009 / +0,002 %; met anti-aliasing 4 hoogstens 0,023 % |
+| 4.3 | Heen en terug met een losse lezer, pixel voor pixel | gehaald | gehaald | L-vorm op de Mars 4 DLP en het proefstuk op de Mars 5 Ultra: 0 pixels verschil |
+| 4.4 | Kop, bestandsgrootte, controlesommen | gehaald | gehaald | `Kruk.goo` en alle proefbestanden: 0 problemen in de eigen lezer |
+| 4.5 | 12K-laag < 150 ms; < 1 GB bij 3000 lagen | deels | gehaald | Zie R-3; 3000 lagen in 1,1 s, +107 MB, bestand 24 MB |
+| 4.6 | Belichting en heffen binnen de grenzen; negatieve proef | deels | gehaald | 23 verschillende foute waarden geweigerd (m10 en m12), ook NaN; R-5 |
+| 4.7 | Ian opent het bestand in de Elegoo-software of een losse viewer | niet te meten | niet te meten | Stap van Ian; zie 13.5 stap 1 |
+| 4.8 | Proefprint per printer | niet te meten | niet te meten | Nog te printen; hiervoor is de vrijgave bedoeld |
+
+### 13.5 De proefprint: wat Ian doet en waar hij op let
+
+1. **Eerst openen, dan printen.** Open het bestand in de slicer van Elegoo of in een losse viewer (UVtools). Wordt het geweigerd of zien de lagen er anders uit, dan niet printen en het melden. Als het kan: sla daar hetzelfde stuk op als `.goo` en bewaar dat bestand buiten de repo; daarmee zijn printernaam, spiegelvlaggen en de bytevolgorde van de voorbeeldplaatjes na te lezen.
+2. **Het proefstuk met de standaardinstellingen**: 190 lagen, ongeveer 34 minuten, 3 ml hars, op steunen met een vlot (gemeten op de Mars 5 Ultra en de Saturn 4 Ultra).
+3. **Aflezen**, met de F naar je toe en het lange been onder:
+   - de F leesbaar en het korte been links omhoog: de aanname klopt; de printer krijgt "geprint op <datum>".
+   - de F in spiegelbeeld of het korte been rechts: het spiegelveld van die printer in de database omzetten (X of Y), opnieuw slicen en opnieuw printen. Er is geen codewijziging nodig.
+4. **Verder noteren**: toont het printerscherm het voorbeeldplaatje, klopt de laagteller en de tijd (34 min), en meet het lange been 40,0 mm en het korte 25,0 mm.
+5. **Niet in deze eerste print**: anti-aliasing, uithollen met afvoergaten, een groot stuk zoals de kruk. Die volgen na een geslaagd proefstuk.
+
+### 13.6 Tests
+
+`npx vitest run` over de hele repo, door mij gedraaid op `427904a`: 182 bestanden, 1257 tests, alle groen. `tsc -b` exit 0. De e2e (`print3dResin.mjs` 19 van 19 volgens de bouwer) is niet door mij gedraaid.
+
+### 13.7 Nieuwe opmerkingen (alle P3, geen voorwaarde)
+
+- **N-1. De marge op anti-aliasing is dun.** Zonder andere last 93 tot 133 ms; terwijl de volledige testreeks ernaast draaide 136 tot 305 ms. De test heeft daarom `retry: 3` (`review11.test.ts:139`). Voor de gebruiker betekent het hoogstens een paar minuten op een groot stuk.
+- **N-2. Grijsniveaus.** Anti-aliasing 2, 4 en 8 geeft 5, 17 en 65 grijswaarden (gemeten). Dat dit is wat de printer verwacht, is een aanname van de bouwer; het proefstuk gaat met anti-aliasing uit, dus het raakt de vrijgave niet.
+- **N-3. Auto Orient voor hars** zet de kruk nog steeds rechtop op 41 steunpunten (hoofdstuk 11). Pas beoordelen na een geslaagd proefstuk.
+- **N-4. Niet nagemeten door mij:** uithollen, afvoergaten, eilanden en zuignappen, het aanklikken van steunpunten en het fijne mesh voor componenten. Ze steunen op de tests en de e2e van de bouwer.
+
+### 13.8 Stand van de hele extensie
+
+| Fase | Stand |
+|---|---|
+| 1 Tabblad, database, plaat | Vrijgegeven |
+| 2 Slicerkern en preview | Vrijgegeven voor de proefkubus |
+| 3 G-code en bestanden | Vrijgegeven voor de proefkubus: één kleur, eigen startcode, printer met één kop |
+| 4 Elegoo hars (.goo) | Vrijgegeven voor het proefstuk L met F op één `.goo`-printer |
+
+Geen enkele printer is vrijgegeven. Dat gebeurt per printer, na zijn eigen geslaagde proefstuk.
