@@ -1635,12 +1635,12 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable-R2: hoofdstuk 11 onder docs/35 (tabel, bevindingen, oordeel per fase; geen codewijziging, geen commit)
 
 ## Review Fable 5.2 van de extensies Lasconstructies+, Lasersnijden/plooien, Offerte uit model (2026-11-19)
-- [~] Fable-X: schone git archive van f9a4f8a in de scratchpad, fab-tests zelf draaien
-- [ ] Fable-X: criteria van docs/36 per fase nalopen (gehaald, deels, niet gehaald, niet te meten) met bewijs
-- [ ] Fable-X: eigen meetscripts (DXF heen en terug, DIN 6935, zaagplan tegen ondergrens, kosten, btw, mod-97, privacy-export)
-- [ ] Fable-X: PDF's, DXF's en schermafbeeldingen nalopen (ISO 7200/128, Belgische offerte, watermerk, "conform", EXC2, SW-conventies)
-- [ ] Fable-X: fouten en risico's zoeken (afronding, verouderd, formaat 5 + migratie, klantgegevens, K-factor, herkenning)
-- [ ] Fable-X: docs/37-review-fable-extensies.md schrijven (geen codewijziging, geen commit)
+- [x] Fable-X: schone git archive van f9a4f8a in de scratchpad, fab-tests zelf draaien
+- [x] Fable-X: criteria van docs/36 per fase nalopen (gehaald, deels, niet gehaald, niet te meten) met bewijs
+- [x] Fable-X: eigen meetscripts (DXF heen en terug, DIN 6935, zaagplan tegen ondergrens, kosten, btw, mod-97, privacy-export)
+- [x] Fable-X: PDF's, DXF's en schermafbeeldingen nalopen (ISO 7200/128, Belgische offerte, watermerk, "conform", EXC2, SW-conventies)
+- [x] Fable-X: fouten en risico's zoeken (afronding, verouderd, formaat 5 + migratie, klantgegevens, K-factor, herkenning)
+- [x] Fable-X: docs/37-review-fable-extensies.md schrijven (geen codewijziging, geen commit)
 
 ## Herbeoordeling fase 4 door Fable 5.2 (2026-11-19)
 - [x] Fable-R3: hoofdstuk 12 lezen, eigen GOO-lezer en meetscripts opnieuw draaien, R-1 tot R-7 nameten
