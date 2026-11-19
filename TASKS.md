@@ -1691,3 +1691,8 @@ elease; README en docs/04 bijgewerkt
 - [x] Regressietest: unit-tests in section.test.ts (lekke buis, segmenten met gaten) en pixelcontrole e2e/sectioncap.mjs
 - [x] Andere modellen met doorsnede nakijken: lastafel, kabeldoos treinverlichting, deurkruk (alle drie hadden open ketens en wiggen; na de fix egaal)
 - [x] Voor/na-beelden in de scratchpad (doorsnede-fix), typecheck, vitest, e2e, graphify update
+
+## Derde beoordeling Fable 5.2 van de extensies na dd2ab32 (2026-11-19)
+- [x] Fable-X3: schone git archive van dd2ab32, tests, build, e2e, eigen scripts opnieuw
+- [x] Fable-X3: ontvouwer, tabellen, lasregels en de twee besluiten van de bouwer nalopen; open criteria nameten
+- [x] Fable-X3: hoofdstuk 11 onder docs/37 (geen codewijziging, geen commit)

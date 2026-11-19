@@ -489,3 +489,132 @@ Gemeten op de werkmap: `tsc` (app) schoon, `vitest run` 186 bestanden / 1330 tes
 | L1.2, L1.4, L1.5, L1.6, P1.6, P2.6, P4.6 | niet nagemeten | |
 
 Bekend en niet opgelost: lijncontacten korter dan 30 mm worden niet gelast (EN 1993-1-8, 4.5.1), ook waar Ian dat wel zou doen; de ontvouwer neemt de straal uit `doc.sheetMetal`, niet per randflens.
+
+## 11. Derde beoordeling (Fable 5.2, 2026-11-19, commit dd2ab32)
+
+Beoordeeld op een schone `git archive` van dd2ab32 (`scratchpad/review-fab3`). Geen code gewijzigd, niets gecommit.
+
+### 11.1 Wat ik gedraaid heb
+
+| Stap | Resultaat |
+|---|---|
+| `vitest run src/fab src/app/fab src/app/drawing/fabTables.test.ts` + `persistence3.test.ts` | 145 van 146; de ene (`fabStore.test.ts`, "a new hourly rate reprices…") viel uit terwijl ik tegelijk andere tests draaide (17,7 s); alleen gedraaid 11 van 11 groen |
+| `VOORBEELDEN=1` `fabVoorbeelden.test.ts` / `fabOrakel.test.ts` | 6 van 6 / 9 van 9 groen |
+| `examples.check.test.ts` (L1.6) | 98 van 98 groen |
+| `tsc -b`, build, bundel- en regelbudget | schoon; hoofdchunk 796,33 kB (budget 800); nest-worker 68,9 kB |
+| `e2e/fab.mjs` | exit 0 |
+| meetscript van ronde 2 opnieuw (`rlog7.txt`), nieuw script voor ontvouwer, lijncontacten en voorbeelden (`scripts3/zzRound3.test.ts`, `zzHole.test.ts`; `rlog5.txt`, `rlog6.txt`), eigen e2e-script | zie hieronder |
+
+Niet gedaan: de bibliotheekgroep (liep te lang, afgebroken), de volledige `vitest run`, een DXF in een externe viewer, slepen in de boom en op het legplan met de hand doorgeklikt (wel gedekt door `e2e/fab.mjs` van de bouwer), L1.5 in de app (mijn eigen stap liep vast op een selector).
+
+### 11.2 N-1 tot N-8
+
+| Nr | Oordeel | Gemeten |
+|---|---|---|
+| N-1 | **opgelost** | in de app: export, kruis, opnieuw exporteren: `2026-001A` blijft in het document en het bestand heet weer Offerte-2026-001 |
+| N-2 | **opgelost** | bedrijfsnaam met OK bevestigd blijft "Testbedrijf" na het kruis van de Quote-PM |
+| N-3 | **opgelost** | 40 x 8 x 2000 zonder gaten: platstaal; strook met gaten: plaat |
+| N-4 | opgelost | volgens de test van de bouwer; in de kern: één regel € 843,05 = 5 x € 168,61 |
+| N-5 | **opgelost** | garantie € 6,04 |
+| N-6 | **opgelost** | PP1 in modus "nest": € 7,54 met "restplaat 1880 x 1000 terug naar voorraad" (was € 125,60). De strook naast het stuk telt nog als verbruikt |
+| N-7 | **opgelost** | één plooi van 120°: geen botsing |
+| N-8 | **opgelost** | lasnaad zonder soort geweigerd; offerte van 4 regels is 1 pagina |
+
+### 11.3 De nieuwe onderdelen
+
+**Ontvouwer (`src/fab/unfoldMesh.ts`, `flatMesh.ts`).** Tab 120 x 80 met één randflens van 30:
+
+| Geval | Uitslag | Met de hand | Oordeel |
+|---|---|---|---|
+| t 2, r 2, K 0,5 | 106,709 | 106,712 | goed (0,003) |
+| t 2, r 2, DIN 6935 | 106,160 | 106,163 | goed |
+| t 3, r 1, K 0,5 | 105,924 | 105,927 | goed |
+| flens omgekeerd; 60°; 120° | 106,709; 108,522; 102,419 | 106,712; –; – | goed; oppervlak x t / volume 1,0000 tot 1,0002 |
+| flens met eigen straal 5 (standaard 2) | 104,470 | 105,425 | fout, **geweigerd** (volume −0,88 %) |
+| flens met eigen straal 0,5 | 107,943 | 107,356 | fout, **geweigerd** (0,55 %) |
+| tab 400 x 600, flens met eigen straal 6 | 623,680 | 624,996 | **1,3 mm fout en toch "exact"** (volume 0,21 %); plooihoek 86,2° in plaats van 90° |
+| zoom gesloten, druppel, gerold | – | – | geweigerd ("meer dan twee zijden") |
+| zoom open | 93,374 | – | geweigerd (volume 1,32 %) |
+| jog | – | – | geweigerd ("meer dan twee zijden") |
+
+Met de standaardstraal is de ontvouwer nauwkeurig. Zomen en jogs worden geweigerd, niet ontvouwen: dat is veilig, maar "algemeen" is hij dus niet.
+
+**Gat als veelhoek.** L met gat en randflens (ontvouwer): Ø8 komt als polylijn van 22 segmenten (10 bogen), Ø9 van 22, Ø20 van 12; geen CIRCLE in de DXF. De vorm klopt: straal 3,993 tot 4,004, oppervlak 50,25 tegen 50,27. Het is niet alleen de ontvouwer: dezelfde L zonder randflens (de uitslag van het model zelf) geeft voor Ø9 een polylijn van 107 segmenten en voor Ø20 van 100; alleen Ø8 kwam als cirkel (r = 3,9952). Ook het hijsoog van de lastafel (gewone plaat van 16 mm) heeft zijn gat als veelhoek. P1.7 haalde ik in ronde 1 op PP1; op deze stukken niet.
+
+**Lasregels (`src/fab/weldEdge.ts`, `weld.ts`).** Lijncontact 20 en 29 mm: geen naad; 31 en 60 mm: naad van die lengte, tweezijdig. Dunne plaat met meer dan 400 mm naad: hechtlassen 50 om 200 (AANNAME, staat zo in de code). Orakel L4.4: groen.
+
+**Tabellen, mappen, worker, slepen, plooistanden, lasaanzicht.** Gedekt door de tests van de bouwer en `e2e/fab.mjs` (exit 0); het lasplan-beeld bekeken: echte projectie als draadmodel, schaal 1:10, de verstekken zijn er niet in te zien. Niet zelf doorgemeten.
+
+### 11.4 De twee besluiten van de bouwer
+
+**1. Lijncontacten korter dan 30 mm krijgen geen las (EN 1993-1-8, 4.5.1).** Uit mijn geheugen, de norm is betalend en dus te verifiëren: 4.5.1(2) zegt dat een hoeklas met een effectieve lengte kleiner dan 30 mm of 6 maal de keeldikte, de grootste van de twee, niet als krachtdragend gerekend mag worden. Dat is een rekenregel, geen verbod om te lassen. Oordeel:
+- de grens van 30 mm is verdedigbaar als drempel; de 6a staat in het commentaar maar niet in de code (bij a ≥ 5,5 is 6a groter dan 30);
+- stil weglaten is niet goed: de verbinding ontbreekt dan in lasplan, hechttijd en kostprijs, en een korte las die wel nodig is verdwijnt zonder melding. Beter: tonen als voorstel "korte las, niet dragend (EN 1993-1-8 4.5.1)", standaard uitgevinkt, met de telling in de PM;
+- de regel geldt nu alleen voor lijncontacten, niet voor vlakcontacten. Dat is goed zo (een kokereind is altijd langer).
+
+**2. De ontvouwer neemt de straal uit `doc.sheetMetal`, niet per randflens.** Niet aanvaardbaar zoals het nu is: zie de tabel, 1,3 mm fout op een groot stuk met het oordeel "exact". De controle op het volume vangt het alleen op kleine stukken. De straal is uit de mesh zelf te halen (koorde en knikhoek van de facetten van de plooistrook: ρ = koorde / (2 sin(δ/2))); tot dan moet een stuk met een eigen straal op een flens, zoom of jog geweigerd worden.
+
+### 11.5 Nieuwe bevindingen
+
+**N-9 (P1). Fout ontvouwen stuk met het oordeel "exact" bij een flens met eigen straal.** `src/fab/flat.ts:183` (geeft `sm.bendRadius` door), `src/fab/unfoldMesh.ts` (`rho`, `neutral`).
+Gemeten: 623,680 tegen 624,996 mm. Oplossing: 11.4 punt 2. Test: de tab van 400 x 600 met straal 6.
+
+**N-10 (P2). Gaten in gezette stukken en in sommige vlakke platen komen als polylijn van 12 tot 107 stukjes in de DXF, niet als CIRCLE.** `src/fab/loops.ts` (`fitArcs`: cirkel door drie punten, tolerantie 0,005 mm).
+De hoekpunten van een CSG-mesh wijken tot ongeveer 0,01 mm af (gemeten 3,993 tot 4,004). Oplossing: cirkel met kleinste kwadraten en een tolerantie van 0,02 mm, en de knikcontrole die de achthoek tegenhoudt behouden. Test: Ø9 en Ø20 in de L, met en zonder randflens, en het hijsoog.
+
+**N-11 (P2). Een model met een mislukte feature krijgt een uitslag "exact" van de geometrie zonder die feature.** `src/fab/flat.ts` (`flatOfSheet`), `src/fab/bodies.ts`.
+Gemeten: tab met een jog die niet bouwt (1 herbouwfout): uitslag 120 x 80, "exact", DXF mogelijk. Oplossing: bij een herbouwfout in het part geen uitslag (`betrouwbaar: 'geen'` met de foutmelding van de feature).
+
+**P3**
+- N-12: de aanduiding van hechtlassen `n x 50 (200)`: in ISO 2553 is het getal tussen haakjes de tussenruimte; "50 om 200" hart op hart is `(150)`.
+- N-13: `fabStore.test.ts` "a new hourly rate reprices…" duurt onder belasting 17,7 s en valt dan uit; een ruimere tijdslimiet of een lichter model.
+- N-14: lastafel: de vier "Oog cilinder"-platen worden geweigerd (oppervlak x dikte 0,79 % naast het volume, 0 gaten gevonden) en de lipplaat heeft geen gat waar `LIP_12mm_4st.dxf` er een heeft. Niet verklaard; kan aan het vereenvoudigde model liggen.
+- N-15: "Frame Cut List" en "Bend Table" verversen niet bij een modelwijziging en hebben geen ballonnen (meldt de bouwer zelf).
+
+### 11.6 Criteria die de bouwer niet nagemeten had
+
+| Criterium | Oordeel | Gemeten |
+|---|---|---|
+| L1.2 | deels | LF2 (lastafel Onderframe): 8 van 14 bodies herkend (2 UPN 100, 2 platstaal 40 x 20, 4 platen 16), 6 "onbekend" met reden. LF3 was een fout proefstuk van mij: het Bovenframe van de afzuiging is PETG en wordt terecht "geen metaal" |
+| L1.4 | gehaald | 12 kokers tegen de tabelwaarden die ik ken (40x40x3 = 3,30 … 120x80x5 = 14,4): alle binnen 0,2 %. De tabel zelf blijft te verifiëren |
+| L1.5 | deels | JSON heen en terug getest; herstart in de app niet gemeten |
+| L1.6 | gehaald | `examples.check.test.ts` 98 van 98 |
+| P1.6 | deels | lastafel: lipplaat 12, hijsoog 16, kapdak 6, kapzijde 8, bodem 3 als plaat van de juiste dikte; oog cilinder geweigerd; platen van 3,5 / 6,5 / 7,5 / 8,5 / 9,5 mm en de armen "onbekend". Geen profiel als plaat geteld |
+| P2.6 | deels | rooster: gelijk (test). Lastafel tegen `Laserwerk-DXF-lastafel.zip`: KAPZ gelijk (503 x 127,5; snijlengte 1506,7 tegen 1506,7), HIJS gelijk (361,0 tegen 360,9); LIP verschilt (N-14); de andere zes posities staan niet als plaat in de modellen |
+| P4.6 | deels | niet te meten op PP6: de opvanglade is uit extrusies getekend, geen plaatwerk; de melding zelf is in de kern getest |
+
+### 11.7 Criteria
+
+Telling over de 92 criteria: **76 gehaald, 15 deels, 1 niet gehaald** (was 63 / 17 / 11 / 1).
+
+| Criterium | Nu | Opmerking |
+|---|---|---|
+| O3.1, P5.2, L1.4, L1.6 | gehaald | zelf gemeten |
+| L2.6, L4.4, P2.7, P3.3, P5.5 | gehaald | `fabOrakel.test.ts` 9 van 9; niet elk getal zelf nagerekend |
+| L3.5, P3.6, P3.9, P4.7, O3.2 | gehaald | tests en e2e van de bouwer groen; niet met de hand doorgeklikt |
+| P1.7 | **deels** (was gehaald) | N-10 |
+| P1.4 | deels | N-9; zomen en jogs geweigerd |
+| L2.8, P4.8 | deels (was niet) | tabellen bestaan; N-15 |
+| O1.6 | deels (was niet) | arbeid 6,89 u tegen 8,54 u, zoals de bouwer meldt |
+| L1.2, L1.5, L2.7, P1.6, P2.6, P3.4, P4.6, P5.3, O2.9, O3.3 | deels | |
+| P2.8 | niet gehaald | DXF nog niet buiten de app geopend |
+
+### 11.8 Oordeel per fase
+
+| Fase | Oordeel | Open |
+|---|---|---|
+| F0 | vrijgegeven | |
+| L1 voorraad en herkenning | vrijgegeven als voorstel dat Ian naleest | |
+| L2 zaagstaat en zaagplan | **vrijgegeven voor LF1**, status "nog te zagen" | N-15 |
+| L3 lasnaden en lasvolgorde | **vrijgegeven als voorstel**; korte lijncontacten tonen in plaats van weglaten | 11.4 punt 1, N-12 |
+| L4 kostprijs per stuk | **vrijgegeven** | |
+| P1 uitslag | **vrijgegeven** voor vlakke platen, ketens uit de basisflens en randflenzen met de standaardstraal. **Niet** voor een flens, zoom of jog met eigen straal | N-9, N-11 |
+| P2 DXF | vrijgegeven voor dezelfde stukken, status "nog te openen bij de lasersnijder"; voor een echte bestelling van een stuk met gaten eerst N-10 | N-10, P2.8 |
+| P3 nesting | **vrijgegeven** (rechthoek en paren; worker, annuleren, verschuiven) | |
+| P4 plooivolgorde | **vrijgegeven voor een proefstrook**, status "nog te plooien" | N-15 |
+| P5 prijs per plaat | **vrijgegeven** | |
+| O1 kostprijsmodel | **vrijgegeven** | O1.6 |
+| O2 offerte en PDF | vrijgegeven als ONTWERP; een echte offerte na de bedrijfsgegevens en de boekhouder | O2.9 |
+| O3 offertebeheer | **vrijgegeven** | |
+
+Herstelvolgorde: N-9 (of tijdelijk weigeren), N-11, N-10, dan de korte lassen en de P3-lijst.
