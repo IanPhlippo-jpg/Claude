@@ -146,4 +146,26 @@ describe('P4.8 Bend Table on a drawing sheet', { timeout: 120000 }, () => {
     expect(after).not.toEqual(before);
     expect(after).toEqual(cutListCells(model)!.cells);
   });
+  it('L2.8 the cut list puts one balloon per saw-list position on its view, with the ITEM NO. of the table; a refresh replaces them', async () => {
+    const { refreshFabTables } = await import('./fabTableCommand');
+    drawingWith(lf1());
+    await insertFabTable('cutList');
+    const sh = st().doc.sheets![0], t = sh.tables!.find((x) => x.kind === 'cutList')!;
+    const balloons = (sh.symbols ?? []).filter((x) => x.kind === 'balloon' && x.id.startsWith(`${t.id}-b`));
+    expect(balloons.map((x) => x.text).sort()).toEqual(t.cells!.slice(1).map((r) => r[0]).sort());
+    expect(balloons.every((x) => x.viewId === sh.views[0].id)).toBe(true);
+    // the anchor of each balloon lies on the view (its bounds on the sheet)
+    const xs = balloons.map((x) => x.anchor![0]);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThan(20);
+    // a member suppressed: new rows, and the balloons follow (no balloon for a position that is gone)
+    const v = sh.views[0];
+    const fi = v.model.features.map((f, i) => ({ f, i })).filter((x) => x.f.type !== 'sketch').pop()!.i;
+    const model = { ...v.model, features: v.model.features.map((f, i) => (i === fi ? { ...f, suppressed: true } : f)) };
+    st().applyDocument('change part', { ...st().doc, sheets: [{ ...sh, views: sh.views.map((x) => (x.id === v.id ? { ...x, model } : x)) }] });
+    await refreshFabTables();
+    const sh2 = st().doc.sheets![0], t2 = sh2.tables!.find((x) => x.kind === 'cutList')!;
+    const b2 = (sh2.symbols ?? []).filter((x) => x.id.startsWith(`${t2.id}-b`));
+    expect(b2.map((x) => x.text).sort()).toEqual(t2.cells!.slice(1).map((r) => r[0]).sort());
+  });
 });
+

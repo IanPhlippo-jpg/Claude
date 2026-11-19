@@ -28,6 +28,9 @@ export interface StockBar { profielId: string; lengte: number; aantal: number; r
 export interface StockSheet { id: string; materiaal: string; t: number; l: number; b: number; voorraad: number; restplaat: boolean }
 export type MachineMode = 'eigen' | 'uitbesteed';
 
+/** a workshop step of Ian's: hours per order, per welded unit, or per purchased part whose name matches `filter` */
+export interface WorkStep { naam: string; uren: number; per: 'order' | 'geheel' | 'koop'; filter?: string }
+
 export interface FabSettings {
   versie: 1;
   company: Company;
@@ -66,8 +69,13 @@ export interface FabSettings {
       snelheid: { materiaal: string; t: number; mmPerMin: number }[]; insteekTijd: Sourced<number> | null; machineUur: Sourced<number> | null; laserdeel: Sourced<number> };
     plooien: { modus: MachineMode; perZettingEigen: Sourced<number>; instelEigen: Sourced<number>; perZettingUit: Sourced<number> | null; instelUit: Sourced<number> | null;
       werklengte: number; maxKracht: number; rm: number };
-    lassen: { perVerbinding: Sourced<number>; perMeter: Sourced<number> };
+    lassen: { perVerbinding: Sourced<number>; perMeter: Sourced<number>; /** a lath tacked every 150 mm, per metre of lath */ latPerM?: Sourced<number> };
     afwerken: { perConstructie: Sourced<number> };
+    /**
+     * Ian's own workshop steps (docs/37 ch. 13, O1.6): preparing, clamping on the table, straightening, getting ready for
+     * the coater, glazing … each with its hours per order, per welded unit or per purchased part whose name matches
+     */
+    werkstappen?: WorkStep[];
   };
   finishing: {
     poedercoatM2: Sourced<number>;
@@ -164,8 +172,10 @@ export function defaultSettings(): FabSettings {
       },
       plooien: { modus: 'uitbesteed', perZettingEigen: A(0.02, 'u/zetting', `${UREN}.zet`), instelEigen: A(0.15, 'u/positie', `${UREN}.zet (instellen)`), perZettingUit: null, instelUit: null,
         werklengte: 3000, maxKracht: 1000, rm: 450 },
-      lassen: { perVerbinding: A(0.12, 'u/verbinding', `${UREN}.verbinding`), perMeter: A(0.35, 'u/m', `${UREN}.lasM (a3 tot a4)`) },
+      lassen: { perVerbinding: A(0.12, 'u/verbinding', `${UREN}.verbinding`), perMeter: A(0.35, 'u/m', `${UREN}.lasM (a3 tot a4)`),
+        latPerM: A(0.12, 'u/m', 'bibliotheek/taatsdeuren/werkwijze.mjs UREN.latPerM') },
       afwerken: { perConstructie: A(0.35, 'u/constructie', `${UREN}.afwerk`) },
+      werkstappen: [],
     },
     finishing: {
       poedercoatM2: A(25, '€/m²', `${FIT} coatM2`),
@@ -252,6 +262,8 @@ export function importSettings(text: string): FabSettings {
   s.materials.platen.forEach((p, i) => { if (!isObj(p) || typeof p.id !== 'string' || !pos(p.l) || !pos(p.b) || !pos(p.t) || !pos(p.voorraad)) throw bad('plaat', i); });
   s.machines.laser.snijM.forEach((x, i) => { if (!isObj(x) || !pos(x.tot) || !isObj(x.prijs) || !pos(x.prijs.waarde)) throw bad('snijprijs', i); });
   s.machines.laser.snelheid.forEach((x, i) => { if (!isObj(x) || typeof x.materiaal !== 'string' || !pos(x.t) || !pos(x.mmPerMin)) throw bad('snijsnelheid', i); });
+  (s.machines.werkstappen ?? []).forEach((w, i) => { if (!isObj(w) || typeof w.naam !== 'string' || !pos(w.uren) || !['order', 'geheel', 'koop'].includes(w.per)
+    || (w.filter !== undefined && typeof w.filter !== 'string')) throw bad('werkstap', i); });
   return s;
 }
 

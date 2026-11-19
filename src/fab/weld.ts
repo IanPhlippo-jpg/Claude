@@ -11,7 +11,7 @@
 import { areaD, FillRule, intersectD, unionD, type PathsD } from 'clipper2-ts';
 import type { FabBody } from './bodies';
 import type { ExecutionClass, Recognition, WeldJoint } from './types';
-import { cross, dot, frameOf, hull, planeGroups, triangle, unit, type V3 } from './geom';
+import { cross, dot, frameOf, hull, minRect, planeGroups, triangle, unit, type V3 } from './geom';
 import { profileById } from './catalog';
 import { lineContact, LINE_GAP, shortWeld } from './weldEdge';
 
@@ -58,7 +58,8 @@ function box(b: FabBody) {
   return { lo, hi };
 }
 
-export interface Contact { a: string; b: string; lengte: number; punt: V3; area: number; /** touching along an edge only (one weld along it) */ lijn?: boolean }
+export interface Contact { a: string; b: string; lengte: number; punt: V3; area: number; /** touching along an edge only (one weld along it) */ lijn?: boolean;
+  /** the smallest rectangle round the contact: width and length */ rect?: { w: number; l: number } }
 
 /** bodies whose planar faces lie against each other (opposite normals, same plane, overlapping): one contact per pair */
 export function contacts(bodies: FabBody[]): Contact[] {
@@ -83,7 +84,8 @@ export function contacts(bodies: FabBody[]): Contact[] {
       const nC = cross(fa.u, fa.v);
       const along = dot(fa.c, nC);
       const punt: V3 = [0, 1, 2].map((k) => fa.u[k] * P2c.x + fa.v[k] * P2c.y + nC[k] * along) as V3;
-      if (!best || area > best.area) best = { a: bodies[i].key, b: bodies[j].key, lengte, punt, area };
+      const mr = minRect(common.flat());
+      if (!best || area > best.area) best = { a: bodies[i].key, b: bodies[j].key, lengte, punt, area, rect: { w: Math.min(mr.a, mr.b), l: Math.max(mr.a, mr.b) } };
     }
     if (best) { out.push(best); continue; }
     // no face against face: a contact along an edge only (a shelf between beams, a corner line), docs/37 ch. 9
@@ -104,14 +106,34 @@ export function proposeJoints(bodies: FabBody[], recs: Recognition[], exc: Execu
   const thinPlate = (key: string) => { const r = recs.find((x) => x.key === key); return !!r && r.soort === 'plaat' && (r.t ?? 99) <= 10; };
   // ISO 2553 writes n x l (e) with e the gap between two stitches: 50 every 200 mm centre to centre is (150) (N-12)
   const stitch = (c: Contact) => (c.lijn && 2 * c.lengte > 400 && (thinPlate(c.a) || thinPlate(c.b)) ? { n: Math.max(2, Math.round(c.lengte / 200)), l: 50, e: 150 } : null);
-  return contacts(bodies).map((c, k) => {
+  const proposed = contacts(bodies).map((c, k): WeldJoint => {
     const a = proposedThroat(Math.min(wall(c.a), wall(c.b))), kort = !!c.lijn && shortWeld(c.lengte, a);
+    // a lath: a face contact of a strip of at most 6 mm whose contact is a long, filled rectangle (length >= 10 x width,
+    // the area >= 80 % of it; a tube end is a ring and never qualifies); tacked 20 mm every 150 mm along its length
+    const w = c.rect?.w ?? 0, L = c.rect?.l ?? 0;
+    if (!c.lijn && Math.min(wall(c.a), wall(c.b)) <= 6 && w > 0 && L >= 10 * w && c.area >= 0.8 * w * L) {
+      return {
+        id: `W${k + 1}`, bodies: [c.a, c.b] as [string, string], soort: 'hoeklas' as const, maat: { letter: 'a' as const, mm: a }, lengte: Math.round(L * 10) / 10, tweezijdig: false,
+        rondom: false, montage: false, onderbroken: { n: Math.max(2, Math.round(L / 150) + 1), l: 20, e: 130 }, proces: '135', positie: 'PB', niveau, stap: 0, hechten: true,
+        bevestigd: false, punt: c.punt, lat: true,
+      };
+    }
     return {
       id: `W${k + 1}`, bodies: [c.a, c.b], soort: 'hoeklas', maat: { letter: 'a', mm: a },
       lengte: Math.round(c.lengte * 10) / 10, tweezijdig: !!c.lijn, rondom: !c.lijn, montage: false, onderbroken: stitch(c), proces: '135', positie: 'PB', niveau,
       stap: 0, hechten: true, bevestigd: false, punt: c.punt, ...(kort ? { kort: true, meetellen: false } : {}),
     };
   });
+  // the ends of a lath that butt against a member are tacked with the lath (docs/37 ch. 13): no joint of their own
+  const thin = (key: string) => {
+    const b = bodies.find((x) => x.key === key);
+    if (!b) return false;
+    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < b.soup.length; i += 3) for (let q = 0; q < 3; q++) { lo[q] = Math.min(lo[q], b.soup[i + q]); hi[q] = Math.max(hi[q], b.soup[i + q]); }
+    return Math.min(...[0, 1, 2].map((q) => hi[q] - lo[q])) <= 6.01;
+  };
+  const lathBodies = new Set(proposed.filter((x) => x.lat).flatMap((x) => x.bodies.filter(thin)));
+  return proposed.map((x) => (!x.lat && !x.kort && x.bodies.some((b) => lathBodies.has(b)) && x.lengte <= 80 ? { ...x, lat: true, lengte: 0, onderbroken: null } : x));
 }
 
 // ---- ISO 2553 system A as text (the drawing symbol is drawn from the same fields)

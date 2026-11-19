@@ -137,6 +137,30 @@ describe('short welds: shown as "korte las, niet dragend", unticked, counted onl
     expect(j.onderbroken).toEqual({ n: 6, l: 50, e: 150 });
     expect(weldText(j)).toMatch(/6 x 50 \(150\)/);
   });
+  it('O1.6 a lath (a 4 mm strip lying along a tube) is tacked every 150 and costed per metre, not as a joint', async () => {
+    const { proposeJoints } = await import('./weld');
+    const { costModel } = await import('./cost');
+    const { defaultSettings } = await import('./settings');
+    const j = proposeJoints([box('A', [0, 0, 0], [800, 40, 40]), box('B', [0, 40, 10], [800, 44, 25])], recs(4));
+    expect(j.map((x) => [x.lat, x.lengte, x.onderbroken?.l, x.onderbroken?.e])).toEqual([[true, 800, 20, 130]]);
+    const m = costModel({ recs: [], saw: [], plans: [], flats: [], joints: j, settings: defaultSettings() } as never);
+    expect(m.regels.find((l) => l.id === 'latten')?.hoeveelheid).toBeCloseTo(0.8 * 0.12, 6);
+    expect(m.regels.find((l) => l.id === 'hechten')).toBeUndefined();
+  });
+  it('O1.6 workshop steps: per order once, per welded unit, per purchased part whose name matches; kept through export and import', async () => {
+    const { costModel } = await import('./cost');
+    const { defaultSettings, exportSettings, importSettings } = await import('./settings');
+    const { proposeJoints } = await import('./weld');
+    const s = defaultSettings();
+    s.machines.werkstappen = [{ naam: 'Voorbereiden', uren: 0.5, per: 'order' }, { naam: 'Richten', uren: 0.5, per: 'geheel' }, { naam: 'Glazen', uren: 0.85, per: 'koop', filter: 'glas' }];
+    const joints = proposeJoints([box('A', [0, 0, 0], [100, 20, 20]), box('B', [0, 20, 0], [100, 40, 20])], recs(3));
+    const koop = [{ key: 'g', soort: 'koop', naam: 'Glas vleugel', aantal: 2, bron: { part: 'Glas vleugel' } }, { key: 'h', soort: 'koop', naam: 'Taatspot', aantal: 1, bron: { part: 'Taatspot' } }];
+    const m = costModel({ recs: koop, saw: [], plans: [], flats: [], joints, settings: s } as never);
+    expect(m.regels.filter((l) => l.id.startsWith('stap:')).map((l) => [l.omschrijving, l.hoeveelheid])).toEqual([['Voorbereiden', 0.5], ['Richten', 0.5], ['Glazen: 2 x 0,85 u', 1.7]]);
+    expect(importSettings(exportSettings(s)).machines.werkstappen).toEqual(s.machines.werkstappen);
+    const broken = JSON.parse(exportSettings(s)); broken.machines.werkstappen[1].per = 'soms';
+    expect(() => importSettings(JSON.stringify(broken))).toThrow(/werkstap 2/);
+  });
   it('an unticked short weld is not costed, ticked it is', async () => {
     const { costModel } = await import('./cost');
     const { proposeJoints } = await import('./weld');
@@ -163,6 +187,10 @@ describe('hems and jogs (docs/37 ch. 11, point 6)', () => {
     near(across(f), 80 + Math.PI * (0.5 + 0.5 * 2) + (10 - (0.5 + 2)), 0.05);
     expect(f.plooien.map((p) => [Math.round(p.hoek), p.r])).toEqual([[180, 0.5]]);
   });
+  // docs/37 ch. 13, measured: the kernel builds closed, teardrop and rolled hems as the same body (124 triangles, the
+  // same volume): a sharp 180 degree fold without a bend cylinder, so the hem layer is a third skin and a teardrop or a
+  // roll is not modelled as such; the jog is built of blocks joined at coincident faces (6 skin pieces). Unfolding that
+  // would invent a radius the model does not have: refused, with the reason
   it('closed, teardrop and rolled hems and a jog are refused with the reason, never an exact flat', () => {
     for (const t of ['closed', 'teardrop', 'rolled']) {
       const f = flat(hem(t));
@@ -175,5 +203,24 @@ describe('hems and jogs (docs/37 ch. 11, point 6)', () => {
       flipSide: false, reverse: false }));
     const j = flat(d);
     expect(j.betrouwbaar).toBe('geen');
+  });
+});
+
+describe('docs/37 ch. 13: an open mesh is read from the flag of the body, not from the text of a warning', () => {
+  it('a body the manifold gate marked open has no flat, whatever the warning says (or with no warning at all)', async () => {
+    const { pp1 } = await import('./fixtures');
+    const d = pp1();
+    const open = (doc: Document) => {
+      const r = rebuildDocument(doc), g = r.bodies[0].geometry.clone();
+      g.userData = { ...g.userData, openArea: 1.25 };
+      return { ...r, bodies: [{ ...r.bodies[0], geometry: g }, ...r.bodies.slice(1)], warnings: {} };
+    };
+    const b = partBodies(d, [], 1, open)[0];
+    expect(b.warning).toMatch(/niet gesloten \(opening van 1,25|niet gesloten \(opening van 1.25/);
+    const { flatOfPlate } = await import('./flat');
+    expect(flatOfPlate(b, 'p', 1, 'S235').betrouwbaar).toBe('geen');
+    // a warning text about an opening without the flag does nothing
+    const text = (doc: Document) => ({ ...rebuildDocument(doc), warnings: { x: 'The faceted result is not closed (an opening of about 3 mm²)' } });
+    expect(partBodies(d, [], 1, text)[0].warning).toBeUndefined();
   });
 });

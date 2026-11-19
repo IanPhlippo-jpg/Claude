@@ -168,6 +168,8 @@ export interface WeldJoint {
   /** shorter than max(30 mm, 6 a): not load-bearing (EN 1993-1-8, 4.5.1); counted only when ticked (`meetellen`) */
   kort?: boolean;
   meetellen?: boolean;
+  /** a thin strip (lath, t <= 6) lying along a member: tacked every 150 mm, costed per metre of lath (docs/37 ch. 13) */
+  lat?: boolean;
 }
 
 export type ExecutionClass = 'geen' | 'EXC1' | 'EXC2' | 'EXC3';

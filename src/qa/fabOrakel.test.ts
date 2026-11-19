@@ -74,6 +74,14 @@ function deurSettings(): FabSettings {
   s.machines.zagen.perSchuin = orakel(0, 'taatsdeuren: verstek zit in zaagPerStuk');
   s.machines.lassen.perVerbinding = orakel(DEUR_UREN.hoekTig, 'taatsdeuren UREN.hoekTig');
   s.machines.lassen.perMeter = orakel(0, 'taatsdeuren: lassen per hoek, niet per meter');
+  s.machines.lassen.latPerM = orakel(DEUR_UREN.latPerM, 'taatsdeuren UREN.latPerM');
+  // the steps of the door that are no weld or cut, as Ian's workshop steps (docs/37 ch. 13): per door (one leaf)
+  s.machines.werkstappen = [
+    { naam: 'Voorbereiden', uren: DEUR_UREN.voorbereiden, per: 'order' }, { naam: 'Kader opspannen op de lastafel', uren: DEUR_UREN.opspannen, per: 'order' },
+    { naam: 'Taatsplaten en greephouders', uren: DEUR_UREN.taatsplaten, per: 'order' }, { naam: 'Richten en nameten', uren: DEUR_UREN.richten, per: 'order' },
+    { naam: 'Klaarmaken voor de coater', uren: DEUR_UREN.coatKlaar, per: 'order' }, { naam: 'Glazen', uren: 0.85, per: 'koop', filter: 'glas' },
+  ];
+  s.machines.afwerken.perConstructie = orakel(0, 'taatsdeuren: slijpen zit in de hoeken en latten');
   return s;
 }
 function deur(): FabResult {
@@ -200,12 +208,24 @@ describe('fabrication core next to the library oracles', () => {
     const koker = (k: string) => a.recs.find((r) => r.key === k)?.profielId === DEUR_PROF.koker40x40x2;
     const hoeken = a.joints.filter((j) => koker(j.bodies[0]) && koker(j.bodies[1]));
     expect(hoeken.length * DEUR_UREN.hoekTig).toBeCloseTo(stap('Kader hechten en lassen'), 6);
-    // the 12 other joints are the front laths on the frame (welded, the oracle's "Glaslatten" step per metre of lath);
-    // opspannen, taatsplaten, richten, coater, glazen have no line in the generic model (they are free lines for Ian).
-    // Measured: the oracle 8,54 u without placing, the core 1,02 + 18 x 0,3 + 0,35 afwerken + 0,12 laserdeel = 6,89 u
-    const kern = ['zagen', 'hechten', 'lassen', 'afwerken'].reduce((t, id) => t + uren(a, id), 0) + a.cost.regels.filter((l) => l.id.startsWith('laserdeel:')).reduce((t, l) => t + l.hoeveelheid, 0);
-    // the glass laths touch each other at their corners along 15 mm: shorter than a weld seam (30 mm, EN 1993-1-8), no joint
-    expect(kern).toBeCloseTo(6.89, 2);
+    // docs/37 ch. 13: the front laths are tacked every 150 mm and costed per metre (UREN.latPerM); the steps that are no
+    // weld or cut (voorbereiden, opspannen, taatsplaten, richten, coater, glazen) are Ian's workshop steps. The back laths
+    // are screwed and an own part in this model (no joints): their fitting and the M4 tapping is a workshop step too, the
+    // oracle's lath step minus the front laths the core counts. All labour, step by step:
+    const front = a.cost.regels.find((l) => l.id === 'latten')!.hoeveelheid;
+    const s2 = deurSettings();
+    s2.machines.werkstappen = [...(s2.machines.werkstappen ?? []), { naam: 'Latten achter passen en schroeven, M4 tappen', uren: stap('Glaslatten en latten op de roeden') - front, per: 'order' }];
+    const doc2 = parseDocument(JSON.stringify(samenstelling(DEUR, 'TD-01 werkplaats', { werkplaats: true })));
+    const b = analyze(doc2, s2, { vrij: [{ omschrijving: 'Plaatsen', bedragCent: Math.round((K.plaatsen.kost as number) * 100) }] }, { rebuild });
+    const uur = (r: FabResult) => r.cost.regels.filter((l) => l.eenheid === 'u' && l.categorie !== 'vrij').reduce((t, l) => t + l.hoeveelheid, 0)
+      + r.cost.regels.filter((l) => l.id.startsWith('laserdeel:')).reduce((t, l) => t + l.hoeveelheid, 0);
+    const arbeid = uur(b), doel = K.uren - K.plaatsen.uren;
+    // two differences remain and are explained: the core saws the 8 glass laths as pieces (8 x 0,06 u; the oracle cuts
+    // them while glazing, in its lath step) and costs the 4 handle feet the model draws as laser parts (the oracle has none)
+    const lattenZagen = 8 * DEUR_UREN.zaagPerStuk, voeten = a.cost.regels.filter((l) => l.id.startsWith('laserdeel:')).reduce((t, l) => t + l.hoeveelheid, 0);
+    expect(Math.abs(rel(arbeid - lattenZagen - voeten, doel)), `core ${arbeid.toFixed(2)} u - ${lattenZagen.toFixed(2)} - ${voeten.toFixed(2)} against ${doel.toFixed(2)} u`).toBeLessThan(0.01);
+    // measured: 9,14 u against 8,54 u (+7,0 %) in all; without the two explained differences 8,54 u (0,0 %)
+    expect(Math.abs(rel(arbeid, doel))).toBeLessThan(0.08);
     expect(K.uren - K.plaatsen.uren).toBeCloseTo(8.54, 2);
     // laser: the oracle cuts taatsplaten, busplaat and 2 greephouders 25 x 40 x 10 (5 parts, € 19,62); the model draws
     // none of them and 4 handle feet 16 x 16 instead (recognized as plate 16 mm): not compared

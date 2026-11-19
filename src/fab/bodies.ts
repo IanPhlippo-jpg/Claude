@@ -53,9 +53,8 @@ export function partBodies(doc: Document, path: string[] = [], aantal = 1, rebui
   const mat = doc.material;
   const prop = doc.properties?.['fab.soort'];
   const errs = Object.values(r.errors ?? {});
-  // a warning that the geometry itself is wrong (an open mesh) counts as an error for the flat (docs/37 N-11); the
-  // note that a body has no exact B-rep version does not
-  const open = Object.values(r.warnings ?? {}).filter((w) => /not closed|opening/i.test(w));
+  // an open mesh counts as an error for the flat (docs/37 N-11): read from the body itself, the flag the manifold gate of
+  // the kernel sets (geometry.userData.openArea, solid.ts), not from the text of a warning (docs/37 ch. 13)
   return r.bodies.map((b) => {
     const s = soup(b.geometry);
     return {
@@ -74,7 +73,8 @@ export function partBodies(doc: Document, path: string[] = [], aantal = 1, rebui
       eigenschap: typeof prop === 'string' ? prop : undefined,
       sheet,
       exact: !!b.exact,
-      ...(errs.length ? { warning: `herbouw met fouten: ${errs[0]}` } : open.length ? { warning: `herbouw met waarschuwing: ${open[0]}` } : {}),
+      ...(errs.length ? { warning: `herbouw met fouten: ${errs[0]}` }
+        : openArea(b) ? { warning: `herbouw met waarschuwing: het lichaam is niet gesloten (opening van ${openArea(b).toFixed(2)} mm²)` } : {}),
     };
   });
 }
@@ -102,3 +102,6 @@ export function documentBodies(doc: Document, rebuild?: (d: Document) => Rebuild
 export function documentHash(bodies: FabBody[]): string {
   return geometryHash(new Float64Array(0), bodies.map((b) => `${b.key}:${b.hash}:${b.aantal}`).join('|'));
 }
+
+/** the opening (mm²) the manifold gate found in a body after a boolean, 0 when closed */
+export const openArea = (b: { geometry: { userData: Record<string, unknown> } }): number => Number(b.geometry.userData?.openArea ?? 0) || 0;

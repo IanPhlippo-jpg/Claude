@@ -8,6 +8,9 @@ import { freeSpot } from '../../core/drawing/tables';
 import { newId } from '../../core/sketch/model';
 import { bomTableGrid as tableGrid } from '../prefsTables';
 import { useStore } from '../store';
+import { viewFrame } from '../../core/drawing/hlr';
+import { layoutBalloons } from '../../core/drawing/balloons';
+import { viewBounds, viewGeometry, viewToSheet } from '../../core/drawing/sheet';
 
 type Kind = 'cutList' | 'bendTable';
 const LABEL: Record<Kind, string> = { cutList: 'Frame Cut List', bendTable: 'Bend Table' };
@@ -21,7 +24,11 @@ function pickView(sheet: DrawingSheet, kind: Kind, selected: string | null): Dra
 /** the cells of a table of the view's model, or a message why there are none */
 export async function fabTableCells(kind: Kind, v: DrawingView): Promise<string[][] | string> {
   const m = await import('./fabTables');
-  if (kind === 'cutList') return m.cutListCells(v.model)?.cells ?? 'The model of the view has no structural members for a cut list.';
+  if (kind === 'cutList') {
+    const c = m.cutListCells(v.model);
+    if (c) centresOf.set(v.id, c.centres);
+    return c?.cells ?? 'The model of the view has no structural members for a cut list.';
+  }
   const { useFab } = await import('../fab/fabStore');
   return m.bendTableCells(v.model, useFab.getState().settings.machines.plooien)?.cells ?? 'The model of the view has no sheet metal part with bends.';
 }
@@ -42,7 +49,9 @@ export async function insertFabTable(kind: Kind): Promise<void> {
   const t: NonNullable<DrawingSheet['tables']>[number] = { id: old?.id ?? newId('tb'), kind, viewId: v.id, cells, position: old?.position, bron: modelKey(v.model) };
   if (!t.position) { const g = tableGrid(sheet, t); t.position = freeSpot(sheet, g?.w ?? 80, g?.h ?? 20); }
   const tables = old ? (sheet.tables ?? []).map((x) => (x.id === old.id ? t : x)) : [...(sheet.tables ?? []), t];
-  st.applyDocument(LABEL[kind], { ...st.doc, sheets: [{ ...sheet, tables }, ...(st.doc.sheets ?? []).slice(1)] });
+  const withTable = { ...sheet, tables };
+  const next = kind === 'cutList' ? withBalloons(withTable, v, t.id) : withTable;
+  st.applyDocument(LABEL[kind], { ...st.doc, sheets: [next, ...(st.doc.sheets ?? []).slice(1)] });
   // a new table follows the cursor until a click places it, like the Hole Table
   if (!old) st.setDrawingTool({ kind: 'placeTable', id: t.id });
 }
@@ -74,9 +83,32 @@ export async function refreshFabTables(): Promise<number> {
     const sheets = (st.doc.sheets ?? []).map((sh, si) => ({ ...sh, tables: (sh.tables ?? []).map((t) => {
       const f = fresh.find((x) => x.si === si && x.t.id === t.id);
       return f ? { ...t, bron: f.bron, ...(typeof f.cells === 'string' ? {} : { cells: f.cells }) } : t;
-    }) }));
+    }) })).map((sh, si) => fresh.filter((x) => x.si === si && x.t.kind === 'cutList' && typeof x.cells !== 'string')
+      .reduce((acc: DrawingSheet, x) => withBalloons(acc, x.v!, x.t.id), sh as DrawingSheet));
     st.applyDocument('Update Tables', { ...st.doc, sheets });
     return fresh.length;
   } finally { refreshing = false; }
 }
 useStore.subscribe((s, prev) => { if (s.doc !== prev.doc && s.doc.kind === 'drawing') void refreshFabTables(); });
+
+/** the centres of the saw-list positions of the last cut list made for a view (view id -> positions) */
+const centresOf = new Map<string, { pos: number; at: [number, number, number] }[]>();
+
+/**
+ * L2.8: one balloon per saw-list position on the view of the cut list, with the ITEM NO. of the table (the position of the
+ * saw list), laid out round the view as Auto Balloon does. The balloons of a table are its own ("<table id>-b<pos>"):
+ * a refresh replaces them, other balloons stay.
+ */
+export function withBalloons(sheet: DrawingSheet, v: DrawingView, tableId: string): DrawingSheet {
+  const centres = centresOf.get(v.id);
+  if (!centres?.length) return sheet;
+  const fr = viewFrame(v.type as Parameters<typeof viewFrame>[0]);
+  const g = viewGeometry(v), b = viewBounds(sheet, v, g);
+  const dot = (p: number[], q: { x: number; y: number; z: number }) => p[0] * q.x + p[1] * q.y + p[2] * q.z;
+  const anchors = centres.map((c) => viewToSheet(sheet, v, g, [dot(c.at, fr.u), dot(c.at, fr.v)]));
+  const lay = layoutBalloons(anchors, { x: b.x, y: b.y, w: b.w, h: b.h }, 'square', { offset: 12, gap: 10 });
+  const mine = (id: string) => id.startsWith(`${tableId}-b`);
+  const symbols = [...(sheet.symbols ?? []).filter((x) => !mine(x.id)),
+    ...centres.map((c, i) => ({ id: `${tableId}-b${c.pos}`, kind: 'balloon' as const, anchor: anchors[i], position: lay.positions[i], text: String(c.pos), viewId: v.id }))];
+  return { ...sheet, symbols };
+}

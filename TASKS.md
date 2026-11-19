@@ -1709,3 +1709,11 @@ elease; README en docs/04 bijgewerkt
 ## Vierde controle Fable 5.2 van de extensies na 997f3a5 (2026-11-19)
 - [x] Fable-X4: schone git archive van 997f3a5, tests, build, e2e, eigen scripts (N-9 tot N-15)
 - [x] Fable-X4: hoofdstuk 13 onder docs/37 (geen codewijziging, geen commit)
+
+## Extensies: restpunten na vrijgave (docs/37 hoofdstuk 13) (2026-11-19)
+- [x] Open mesh: vlag van het lichaam zelf (geometry.userData.openArea), niet de tekst, bodies.ts kijkt naar de code
+- [x] Ballonnen met zaagstaatpositie bij de Frame Cut List (L2.8)
+- [x] O1.6: ontbrekende stappen van de taatsdeur als kostenregels (orakel binnen de tolerantie)
+- [x] Gesloten/druppel/gerold zoom en jog: oorzaak vastgelegd, blijven geweigerd
+- [x] P2.8: strenge R12-lezer als onafhankelijke controle van de DXF
+- [x] typecheck, vitest, e2e, poorten, status in docs/37

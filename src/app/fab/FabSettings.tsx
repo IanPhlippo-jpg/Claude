@@ -9,7 +9,7 @@ import { useFab, patchSettings, exportSettingsFile, importSettingsText, resetSet
 import { companyMissing, confirmed, isOld, validEnterpriseNumber, validIban, type Company, type FabSettings } from '../../fab/settings';
 import type { Sourced } from '../../fab/types';
 import { CATALOG, profileById } from '../../fab/catalog';
-import { date } from '../../fab/format';
+import { date, num } from '../../fab/format';
 
 const PAGES = ['Company', 'Rates', 'Materials', 'Machines', 'Finishing', 'Quote'] as const;
 type Page = (typeof PAGES)[number];
@@ -152,6 +152,22 @@ export function FabSettingsDialog() {
         <Val label="Tack per joint" v={M.lassen.perVerbinding} set={(v) => v && P((x) => { x.machines.lassen.perVerbinding = v; })} months={m} />
         <Val label="Weld per metre" v={M.lassen.perMeter} set={(v) => v && P((x) => { x.machines.lassen.perMeter = v; })} months={m} />
         <Val label="Finishing per construction" v={M.afwerken.perConstructie} set={(v) => v && P((x) => { x.machines.afwerken.perConstructie = v; })} months={m} />
+        {M.lassen.latPerM && <Val label="Tack a lath per metre" v={M.lassen.latPerM} set={(v) => v && P((x) => { x.machines.lassen.latPerM = v; })} months={m} />}
+        <h4>Workshop steps</h4>
+        <p className="k-pm-message">Steps of your own (preparing, clamping, straightening, to the coater, glazing): hours per order, per welded unit
+          or per purchased part whose name contains the filter.</p>
+        {(M.werkstappen ?? []).map((w, i) => (
+          <div key={i} className="k-fab-srow" data-testid="fab-workstep">
+            <span className="k-fab-name">{w.naam}</span><span>{num(w.uren, 2)} h per {w.per === 'order' ? 'order' : w.per === 'geheel' ? 'welded unit' : `purchased part "${w.filter ?? ''}"`}</span>
+            <button className="k-btn ghost" onClick={() => P((x) => { x.machines.werkstappen = (x.machines.werkstappen ?? []).filter((_, k) => k !== i); })}>×</button>
+          </div>
+        ))}
+        <RowAdd fields={['Step', 'Hours', 'per: order / unit / part', 'filter*']} onAdd={([naam, uren, per, filter]) => {
+          const h = Number(uren.replace(',', '.'));
+          if (!Number.isFinite(h) || h < 0) return;
+          const p = /unit|geheel/i.test(per) ? 'geheel' : /part|koop/i.test(per) ? 'koop' : 'order';
+          P((x) => { x.machines.werkstappen = [...(x.machines.werkstappen ?? []), { naam, uren: h, per: p, ...(filter.trim() ? { filter: filter.trim() } : {}) }]; });
+        }} />
       </>
     );
   } else if (page === 'Finishing') {

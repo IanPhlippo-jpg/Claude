@@ -24,10 +24,18 @@ export function cutListRows(lines: SawLine[]): string[][] {
 }
 
 /** the cut list of a model (part or assembly): head and rows, null when it has no profiles */
-export function cutListCells(model: Document): { cells: string[][]; saw: SawLine[] } | null {
+export function cutListCells(model: Document): { cells: string[][]; saw: SawLine[]; centres: { pos: number; at: [number, number, number] }[] } | null {
   const geo = analyzeGeometry(model, model.fab ?? {});
   const saw = sawList(geo.recs);
-  return saw.length ? { cells: [CUT_LIST_HEAD, ...cutListRows(saw)], saw } : null;
+  // the centre of the first member of each position, for its balloon on the view (L2.8)
+  const centres = saw.flatMap((l) => {
+    const b = geo.bodies.find((x) => x.key === l.keys[0]);
+    if (!b) return [];
+    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < b.soup.length; i += 3) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], b.soup[i + k]); hi[k] = Math.max(hi[k], b.soup[i + k]); }
+    return [{ pos: l.pos, at: [0, 1, 2].map((k) => (lo[k] + hi[k]) / 2) as [number, number, number] }];
+  });
+  return saw.length ? { cells: [CUT_LIST_HEAD, ...cutListRows(saw)], saw, centres } : null;
 }
 
 /** the bend table of the first bent flat of a model: head and rows by tag, null when no flat has bends */

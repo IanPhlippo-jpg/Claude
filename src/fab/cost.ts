@@ -107,14 +107,30 @@ export function costModel(inp0: CostInput): CostModel {
         : labour(S, 'boren', 'boren', `Boren: ${gaten} gaten`, gaten * M.boren.perGat.waarde, [M.boren.perGat], keys));
     }
   }
-  if (inp.joints.length) {
-    const keys = [...new Set(inp.joints.flatMap((j) => j.bodies))];
-    const m = inp.joints.reduce((t, j) => t + (j.onderbroken ? (j.onderbroken.n * j.onderbroken.l) : j.lengte) * (j.tweezijdig ? 2 : 1) * (j.aantal ?? 1), 0) / 1000;
-    const nj = inp.joints.reduce((t, j) => t + (j.aantal ?? 1), 0);
+  // laths are tacked every 150 mm and costed per metre of lath (docs/37 ch. 13); the other joints per joint and per metre
+  const laths = inp.joints.filter((j) => j.lat), joints = inp.joints.filter((j) => !j.lat);
+  if (laths.length) {
+    const m = laths.reduce((t, j) => t + j.lengte * (j.aantal ?? 1), 0) / 1000, rate = M.lassen.latPerM ?? { waarde: 0.12, eenheid: 'u/m', bron: 'standaard', aanname: true, datum: '' };
+    regels.push(labour(S, 'latten', 'lassen', `Latten hechten om de 150: ${num(m, 2)} m`, m * rate.waarde, [rate], [...new Set(laths.flatMap((j) => j.bodies))]));
+  }
+  if (joints.length) {
+    const keys = [...new Set(joints.flatMap((j) => j.bodies))];
+    const m = joints.reduce((t, j) => t + (j.onderbroken ? (j.onderbroken.n * j.onderbroken.l) : j.lengte) * (j.tweezijdig ? 2 : 1) * (j.aantal ?? 1), 0) / 1000;
+    const nj = joints.reduce((t, j) => t + (j.aantal ?? 1), 0);
     regels.push(labour(S, 'hechten', 'lassen', `Passen en hechten: ${nj} verbindingen`, nj * M.lassen.perVerbinding.waarde, [M.lassen.perVerbinding], keys));
     regels.push(labour(S, 'lassen', 'lassen', `Lassen: ${num(m, 2)} m las`, m * M.lassen.perMeter.waarde, [M.lassen.perMeter], keys));
   }
   if (profiles.length || inp.joints.length) regels.push(labour(S, 'afwerken', 'afwerking', 'Afwerken (slijpen, ontbramen)', M.afwerken.perConstructie.waarde, [M.afwerken.perConstructie], [], true));
+  // Ian's own steps: per order, per welded unit (a part or component with weld joints), per matching purchased part
+  const units = new Set(inp.joints.flatMap((j) => j.bodies.map((k) => k.split('/').slice(0, -1).join('/')))).size;
+  for (const [i, w] of (M.werkstappen ?? []).entries()) {
+    let re: RegExp | null = null;
+    try { re = w.filter ? new RegExp(w.filter, 'i') : null; } catch { re = null; }
+    const n = w.per === 'order' ? 1 : w.per === 'geheel' ? units : inp.recs.filter((r) => r.soort === 'koop' && (!re || re.test(r.naam) || re.test(r.bron.part))).reduce((t, r) => t + r.aantal, 0);
+    if (!n) continue;
+    const src = { waarde: w.uren, eenheid: 'u', bron: 'werkstap van de werkplaats', aanname: false, datum: '' };
+    regels.push(labour(S, `stap:${i}`, 'afwerking', `${w.naam}${n > 1 ? `: ${n} x ${num(w.uren, 2)} u` : ''}`, n * w.uren, [src], [], w.per === 'order'));
+  }
   // ---- plates: material share, cutting, pierces, finishing of the laser part, bending
   for (const [i, f] of inp.flats.entries()) {
     const pos = `P${i + 1}`;
