@@ -89,7 +89,8 @@ describe('L2 saw list and saw plan', () => {
       const pieces = Array.from({ length: 3 + Math.floor(rnd() * 30) }, (_, i) => ({ pos: i + 1, l: Math.round(100 + rnd() * 2900) }));
       const p = barNest('x', pieces, [], s);
       expect(p.staven.length).toBeGreaterThanOrEqual(p.ondergrens);
-      for (const b of p.staven) expect(b.stukken.reduce((t, x) => t + x.l + 4, 0)).toBeLessThanOrEqual(6000 + 1e-9);
+      // the cut behind the last piece may fall off the end (docs/37 B-16)
+      for (const b of p.staven) expect(b.stukken.reduce((t, x) => t + x.l + 4, 0) - 4).toBeLessThanOrEqual(6000 + 1e-9);
       expect(p.staven.flatMap((b) => b.stukken).map((x) => x.pos).sort((a, b) => a - b)).toEqual(pieces.map((x) => x.pos));
       expect(p.ondergrens).toBe(lowerBound(pieces, s));
       excess += p.staven.length - p.ondergrens; lb += p.ondergrens;
@@ -171,8 +172,10 @@ describe('L4 cost per piece (LF1 with fixed test settings)', () => {
     const setup = m.regels.filter((l) => l.instel).reduce((t, l) => t + l.bedragCent, 0);
     const rest = m.totaalCent - setup;
     expect(perPiece(m, 1)).toBe(m.totaalCent);
-    near(perPiece(m, 5), rest + setup / 5, 1e-9);
-    near(perPiece(m, 20), rest + setup / 20, 1e-9);
+    // whole cents (docs/37 P3: no half cents)
+    expect(perPiece(m, 5)).toBe(Math.round(rest + setup / 5));
+    expect(perPiece(m, 20)).toBe(Math.round(rest + setup / 20));
+    expect(Number.isInteger(perPiece(m, 20))).toBe(true);
   });
 
   it('O1.4 an override of € 100 with a reason: the total follows and the override stays after a recalculation', () => {

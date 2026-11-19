@@ -16,11 +16,15 @@ import type { FabBody } from './bodies';
 import { chain, frameOf, minRect, section, soup, triCount, volume, type P2, type V3 } from './geom';
 import { plateAnalysis } from './recognize';
 import { din6935K } from './bend';
+import { sheetMapping } from '../core/features/unfold';
+import { sketchChains } from '../core/features/thin';
+import { resolvePlaneDef } from '../core/features/planes';
 
 /** a loop segment from `a` to the next segment's `a`; bulge = tan(sweep / 4), > 0 counter-clockwise */
 export interface Seg { a: P2; bulge: number }
 export type Loop = Seg[];
-export interface Bend { a: P2; b: P2; hoek: number; r: number; richting: 'op' | 'neer'; k: number }
+/** a bend line of a flat: its number along the base flange chain, angle, inner radius, direction seen from the top of the flat */
+export interface Bend { a: P2; b: P2; hoek: number; r: number; richting: 'op' | 'neer'; k: number; id?: number }
 
 export interface FlatPart {
   key: string;
@@ -40,6 +44,10 @@ export interface FlatPart {
   kg: number;
   betrouwbaar: 'exact' | 'benaderd' | 'geen';
   fout?: string;
+  /** every body of this position (identical plates are one position) */
+  keys?: string[];
+  /** the model names no material: priced as S235, said on the cost line (docs/37 B-9) */
+  materiaalAanname?: boolean;
   /** which K-factor the flat used (sheet metal) */
   kBron?: string;
 }
@@ -255,7 +263,11 @@ export function flatOfPlate(b: FabBody, naam: string, n: number, materiaal: stri
  */
 export function flatOfSheet(doc: Document, folded: FabBody, naam: string, n: number, materiaal: string, kBron: 'model' | 'din6935' = 'din6935'): FlatPart {
   const sm = doc.sheetMetal ?? { thickness: 3, bendRadius: 3, kFactor: 0.5 };
-  const k = kBron === 'din6935' && (sm.allowanceType ?? 'kFactor') === 'kFactor' ? din6935K(sm.bendRadius, sm.thickness) : sm.kFactor;
+  const kType = sm.allowanceType ?? 'kFactor';
+  const k = kBron === 'din6935' && kType === 'kFactor' ? din6935K(sm.bendRadius, sm.thickness) : sm.kFactor;
+  // the label says what the flat was made with (docs/37 B-11): DIN 6935, the K of the model, or its allowance / deduction
+  const label = kType !== 'kFactor' ? `model, ${kType === 'bendDeduction' ? 'buigaftrek' : kType === 'bendAllowance' ? 'buigtoeslag' : 'buigtabel'} ${sm.allowanceValue ?? ''}`.trim()
+    : kBron === 'din6935' ? `DIN 6935, K = ${k.toFixed(3)}` : `model, K = ${k.toFixed(3)}`;
   // W4: the core unfolds cuts and holes only when every bend comes from the base flange (sheetMetalBuild.ts bentOnly);
   // these features switch that off and the flat falls back to the developed sketch chain without the cut-outs
   const notFromBase = doc.features.filter((f) => !f.suppressed && NOT_FROM_BASE.has(f.type));
@@ -265,7 +277,7 @@ export function flatOfSheet(doc: Document, folded: FabBody, naam: string, n: num
   const flatDoc: Document = { ...doc, sheetMetal: { ...sm, kFactor: k }, features };
   const r = rebuildDocument(flatDoc);
   const base = { key: folded.key, naam, n, materiaal, t: sm.thickness, dichtheid: folded.dichtheid, buiten: [], binnen: [], gaten: [], plooien: [], bbox: { l: 0, b: 0, draai: 0 }, oppervlak: 0,
-    snijlengte: { buiten: 0, binnen: 0 }, insteken: 0, kg: 0, kBron: kBron === 'din6935' ? `DIN 6935, K = ${k.toFixed(3)}` : `model, K = ${k.toFixed(3)}` };
+    snijlengte: { buiten: 0, binnen: 0 }, insteken: 0, kg: 0, kBron: label };
   const errs = Object.values(r.errors);
   if (errs.length || r.bodies.length !== 1) return { ...base, betrouwbaar: 'geen', fout: errs[0] ?? 'de uitslag gaf geen enkel lichaam' };
   const fb = { ...folded, soup: soup(r.bodies[0].geometry), faces: r.bodies[0].faces };
@@ -287,7 +299,8 @@ export function flatOfSheet(doc: Document, folded: FabBody, naam: string, n: num
   else if (!Number.isFinite(vFlat) || Math.abs(vFlat - vFold) > 0.005 * vFold) fout = `het volume van de uitslag wijkt ${((100 * (vFlat - vFold)) / vFold).toFixed(2)} % af van het gezette stuk`;
   else if (gFold !== null && gFold !== holesFlat) fout = `het gezette stuk heeft ${gFold} gat${gFold === 1 ? '' : 'en'}, de uitslag ${holesFlat}: de uitslag mist uitsparingen (plooien die` +
     ` niet uit de basisflens komen)`;
-  // bend lines (Flat-Pattern ▸ Bend-Lines) in the frame of the outline
+  // bend lines (Flat-Pattern ▸ Bend-Lines) in the frame of the outline, each with its number, angle and direction from
+  // the base flange chain (docs/37 B-2, B-3): ONE source for the DXF layers, the nest, the bend table and the bend sheet
   const pl = plateAnalysis(fb);
   const plooien: Bend[] = [];
   if ('t' in pl && !fout) {
@@ -296,9 +309,44 @@ export function flatOfSheet(doc: Document, folded: FabBody, naam: string, n: num
       const cs = Math.cos(o.rot), sn = Math.sin(o.rot);
       const to2 = (p: { x: number; y: number; z: number }): P2 => { const x = p.x * o.u[0] + p.y * o.u[1] + p.z * o.u[2],
         y = p.x * o.v[0] + p.y * o.v[1] + p.z * o.v[2]; return { x: x * cs - y * sn - o.origin.x, y: x * sn + y * cs - o.origin.y }; };
-      for (const c of r.curves ?? []) if (c.name === 'Bend-Lines' && c.points.length >= 2) plooien.push({ a: to2(c.points[0]), b: to2(c.points[c.points.length - 1]), hoek: 90, r: sm.bendRadius,
-        richting: 'op', k });
+      const chainInfo = baseChain(doc);
+      const map = chainInfo ? sheetMapping(chainInfo.chain, chainInfo.plane, { ...sm, kFactor: k }, chainInfo.reverse) : null;
+      const turns = chainInfo ? chainTurns(chainInfo.chain) : [];
+      // "up" is toward the viewer of the flat (the DXF looks from +n): the side the first segment's left normal points to
+      let up = 1;
+      if (chainInfo) {
+        const [p0, p1] = chainInfo.chain, L = Math.hypot(p1.x - p0.x, p1.y - p0.y) || 1;
+        const nl = { x: -(p1.y - p0.y) / L, y: (p1.x - p0.x) / L }, P = chainInfo.plane;
+        const w = [0, 1, 2].map((i) => P.u[i] * nl.x + P.v[i] * nl.y);
+        up = w[0] * pl.n[0] + w[1] * pl.n[1] + w[2] * pl.n[2] >= 0 ? 1 : -1;
+      }
+      const mids = map ? map.bends.map(([b0, b1]) => to2(map.flatAt((b0 + b1) / 2, sm.thickness / 2, 0))) : [];
+      for (const c of r.curves ?? []) {
+        if (c.name !== 'Bend-Lines' || c.points.length < 2) continue;
+        const a = to2(c.points[0]), b = to2(c.points[c.points.length - 1]);
+        const L = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+        const off = (m: P2) => Math.abs(((m.x - a.x) * (b.y - a.y) - (m.y - a.y) * (b.x - a.x)) / L);
+        const i = mids.length ? mids.reduce((best, m, j) => (off(m) < off(mids[best]) ? j : best), 0) : -1;
+        const turn = i >= 0 ? turns[i] ?? 0 : Math.PI / 2;
+        plooien.push({ a, b, hoek: Math.round((Math.abs(turn) * 1800) / Math.PI) / 10, r: sm.bendRadius, richting: Math.sign(turn) * up > 0 ? 'op' : 'neer', k, ...(i >= 0 ? { id: i + 1 } : {}) });
+      }
+      plooien.sort((x, y) => (x.id ?? 0) - (y.id ?? 0));
     }
   }
   return { ...flat, kBron: base.kBron, plooien, betrouwbaar: fout ? 'geen' : 'exact', fout };
+}
+
+/** the open sketch chain of the base flange (its connected points, not the drawing order), plane and material side */
+export function baseChain(doc: Document): { chain: P2[]; plane: ReturnType<typeof resolvePlaneDef>; reverse: boolean } | null {
+  const bf = doc.features.find((f) => f.type === 'baseFlange' && !f.suppressed) as { sketchId?: string; reverse?: boolean } | undefined;
+  const sk = bf?.sketchId ? doc.sketches[bf.sketchId] : undefined;
+  if (!sk) return null;
+  const open = sketchChains(sk).find((c) => !c.closed && c.points.length >= 2);
+  return open ? { chain: open.points, plane: resolvePlaneDef(doc, sk.plane), reverse: !!bf!.reverse } : null;
+}
+
+/** the signed turn at each inner corner of a chain (radians, > 0 to the left) */
+export function chainTurns(chain: P2[]): number[] {
+  const seg = chain.slice(1).map((p, i) => ({ dx: p.x - chain[i].x, dy: p.y - chain[i].y }));
+  return seg.slice(1).map((d, i) => Math.atan2(seg[i].dx * d.dy - seg[i].dy * d.dx, seg[i].dx * d.dx + seg[i].dy * d.dy));
 }

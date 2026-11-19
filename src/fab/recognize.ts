@@ -130,6 +130,21 @@ function endAngles(b: Pick<FabBody, 'soup' | 'faces'>, d: V3, lo: number, hi: nu
 }
 
 /**
+ * Whether the two miters lie in different planes (docs/37 B-16): the normals of the two end faces, seen along the bar,
+ * point in different directions. Square ends (or one square end) are never twisted.
+ */
+export function miterTwisted(b: Pick<FabBody, 'soup'>, d: V3, lo: number, hi: number): boolean {
+  const groups = planeGroups(b.soup, 1).filter((g) => Math.abs(dot(g.n, d)) > 0.1 && Math.abs(dot(g.n, d)) < 0.995);
+  const end = (w: number) => groups.filter((g) => Math.abs(dot(g.centroid, d) - w) < 0.5 * (hi - lo)).sort((x, y) => y.area - x.area)[0];
+  const a = end(lo), c = end(hi);
+  if (!a || !c) return false;
+  const proj = (n: V3): V3 => { const k = dot(n, d); return unit([n[0] - k * d[0], n[1] - k * d[1], n[2] - k * d[2]]); };
+  const pa = proj(a.n), pc = proj(c.n);
+  // same plane of the miter: the projected normals are parallel (same or opposite); twisted otherwise
+  return Math.hypot(...cross(pa, pc)) > 0.2;
+}
+
+/**
  * A canonical description of a bar for the saw list (docs/36 W1, L2.7): end planes and holes in the frame of the bar,
  * the smallest of the rigid turns of the bar (4, or 8 for a square section). Two mirror-image pieces differ.
  */
@@ -182,6 +197,9 @@ export function profileFromName(name: string): StockProfile[] {
   return out;
 }
 
+/** the material of a profile or a laser plate: steel, stainless, aluminium and the like */
+export const isMetal = (m: string) => /staal|steel|\bs\d{3}|dx5\d|alu|rvs|inox|aisi|ijzer|iron|metaal|metal|messing|brass|koper|copper|zink|cortenstaal|weathering/i.test(m);
+
 const kindOfProp = (p: string | undefined): FabKind | null => (p === 'koop' ? 'koop' : p === 'profiel' ? 'profiel' : p === 'plaat' ? 'plaat' : null);
 
 /** recognize one body; an override of Ian wins */
@@ -189,7 +207,7 @@ export function recognize(b: FabBody, override?: FabOverride): Recognition & { k
   const vol = volume(b.soup);
   const base: Recognition = {
     key: b.key, bron: { part: b.part, bodyId: b.bodyId, path: b.path, hash: b.hash }, naam: b.naam, aantal: b.aantal, soort: 'onbekend', herkomst: 'herkend', reden: '',
-    materiaal: b.materiaal, dichtheid: b.dichtheid, volume: vol, oppervlak: surface(b.soup), gefacetteerd: !b.exact,
+    materiaal: b.materiaal, dichtheid: b.dichtheid, volume: vol, oppervlak: surface(b.soup), gefacetteerd: !b.exact, ...(b.warning ? { warning: b.warning } : {}),
   };
   const bar = barAnalysis(b);
   const [h1, h2] = endAngles(b, bar.d, bar.lo, bar.hi);
@@ -204,7 +222,8 @@ export function recognize(b: FabBody, override?: FabOverride): Recognition & { k
       ` (${num(100 * (kgVol - kg) / kg, 1)} %)` : undefined;
     const rect = bar.info ? minRect(bar.sec.segs.flatMap((s) => s)) : { angle: 0 };
     const kenmerk = barSignature(b, bar.d, bar.lo, bar.hi, { u: bar.sec.u, v: bar.sec.v, angle: rect.angle, square: Math.abs(p.a - p.b) < 0.5 });
-    return { ...base, soort: 'profiel', herkomst, reden, profielId: p.id, lengte: bar.L, hoek1: h1, hoek2: h2, gaten: holes, oppervlak: p.omtrek * bar.L, warning, kenmerk, ...extra };
+    return { ...base, soort: 'profiel', herkomst, reden, profielId: p.id, lengte: bar.L, hoek1: h1, hoek2: h2, gaten: holes, oppervlak: p.omtrek * bar.L, warning, kenmerk,
+      verstekGedraaid: miterTwisted(b, bar.d, bar.lo, bar.hi), ...extra };
   };
   // Ian's choice first
   if (override) {
@@ -226,6 +245,8 @@ export function recognize(b: FabBody, override?: FabOverride): Recognition & { k
   }
   if (b.meta?.kind === 'bead') return { ...base, reden: 'lasrups (wordt als lassen gerekend)' };
   if (b.sheet) return { ...base, soort: 'gezette plaat', herkomst: 'feature', reden: `plaatwerk, dikte ${mm(b.sheet.t)} mm`, t: b.sheet.t };
+  // a hose, a rubber pedal or a plastic cover is no steel profile or plate, whatever its shape (docs/37 O1.2)
+  if (b.materiaal.trim() && !isMetal(b.materiaal)) return { ...base, reden: `materiaal "${b.materiaal}" is geen metaal: geen profiel of plaat` };
   // a bar with a constant section that fits the catalogue
   if (bar.constant && bar.info) {
     const s = bar.info;
@@ -235,6 +256,17 @@ export function recognize(b: FabBody, override?: FabOverride): Recognition & { k
       if (m.length) {
         const best = m[0];
         const why = `${best.p.naam}, doorsnede ${num(100 * best.dev, 1)} % afwijking${best.scherp ? ' (getekend zonder hoekstralen)' : ''}`;
+        // a solid strip may as well be a laser-cut plate (docs/37 B-9): with holes or rounded corners it is a plate
+        // first, otherwise flat bar first; the other one stays a choice, never a silent guess
+        if (s.klasse === 'rechthoekVol') {
+          const pl0 = plateAnalysis(b);
+          const shaped = holes > 0 || b.faces.some((f) => f.curved && f.area > 1);
+          if ('t' in pl0 && isCommercialThickness(pl0.t) && shaped) {
+            return { ...base, soort: 'plaat', reden: `plaat ${mm(pl0.t)} mm met gaten of afgeronde hoeken (ook ${best.p.naam} mogelijk)`, t: Math.round(pl0.t * 100) / 100,
+              kandidaten: m.map((x) => x.p.id) };
+          }
+          return asProfile(best.p, 'herkend', `${why}; ook een plaat van ${mm(s.b)} mm mogelijk`, { kandidaten: m.map((x) => x.p.id), alternatief: 'plaat' });
+        }
         return asProfile(best.p, 'herkend', why, m.length > 1 ? { kandidaten: m.map((x) => x.p.id) } : {});
       }
     }
@@ -245,6 +277,8 @@ export function recognize(b: FabBody, override?: FabOverride): Recognition & { k
     const named = profileFromName(`${b.naam} ${b.part}`);
     const s = bar.info;
     const fit = named.filter((p) => Math.abs(p.a - s.a) <= 1.5 && Math.abs(p.b - s.b) <= 1.5);
+    // several walls fit a name without a wall thickness ("koker 40 x 40"): a choice for Ian, no profile picked (B-9)
+    if (fit.length > 1) return { ...base, reden: `"${b.part}" noemt ${fit.length} profielen met buitenmaat ${mm(s.a)} x ${mm(s.b)}: kies er een`, lengte: bar.L, kandidaten: fit.map((x) => x.id) };
     if (fit.length) {
       const p = fit[0];
       const dev = (s.area - p.oppervlak) / p.oppervlak;

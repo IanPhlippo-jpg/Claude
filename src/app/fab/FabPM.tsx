@@ -9,22 +9,29 @@ import { Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { useStore } from '../store';
 import { FabIcon } from './fabIcons';
-import { bendInfo, closeCommand, draftQuote, exportDxf, exportQuote, isStale, patchFab, patchSettings, recompute, runNest, useFab } from './fabStore';
+import { bendInfo, cancelCommand, closeCommand, draftQuote, exportDxf, exportQuote, isStale, patchFab, patchSettings, quotesOutOfDate, recompute, reviseQuote, runNest, useFab } from './fabStore';
 import { CATALOG, profileById } from '../../fab/catalog';
 import { euro, mm, num } from '../../fab/format';
 import { perPiece } from '../../fab/cost';
 import { plateChecks } from '../../fab/checks';
 import { excDefaults, EXC_CHOICES } from '../../fab/weld';
-import { lineTotal, vatProblems, vatTotals } from '../../fab/quote';
+import { weldSymbolSvg } from '../../fab/weldSymbol';
+import { weldPlanInput } from '../../fab/analyze';
+import { lineTotal, salePerPiece, setRate, vatProblems, vatTotals } from '../../fab/quote';
 import type { Customer, ExecutionClass, FabKind } from '../../fab/types';
 import { defaultNestSettings } from '../../fab/nest';
 
 const TITLES: Record<string, string> = { recognize: 'Recognize', barNest: 'Bar Nesting', exportDxf: 'Export DXF', nest: 'Nest',
-  bendSeq: 'Bend Sequence', welds: 'Weld Joints', cost: 'Cost', customer: 'Customer', quote: 'Quote' };
+  bendSeq: 'Bend Sequence', welds: 'Weld Joints', addLine: 'Add Line', cost: 'Cost', customer: 'Customer', quote: 'Quote' };
 const Row = ({ label, children }: { label: string; children: ReactNode }) => <div className="k-pm-valuerow k-fab-row"><span className="k-fab-label">{label}</span>{children}</div>;
 const Num = ({ v, on, step = 1, testId }: { v: number; on: (x: number) => void; step?: number; testId?: string }) => (
   <input className="k-input" type="number" step={step} value={v} data-testid={testId} onChange={(e) => { const x = Number(e.target.value); if (Number.isFinite(x)) on(x); }} />
 );
+
+const ICONS: Record<string, () => ReactNode> = {
+  recognize: () => <FabIcon.Recognize />, barNest: () => <FabIcon.BarNest />, exportDxf: () => <FabIcon.Dxf />, nest: () => <FabIcon.Nest />, bendSeq: () => <FabIcon.BendSeq />,
+  welds: () => <FabIcon.WeldJoint />, cost: () => <FabIcon.Cost />, customer: () => <FabIcon.Customer />, quote: () => <FabIcon.Quote />, addLine: () => <FabIcon.AddLine />,
+};
 
 export function FabPM() {
   const st = useFab(useShallow((s) => ({ command: s.command, result: s.result, stale: isStale(s), busy: s.busy })));
@@ -34,14 +41,14 @@ export function FabPM() {
   return (
     <div className="k-pm k-fab-pm" data-testid="fab-pm">
       <div className="k-pm-head">
-        <div className="k-pm-title"><FabIcon.Cost /> <b>{TITLES[cmd] ?? 'Fabrication'}</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
+        <div className="k-pm-title">{(ICONS[cmd] ?? ICONS.cost)()} <b>{TITLES[cmd] ?? 'Fabrication'}</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
         <div className="k-pm-buttons">
           <button className="k-pm-ok k-tip" data-tip="OK" data-testid="fab-ok" onClick={closeCommand}><Icon.Check /></button>
-          <button className="k-pm-cancel k-tip" data-tip="Cancel (Esc)" onClick={closeCommand}><Icon.Close /></button>
+          <button className="k-pm-cancel k-tip" data-tip="Cancel (Esc): undo the changes of this command" data-testid="fab-cancel" onClick={cancelCommand}><Icon.Close /></button>
         </div>
       </div>
-      {st.stale && <p className="k-pm-message k-fab-stale" data-testid="fab-stale">The model changed: the results are out of date and cannot be exported. <button className="k-btn"
-        onClick={recompute}>Recalculate</button></p>}
+      {st.stale && <p className="k-pm-message k-fab-stale" data-testid="fab-stale">The model or the settings changed: the results are out of date and cannot be exported.
+        <button className="k-btn" onClick={recompute}>Recalculate</button></p>}
       {!r && <p className="k-pm-message">Choose a command on the tab to analyse the {kind === 'assembly' ? 'assembly' : 'part'}.</p>}
       {r && cmd === 'recognize' && <RecognizePanel />}
       {r && cmd === 'barNest' && <BarNestPanel />}
@@ -52,7 +59,39 @@ export function FabPM() {
       {r && cmd === 'cost' && <CostPanel />}
       {r && cmd === 'customer' && <CustomerPanel />}
       {r && cmd === 'quote' && <QuotePanel />}
+      {r && cmd === 'addLine' && <AddLinePanel />}
     </div>
+  );
+}
+
+/** Add Line: a free line of the quote (placing, transport, a discount as a negative amount), and the lines added so far */
+function AddLinePanel() {
+  const vrij = useStore((s) => s.doc.fab?.vrij) ?? [];
+  const [text, setText] = useState('Plaatsing ter plaatse');
+  const [bedrag, setBedrag] = useState('250');
+  const add = () => {
+    const cent = Math.round(Number(bedrag.replace(',', '.')) * 100);
+    if (!text.trim() || !Number.isFinite(cent) || cent === 0) return;
+    patchFab('Add Line', (f) => ({ ...f, vrij: [...(f.vrij ?? []), { omschrijving: text.trim(), bedragCent: cent }] }));
+    recompute();
+  };
+  return (
+    <>
+      <Section title="New line">
+        <Row label="Description"><input className="k-input" data-testid="fab-line-text" value={text} onChange={(e) => setText(e.target.value)} /></Row>
+        <Row label="Amount € excl. VAT"><input className="k-input" data-testid="fab-line-amount" value={bedrag} onChange={(e) => setBedrag(e.target.value)} /></Row>
+        <button className="k-btn" data-testid="fab-line-add" onClick={add}>Add</button>
+        <p className="k-pm-message">A negative amount is a discount. The amount goes on the quote as typed, without markup.</p>
+      </Section>
+      <Section title={`Free lines (${vrij.length})`}>
+        {vrij.map((v, i) => (
+          <div key={i} className="k-fab-item">
+            <span className="k-fab-name">{v.omschrijving}</span><span className="k-fab-what">{euro(v.bedragCent)}</span>
+            <button className="k-btn ghost" onClick={() => { patchFab('Remove Line', (f) => ({ ...f, vrij: (f.vrij ?? []).filter((_, k) => k !== i) })); recompute(); }}>×</button>
+          </div>
+        ))}
+      </Section>
+    </>
   );
 }
 
@@ -228,27 +267,52 @@ function BendPanel() {
 
 function WeldPanel() {
   const r = useFab((s) => s.result)!;
+  const focus = useFab((s) => s.weldFocus);
   const exc = useStore((s) => s.doc.fab?.exc ?? 'geen') as ExecutionClass;
-  const names = new Map(r.recs.map((x) => [x.key, x.naam]));
+  const kept = useStore((s) => s.doc.fab?.welds);
+  const pos = weldPlanInput(r).naam, names = { get: (k: string) => pos(k) };
   const d = excDefaults(exc);
+  const ordered = [...r.joints].filter((j) => j.status !== 'vervallen').sort((a, b) => a.stap - b.stap);
+  // L3.5: moving a step renumbers the finishing steps (2 …) and keeps the order as Ian's (a new proposal never overwrites it)
+  const move = (id: string, dir: -1 | 1) => {
+    const ids = ordered.map((j) => j.id), i = ids.indexOf(id), k = i + dir;
+    if (k < 0 || k >= ids.length) return;
+    [ids[i], ids[k]] = [ids[k], ids[i]];
+    patchFab('Weld Sequence', (f) => ({ ...f, lasvolgordeHandmatig: true, welds: r.joints.map((j) => ({ ...j, bevestigd: true, stap: ids.includes(j.id) ? ids.indexOf(j.id) + 2 : j.stap })) }));
+    recompute();
+  };
   return (
     <>
-      <Section title="Execution Class">
+      <Section title="Execution Class" defaultOpen={focus !== 'seq'}>
         <select className="k-input" data-testid="fab-exc" value={exc} onChange={(e) => { patchFab('Execution Class', (f) => ({ ...f, exc: e.target.value as ExecutionClass })); recompute(); }}>
           {EXC_CHOICES.map((c) => <option key={c} value={c}>{c === 'geen' ? 'None' : c}</option>)}
         </select>
         <p className="k-pm-message">Quality level {d.niveau} (ISO 5817){exc !== 'geen' ? `, EN ISO 3834 ${d.iso3834}` : ''}.</p>
         {d.waarschuwing && <p className="k-fab-error" data-testid="fab-exc-warning">{d.waarschuwing}</p>}
       </Section>
-      <Section title={`Weld Joints (${r.joints.length})`}>
-        {[...r.joints].sort((a, b) => a.stap - b.stap).map((j) => (
-          <div key={j.id} className="k-fab-item" data-testid="fab-weld">
-            <span className="k-fab-name">{j.id} {j.maat.letter}{num(j.maat.mm, j.maat.mm % 1 ? 1 : 0)} x {mm(j.lengte)} ({j.stap})</span>
-            <span className="k-fab-what">{names.get(j.bodies[0])} / {names.get(j.bodies[1])}{j.bevestigd ? '' : ' · proposal'}</span>
+      <Section title={`Weld Joints (${r.joints.length})`} defaultOpen={focus === 'joints'}>
+        {r.joints.map((j) => (
+          <div key={j.id} className={`k-fab-item ${j.status === 'vervallen' ? 'onbekend' : ''}`} data-testid="fab-weld">
+            <span className="k-fab-symbol" dangerouslySetInnerHTML={{ __html: weldSymbolSvg(j) }} />
+            <span className="k-fab-name">{j.id} {j.maat.letter}{num(j.maat.mm, j.maat.mm % 1 ? 1 : 0)} x {mm(j.lengte)}</span>
+            <span className="k-fab-what">{names.get(j.bodies[0])} / {names.get(j.bodies[1])}{j.bevestigd ? '' : ' · proposal'}{j.status ? ` · ${j.status}` : ''}</span>
           </div>
         ))}
-        <button className="k-btn" onClick={() => patchFab('Confirm Weld Joints', (f) => ({ ...f, welds: r.joints.map((j) => ({ ...j, bevestigd: true })) }))}>Confirm all</button>
-        <p className="k-pm-message">The sequence is a proposal by rules of thumb (tack first, middle outwards, alternate sides), not a calculation of distortion.</p>
+        <button className="k-btn"
+          onClick={() => patchFab('Confirm Weld Joints', (f) => ({ ...f, welds: r.joints.filter((j) => j.status !== 'vervallen').map((j) => ({ ...j, bevestigd: true, status: undefined })) }))}>
+          Confirm all</button>
+      </Section>
+      <Section title="Weld Sequence" defaultOpen={focus === 'seq'}>
+        <div className="k-fab-item"><span className="k-fab-name">1. tack all joints</span></div>
+        {ordered.map((j, i) => (
+          <div key={j.id} className="k-fab-item" data-testid="fab-weld-step">
+            <span className="k-fab-name">{j.stap}. {j.id}</span><span className="k-fab-what">{names.get(j.bodies[0])} / {names.get(j.bodies[1])}</span>
+            <button className="k-btn ghost" data-testid="fab-weld-up" disabled={i === 0} onClick={() => move(j.id, -1)}>▲</button>
+            <button className="k-btn ghost" disabled={i === ordered.length - 1} onClick={() => move(j.id, 1)}>▼</button>
+          </div>
+        ))}
+        <p className="k-pm-message">{kept?.length ? 'The order is kept in the model.'
+          : 'A proposal by rules of thumb (tack first, middle outwards, alternate sides), not a calculation of distortion.'}</p>
       </Section>
     </>
   );
@@ -258,25 +322,34 @@ function CostPanel() {
   const st = useFab(useShallow((s) => ({ r: s.result!, s: s.settings, prev: s.vorigeCent })));
   const reeks = useStore((s) => s.doc.fab?.reeks ?? 1);
   const m = st.r.cost;
-  const marge = st.s.rates.marge.waarde;
-  const sell = (c: number) => Math.round(c * (1 + marge / 100));
+  const marge = st.r.settings.rates.marge.waarde;
+  const regime = st.r.settings.rates.btwRegime;
+  // the same numbers as the quote: the sale price per piece of the series, rounded once (docs/37 B-5, P3 money)
+  const sale = salePerPiece(m, marge, reeks);
   const diff = st.prev === null ? 0 : m.totaalCent - st.prev;
   return (
     <>
       <Section title="Estimated Cost per Part">
         <table className="k-fab-summary" data-testid="fab-cost-summary"><tbody>
           {[1, 5, 20].map((q) => <tr key={q}><td>Cost per piece ({q})</td><td>{euro(Math.round(perPiece(m, q)))}</td></tr>)}
-          <tr><td>Sale excl. VAT ({reeks})</td><td>{euro(sell(perPiece(m, reeks)))}</td></tr>
-          <tr><td>Sale incl. 21 % VAT</td><td>{euro(Math.round(sell(perPiece(m, reeks)) * 1.21))}</td></tr>
+          <tr><td>Sale excl. VAT per piece ({reeks})</td><td data-testid="fab-sale-piece">{euro(sale)}</td></tr>
+          <tr><td>Sale excl. VAT for {reeks}</td><td data-testid="fab-sale-series">{euro(sale * reeks)}</td></tr>
+          {regime === 'normaal' ? <tr><td>Sale incl. 21 % VAT for {reeks}</td><td>{euro(Math.round(sale * reeks * 1.21))}</td></tr>
+            : <tr><td>{regime === 'verlegd' ? 'VAT reverse charged' : 'No VAT (exemption)'}</td><td>{euro(sale * reeks)}</td></tr>}
           {st.prev !== null && diff !== 0 && <tr><td>Since the last calculation</td><td className={diff > 0 ? 'k-fab-up' : 'k-fab-down'}>{diff > 0 ? '▲' : '▼'} {euro(Math.abs(diff))}</td></tr>}
         </tbody></table>
         <p className="k-pm-message" data-testid="fab-aannames">{m.aannames} of {m.regels.length} lines rest on assumptions{m.onvolledig ? `; ${m.geenPrijs} without a price: incomplete` : ''}.</p>
       </Section>
       <Section title="Quote">
-        <Row label="Quantity"><Num v={reeks} on={(v) => patchFab('Quantity', (f) => ({ ...f, reeks: Math.max(1, Math.round(v)) }))} /></Row>
-        <Row label="Markup %"><Num v={marge} on={(v) => patchSettings((x) => { x.rates.marge = { ...x.rates.marge, waarde: v, aanname: false, bron: 'ingevuld door de gebruiker' }; })} /></Row>
-        <Row label="VAT regime"><select className="k-input" value={st.s.rates.btwRegime} onChange={(e) => patchSettings((x) => { x.rates.btwRegime = e.target.value as typeof x.rates.btwRegime; })}>
-          <option value="normaal">normal</option><option value="verlegd">reverse charge</option><option value="vrijgesteld">small business exemption</option></select></Row>
+        <Row label="Quantity"><Num v={reeks} on={(v) => patchFab('Quantity', (f) => ({ ...f, reeks: Math.max(1, Math.round(v)) }))} testId="fab-reeks" /></Row>
+        <Row label="Markup %">
+          <Num v={st.s.rates.marge.waarde} on={(v) => patchSettings((x) => { x.rates.marge = { ...x.rates.marge, waarde: v, aanname: false, bron: 'ingevuld door de gebruiker' }; })} />
+        </Row>
+        <Row label="VAT regime">
+          <select className="k-input" value={st.s.rates.btwRegime} onChange={(e) => patchSettings((x) => { x.rates.btwRegime = e.target.value as typeof x.rates.btwRegime; })}>
+            <option value="normaal">normal</option><option value="verlegd">reverse charge</option><option value="vrijgesteld">small business exemption</option>
+          </select>
+        </Row>
       </Section>
     </>
   );
@@ -309,24 +382,64 @@ function CustomerPanel() {
 
 function QuotePanel() {
   const grouping = useFab((s) => s.grouping);
+  const regelBtw = useStore((s) => s.doc.fab?.regelBtw);
   const q = draftQuote();
   if (!q) return null;
   const t = vatTotals(q.regels, q.btwRegime);
+  const out = quotesOutOfDate(useFab.getState().result, useStore.getState().doc);
+  const frozen = [...new Map((useStore.getState().doc.fab?.quotes ?? []).map((x) => [x.nummer, x])).values()];
+  // the rate per line: 6 % only with the three conditions of the customer (setRate refuses otherwise, docs/37 B-13)
+  const setLine = (omschrijving: string, p: { btw?: 21 | 6 | 0; plaatsing?: boolean }) => {
+    if (p.btw !== undefined) {
+      const i = q.regels.findIndex((l) => l.omschrijving === omschrijving);
+      const r = setRate(q, i, p.btw);
+      if ('fout' in r) { useStore.getState().pushMessage(r.fout, 'warn'); return; }
+    }
+    patchFab('Quote line', (f) => ({ ...f, regelBtw: { ...(f.regelBtw ?? {}), [omschrijving]: { ...(f.regelBtw?.[omschrijving] ?? {}), ...p } } }));
+  };
   return (
     <>
       <Section title="Quote">
-        <Row label="Lines"><select className="k-input" data-testid="fab-grouping" value={grouping} onChange={(e) => useFab.setState({ grouping: e.target.value as typeof grouping })}><option
-          value="een">one line</option><option value="categorie">per group</option><option value="detail">in detail</option></select></Row>
+        <Row label="Lines">
+          <select className="k-input" data-testid="fab-grouping" value={grouping} onChange={(e) => useFab.setState({ grouping: e.target.value as typeof grouping })}>
+            <option value="een">one line</option><option value="categorie">per group</option><option value="detail">in detail</option>
+          </select>
+        </Row>
         <table className="k-fab-summary" data-testid="fab-quote-lines"><tbody>
-          {q.regels.map((l, i) => <tr key={i}><td>{l.omschrijving}</td><td>{euro(lineTotal(l))}</td></tr>)}
-          <tr><td><b>Total excl. VAT</b></td><td><b>{euro(t.exclCent)}</b></td></tr>
-          <tr><td><b>Total incl. VAT</b></td><td><b>{euro(t.inclCent)}</b></td></tr>
+          {q.regels.map((l, i) => (
+            <tr key={i}>
+              <td>{l.omschrijving}{l.hoeveelheid !== 1 ? ` (${l.hoeveelheid} x ${euro(l.prijsCent)})` : ''}</td>
+              <td>
+                {q.btwRegime === 'normaal' && (
+                  <select className="k-fab-select" data-testid="fab-line-vat" value={l.btw} onChange={(e) => setLine(l.omschrijving, { btw: Number(e.target.value) as 21 | 6 | 0 })}>
+                    <option value={21}>21 %</option><option value={6}>6 %</option>
+                  </select>
+                )}
+                <label className="k-check" title="Placing on site (needed for 6 %)">
+                  <input type="checkbox" checked={!!regelBtw?.[l.omschrijving]?.plaatsing} onChange={(e) => setLine(l.omschrijving, { plaatsing: e.target.checked })} /> placing
+                </label>
+              </td>
+              <td>{euro(lineTotal(l))}</td>
+            </tr>
+          ))}
+          <tr><td><b>Total excl. VAT</b></td><td /><td data-testid="fab-quote-excl"><b>{euro(t.exclCent)}</b></td></tr>
+          <tr><td><b>Total incl. VAT</b></td><td /><td><b>{euro(t.inclCent)}</b></td></tr>
         </tbody></table>
         {vatProblems(q).map((p, i) => <p key={i} className="k-fab-error">{p.tekst}</p>)}
       </Section>
       <Section title="Export">
         <button className="k-btn" data-testid="fab-quote-pdf" onClick={() => exportQuote('pdf')}>Quote PDF</button> <button className="k-btn" onClick={() => exportQuote('xlsx')}>XLSX</button>
-        <p className="k-pm-message">The number is taken when the file is written. Nothing is sent.</p>
+        <p className="k-pm-message">The number is taken when the file is written; the PDF and the XLSX of one quote share it. Nothing is sent.</p>
+      </Section>
+      <Section title={`Quotes (${frozen.length})`}>
+        {out.map((x) => <p key={x.nummer} className="k-fab-error" data-testid="fab-quote-outdated">model gewijzigd sinds offerte {x.nummer}</p>)}
+        {frozen.map((x) => (
+          <div key={x.nummer} className="k-fab-item" data-testid="fab-quote-frozen">
+            <span className="k-fab-name">{x.nummer} rev. {x.revisie}</span>
+            <span className="k-fab-what">{x.bevroren?.op} · {euro(vatTotals(x.regels, x.btwRegime).inclCent)}</span>
+            <button className="k-btn" data-testid="fab-quote-revise" onClick={() => reviseQuote(x.nummer)}>New revision</button>
+          </div>
+        ))}
       </Section>
     </>
   );

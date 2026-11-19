@@ -67,7 +67,7 @@ export class DxfWriter {
   text(layer: string, p: P2, h: number, text: string) {
     const L = layerName(layer);
     this.used.add(L);
-    this.g(0, 'TEXT'); this.g(8, L); this.g(10, p.x); this.g(20, p.y); this.g(30, 0); this.g(40, h); this.g(1, ascii(text).replace(/°/g, '%%d'));
+    this.g(0, 'TEXT'); this.g(8, L); this.g(10, p.x); this.g(20, p.y); this.g(30, 0); this.g(40, h); this.g(1, ascii(text.replace(/°/g, '%%d')));
   }
   toString(): string {
     const head: string[] = [];

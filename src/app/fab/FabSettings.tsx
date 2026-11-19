@@ -5,7 +5,7 @@
  * months is marked "check price". Export and import as JSON. Kept per user, never in the model.
  */
 import { useRef, useState, type ReactNode } from 'react';
-import { useFab, patchSettings, exportSettingsFile, importSettingsText, resetSettings } from './fabStore';
+import { useFab, patchSettings, exportSettingsFile, importSettingsText, resetSettings, setSettings } from './fabStore';
 import { companyMissing, confirmed, isOld, validEnterpriseNumber, validIban, type Company, type FabSettings } from '../../fab/settings';
 import type { Sourced } from '../../fab/types';
 import { CATALOG, profileById } from '../../fab/catalog';
@@ -36,7 +36,11 @@ const Text = ({ label, value, set, bad, area }: { label: string; value: string; 
 export function FabSettingsDialog() {
   const s = useFab((x) => x.settings);
   const result = useFab((x) => x.result);
-  const [page, setPage] = useState<Page>('Company');
+  const page = useFab((x) => x.settingsPage) as Page;
+  const setPage = (p: Page) => useFab.setState({ settingsPage: p });
+  // Cancel puts back the settings of when the dialog opened (docs/37 P3)
+  const [opened] = useState(() => structuredClone(useFab.getState().settings));
+  const cancel = () => { setSettings(opened); useFab.setState({ settingsOpen: false }); };
   const file = useRef<HTMLInputElement>(null);
   const m = s.rates.prijsOuderMaanden;
   const P = (f: (x: FabSettings) => void) => patchSettings(f);
@@ -72,6 +76,9 @@ export function FabSettingsDialog() {
         <div className="k-fab-srow"><span className="k-fab-slabel">Profiles costed</span><select className="k-input" value={s.rates.materiaalModus}
           onChange={(e) => P((x) => { x.rates.materiaalModus = e.target.value as 'verbruikt'; })}><option value="verbruikt">metres used + waste</option><option
             value="aangekocht">whole bars bought</option></select></div>
+        <div className="k-fab-srow"><span className="k-fab-slabel">Plates costed</span><select className="k-input" data-testid="fab-plate-mode" value={s.rates.plaatModus}
+          onChange={(e) => P((x) => { x.rates.plaatModus = e.target.value as 'rechthoek'; })}><option value="rechthoek">bounding rectangle + waste</option><option
+            value="nest">share of the nested sheets</option></select></div>
         <div className="k-fab-srow"><span className="k-fab-slabel">VAT regime</span><select className="k-input" value={s.rates.btwRegime}
           onChange={(e) => P((x) => { x.rates.btwRegime = e.target.value as 'normaal'; })}><option value="normaal">normal</option><option value="verlegd">reverse charge</option><option
             value="vrijgesteld">small business exemption</option></select></div>
@@ -96,6 +103,14 @@ export function FabSettingsDialog() {
         {koop.length ? koop.map((k) => <Val key={k}
           label={k} v={s.materials.koop[k] ?? null} set={(v) => P((x) => { if (v) x.materials.koop[k] = { ...v, eenheid: '€/st' }; else delete x.materials.koop[k]; })} months={m} />) : <p
             className="k-fab-muted">No purchased parts in this model.</p>}
+        <h4>Sheets for nesting (standard sheets and remnant sheets)</h4>
+        <table className="k-fab-table" data-testid="fab-sheets"><tbody>
+          {s.materials.platen.map((b, i) => <tr key={b.id}><td>{b.b} x {b.l}</td><td>{b.materiaal === '*' ? 'every material' : `${b.materiaal} ${b.t} mm`}</td><td>{b.restplaat ? 'remnant'
+            : 'standard'}</td>
+            <td><button className="k-btn ghost" onClick={() => P((x) => { x.materials.platen.splice(i, 1); })}>×</button></td></tr>)}
+        </tbody></table>
+        <RowAdd fields={['width', 'length', 'material (* = any)', 't mm']} onAdd={([b, l, mat, t]) => P((x) => { x.materials.platen.push({ id: `blad-${Date.now()}`, b: Number(b), l: Number(l),
+          materiaal: mat || '*', t: Number(t) || 0, voorraad: 0, restplaat: mat !== '*' && !!mat }); })} />
         <h4>Stock and remnants</h4>
         <table className="k-fab-table" data-testid="fab-stock"><tbody>
           {s.materials.voorraad.map((b, i) => <tr key={i}><td>{profileById(b.profielId)?.naam}</td><td>{b.lengte} mm</td><td>{b.aantal}x</td><td>{b.restant ? 'remnant' : 'bar'}</td><td><button
@@ -117,6 +132,16 @@ export function FabSettingsDialog() {
           onChange={(e) => P((x) => { x.machines.laser.modus = e.target.value as 'eigen'; })}><option value="uitbesteed">outsourced</option><option value="eigen">own machine</option></select></div>
         {M.laser.snijM.map((b, i) => <Val key={b.tot} label={`Per metre up to ${b.tot} mm`} v={b.prijs} set={(v) => v && P((x) => { x.machines.laser.snijM[i].prijs = v; })} months={m} />)}
         <Val label="Per pierce" v={M.laser.insteek} set={(v) => v && P((x) => { x.machines.laser.insteek = v; })} months={m} />
+        <Val label="Start cost per order" v={M.laser.startkost} set={(v) => P((x) => { x.machines.laser.startkost = v ? { ...v, eenheid: '€/order' } : null; })} months={m} />
+        <Val label="Pierce time (own)" v={M.laser.insteekTijd} set={(v) => P((x) => { x.machines.laser.insteekTijd = v ? { ...v, eenheid: 's/insteek' } : null; })} months={m} />
+        <h4>Cutting speeds of the own laser (mm/min)</h4>
+        <table className="k-fab-table" data-testid="fab-speeds"><tbody>
+          {M.laser.snelheid.map((v, i) => <tr key={i}><td>{v.materiaal}</td><td>{v.t} mm</td><td>{v.mmPerMin} mm/min</td>
+            <td><button className="k-btn ghost" onClick={() => P((x) => { x.machines.laser.snelheid.splice(i, 1); })}>×</button></td></tr>)}
+        </tbody></table>
+        <RowAdd fields={['material', 't mm', 'mm/min']} onAdd={([a, b, c]) => P((x) => { x.machines.laser.snelheid.push({ materiaal: a, t: Number(b), mmPerMin: Number(c) }); })} />
+        <Val label="Set-up per position (outsourced)" v={M.plooien.instelUit} set={(v) => P((x) => { x.machines.plooien.instelUit = v ? { ...v, eenheid: '€/positie' } : null; })} months={m} />
+        <Val label="Set-up per position (own)" v={M.plooien.instelEigen} set={(v) => v && P((x) => { x.machines.plooien.instelEigen = v; })} months={m} />
         <Val label="Machine rate (own)" v={M.laser.machineUur} set={(v) => P((x) => { x.machines.laser.machineUur = v ? { ...v, eenheid: '€/u' } : null; })} months={m} />
         <h4>Bending ({M.plooien.modus === 'uitbesteed' ? 'outsourced' : 'own'})</h4>
         <div className="k-fab-srow"><span className="k-fab-slabel">Press brake</span><select className="k-input" value={M.plooien.modus}
@@ -178,6 +203,7 @@ export function FabSettingsDialog() {
           <input ref={file} type="file" accept=".json" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) importSettingsText(await f.text()); e.target.value = ''; }} />
           <span className="grow" />
           <button className="k-btn primary" onClick={() => useFab.setState({ settingsOpen: false })}>OK</button>
+          <button className="k-btn" data-testid="fab-settings-cancel" onClick={cancel}>Cancel</button>
         </div>
       </div>
     </div>
@@ -194,6 +220,17 @@ function StockAdd() {
       <input className="k-input k-fab-snum" type="number" value={len} onChange={(e) => setLen(Number(e.target.value))} />
       <label className="k-check"><input type="checkbox" checked={rest} onChange={(e) => setRest(e.target.checked)} /> remnant</label>
       <button className="k-btn" onClick={() => patchSettings((x) => { x.materials.voorraad.push({ profielId: id, lengte: len, aantal: 1, restant: rest }); })}>Add</button>
+    </div>
+  );
+}
+
+/** a row of small fields with an Add button (speed table, sheet list) */
+function RowAdd({ fields, onAdd }: { fields: string[]; onAdd: (v: string[]) => void }) {
+  const [v, setV] = useState(fields.map(() => ''));
+  return (
+    <div className="k-fab-srow">
+      {fields.map((f, i) => <input key={f} className="k-input k-fab-snum" placeholder={f} value={v[i]} onChange={(e) => setV(v.map((x, k) => (k === i ? e.target.value : x)))} />)}
+      <button className="k-btn" onClick={() => { if (v.every((x, i) => x.trim() || fields[i].includes('*'))) { onAdd(v); setV(fields.map(() => '')); } }}>Add</button>
     </div>
   );
 }

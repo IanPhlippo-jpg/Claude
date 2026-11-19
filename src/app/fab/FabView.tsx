@@ -13,9 +13,9 @@ import { profileById } from '../../fab/catalog';
 import { euro, mm, num } from '../../fab/format';
 import { angleText } from '../../fab/sawList';
 import { arcPoints, type FlatPart, type Loop } from '../../fab/flat';
-import { withBends } from '../../fab/bend';
-import { placeLoop } from '../../fab/nest';
+import { placeFn, placeLoop } from '../../fab/nest';
 import { COST_GROUPS } from '../../fab/cost';
+import { weldPlanInput } from '../../fab/analyze';
 import { quoteDoc } from '../../fab/quotePdf';
 import { pageSvg } from '../../fab/pdfSvg';
 import { weldText } from '../../fab/weld';
@@ -60,7 +60,9 @@ export function FabView() {
   );
   const settings = st.settingsOpen ? <FabSettingsDialog /> : null;
   if (!r || st.view === 'none') return settings;
-  const recName = new Map(r.recs.map((x) => [x.key, x.naam]));
+  // bodies by their position on the saw list or plate list, as on the weld plan (docs/37 B-14)
+  const posName = weldPlanInput(r).naam;
+  const recName = { get: (k: string) => posName(k) };
   if (st.view === 'saw') {
     return (
       <>{settings}<div className="k-fab-view k-fab-bottom" data-testid="fab-view-saw">
@@ -121,15 +123,18 @@ export function FabView() {
   }
   if (st.view === 'nest') {
     return (<>{settings}<div className="k-fab-view k-fab-full" data-testid="fab-view-nest">{head('Nested Sheets', <span
-      className="k-fab-muted"> rectangle nesting · status: still to be opened by the laser cutter</span>)}<div className="k-fab-scroll k-fab-sheets">
+      className="k-fab-muted"> {st.nests.some((n) => n.status === 'vorm') ? 'shape nesting (pairs)' : 'rectangle nesting'} · status: still to be opened by the laser cutter</span>)}
+      <div className="k-fab-scroll k-fab-sheets">
       {st.nests.flatMap((n) => n.bladen.map((b, i) => (
         <div key={`${n.materiaal}${n.t}${i}`} className="k-fab-sheet">
           <div className="k-fab-sheettitle">{n.materiaal} {num(n.t, n.t % 1 ? 1 : 0)} mm · sheet {i + 1} of {n.bladen.length} · {b.l} x {b.b} · use {num(b.benutting * 100, 0)} %</div>
           <svg viewBox={`0 ${-b.b} ${b.l} ${b.b}`} className="k-fab-sheetsvg">
             <rect x={0} y={-b.b} width={b.l} height={b.b} fill="#f6f6f6" stroke="#555" strokeWidth={3} />
-            {b.stukken.map((p, k) => { const f = r.flats[p.pos - 1]; return <g key={k}><path d={d(placeLoop(f.buiten, p))} fill={`hsl(${(p.pos * 47) % 360} 60% 72%)`} stroke="#333"
-              strokeWidth={2} /><text x={p.x + (p.draai ? p.b : p.l) / 2} y={-(p.y + (p.draai ? p.l
-                : p.b) / 2)} fontSize={Math.min(60, Math.min(p.l, p.b) / 3)} textAnchor="middle" dominantBaseline="middle">P{p.pos}</text></g>; })}
+            {b.stukken.map((p, k) => {
+              const f = r.flats[p.pos - 1], c = placeFn(p)({ x: f.bbox.l / 2, y: f.bbox.b / 2 });
+              return <g key={k}><path d={d(placeLoop(f.buiten, p))} fill={`hsl(${(p.pos * 47) % 360} 60% 72%)`} stroke="#333" strokeWidth={2} />
+                <text x={c.x} y={-c.y} fontSize={Math.min(60, Math.min(p.l, p.b) / 3)} textAnchor="middle" dominantBaseline="middle">P{p.pos}</text></g>;
+            })}
           </svg>
         </div>
       )))}
@@ -142,7 +147,7 @@ export function FabView() {
     const info = cur ? bendInfo(r, cur.i) : null;
     return (<>{settings}<div className="k-fab-view k-fab-full" data-testid="fab-view-bend">{head(`Bend Sheet${cur ? ` P${cur.i + 1} ${cur.f.naam}` : ''}`, <span
       className="k-fab-muted"> status: still to be bent</span>)}<div className="k-fab-scroll k-fab-split">
-      {cur ? <div className="k-fab-bendflat"><FlatSvg f={withBends(cur.f, info?.bends)} /></div> : <p>No bent plate.</p>}
+      {cur ? <div className="k-fab-bendflat"><FlatSvg f={cur.f} /></div> : <p>No bent plate.</p>}
       {info && <table className="k-fab-table"><thead><tr>{['Step', 'Bend', 'Direction', 'Angle', 'Radius', 'V die', 'Stop', 'Side', 'Force'].map((h) => <th key={h}>{h}</th>)}</tr></thead>
         <tbody>{info.seq.steps.map((s) => { const b = info.bends.find((x) => x.id === s.plooi)!; return <tr key={s.stap}><td>{s.stap}</td><td>{s.plooi}</td>
           <td>{b.richting === 'op' ? 'up' : 'down'}{s.omkeren ? ' (turn over)' : ''}</td><td className="n">{num(b.hoek, 0)}°</td><td className="n">{num(cur!.f.plooien[0]?.r ?? 0, 1)}</td><td

@@ -103,5 +103,22 @@ describe('fabrication on the example models', () => {
     expect(Math.abs(ours - len) / len, `ours ${ours.toFixed(1)} mm, rooster.dxf ${len.toFixed(1)} mm`).toBeLessThan(0.005);
     void readDxf;
   }, 300000);
-});
 
+  it('O1.2 the welding table assembly: every component once in one folder; hydraulics and electrics in No cost assigned', () => {
+    const doc = lees('voorbeelden/lastafel/Lastafel.kcad');
+    const a = analyze(doc, defaultSettings());
+    // each recognized body lands in exactly one cost line (material, purchased or "no cost assigned")
+    const owners = new Map<string, number>();
+    for (const l of a.cost.regels.filter((x) => ['profiel', 'plaat', 'koop', 'vrij'].includes(x.categorie))) for (const k of l.herkomst) owners.set(k, (owners.get(k) ?? 0) + 1);
+    for (const r of a.recs) expect(owners.get(r.key) ?? 0, r.key).toBeGreaterThanOrEqual(r.soort === 'gezette plaat' ? 0 : 1);
+    // the counts: every BOM part appears with its component count
+    const bom = new Map<string, number>();
+    for (const c of doc.components ?? []) if (!c.suppressed && !c.envelope) bom.set(c.part.name, (bom.get(c.part.name) ?? 0) + 1);
+    const seen = new Map<string, number>();
+    for (const r of a.recs) seen.set(r.bron.part, r.aantal);
+    for (const [name, n] of bom) expect(seen.get(name), name).toBe(n);
+    const none = new Set(a.cost.geenKost.map((r) => r.bron.part));
+    for (const name of [...bom.keys()].filter((x) => /Hydraulisch|Bedienkast|Noodstop|Kabel|slang/i.test(x))) expect(none.has(name), name).toBe(true);
+    expect(a.cost.onvolledig).toBe(true);
+  }, 900000);
+});

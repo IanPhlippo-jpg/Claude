@@ -19,14 +19,11 @@ import { MenuBar, openFileDialog, saveDocument } from './MenuBar';
 import { Ribbon } from './ribbon/Ribbon';
 import { DockColumn } from './panels/Dock';
 import { ManagerPane } from './panels/ManagerPane';
-import { TaskPane } from './panels/TaskPane';
 import { Viewport } from './viewport/Viewport';
 import { StatusBar } from './StatusBar';
 import { SHORTCUTS, useShortcuts } from './shortcuts';
 import { Dialog, Kbd } from '../ui/components';
 
-import { CommentsDialog, ComponentPreview, MirrorComponentsDialog, PackAndGoDialog, ShareDialog } from './lifecycleDialogs';
-import { ShortcutBar } from './ShortcutBar';
 import '../ui/tokens.css';
 import '../ui/components.css';
 import './app.css';
@@ -78,6 +75,14 @@ const SheetPropertiesDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 
 const PlateView = lazyNamed(() => import('./print/PlateView'), 'PlateView', false);
 // the views of the fabrication tabs (saw list, plates, nest, bend sheet, cost, quote preview; docs/36)
 const FabView = lazyNamed(() => import('./fab/FabView'), 'FabView', false);
+// the Task Pane and the share dialogs: chunks of their own, preloaded after start-up (bundle budget, docs/37)
+const TaskPane = lazyNamed(() => import('./panels/TaskPane'), 'TaskPane', true);
+const ShortcutBar = lazyNamed(() => import('./ShortcutBar'), 'ShortcutBar', true);
+const MirrorComponentsDialog = lazyNamed(() => import('./lifecycleDialogs'), 'MirrorComponentsDialog', true);
+const PackAndGoDialog = lazyNamed(() => import('./lifecycleDialogs'), 'PackAndGoDialog', true);
+const ShareDialog = lazyNamed(() => import('./lifecycleDialogs'), 'ShareDialog', true);
+const CommentsDialog = lazyNamed(() => import('./lifecycleDialogs'), 'CommentsDialog', true);
+const ComponentPreview = lazyNamed(() => import('./lifecycleDialogs'), 'ComponentPreview', true);
 
 export function App() {
   const fabView = useFabOpen((s) => s.view);

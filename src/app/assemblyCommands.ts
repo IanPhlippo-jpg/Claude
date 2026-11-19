@@ -1,4 +1,5 @@
 import { bridge } from './viewport/bridge';
+import { withoutCustomerData } from '../fab/privacy';
 import * as THREE from 'three';
 import { useStore } from './store';
 import { createDocument, type Component, type ComponentPattern, type Document, type Mate } from '../core/document/types';
@@ -171,8 +172,9 @@ export function restoreSnapshot(id: string): void {
 }
 
 /** Package Files: the assembly and every part it uses, each as its own file. */
-export function packAndGoFiles(): { name: string; text: string }[] {
-  const doc = S().doc;
+export function packAndGoFiles(withCustomerData = false): { name: string; text: string }[] {
+  // quotes, customer data and prices only when asked (docs/37 B-4)
+  const doc = withCustomerData ? S().doc : withoutCustomerData(S().doc);
   const files: { name: string; text: string }[] = [{ name: `${doc.name}.kcad`, text: serializeDocument(doc) }];
   const seen = new Set<string>();
   for (const c of comps(doc)) {

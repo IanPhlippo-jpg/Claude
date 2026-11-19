@@ -1,12 +1,12 @@
 import { bridge } from './viewport/bridge';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { Button } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { addComment, downloadText, mirrorComponents, packAndGoFiles } from './assemblyCommands';
+import { withoutCustomerData } from '../fab/privacy';
 import { serializeDocument } from '../core/document/persistence';
-import { newId } from '../core/sketch/model';
 import { desktop } from './desktop';
 
 function Frame({ title, testid, children, actions, width = 420 }: { title: string; testid: string; children: React.ReactNode; actions: React.ReactNode; width?: number }) {
@@ -53,8 +53,9 @@ export function MirrorComponentsDialog() {
 /** Package Files: the assembly and all its parts as separate files. */
 export function PackAndGoDialog() {
   const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, pushMessage: s.pushMessage })));
-  const files = packAndGoFiles();
   const [prefix, setPrefix] = useState('');
+  const [withCustomer, setWithCustomer] = useState(false);
+  const files = packAndGoFiles(withCustomer);
   const save = async () => {
     // the desktop app writes every file into one folder the user picks (P3-1); the browser downloads them
     const api = desktop();
@@ -75,6 +76,9 @@ export function PackAndGoDialog() {
         <tbody>{files.map((f) => <tr key={f.name}><td>{f.name}</td><td>{prefix + f.name}</td><td>{(f.text.length / 1024).toFixed(1)} KB</td></tr>)}</tbody>
       </table>
       <div className="k-field"><label>Add prefix</label><input className="k-input" value={prefix} onChange={(e) => setPrefix(e.target.value)} onKeyDown={(e) => e.stopPropagation()} /></div>
+      <label className="k-check">
+        <input type="checkbox" data-testid="pack-customer" checked={withCustomer} onChange={(e) => setWithCustomer(e.target.checked)} /> Include quotes, customer data and prices
+      </label>
     </Frame>
   );
 }
@@ -86,7 +90,7 @@ export function ShareDialog() {
   return (
     <Frame title="Share" testid="share" actions={<Button onClick={() => st.setDialog(null)}>Close</Button>}>
       <div className="k-share-list">
-        <button className="k-btn" data-testid="share-copy" onClick={() => { downloadText(`${st.doc.name} (copy).kcad`, serializeDocument(st.doc)); st.pushMessage('A copy of the model is saved.'); }}><Icon.Save size={14} /> Save a copy of the model (.kcad)</button>
+        <button className="k-btn" data-testid="share-copy" onClick={() => { downloadText(`${st.doc.name} (copy).kcad`, serializeDocument(withoutCustomerData(st.doc))); st.pushMessage('A copy of the model is saved.'); }}><Icon.Save size={14} /> Save a copy of the model (.kcad)</button>
         <button className="k-btn" onClick={() => { const u = snap(); if (!u) return; const a = document.createElement('a'); a.href = u; a.download = `${st.doc.name}.jpg`; a.click(); }}><Icon.Appearance size={14} /> Save a picture of the view</button>
         <button className="k-btn" onClick={async () => { const u = snap(); if (!u) return; try { const blob = await (await fetch(u)).blob(); await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]); st.pushMessage('The picture is on the clipboard.'); } catch { st.pushMessage('The clipboard is not available here.', 'warn'); } }}><Icon.Open size={14} /> Copy the picture to the clipboard</button>
       </div>
@@ -128,29 +132,5 @@ export function ComponentPreview() {
       <div className="k-preview-title"><span>Component Preview — {comp?.name ?? 'select a component'}</span><span className="grow" /><button className="k-btn ghost icon" onClick={() => st.setDialog(null)}><Icon.Close size={13} /></button></div>
       <div className="k-preview-body">{img ? <img src={img} alt="component" /> : <span className="k-muted">Select a component in the tree.</span>}</div>
     </div>
-  );
-}
-
-/** Markup: freehand pen strokes over the graphics area, kept with the document. */
-export function MarkupLayer() {
-  const st = useStore(useShallow((s) => ({ markupMode: s.markupMode, doc: s.doc, applyDocument: s.applyDocument })));
-  const mode = st.markupMode;
-  const ref = useRef<SVGSVGElement>(null);
-  const [cur, setCur] = useState<[number, number][] | null>(null);
-  const strokes = st.doc.markups ?? [];
-  if (!mode && !strokes.length) return null;
-  const at = (e: React.PointerEvent): [number, number] => {
-    const r = ref.current!.getBoundingClientRect();
-    return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height];
-  };
-  const path = (pts: [number, number][]) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x * 1000},${y * 1000}`).join(' ');
-  return (
-    <svg ref={ref} className="k-markup" data-testid="markup-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" style={{ pointerEvents: mode ? 'all' : 'none', cursor: mode ? 'crosshair' : undefined }}
-      onPointerDown={(e) => { if (!mode) return; (e.target as Element).setPointerCapture(e.pointerId); setCur([at(e)]); e.stopPropagation(); }}
-      onPointerMove={(e) => { if (cur) setCur([...cur, at(e)]); }}
-      onPointerUp={() => { if (cur && cur.length > 1 && mode) st.applyDocument('Markup', { ...st.doc, markups: [...strokes, { id: newId('mk'), color: mode.color, points: cur }] }); setCur(null); }}>
-      {strokes.map((s) => <path key={s.id} d={path(s.points)} stroke={s.color} strokeWidth={3} fill="none" vectorEffect="non-scaling-stroke" />)}
-      {cur && <path d={path(cur)} stroke={mode?.color ?? '#d9363e'} strokeWidth={3} fill="none" vectorEffect="non-scaling-stroke" />}
-    </svg>
   );
 }

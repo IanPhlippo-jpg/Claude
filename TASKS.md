@@ -1645,3 +1645,13 @@ elease; README en docs/04 bijgewerkt
 ## Herbeoordeling fase 4 door Fable 5.2 (2026-11-19)
 - [x] Fable-R3: hoofdstuk 12 lezen, eigen GOO-lezer en meetscripts opnieuw draaien, R-1 tot R-7 nameten
 - [x] Fable-R3: hoofdstuk 13 onder docs/35 (tabel, bevindingen, oordeel; geen codewijziging, geen commit)
+
+## Extensies: review Fable (docs/37) verwerken (2026-11-19)
+- [x] P1: B-1 oude prijzen (instellingen in de verouderd-sleutel, export geblokkeerd), B-4 klantgegevens in assemblies + Pack and Go, B-5 reeksprijs
+- [x] P1: B-2 + B-3 + B-11 één bron voor plooilijn, richting, hoek en K (uitslag, DXF-lagen, plooiblad), P2.4 sterker
+- [x] P2: B-6 unieke offertenummers, B-7 kortingsregels, B-8 lasnaden volgen model en EXC, B-9 herkenning die stil kiest
+- [x] P2: B-10 sleutel uit het hele document, B-12 voorraad aangekocht, B-13 btw, B-14 bladen met titelblok en lassymbool, B-15 validateFab, B-16 zaagplan, B-17 legplan en ZIP
+- [x] P3-lijst (botsingscontrole blijft beperkt: geen matrijs/tafel/aanslag)
+- [x] Bundelbudget hoofdchunk onder 800 kB (794,54 kB)
+- [~] Niet gehaald / deels waar haalbaar: ISO 2553, Costing op Evaluate, Add-Ins, vormnesting in paren, revisies gedaan; open: ontvouwer, tabellen op tekenbladen, boommappen, LF4/LF5, kostprijs-orakel (zie docs/37 hoofdstuk 8)
+- [x] Tests, e2e, poorten, foto's extensies-v2, statustabel onder docs/37

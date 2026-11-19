@@ -5,7 +5,7 @@
 import { useShallow } from 'zustand/react/shallow';
 import { BigButton as Big, Group, SmallButton as Small } from '../ribbon/Ribbon';
 import { FabIcon } from './fabIcons';
-import { exportBendSheet, exportDxf, exportNest, isStale, open, runNest, useFab } from './fabStore';
+import { exportBendSheet, exportDxf, exportNest, isStale, open, openSettings, runNest, useFab } from './fabStore';
 import './fab.css';
 
 export function LaserTab() {
@@ -20,7 +20,7 @@ export function LaserTab() {
           { label: 'Nested Sheets', icon: <FabIcon.Nest />, disabled: !st.nests, onSelect: () => void exportNest('dxf') },
         ]} />
         <div className="k-cm-col">
-          <Small label="Sheet Library" icon={<FabIcon.SheetLib />} onClick={() => useFab.setState({ settingsOpen: true })} />
+          <Small label="Sheet Library" icon={<FabIcon.SheetLib />} onClick={() => openSettings('Materials')} />
         </div>
       </Group>
       <Group>

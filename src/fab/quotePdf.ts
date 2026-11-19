@@ -11,7 +11,7 @@ import type { Company } from './settings';
 import { companyMissing, formatEnterpriseNumber } from './settings';
 import { PdfDoc, textWidth, type PdfPage } from './pdf';
 import { date, euro, num } from './format';
-import { lineTotal, vatTotals } from './quote';
+import { lineTotal, SIX_NOTE, vatTotals } from './quote';
 
 export const PLACEHOLDERS = {
   naam: '[BEDRIJFSNAAM]', rechtsvorm: '[EENMANSZAAK / BV]', adres: '[STRAAT NR, POSTCODE GEMEENTE]', ondernemingsnummer: '[BTW BE 0___.___.___]',
@@ -127,6 +127,7 @@ export function quoteDoc(q: Quote, o: QuotePdfOptions): PdfDoc {
     for (const t of totals.perTarief) { tot(`Maatstaf ${t.tarief} %`, euro(t.maatstafCent)); tot(`Btw ${t.tarief} %`, euro(t.btwCent)); }
     p.line(tl, y - 3.5, R, y - 3.5, { w: 0.3 });
     tot('Totaal incl. btw', euro(totals.inclCent), true);
+    if (totals.perTarief.some((x) => x.tarief === 6)) { y += 1; for (const t of wrapAt(SIX_NOTE, 8.5, R - L)) { p.text(L, y, t, { size: 8 }); y += 4; } }
   } else {
     p.line(tl, y - 3.5, R, y - 3.5, { w: 0.3 });
     tot('Totaal', euro(totals.inclCent), true);

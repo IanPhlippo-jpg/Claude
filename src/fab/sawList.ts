@@ -61,9 +61,9 @@ export function sawList(recs: Rec[], kwaliteit: Record<string, string> = {}): Sa
 export function sawPlans(lines: SawLine[], stock: (BarStock & { profielId: string })[], s: BarSettings): BarPlan[] {
   const ids = [...new Set(lines.map((l) => l.profielId))];
   return ids.map((id) => {
-    const p = profileById(id)!;
+    // the bar length set by Ian is used for every profile (docs/37 B-16); the commercial lengths of the catalogue are information
     const pieces = lines.filter((l) => l.profielId === id).flatMap((l) => Array.from({ length: l.n }, () => ({ pos: l.pos, l: l.zaaglengte })));
-    return barNest(id, pieces, stock.filter((b) => b.profielId === id), { ...s, staafLengte: p.handelslengtes.includes(s.staafLengte) ? s.staafLengte : p.handelslengtes[0] ?? s.staafLengte });
+    return barNest(id, pieces, stock.filter((b) => b.profielId === id), s);
   });
 }
 

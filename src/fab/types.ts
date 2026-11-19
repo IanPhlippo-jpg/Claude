@@ -43,6 +43,10 @@ export interface Recognition {
   profielId?: string;
   /** other profiles within the tolerance: a choice for Ian, never a silent guess */
   kandidaten?: string[];
+  /** the two miters lie in different planes (saw list column Verstek) */
+  verstekGedraaid?: boolean;
+  /** the body may also be a plate (a solid strip): offered as the other choice */
+  alternatief?: 'plaat';
   /** sheet thickness (plaat, gezette plaat) */
   t?: number;
   /** saw length = the longest side along the axis (profiel), mm */
@@ -133,7 +137,7 @@ export interface Quote {
   betaling: string;
   levertermijn: string;
   configuratie?: string;
-  bevroren?: { op: string; hash: string; kostenregels: CostLine[]; uurloon: number };
+  bevroren?: { op: string; hash: string; settingsKey?: string; kostenregels: CostLine[]; uurloon: number };
 }
 
 export interface WeldJoint {
@@ -157,6 +161,10 @@ export interface WeldJoint {
   punt?: [number, number, number];
   /** how many times the part with this joint occurs (assembly) */
   aantal?: number;
+  /** the quality level was set by Ian (otherwise it follows the execution class) */
+  niveauHandmatig?: boolean;
+  /** compared with the model at the last analysis: a confirmed joint whose bodies no longer touch, or whose length changed */
+  status?: 'nieuw' | 'vervallen' | 'lengte gewijzigd';
 }
 
 export type ExecutionClass = 'geen' | 'EXC1' | 'EXC2' | 'EXC3';
@@ -175,6 +183,8 @@ export interface FabDocData {
   klant?: Customer;
   /** quantity of the series */
   reeks?: number;
+  /** the VAT rate and the placing mark Ian set per quote line (by its text) */
+  regelBtw?: Record<string, { btw?: VatRate; plaatsing?: boolean }>;
   /** free lines of the quote (text and amount excluding VAT) */
   vrij?: { omschrijving: string; bedragCent: number }[];
 }

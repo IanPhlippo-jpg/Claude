@@ -13,14 +13,6 @@ const dec = (x: number) => x.toFixed(1).replace('.', ',');
 /** K-factor after DIN 6935 (K = k / 2), clamped to [0, 0.5] */
 import type { FlatPart } from './flat';
 
-/** the bend lines numbered and coloured after the bend sequence (lines in order across the strip = bends in order of s) */
-export function withBends(f: FlatPart, bends?: { id: number; s: number; richting: 'op' | 'neer' }[]): FlatPart {
-  if (!bends || bends.length !== f.plooien.length) return f;
-  const across = (b: FlatPart['plooien'][number]) => (Math.abs(b.a.y - b.b.y) < Math.abs(b.a.x - b.b.x) ? b.a.y : b.a.x);
-  const lines = [...f.plooien].sort((a, b) => across(a) - across(b));
-  const order = [...bends].sort((a, b) => a.s - b.s);
-  return { ...f, plooien: lines.map((l, i) => ({ ...l, richting: order[i].richting })) };
-}
 
 
 export function din6935K(r: number, s: number): number {
@@ -146,14 +138,15 @@ export function proposeSequence(bends: BendLine[], flatWidth: number, t: number,
 }
 
 /** the bends of a base flange chain (prismatic part): position across the flat, angle and direction of each corner */
-export function chainBends(chain: { x: number; y: number }[], t: number, r: number, k: number, depth: number): { bends: BendLine[]; width: number } {
+export function chainBends(chain: { x: number; y: number }[], t: number, r: number, k: number, depth: number, materialLeft = true): { bends: BendLine[]; width: number } {
   const seg = chain.slice(1).map((p, i) => ({ dx: p.x - chain[i].x, dy: p.y - chain[i].y }));
   const len = seg.map((d) => Math.hypot(d.dx, d.dy));
   const bends: BendLine[] = [];
   let s = 0;
   const turns = seg.slice(1).map((d, i) => Math.atan2(seg[i].dx * d.dy - seg[i].dy * d.dx, seg[i].dx * d.dx + seg[i].dy * d.dy));
-  // straight part of each segment: length minus the setbacks of its bends (to the outer sharp, bend radius r)
-  const sb = turns.map((a) => (r + t) * Math.tan(Math.abs(a) / 2));
+  // the sketch line is one face of the sheet: at a bend toward the material it is the outside (setback (r + t) tan),
+  // at a bend away from the material the inside (setback r tan) (docs/37 B-2)
+  const sb = turns.map((a) => ((a > 0) === materialLeft ? r + t : r) * Math.tan(Math.abs(a) / 2));
   for (let i = 0; i < seg.length; i++) {
     const flat = len[i] - (i > 0 ? sb[i - 1] : 0) - (i < turns.length ? sb[i] : 0);
     s += flat;
@@ -164,4 +157,34 @@ export function chainBends(chain: { x: number; y: number }[], t: number, r: numb
     }
   }
   return { bends, width: s };
+}
+
+/**
+ * The bends of a flat part for the sequence, the checks and the bend sheet, taken from its own bend lines (the one
+ * source, docs/37 B-2): the position across the strip from edge "a" (the low side), angle, direction, length.
+ */
+export function bendsOfFlat(f: FlatPart): { bends: BendLine[]; width: number } {
+  if (!f.plooien.length) return { bends: [], width: 0 };
+  const l0 = f.plooien[0], L = Math.hypot(l0.b.x - l0.a.x, l0.b.y - l0.a.y) || 1;
+  const perp = { x: -(l0.b.y - l0.a.y) / L, y: (l0.b.x - l0.a.x) / L };
+  const across = (p: { x: number; y: number }) => p.x * perp.x + p.y * perp.y;
+  const pts = f.buiten.map((s) => s.a);
+  const lo = Math.min(...pts.map(across)), hi = Math.max(...pts.map(across));
+  const bends = f.plooien.map((b, i) => ({ id: b.id ?? i + 1, s: (across(b.a) + across(b.b)) / 2 - lo, hoek: b.hoek, richting: b.richting, lengte: Math.hypot(b.b.x - b.a.x, b.b.y - b.a.y) }));
+  return { bends, width: hi - lo };
+}
+
+/**
+ * The bend plan of a flat part: its bends from its own bend lines, the proposed sequence with the 2D check where the
+ * part is prismatic (every bend from the base flange), and the checks (docs/36 P-6, P-7; docs/37 B-2).
+ */
+export function bendPlan(f: FlatPart, doc: { features: { type: string; suppressed: boolean }[]; sheetMetal?: { thickness: number; bendRadius: number } },
+  P: { rm: number; werklengte: number; maxKracht: number }) {
+  const sm = doc.sheetMetal ?? { thickness: f.t, bendRadius: f.plooien[0]?.r ?? f.t };
+  const fromBase = doc.features.some((x) => x.type === 'baseFlange' && !x.suppressed);
+  const prismatic = fromBase && !doc.features.some((x) => !x.suppressed && ['edgeFlange', 'hem', 'miterFlange', 'jog', 'sketchedBend', 'sweptFlange', 'loftedBend'].includes(x.type));
+  const { bends, width } = bendsOfFlat(f);
+  const seq = proposeSequence(bends, width, sm.thickness, P.rm, prismatic);
+  const checks = bends.flatMap((b) => bendChecks(b, width, sm.thickness, sm.bendRadius, P, bends));
+  return { f, bends, width, seq, checks, prismatic };
 }

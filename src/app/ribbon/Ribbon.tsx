@@ -356,6 +356,9 @@ export function Ribbon() {
         <BigButton label="Design Study" icon={<Icon.Config />} active={st.dialog === 'designStudy'} onClick={() => st.setDialog(st.dialog === 'designStudy' ? null : 'designStudy')} />
         <BigButton label="Interference Detection" icon={<Icon.Interference />} active={st.dialog === 'interference'} onClick={() => st.setDialog(st.dialog === 'interference' ? null : 'interference')} />
         <BigButton label="Measure" icon={<Icon.Measure />} active={st.dialog === 'measure'} onClick={() => st.setDialog(st.dialog === 'measure' ? null : 'measure')} />
+        {/* Costing jumps to the Quote tab with the cost model, as the reference program's Costing on Evaluate (docs/36 6.2) */}
+        {st.doc.kind !== 'drawing' && !hiddenTabs.includes('quote') && <BigButton label="Costing" icon={<Icon.Mass />}
+          onClick={() => { st.setTab('quote'); void import('../fab/fabStore').then((m) => m.open('cost', 'cost')); }} />}
         <BigButton label="Mass Properties" icon={<Icon.Mass />} active={st.dialog === 'mass'} onClick={() => st.setDialog(st.dialog === 'mass' ? null : 'mass')} />
         <BigButton label="Section Properties" icon={<Icon.Section />} active={st.dialog === 'sectionProps'} onClick={() => st.setDialog(st.dialog === 'sectionProps' ? null : 'sectionProps')} />
         <BigButton label="Sensor" icon={<Icon.Sensor />} active={!!st.sensorEdit} onClick={() => st.setSensorEdit(st.sensorEdit ? null : { kind: 'mass' })} />
@@ -504,7 +507,7 @@ export function Ribbon() {
           <SmallButton label="Cut List" icon={<Icon.TreeFolder glyph="bodies" />} disabled={!st.doc.weldment} active={st.dialog === 'cutList'} onClick={() => st.setDialog(st.dialog === 'cutList' ? null : 'cutList')} />
         </div>
       </Group>
-      <FramesFabGroup />
+      {!hiddenTabs.includes('weldshop') && <FramesFabGroup />}
       <Group>
         <BigButton label="3D Sketch" icon={<Icon.Sketch />} active={!!st.sketch3dEdit} onClick={st.start3DSketch} />
         <BigButton label="Extruded Boss/Base" icon={<Icon.Extrude />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('extrude', 'boss')} />
@@ -561,6 +564,11 @@ export function Ribbon() {
       {menuBlock}
       <Group>
         {/* Add-ins load and unload with a click (Standard Parts: standard hardware in the Part Library) */}
+        {/* the fabrication extensions (docs/36 W15): on by default, off hides their tabs and the Frames+ group */}
+        {(['weldshop', 'laser', 'quote'] as const).map((id) => (
+          <BigButton key={id} label={id === 'weldshop' ? 'Frames+' : id === 'laser' ? 'Laser & Bend' : 'Quote'} icon={<Icon.Library />} active={!hiddenTabs.includes(id)}
+            onClick={() => patchPrefs({ 'customize.tabs.hidden': (hiddenTabs.includes(id) ? hiddenTabs.filter((x) => x !== id) : [...hiddenTabs, id]).join('|') })} />
+        ))}
         <BigButton label="Standard Parts" icon={<Icon.Library />} active={standardPartsOn} onClick={() => { const on = !standardPartsOn; setStandardPartsOn(on); patchPrefs({ 'addin.standardParts': on }); st.pushMessage(on ? 'Standard Parts loaded: Part Library ▸ Standard Parts holds the standard hardware.' : 'Standard Parts unloaded.'); if (on && st.taskPane !== 'library') st.setTaskPane('library'); }} />
       </Group>
     </>

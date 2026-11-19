@@ -275,3 +275,72 @@ P4.3 zei "binnenste plooien eerst". Dat is voor een hoedprofiel fout: met de bin
 | O3 offertebeheer | niet vrijgegeven | B-4, B-6; O3.2, O3.3 |
 
 Volgorde van herstellen: B-1, B-4, B-5 (klein en met het grootste gevolg), dan B-2 met B-3 en B-11 samen (één bron voor plooilijn, richting en hoek), dan B-6 tot B-9.
+
+## 8. Status na herstel (bouwer, 2026-11-19, niet gecommit)
+
+Gemeten op de werkmap na het herstel: `tsc -b` schoon, `vitest run` 184 bestanden / 1297 tests groen, `VOORBEELDEN=1` fab-groep groen (O1.2 lastafel als assembly erbij), `e2e/fab.mjs` tegen een `VITE_TEST_HOOKS=1`-build zonder fout, line-budget en line-length groen, hoofdchunk 794,54 kB (budget 800). Beelden in `scratchpad/extensies-v2/` (21 schermbeelden, PDF-renders van zaagstaat, lasplan, lassymbolen, plaatlijst, plooiblad hoed en Z, legplan driehoeken, offerte).
+De tests in `src/fab/review37.test.ts` en `src/app/fab/fabStore.test.ts` gebruiken de gemeten waarden uit hoofdstuk 3 (46,4 tegen 49,4; € 1.366,80 tegen 5 x de stukprijs; 2026-001/002; enz.). Ze zijn geschreven om op f9a4f8a te falen; ik heb ze niet elk afzonderlijk tegen f9a4f8a teruggedraaid.
+
+### Bevindingen
+
+| Nr | Status | Wat er nu is | Test |
+|---|---|---|---|
+| B-1 | opgelost | instellingen-sleutel (`settingsKey`) in het resultaat; `setSettings` herprijst meteen (`price()` los van `analyzeGeometry()`); ander resultaat = verouderd = export geblokkeerd; offerte neemt `r.settings` | fabStore.test B-1 (2), e2e uurloon 45 → 90 |
+| B-2 | opgelost | aanslagen uit de plooilijnen van de uitslag; `chainBends` rekent buiten (r + t) naar het materiaal en binnen (r) de andere kant; botsing met dezelfde maten | review37 hoed 12,12 / 49,37 / 109,61 / 146,85, breedte 158,98; Z 12,1 / 114,4 |
+| B-3 | opgelost | richting en hoek in `flatOfSheet` zelf (één bron voor uitslag, DXF, nest, plooiblad) | review37 Z: 1 OP + 1 NEER op de DXF-lagen; hoed 2 + 2 |
+| B-4 | opgelost | `withoutCustomerData` loopt eerst de componenten af; formaat 5 ook als alleen een component `fab` heeft; Pack and Go vraagt (standaard nee); Share-kopie zonder klant | review37 assembly, fabStore.test Pack and Go |
+| B-5 | opgelost | `quoteLines` per stuk van de reeks, instelregels gedeeld; paneel en offerte uit `salePerPiece` | review37 (2), e2e paneel x 5 = offerte |
+| B-6 | opgelost | nummer pas na geslaagde opslag; XLSX van dezelfde offerte hergebruikt het nummer; teller apart (niet in Reset/import) en boven elk nummer in het document; Reset vraagt | review37, fabStore.test Reset, e2e PDF+XLSX één nummer |
+| B-7 | opgelost | vrije regels altijd mee, zonder marge, negatief mag; "Add Line" met eigen velden | review37, e2e korting |
+| B-8 | opgelost | `reconcileJoints`: vervallen / nieuw / lengte gewijzigd, getoond in de PM; niveau volgt EXC tenzij met de hand gezet; vervallen naden niet in de kostprijs | review37 (2) |
+| B-9 | opgelost | strook met gaten = plaat (platstaal als kandidaat), zonder gaten platstaal met plaat als keuze; naamtreffer zonder wand = onbekend met kandidaten; RVS/inox/roestvast vóór staal; geen materiaal = AANNAME; niet-metaal = onbekend | review37 (4) |
+| B-10 | opgelost | sleutel uit het hele document zonder offertes/klant/reeks; componenten in hun configuratie; herbouwfouten als waarschuwing | fabStore.test B-10 |
+| B-11 | opgelost | label uit de werkelijk gebruikte toeslag; keten uit verbonden punten | review37 |
+| B-12 | opgelost | voorraad bij "aangekocht" aan de ingestelde prijs, regel zegt "voorraad" | review37 |
+| B-13 | opgelost | tarief en plaatsing per regel in de Quote-PM; verlegd alleen met geldig btw-nummer (blokkeert anders); 6 % zonder plaatsing blokkeert; vermelding 6 % op de PDF. Te verifiëren met de boekhouder | review37 (2), quote.test O2.4 |
+| B-14 | grotendeels | titelblok ISO 7200 op alle werkplaatsbladen; plooiblad met schaal, streep-punt zetlijnen, maten vanaf rand a, a/b, legenda; lasplan met aanzicht (body-kaders, ballonnen), positienummers en getekende symbolen. Het aanzicht is geen echte 2D-projectie van het model (kaders) | review37 B-14, beelden pdf-* |
+| B-15 | opgelost | `validateFab` bij openen (getallen, lijsten, btw) | review37 |
+| B-16 | opgelost | ingestelde staaflengte; laatste snede telt niet mee; ondergrens juist; verstek in twee vlakken uit de eindnormalen | review37 (3), frames.test L2.3 |
+| B-17 | opgelost | legplan-PDF alle groepen; ZIP met de goede platen, geweigerde in de lijst | review37 |
+| P3 geld | opgelost | hele centen per stuk; aantal x eenheidsprijs = bedrag; garantie/verzekering volgen override; paneel toont het btw-regime | review37, frames.test O1.5 |
+| P3 botsing | deels | wig van de stempel, tekst zegt dat de controle beperkt is; > 7 plooien eigen tekst. Geen matrijs, tafel, aanslag | nestbend.test |
+| P3 laspunt | opgelost | zwaartepunt van het contactvlak | review37 |
+| P3 dxf ° | opgelost | `%%d` vóór `ascii()` | review37 |
+| P3 instellingen | opgelost | import per lijst gecontroleerd; VZW zonder RPR; revisie na Z = AA; `fab: {}` blijft formaat 4 | review37 |
+| P3 interface | opgelost | eigen pictogram per PM; kruis = Cancel met terugzetten; elke knop opent zijn eigen pagina; Weld Sequence met ▲▼; Order List eigen XLSX; Cancel in de dialoog; kop Quote Preview onder de tabs; snelheden, startkost, insteltijd, platenlijst in te vullen | e2e instellingenpagina's |
+| P3 bundel | opgelost | 794,54 kB (TaskPane, ShortcutBar, lifecycle-dialogen, ManagerPane-extra's lazy) | bundle-budget |
+
+### Criteria die niet of deels gehaald waren
+
+| Criterium | Nu | Opmerking |
+|---|---|---|
+| F0-4, F0-6, F0-7, L2.10, O1.7, O3.4 | gehaald | via B-1, B-9, B-10, B-15. Geen aparte stap in `migrate.ts` (formaat 5 wordt alleen geschreven met inhoud) |
+| L2.7 | deels | verstek in twee vlakken getest; spiegelstukken met gaten niet apart getest |
+| L3.3 | gehaald | ISO 2553 systeem A als lijnen (8 voorbeelden op een eigen blad), ook in de PM. Nog niet op de tekenbladen van de CAD zelf |
+| L3.5 | deels | volgorde met ▲▼ in de PM, bewaard in het document; geen slepen in de boom |
+| L3.7 | gehaald | `jointFromBead` in de analyse |
+| L4.2, L4.5, O1.4, O1.5 | gehaald | B-12, B-1, B-5, invoer in de app |
+| P2.9 | gehaald | B-17 |
+| P3.4 | deels | vormnesting in paren (tweede stuk 180° langs de NFP, Clipper2 Minkowski); geen vrije vormnesting van verschillende stukken |
+| P4.2, P4.3 | gehaald | B-2; P4.3 volgens de correctie in 6 |
+| P5.1, P5.2, P5.3 | gehaald | op de cent getest; plaatmodus "nest" rekent het aandeel van het geneste blad; snelheden in te vullen |
+| O1.2 | gehaald | lastafel als assembly in de voorbeeldengroep |
+| O2.4, O2.5 | gehaald | B-13 |
+| O3.1, O3.5, O3.6 | gehaald | B-6, totalen in de XLSX, B-4 |
+| O3.2 | gehaald | bevroren offertes in de PM met "New revision" (A, B, …) |
+| O3.3 | deels | melding "model gewijzigd sinds offerte …" in de Quote-PM, niet in de FeatureManager-boom |
+| Costing op Evaluate, Add-In-schakelaars | gehaald | knop Costing op Evaluate; Weld Shop, Laser & Bend en Quote aan/uit via Phlippo Add-Ins |
+| P1.4 | niet | geen algemene ontvouwer; randflenzen worden nog met reden geweigerd |
+| P1.6, P4.6, P2.6 (PP5), L1.2 (LF3), L1.4, L1.5, L1.6 | niet nagemeten | niet opnieuw gemeten in deze ronde |
+| L2.6, L4.4, O1.6, P3.3, P2.7, P5.5 | niet | vergelijking met het orakel uit de bibliotheek (`kostprijs()`, `nesting()`, `dxfBestanden()`) niet gebouwd. LF4/LF5: de deurprofielen van TD-01 zijn massief getekend en worden als "Vierkant 40" herkend, dus vergelijken met het orakel heeft nog geen zin |
+| L2.8, P4.8 | niet | geen zaag- of plooitabel op een tekenblad van de CAD |
+| P2.8 | niet | DXF nog niet geopend in een externe viewer; status blijft "nog te openen bij de lasersnijder" |
+| P3.6 | deels | rechthoek en paren < 1 s; geen worker, Cancel Nesting blijft uit |
+| P3.9 | niet | geen handmatig verschuiven |
+| P4.7 | niet | geen tussenstanden van het model per plooistap |
+| O2.9 | deels | voorbeeld en PDF uit dezelfde pagina's; geen beeldvergelijking |
+| FeatureManager-mappen | niet | resultaten blijven in de eigen strook en de PM |
+
+### Oordeel volgens de bouwer (ter controle door Fable)
+
+L3, L4, P4, P5 en O1 tot O3 hebben geen open P1 of P2 meer. De offerte blijft ONTWERP tot de bedrijfsgegevens er zijn en de boekhouder de btw-regels las; de DXF blijft "nog te openen" tot P2.8; het plooiblad is nagerekend op hoed, Z en L, nog niet op een echte kantbank.

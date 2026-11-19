@@ -4,6 +4,7 @@ import { ENTITY_POINT_FIELDS, ENTITY_SCALAR_FIELDS, FEATURE_TYPES } from './feat
 import { featureProblem, MAX_INSTANCES } from './validateFeatures';
 import { encodePositions } from './positionCodec';
 import { migrateBodyIds } from './migrate';
+import { fabProblem } from '../../fab/validateFab';
 
 export const FILE_EXTENSION = '.kcad';
 /**
@@ -17,6 +18,8 @@ export const FILE_EXTENSION = '.kcad';
 export const FILE_VERSION = 4;
 /** format 5: a file with fabrication data (doc.fab, docs/36 F0-7); written only then, every other file stays format 4 */
 export const FAB_FILE_VERSION = 5;
+/** fabrication data in the document or one of its parts (an empty fab object is none, docs/37 B-15) */
+const hasFab = (d: Document): boolean => (!!d.fab && Object.keys(d.fab).length > 0) || (d.components ?? []).some((c) => hasFab(c.part));
 /** the program version written into every file (vite define; 'dev' where the define is absent) */
 export const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';
 const APP_COMMIT: string = typeof __APP_COMMIT__ === 'string' ? __APP_COMMIT__ : '';
@@ -51,7 +54,7 @@ function compactPositions(this: unknown, key: string, value: unknown): unknown {
 export function serializeDocument(doc: Document, pretty = true): string {
   const { version: _v, ...rest } = doc;
   void _v;
-  const head = { format: 'phlippo-cad', version: rest.fab ? FAB_FILE_VERSION : FILE_VERSION, app: APP_VERSION, ...(APP_COMMIT ? { commit: APP_COMMIT } : {}) };
+  const head = { format: 'phlippo-cad', version: hasFab(doc) ? FAB_FILE_VERSION : FILE_VERSION, app: APP_VERSION, ...(APP_COMMIT ? { commit: APP_COMMIT } : {}) };
   return JSON.stringify({ ...head, ...rest }, compactPositions, pretty ? 2 : undefined);
 }
 
@@ -247,8 +250,8 @@ export function validateDocument(raw: unknown, depth = 0): Document {
   }
   if (d.planes !== undefined && !isObj(d.planes)) throw new DocumentFormatError('The reference planes are damaged.');
   if (d.print3d !== undefined) validatePrint3d(d.print3d);
-  const fab = d.fab as Raw | undefined;
-  if (fab !== undefined && (!isObj(fab) || ['welds', 'quotes'].some((k) => fab[k] !== undefined && !Array.isArray(fab[k])))) throw new DocumentFormatError('The fabrication data are damaged.');
+  const fabBad = d.fab === undefined ? null : fabProblem(d.fab);
+  if (fabBad) throw new DocumentFormatError(`The fabrication data are damaged: ${fabBad}.`);
   if (d.variables !== undefined && !isObj(d.variables)) throw new DocumentFormatError('The global variables are damaged.');
   if (d.equations !== undefined && !Array.isArray(d.equations)) throw new DocumentFormatError('The equations are damaged.');
   if (d.kind === 'assembly') {

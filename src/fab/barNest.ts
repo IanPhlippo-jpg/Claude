@@ -19,14 +19,18 @@ export interface BarPlan {
   fouten: { pos: number; l: number; tekst: string }[];
 }
 
-/** the lower bound of new bars: ⌈(sum of lengths + cuts) / usable bar length⌉ */
+/**
+ * The lower bound of new bars: ⌈(sum of lengths + cuts) / (usable bar length + one cut)⌉: the last piece of a bar needs
+ * no cut behind it (docs/37 B-16: one piece of 5998 is one bar; 2998 + 4 + 2998 = 6000 fits one bar)
+ */
 export function lowerBound(pieces: BarPiece[], s: BarSettings): number {
-  const use = s.staafLengte - s.afkorten - s.klem;
+  const use = s.staafLengte - s.afkorten - s.klem + s.zaagsnede;
   return pieces.length ? Math.ceil((pieces.reduce((t, p) => t + p.l + s.zaagsnede, 0) - 1e-9) / use) : 0;
 }
 
 function plan(pieces: BarPiece[], stock: BarStock[], s: BarSettings, rule: 'first' | 'best'): { staven: Bar[]; fouten: BarPlan['fouten'] } {
-  const room = (l: number) => l - s.afkorten - s.klem;
+  // room for pieces each followed by a cut: the cut behind the last piece may fall off the end of the bar
+  const room = (l: number) => l - s.afkorten - s.klem + s.zaagsnede;
   const staven: (Bar & { vrij: number })[] = [];
   const fouten: BarPlan['fouten'] = [];
   const pool = stock.flatMap((b) => Array.from({ length: b.aantal }, () => ({ lengte: b.lengte, restant: b.restant })));
@@ -35,9 +39,9 @@ function plan(pieces: BarPiece[], stock: BarStock[], s: BarSettings, rule: 'firs
   const maxLen = Math.max(s.staafLengte, ...pool.map((b) => b.lengte));
   for (const p of [...pieces].sort((a, b) => b.l - a.l || a.pos - b.pos)) {
     const need = p.l + s.zaagsnede;
-    if (p.l > room(maxLen) + 1e-9) { fouten.push({ pos: p.pos, l: p.l, tekst: `stuk van ${p.l} mm is langer dan de bruikbare staaflengte ${room(maxLen)} mm` }); continue; }
+    if (need > room(maxLen) + 1e-9) { fouten.push({ pos: p.pos, l: p.l, tekst: `stuk van ${p.l} mm is langer dan de bruikbare staaflengte ${room(maxLen) - s.zaagsnede} mm` }); continue; }
     // a remnant from stock first: the smallest one that holds the piece
-    const ri = remnants.findIndex((r) => room(r.lengte) >= need - 1e-9 || room(r.lengte) >= p.l - 1e-9);
+    const ri = remnants.findIndex((r) => room(r.lengte) >= need - 1e-9);
     if (ri >= 0) {
       const r = remnants.splice(ri, 1)[0];
       staven.push({ bron: 'restant', lengte: r.lengte, stukken: [p], vrij: room(r.lengte) - need, rest: 0 });
@@ -46,13 +50,13 @@ function plan(pieces: BarPiece[], stock: BarStock[], s: BarSettings, rule: 'firs
     const open = staven.filter((b) => b.vrij >= need - 1e-9);
     const target = rule === 'first' ? open[0] : open.sort((a, b) => a.vrij - b.vrij)[0];
     if (target) { target.stukken.push(p); target.vrij -= need; continue; }
-    const bi = bars.findIndex((b) => room(b.lengte) >= p.l - 1e-9);
+    const bi = bars.findIndex((b) => room(b.lengte) >= need - 1e-9);
     const from = bi >= 0 ? bars.splice(bi, 1)[0] : null;
     const L = from ? from.lengte : s.staafLengte;
     staven.push({ bron: from ? 'voorraad' : 'nieuw', lengte: L, stukken: [p], vrij: room(L) - need, rest: 0 });
   }
   return {
-    staven: staven.map(({ vrij, ...b }) => ({ ...b, rest: Math.max(0, b.lengte - s.afkorten - b.stukken.reduce((t, x) => t + x.l + s.zaagsnede, 0)), ...(vrij < -1e-9 ? {} : {}) })),
+    staven: staven.map(({ vrij: _v, ...b }) => { void _v; return { ...b, rest: Math.max(0, b.lengte - s.afkorten - b.stukken.reduce((t, x) => t + x.l + s.zaagsnede, 0)) }; }),
     fouten,
   };
 }

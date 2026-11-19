@@ -131,3 +131,18 @@ describe('P4 bend sequence', () => {
     expect(proposeSequence(bends, width, 3, 450, false).gecontroleerd).toBe(false);
   });
 });
+
+describe('P3.4 shape nesting (pairs along the no-fit polygon)', () => {
+  const tri = (n: number): FlatPart => ({ ...rectFlat('tri', 400, 300, n), buiten: [{ a: { x: 0, y: 0 }, bulge: 0 }, { a: { x: 400, y: 0 }, bulge: 0 }, { a: { x: 0, y: 300 }, bulge: 0 }], oppervlak: 60000 });
+  it('40 right triangles 400 x 300: pairs fill their boxes above 70 % where single rectangles stay at 50 %; the nest is valid on the exact contours', async () => {
+    const { nestPiecesShape } = await import('./nest');
+    const flats = [tri(40)];
+    const rect = nestRects('S235', 3, nestPieces(flats), S), shape = nestRects('S235', 3, nestPiecesShape(flats, S.afstand), S);
+    const fill = (n: typeof rect) => (40 * 60000) / n.bladen.reduce((t, b) => t + b.stukken.reduce((u, p) => u + (p.tx === undefined ? p.l * p.b : (p.draai === 0 ? p.l * p.b : 0)), 0), 0);
+    expect(fill(rect)).toBeLessThan(0.55);
+    expect(fill(shape)).toBeGreaterThan(0.7);
+    expect(shape.status).toBe('vorm');
+    expect(validateNest(shape, flats, new Map([[1, 40]]))).toEqual([]);
+    expect(shape.bladen.flatMap((b) => b.stukken).length).toBe(40);
+  });
+});

@@ -20,7 +20,7 @@
 .k-fab-down { color: #2e7d32; }
 .k-fab-view { position: absolute; left: 0; right: 0; z-index: 4; background: var(--bg-panel); border-top: 2px solid var(--border); display: flex; flex-direction: column; color: var(--text); }
 .k-fab-bottom { bottom: 0; height: 46%; }
-.k-fab-full { top: 0; bottom: 0; }
+.k-fab-full { top: 34px; bottom: 0; }
 .k-fab-viewhead { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--border); font-size: 12px; }
 .k-fab-viewhead .grow { flex: 1; }
 .k-fab-muted { color: var(--text-muted); font-size: 11px; }
@@ -75,3 +75,5 @@
 .k-fab-ssrc { flex: 1; color: var(--text-muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-fab-bad { border-color: #c62828 !important; }
 .k-fab-warn { background: color-mix(in srgb, #f3c33f 25%, transparent); padding: 4px 6px; }
+.k-fab-symbol { display: inline-block; width: 156px; height: 44px; flex: 0 0 auto; }
+.k-fab-symbol svg { width: 156px; height: 44px; }

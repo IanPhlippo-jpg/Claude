@@ -144,6 +144,8 @@ export const isCommercialThickness = (t: number, tol = 0.02) => SHEET_THICKNESSE
 /** the material key of a sheet price from the part's material name ("S355, gepoedercoat zwart" -> S355) */
 export function materialKey(name: string | undefined): string {
   const n = (name ?? '').toUpperCase();
+  // stainless first: "roestvast staal 304" and "roestvrij staal" are no S235 (docs/37 B-9)
+  if (/ROESTVAST|ROESTVRIJ|RVS|INOX|STAINLESS|AISI|\b(304|316|430)\b|1\.4301|1\.4404|1\.4016/.test(n)) return /430|1\.4016/.test(n) ? 'RVS 430' : 'RVS 304';
   if (/S690/.test(n)) return 'S690QL';
   if (/S355/.test(n)) return 'S355';
   if (/S235|STAAL|STEEL|ST37/.test(n) && !/RVS|INOX|STAINLESS|AISI/.test(n)) return /SENDZIMIR|VERZINKT|DX51/.test(n) ? 'DX51D' : 'S235';

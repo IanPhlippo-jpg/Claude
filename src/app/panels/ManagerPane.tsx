@@ -4,7 +4,6 @@ import { treeFilterShown } from '../prefsEffects';
 import { autoShowPropertyPanel } from '../prefsUi';
 import { PMComments } from './PMComments';
 import { useShallow } from 'zustand/react/shallow';
-import { ToleranceTreeBody, DisplayPanelBody } from './ManagerExtra';
 import { Icon } from '../../ui/icons';
 import { FeatureTreeBody } from './FeatureTreeBody';
 import { DockPanel } from './Dock';
@@ -60,6 +59,9 @@ const PropertyPanelBody = lazyNamed(() => import('./PropertyPanel'), 'PropertyPa
 const PrintPM = lazyNamed(() => import('../print/PrintPM'), 'PrintPM', false);
 // the Property Panel of the fabrication tabs (docs/36), its own chunk
 const FabPM = lazyNamed(() => import('../fab/FabPM'), 'FabPM', false);
+// the Tolerance Tree and the Display Panel: a chunk of their own, preloaded after start-up (bundle budget)
+const ToleranceTreeBody = lazyNamed(() => import('./ManagerExtra'), 'ToleranceTreeBody', true);
+const DisplayPanelBody = lazyNamed(() => import('./ManagerExtra'), 'DisplayPanelBody', true);
 
 /**
  * The manager pane on the left: tab strip (Feature Tree,

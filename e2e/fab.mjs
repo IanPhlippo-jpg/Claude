@@ -65,6 +65,7 @@ const sawPdf = await download(() => big('Export').click());
 check('saw list PDF', sawPdf.name.endsWith('zaagstaat.pdf') && sawPdf.bytes.subarray(0, 5).toString() === '%PDF-');
 await big('Weld Joint').click();
 await page.waitForSelector('[data-testid="fab-view-welds"]');
+await shot('04a-weld-joints-symbols');
 check('6 weld joints proposed', (await page.locator('[data-testid="fab-weld"]').count()) === 6);
 await page.selectOption('[data-testid="fab-exc"]', 'EXC2');
 await page.waitForSelector('[data-testid="fab-exc-warning"]');
@@ -74,29 +75,64 @@ await big('Cost').click();
 await page.waitForSelector('[data-testid="fab-view-cost"]');
 await shot('05-cost-manager');
 
-// ---- Quote of LF1: customer, preview, PDF (ONTWERP while the company data are empty), no network request
+// ---- docs/37 B-1: a new hourly rate reprices the cost at once (no stale result, no old price on the quote)
+const totalOf = async () => Number((await page.locator('[data-testid="fab-view-cost"] .k-fab-viewhead b').textContent()).split('€').pop().replace(/\./g, '').replace(',', '.').trim());
+const cost1 = await totalOf();
+await page.locator('.k-cm-big:has(.k-cm-label:text-is("Stock Library")) .k-cm-main').first().click();
+await page.click('[data-testid="fab-settings-Rates"]');
+await page.fill('[data-testid="fab-uurloon"]', '90');
+await page.click('[data-testid="fab-settings-close"]');
+await frames(page, 4);
+const cost2 = await totalOf();
+check('B-1: hourly rate 45 -> 90 raises the cost at once and nothing is stale', cost2 > cost1 && (await page.locator('[data-testid="fab-view-stale"]').count()) === 0, `${cost1} -> ${cost2}`);
+await shot('05b-cost-after-hourly-rate');
+
+// ---- Quote of LF1: customer, series of 5, preview, PDF and XLSX with one number (ONTWERP while the company data are empty), no network request
 await tab('Quote');
 await big('Customer').click();
 await page.fill('[data-testid="fab-klant-naam"]', 'Klant Test (fictief)');
 await shot('06-quote-customer-pm');
+await big('Cost Model').click();
+await page.fill('[data-testid="fab-reeks"]', '5');
+await frames(page, 4);
+const salePiece = await page.locator('[data-testid="fab-sale-piece"]').textContent();
+const saleSeries = await page.locator('[data-testid="fab-sale-series"]').textContent();
+await shot('06b-cost-series-of-5');
 await big('Quote').click();
 await page.waitForSelector('[data-testid="fab-view-quote"] img');
+const quoteExcl = await page.locator('[data-testid="fab-quote-excl"]').textContent();
+check('B-5: the quote of a series of 5 charges 5 x the per-piece price of the Cost panel', quoteExcl.trim() === saleSeries.trim(), `${salePiece} x 5 = ${saleSeries}, quote ${quoteExcl}`);
 await shot('07-quote-preview');
 const requests = [];
 page.on('request', (r) => { if (!/^(data|blob):/.test(r.url()) && !r.url().startsWith(new URL(page.url()).origin)) requests.push(r.url()); });
 const quote = await download(() => big('Export').click());
 const qtext = quote.bytes.toString('latin1');
-check('quote PDF numbered 2026-001 or later and marked ONTWERP', /^Offerte-\d{4}-\d{3}\.pdf$/.test(quote.name) && qtext.includes('(ONTWERP)'), quote.name);
+check('quote PDF numbered and marked ONTWERP', /^Offerte-\d{4}-\d{3}\.pdf$/.test(quote.name) && qtext.includes('(ONTWERP)'), quote.name);
 check('no word for Ian only in the customer PDF', !/AANNAME|kostprijs|uurloon/i.test(qtext));
+await page.locator('.k-cm-big:has(.k-cm-label:text-is("Export")) .k-cm-arrow').first().click();
+const xlsx = await download(() => page.click('text=Quote XLSX'));
+check('B-6: the XLSX of the same quote has the same number', xlsx.name === quote.name.replace('.pdf', '.xlsx'), `${quote.name} / ${xlsx.name}`);
 check('no network request while making the quote', requests.length === 0, requests.join(' '));
 await big('Rates & Materials').click();
 await page.waitForSelector('[data-testid="fab-settings"]');
-await shot('08-settings-company');
-await page.click('[data-testid="fab-settings-Rates"]');
 await shot('09-settings-rates');
+await page.click('[data-testid="fab-settings-Company"]');
+await shot('08-settings-company');
 await page.click('[data-testid="fab-settings-Materials"]');
 await shot('10-settings-materials');
+await page.click('[data-testid="fab-settings-Machines"]');
+await shot('10b-settings-machines');
 await page.click('[data-testid="fab-settings-close"]');
+await small('Add Line').click();
+await page.fill('[data-testid="fab-line-text"]', 'Korting');
+await page.fill('[data-testid="fab-line-amount"]', '-50');
+await page.click('[data-testid="fab-line-add"]');
+await frames(page, 4);
+await shot('10c-add-line-discount');
+await tab('Evaluate');
+await big('Costing').click();
+await page.waitForSelector('[data-testid="fab-view-cost"]');
+check('Costing on Evaluate opens the cost model on the Quote tab', (await page.locator('.k-cm-tab.active').textContent()) === 'Quote');
 
 // ---- a change of the model marks the results out of date and blocks the export
 await page.evaluate(() => { const st = window.__phlippoStore.getState(); const d = structuredClone(st.doc); d.features = d.features.map((f) => (f.type === 'structuralMember' && f.id === 'sm2' ? { ...f, size: '40 x 40 x 4' } : f)); st.applyDocument('change', d); });

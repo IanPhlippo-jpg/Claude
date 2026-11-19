@@ -23,6 +23,8 @@ export interface CostInput {
   joints: WeldJoint[];
   settings: FabSettings;
   overrides?: Record<string, { bedragCent: number; reden: string }>;
+  /** the nested sheets per material and thickness (plate mode 'nest', P5.2) */
+  nests?: import('./nest').Nest[];
   /** free lines Ian added */
   vrij?: { omschrijving: string; bedragCent: number }[];
   /** spacing used around a plate for its material share (rectangle mode), mm */
@@ -47,7 +49,8 @@ function line(id: string, categorie: CostCategory, omschrijving: string, hoeveel
   const geen = eenheidsprijs === null || !Number.isFinite(eenheidsprijs);
   return {
     id, categorie, omschrijving, hoeveelheid: Math.round(hoeveelheid * 1e4) / 1e4, eenheid,
-    eenheidsprijsCent: geen ? 0 : toCent(eenheidsprijs!), bedragCent: geen ? 0 : toCent(hoeveelheid * eenheidsprijs!),
+    // the amount is the quantity times the unit price as shown (whole cents), rounded once (docs/37 P3)
+    eenheidsprijsCent: geen ? 0 : toCent(eenheidsprijs!), bedragCent: geen ? 0 : toCent((Math.round(hoeveelheid * 1e4) / 1e4) * toCent(eenheidsprijs!) / 100),
     bron: geen ? 'geen prijs in de instellingen' : bronnen.map((b) => b.bron).filter((v, i, a) => a.indexOf(v) === i).join('; '),
     aanname: geen ? false : bronnen.some((b) => b.aanname), herkomst, ...(geen ? { geenPrijs: true } : {}), ...(instel ? { instel: true } : {}),
     ...(bronnen.length ? { prijsDatum: oldest(bronnen) } : {}),
@@ -58,7 +61,9 @@ function line(id: string, categorie: CostCategory, omschrijving: string, hoeveel
 const labour = (s: FabSettings, id: string, cat: CostCategory, text: string, hours: number, tijd: Sourced<unknown>[], keys: string[], instel = false) =>
   line(id, cat, text, hours, 'u', s.rates.uurloon.waarde, [...tijd, s.rates.uurloon], keys, instel);
 
-export function costModel(inp: CostInput): CostModel {
+export function costModel(inp0: CostInput): CostModel {
+  // a weld joint whose bodies no longer touch is not costed (docs/37 B-8)
+  const inp = { ...inp0, joints: inp0.joints.filter((j) => j.status !== 'vervallen') };
   const S = inp.settings, M = S.machines, regels: CostLine[] = [];
   const profiles = inp.recs.filter((r) => r.soort === 'profiel');
   // ---- material: profiles
@@ -71,9 +76,15 @@ export function costModel(inp: CostInput): CostModel {
     const bron = perM ? [perM] : [p.kgPerM, S.materials.profielKg];
     if (S.rates.materiaalModus === 'aangekocht') {
       const plan = inp.plans.find((x) => x.profielId === id);
-      const bars = plan?.staven.filter((b) => b.bron === 'nieuw') ?? [];
-      const m = bars.reduce((t, b) => t + b.lengte, 0) / 1000;
-      regels.push(line(`profiel:${id}`, 'profiel', `${p.naam}: ${bars.length} hele staven (aangekocht, restant naar voorraad)`, m, 'm', prijsM, bron, keys));
+      // new bars whole; a bar or a remnant from stock at the set price too (it has a value), the remnant for the length used (docs/37 B-12)
+      const kerf = S.machines.zagen.zaagsnede;
+      const nieuw = plan?.staven.filter((b) => b.bron === 'nieuw') ?? [], voorraad = plan?.staven.filter((b) => b.bron === 'voorraad') ?? [],
+        rest = plan?.staven.filter((b) => b.bron === 'restant') ?? [];
+      const m = (nieuw.reduce((t, b) => t + b.lengte, 0) + voorraad.reduce((t, b) => t + b.lengte, 0) + rest.reduce((t, b) => t + b.stukken.reduce((u, x) => u + x.l + kerf, 0), 0)) / 1000;
+      const parts = [`${nieuw.length} hele staven nieuw`, voorraad.length ? `${voorraad.length} uit voorraad` : '', rest.length ? `${rest.length} restant${rest.length === 1 ? '' : 'en'}`
+        : ''].filter(Boolean);
+      regels.push(line(`profiel:${id}`, 'profiel', `${p.naam}: ${parts.join(', ')} (aangekocht${voorraad.length || rest.length ? ', voorraad aan de ingestelde prijs' : ''})`, m, 'm', prijsM,
+        bron, keys));
     } else {
       const m = lines.reduce((t, l) => t + l.n * l.zaaglengte, 0) / 1000;
       regels.push(line(`profiel:${id}`, 'profiel', `${p.naam}: ${num(m, 2)} m + ${S.rates.afvalProfiel.waarde} % afval (verbruikt)`, m * (1 + S.rates.afvalProfiel.waarde / 100), 'm', prijsM,
@@ -105,14 +116,26 @@ export function costModel(inp: CostInput): CostModel {
   // ---- plates: material share, cutting, pierces, finishing of the laser part, bending
   for (const [i, f] of inp.flats.entries()) {
     const pos = `P${i + 1}`;
-    const keys = [f.key];
+    const keys = f.keys ?? [f.key];
     const mk = materialKey(f.materiaal);
     const kg = S.materials.plaatKg[mk] ?? null;
     const sp = inp.spacing ?? Math.max(5, f.t);
     const rectKg = ((f.bbox.l + sp) * (f.bbox.b + sp) * f.t * f.dichtheid) / 1e9;
-    regels.push(line(`plaat:${f.key}`, 'plaat',
-      `${pos} ${f.naam}: plaat ${mk} ${num(f.t, f.t % 1 ? 1 : 0)} mm, ${f.n} x ${num(rectKg, 2)} kg (omschreven rechthoek + ${S.rates.afvalPlaat.waarde} % afval)`,
-      f.n * rectKg * (1 + S.rates.afvalPlaat.waarde / 100), 'kg', kg ? kg.waarde : null, kg ? [kg, S.rates.afvalPlaat] : [], keys));
+    // P5.2: the share of the nested sheets (the sheets of the group shared out by net area), or the bounding rectangle + waste
+    const nest = S.rates.plaatModus === 'nest' ? inp.nests?.find((x) => x.materiaal === f.materiaal && Math.abs(x.t - f.t) < 1e-6 && x.bladen.length) : undefined;
+    if (nest) {
+      const groupArea = inp.flats.filter((x) => x.materiaal === f.materiaal && Math.abs(x.t - f.t) < 1e-6 && x.betrouwbaar !== 'geen').reduce((t, x) => t + x.n * x.oppervlak, 0);
+      const sheetKg = nest.bladen.reduce((t, b) => t + (b.l * b.b * f.t * f.dichtheid) / 1e9, 0);
+      const share = groupArea ? (f.n * f.oppervlak) / groupArea : 0;
+      regels.push(line(`plaat:${f.key}`, 'plaat', `${pos} ${f.naam}: plaat ${mk} ${num(f.t, f.t % 1 ? 1 : 0)} mm, ${num(share * 100, 0)} % van ${nest.bladen.length} geneste` +
+        ` bla${nest.bladen.length === 1 ? 'd' : 'den'} (aandeel van het blad)`,
+        share * sheetKg, 'kg', kg ? kg.waarde : null, kg ? [kg] : [], keys));
+    } else {
+      regels.push(line(`plaat:${f.key}`, 'plaat',
+        `${pos} ${f.naam}: plaat ${mk} ${num(f.t, f.t % 1 ? 1 : 0)} mm, ${f.n} x ${num(rectKg, 2)} kg (omschreven rechthoek + ${S.rates.afvalPlaat.waarde} % afval)`,
+        f.n * rectKg * (1 + S.rates.afvalPlaat.waarde / 100), 'kg', kg ? kg.waarde : null, kg ? [kg, S.rates.afvalPlaat] : [], keys));
+    }
+    if (f.materiaalAanname) { const l = regels[regels.length - 1]; l.aanname = true; l.bron = `geen materiaal in het model, als S235 gerekend; ${l.bron}`; }
     const snijM = (f.snijlengte.buiten + f.snijlengte.binnen) / 1000;
     if (M.laser.modus === 'uitbesteed') {
       const band = M.laser.snijM.find((b) => f.t <= b.tot + 1e-9);
@@ -139,6 +162,8 @@ export function costModel(inp: CostInput): CostModel {
       }
     }
   }
+  if (inp.flats.length && M.laser.modus === 'uitbesteed' && M.laser.startkost) regels.push(line('laserstart', 'laser', 'Startkost lasersnijder', 1, 'order', M.laser.startkost.waarde,
+    [M.laser.startkost], [], true));
   // ---- purchased parts
   const koop = inp.recs.filter((r) => r.soort === 'koop');
   for (const name of [...new Set(koop.map((r) => r.bron.part))]) {
@@ -163,9 +188,10 @@ export function costModel(inp: CostInput): CostModel {
   if (regels.some((l) => l.bedragCent > 0)) {
     regels.push(line('transport', 'overhead', 'Transport', 1, 'rit', F.transport.waarde, [F.transport], [], true));
     regels.push(line('verpakking', 'overhead', 'Verpakking', 1, 'st', F.verpakking.waarde, [F.verpakking], [], true));
-    const sub = regels.reduce((t, l) => t + l.bedragCent, 0) / 100;
-    regels.push(line('garantie', 'overhead', `Garantie ${num(F.garantiePct.waarde, 1)} %`, sub, '€', F.garantiePct.waarde / 100, [F.garantiePct], []));
-    regels.push(line('verzekering', 'overhead', `Verzekering ${num(F.verzekeringPct.waarde, 1)} %`, sub, '€', F.verzekeringPct.waarde / 100, [F.verzekeringPct], []));
+    // the percentages follow Ian's overrides of the other lines (docs/37 P3)
+    const sub = regels.reduce((t, l) => t + (inp.overrides?.[l.id]?.bedragCent ?? l.bedragCent), 0) / 100;
+    regels.push(line('garantie', 'overhead', `Garantie ${num(F.garantiePct.waarde, 1)} %`, F.garantiePct.waarde, '%', sub / 100, [F.garantiePct], []));
+    regels.push(line('verzekering', 'overhead', `Verzekering ${num(F.verzekeringPct.waarde, 1)} %`, F.verzekeringPct.waarde, '%', sub / 100, [F.verzekeringPct], []));
   }
   for (const [i, v] of (inp.vrij ?? []).entries()) regels.push({ ...line(`vrij:${i}`, 'vrij', v.omschrijving, 1, 'st', v.bedragCent / 100, [{ waarde: v.bedragCent, eenheid: '€',
     bron: 'vrije regel van de gebruiker', aanname: false, datum: '' }], []), prijsDatum: undefined });
@@ -187,7 +213,7 @@ export function summarize(regels: CostLine[], geenKost: Recognition[] = []): Cos
 
 /** cost per piece in a series of q: set-up lines shared over the series, the rest per piece (O1.5) */
 export function perPiece(m: CostModel, q: number): number {
-  return m.regels.reduce((t, l) => t + (l.instel ? l.bedragCent / Math.max(1, q) : l.bedragCent), 0);
+  return Math.round(m.regels.reduce((t, l) => t + (l.instel ? l.bedragCent / Math.max(1, q) : l.bedragCent), 0));
 }
 
 /** the groups of the Cost Manager (docs/36 6.2) */

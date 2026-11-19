@@ -244,6 +244,14 @@ export function importSettings(text: string): FabSettings {
   s.materials.profielM = prijsMap(rest.materials && (rest.materials as Record<string, unknown>).profielM) as FabSettings['materials']['profielM'];
   s.materials.koop = prijsMap(rest.materials && (rest.materials as Record<string, unknown>).koop) as FabSettings['materials']['koop'];
   s.materials.plaatKg = { ...defaultSettings().materials.plaatKg, ...prijsMap(rest.materials && (rest.materials as Record<string, unknown>).plaatKg) } as FabSettings['materials']['plaatKg'];
+  // the lists are checked entry by entry (docs/37 P3): a damaged entry refuses the file, nothing is taken unseen
+  const pos = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  const bad = (what: string, i: number) => new Error(`Werkplaatsinstellingen: ${what} ${i + 1} is beschadigd.`);
+  s.materials.voorraad.forEach((b, i) => { if (!isObj(b) || typeof b.profielId !== 'string' || !pos(b.lengte) || !Number.isInteger(b.aantal) || b.aantal < 0
+    || typeof b.restant !== 'boolean') throw bad('voorraadregel', i); });
+  s.materials.platen.forEach((p, i) => { if (!isObj(p) || typeof p.id !== 'string' || !pos(p.l) || !pos(p.b) || !pos(p.t) || !pos(p.voorraad)) throw bad('plaat', i); });
+  s.machines.laser.snijM.forEach((x, i) => { if (!isObj(x) || !pos(x.tot) || !isObj(x.prijs) || !pos(x.prijs.waarde)) throw bad('snijprijs', i); });
+  s.machines.laser.snelheid.forEach((x, i) => { if (!isObj(x) || typeof x.materiaal !== 'string' || !pos(x.t) || !pos(x.mmPerMin)) throw bad('snijsnelheid', i); });
   return s;
 }
 
@@ -278,7 +286,7 @@ export function formatEnterpriseNumber(s: string): string {
   return d.length === 10 ? `BE ${d.slice(0, 4)}.${d.slice(4, 7)}.${d.slice(7)}` : s;
 }
 
-const VENNOOTSCHAP = /\b(BV|NV|CV|CommV|VZW|SRL|SA)\b/i;
+const VENNOOTSCHAP = /\b(BV|NV|CV|CommV|SRL|SA)\b/i;
 
 /** the mandatory company fields that are missing or not valid (an empty list: the quote is no draft) */
 export function companyMissing(c: Company): string[] {

@@ -7,7 +7,7 @@
 import type { Document, Feature } from '../core/document/types';
 import { rebuildDocument, type RebuildResult } from '../core/features/rebuild';
 import type { PlanarFace } from '../core/features/solid';
-import { bomPartNumber } from '../core/document/configurations';
+import { bomPartNumber, documentForConfiguration } from '../core/document/configurations';
 import { geometryHash, soup } from './geom';
 
 export interface FabBody {
@@ -30,6 +30,8 @@ export interface FabBody {
   /** the part is sheet metal (Base Flange or Convert to Sheet Metal) with this thickness */
   sheet?: { t: number; doc: Document };
   exact: boolean;
+  /** the rebuild of the part gave errors: the body may be incomplete (docs/37 B-10) */
+  warning?: string;
 }
 
 const SHEET_TYPES = new Set(['baseFlange', 'convertSheet', 'insertBends', 'sweptFlange']);
@@ -50,6 +52,7 @@ export function partBodies(doc: Document, path: string[] = [], aantal = 1, rebui
   const sheet = sheetOf(doc);
   const mat = doc.material;
   const prop = doc.properties?.['fab.soort'];
+  const errs = Object.values(r.errors ?? {});
   return r.bodies.map((b) => {
     const s = soup(b.geometry);
     return {
@@ -68,6 +71,7 @@ export function partBodies(doc: Document, path: string[] = [], aantal = 1, rebui
       eigenschap: typeof prop === 'string' ? prop : undefined,
       sheet,
       exact: !!b.exact,
+      ...(errs.length ? { warning: `herbouw met fouten: ${errs[0]}` } : {}),
     };
   });
 }
@@ -83,10 +87,11 @@ export function documentBodies(doc: Document, rebuild?: (d: Document) => Rebuild
       const k = `${bomPartNumber(c.part, c.configuration)}|${c.configuration ?? ''}`;
       const g = groups.get(k);
       if (g) g.ids.push([...path, c.id].join('/'));
-      else groups.set(k, { part: c.part, ids: [[...path, c.id].join('/')] });
+      else groups.set(k, { part: c.configuration ? documentForConfiguration(c.part, c.configuration) : c.part, ids: [[...path, c.id].join('/')] });
     }
   };
   walk(doc, []);
+  // each component in its own configuration (docs/37 B-10)
   return [...groups.values()].flatMap((g) => partBodies(g.part, g.ids[0].split('/'), g.ids.length, rebuild));
 }
 

@@ -11,7 +11,7 @@
 import { areaD, FillRule, intersectD, unionD, type PathsD } from 'clipper2-ts';
 import type { FabBody } from './bodies';
 import type { ExecutionClass, Recognition, WeldJoint } from './types';
-import { dot, frameOf, hull, planeGroups, triangle, unit, type V3 } from './geom';
+import { cross, dot, frameOf, hull, planeGroups, triangle, unit, type V3 } from './geom';
 import { profileById } from './catalog';
 
 // ---- execution class (EN 1090-2, te verifiëren)
@@ -31,7 +31,7 @@ export const proposedThroat = (wall: number) => Math.max(3, Math.round(0.7 * wal
 
 // ---- contact faces
 
-interface FaceInfo { n: V3; d: number; poly: PathsD; outer: number; area: number; c: V3 }
+interface FaceInfo { n: V3; d: number; poly: PathsD; outer: number; area: number; c: V3; u: V3; v: V3 }
 
 function faceInfos(b: FabBody): FaceInfo[] {
   const out: FaceInfo[] = [];
@@ -46,7 +46,7 @@ function faceInfos(b: FabBody): FaceInfo[] {
     // for an open section such as a channel end it counts the outline across the opening, an overestimate)
     const h = hull(tris.flat());
     const outer = h.reduce((s2, p, i) => s2 + Math.hypot(h[(i + 1) % h.length].x - p.x, h[(i + 1) % h.length].y - p.y), 0);
-    out.push({ n, d: g.d, poly, outer, area: g.area, c: g.centroid });
+    out.push({ n, d: g.d, poly, outer, area: g.area, c: g.centroid, u, v });
   }
   return out;
 }
@@ -74,7 +74,15 @@ export function contacts(bodies: FabBody[]): Contact[] {
       if (area < 1) continue;
       // the weld runs round the smaller face (a tube end on a plate: the outer perimeter of the tube)
       const lengte = fa.area <= fb.area ? fa.outer : fb.outer;
-      if (!best || area > best.area) best = { a: bodies[i].key, b: bodies[j].key, lengte, punt: fa.c, area };
+      // the joint point: the centre of the contact itself, not of the whole face (docs/37 P3)
+      let cx = 0, cy = 0, w = 0;
+      for (const pth of common) for (let q = 0; q < pth.length; q++) { const a0 = pth[q], a1 = pth[(q + 1) % pth.length],
+        cr = a0.x * a1.y - a1.x * a0.y; cx += (a0.x + a1.x) * cr; cy += (a0.y + a1.y) * cr; w += cr; }
+      const P2c = w ? { x: cx / (3 * w), y: cy / (3 * w) } : { x: dot(fa.c, fa.u), y: dot(fa.c, fa.v) };
+      const nC = cross(fa.u, fa.v);
+      const along = dot(fa.c, nC);
+      const punt: V3 = [0, 1, 2].map((k) => fa.u[k] * P2c.x + fa.v[k] * P2c.y + nC[k] * along) as V3;
+      if (!best || area > best.area) best = { a: bodies[i].key, b: bodies[j].key, lengte, punt, area };
     }
     if (best) out.push(best);
   }
@@ -95,7 +103,7 @@ export function proposeJoints(bodies: FabBody[], recs: Recognition[], exc: Execu
 
 // ---- ISO 2553 system A as text (the drawing symbol is drawn from the same fields)
 
-const SYMBOL: Record<WeldJoint['soort'], string> = { hoeklas: '◺', I: '||', V: 'V', HV: '|/', Y: 'Y', X: 'X', prop: '○' };
+const SYMBOL: Record<WeldJoint['soort'], string> = { hoeklas: 'hoeklas', I: 'I-naad', V: 'V-naad', HV: 'HV-naad', Y: 'Y-naad', X: 'X-naad', prop: 'propnaad' };
 /** the designation: size with its letter, symbol, length or n x l (e), all around, field weld, tail (process / position / level) */
 export function weldText(j: WeldJoint): string {
   const size = `${j.maat.letter}${String(j.maat.mm).replace('.', ',')}`;
@@ -157,6 +165,33 @@ export function applySequence(joints: WeldJoint[], steps: WeldStep[]): WeldJoint
 
 /** a weld bead feature of an older file gets a joint of the same size (L3.7) */
 export function jointFromBead(bead: { id: string; size: number; name: string }, n: number): WeldJoint {
-  return { id: `W${n}`, bodies: ['', ''], soort: 'hoeklas', maat: { letter: 'a', mm: bead.size }, lengte: 0, tweezijdig: false, rondom: false, montage: false, onderbroken: null,
+  return { id: `B${n}`, bodies: ['', ''], soort: 'hoeklas', maat: { letter: 'a', mm: bead.size }, lengte: 0, tweezijdig: false, rondom: false, montage: false, onderbroken: null,
     proces: '135', positie: 'PB', niveau: 'C', stap: n, hechten: true, bevestigd: true, beadFeatureId: bead.id };
 }
+
+/**
+ * Ian's joints laid against the joints the model gives now (docs/37 B-8): a kept joint follows the length of its contact
+ * and the quality level of the execution class (unless Ian set it); a joint whose bodies no longer touch is "vervallen"
+ * (shown, not costed); a contact without a kept joint comes as a new proposal.
+ */
+export function reconcileJoints(saved: WeldJoint[], proposed: WeldJoint[], exc: ExecutionClass = 'geen'): WeldJoint[] {
+  const niveau = excDefaults(exc).niveau;
+  if (!saved.length) return proposed.map((j) => ({ ...j, niveau }));
+  const pair = (j: WeldJoint) => [...j.bodies].sort().join('|');
+  const byPair = new Map(proposed.map((j) => [pair(j), j]));
+  const used = new Set<string>();
+  const out: WeldJoint[] = saved.map((j) => {
+    const now = byPair.get(pair(j));
+    const lvl = j.niveauHandmatig ? j.niveau : niveau;
+    if (!now) return { ...j, niveau: lvl, status: j.bodies[0] === '' ? undefined : 'vervallen' };
+    used.add(pair(j));
+    const changed = Math.abs(now.lengte - j.lengte) > 0.5;
+    return { ...j, niveau: lvl, lengte: now.lengte, punt: now.punt, aantal: now.aantal, status: changed ? 'lengte gewijzigd' : undefined };
+  });
+  let n = Math.max(0, ...saved.map((j) => Number(j.id.replace(/\D/g, '')) || 0));
+  for (const j of proposed) if (!used.has(pair(j))) out.push({ ...j, id: `W${++n}`, niveau, status: 'nieuw', bevestigd: false });
+  return out;
+}
+
+/** the joints that are costed and printed on the weld plan (a lapsed joint is not) */
+export const activeJoints = (js: WeldJoint[]) => js.filter((j) => j.status !== 'vervallen');

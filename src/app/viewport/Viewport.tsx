@@ -19,7 +19,7 @@ import { DragDimensionsHandle } from './DragDimensions'; import { Magnifier } fr
 import { NumericInput } from './NumericInput';
 import { filterAllows } from '../SelectionFilterBar';
 import { cancelAO, disposeAO, renderWithAO } from './ao';
-import { MarkupLayer } from '../lifecycleDialogs';
+import { MarkupLayer } from '../markupLayer';
 import { refGeometryFrom, refGeometryLines } from '../../core/features/refgeom';
 import { curvatureAnalysis, draftAnalysis, thicknessAnalysis, undercutAnalysis } from '../../core/features/analysis';
 import { partingLineAnalysis } from '../../core/features/evaluate2';

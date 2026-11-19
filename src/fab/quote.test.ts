@@ -54,13 +54,14 @@ describe('O2 quote layout and PDF', () => {
     expect(t.inclCent).toBe(42634);
   });
 
-  it('O2.4 6 % without the three conditions is not possible; 6 % without a placing line gives a message', () => {
+  it('O2.4 6 % without the three conditions is not possible; 6 % without a placing line is refused', () => {
     const q = quote([L(10000)]);
     expect('fout' in setRate(q, 0, 6)).toBe(true);
     const ok = { ...q, klant: { ...klant, zesProcent: { woningOuderDan10: true, prive: true, geplaatstEindgebruiker: true } } };
     const r = setRate(ok, 0, 6) as Quote;
     expect(r.regels[0].btw).toBe(6);
-    expect(vatProblems(r).map((p) => p.blokkeert)).toEqual([false]);
+    // docs/37 B-13: 6 % without a placing line is refused, not only reported
+    expect(vatProblems(r).map((p) => p.blokkeert)).toEqual([true]);
     expect(vatProblems({ ...r, regels: [{ ...r.regels[0], plaatsing: true }] })).toEqual([]);
     // two of three ticked: refused
     expect('fout' in setRate({ ...q, klant: { ...klant, zesProcent: { woningOuderDan10: true, prive: true, geplaatstEindgebruiker: false } } }, 0, 6)).toBe(true);
