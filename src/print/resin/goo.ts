@@ -8,7 +8,7 @@
  *   - "Data size" counts the whole image data: the 0x55, the chunks and the checksum
  *   - the checksum is the one's complement of the 8-bit sum of the chunk bytes
  *   - the previews are RGB565, big-endian, row by row from the top
- *   - the image rows run from the back edge of the LCD to the front; no mirroring
+ *   - the image rows run from the back edge of the LCD to the front; mirrored only where the database says so
  *   - advance mode 1: the printer takes exposure and lift of every layer from its layer definition
  */
 import type { Resin, ResinLayer, ResinMachine, ResinSettings, ResinStats } from './types';
@@ -99,8 +99,9 @@ export function writeGoo(job: GooJob): Uint8Array {
   o.int(layers.length);
   o.short(m.resolution[0]);
   o.short(m.resolution[1]);
-  o.bool(false);
-  o.bool(false);
+  // the mirror flags: the image was mirrored by the slicer (database resin.mirror; an assumption: docs/35 R-2)
+  o.bool(m.mirror[0]);
+  o.bool(m.mirror[1]);
   o.float(m.size[0]);
   o.float(m.size[1]);
   o.float(m.height);

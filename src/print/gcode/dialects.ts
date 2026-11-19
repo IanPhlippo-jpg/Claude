@@ -11,6 +11,8 @@ import type { Printer } from '../types';
 import { fmt } from './format';
 
 export const NOT_PRINTED = 'nog te printen: kalibratiekubus 20 mm per printer';
+/** resin: a cube cannot show a mirrored print, the asymmetric test piece can (docs/35 R-2) */
+export const NOT_PRINTED_RESIN = 'nog te printen: asymmetrisch proefstuk (L met F) per harsprinter';
 
 export interface Dialect {
   flavor: 'bambu' | 'klipper' | 'marlin';

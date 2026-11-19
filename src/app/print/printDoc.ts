@@ -27,8 +27,9 @@ export function positionsFor(source: ItemSource): Float32Array | null {
   if (st.doc.kind === 'assembly') {
     const comps = (st.doc.components ?? []).filter((c) => !c.suppressed && !c.hidden);
     const meshOf = (c: (typeof comps)[number]) => {
-      const body = componentBody(partRebuild(documentForConfiguration(c.part, c.configuration)));
-      return body ? transformPositions(posOf(body.geometry), Array.from(componentMatrix(c).elements)) : null;
+      const r = partRebuild(documentForConfiguration(c.part, c.configuration)), body = componentBody(r);
+      // the part's finer tessellation for the slicer once it is there (docs/35 H-6)
+      return body ? transformPositions(fineMesh(body.id, r) ?? posOf(body.geometry), Array.from(componentMatrix(c).elements)) : null;
     };
     if (source.kind === 'component') { const c = comps.find((x) => x.id === source.id); return c ? meshOf(c) : null; }
     if (source.kind === 'assembly') { const all = comps.map(meshOf).filter((m): m is Float32Array => !!m); return all.length ? join(all) : null; }

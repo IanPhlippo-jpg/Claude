@@ -18,6 +18,9 @@ export interface ResinMachine {
   pitch: [number, number];
   /** origin of the plate coordinates: the middle of the LCD (the database says "center" for resin) */
   origin: 'center' | 'front-left';
+  /** the image mirrored in X (columns) and Y (rows) before it goes into the file; the file's mirror flags say so
+   * (database field resin.mirror, an assumption until the asymmetric test piece is printed: docs/35 R-2) */
+  mirror: [boolean, boolean];
   status: string;
   assumptions: string[];
 }

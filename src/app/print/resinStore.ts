@@ -6,12 +6,13 @@
 import { create } from 'zustand';
 import { useStore } from '../store';
 import { isAnnounced, printerName } from '../../print/database';
-import { worldBounds, worldPositions } from '../../print/plate';
-import { machineOf, resinSettings, FIXTURE_RESINS } from '../../print/resin/profile';
-import { gooFile, resinProblems, type ResinJob, type ResinOutput } from '../../print/resin/slice';
+import { makeItem, worldBounds, worldPositions } from '../../print/plate';
+import { resinTestPiece } from '../../print/shapes';
+import { machineOf, resinAssumptions, resinSettings, FIXTURE_RESINS } from '../../print/resin/profile';
+import { gooFile, liftOf, resinProblems, type ResinJob, type ResinOutput } from '../../print/resin/slice';
 import type { Resin, ResinMachine, ResinSettings } from '../../print/resin/types';
 import type { Printer } from '../../print/types';
-import { currentPrinter, fmtTime, plate, safetyAssumptions, saveFile, usePrint } from './printStore';
+import { addPlateItems, currentPrinter, fmtTime, plate, safetyAssumptions, saveFile, usePrint } from './printStore';
 import { sliceResinInWorker } from './sliceClient';
 
 const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';
@@ -60,6 +61,28 @@ const keepManual = (o: Partial<ResinSettings>): Partial<ResinSettings> => {
 };
 export const clearManual = () => set({ overrides: { ...R().overrides, addedPoints: [], removedPoints: [] } });
 export function addSupportPoint(x: number, y: number, z: number) { patchResin({ addedPoints: [...currentResinSettings().addedPoints, [x, y, z]] }); }
+/**
+ * A click on a part with the Support Points tool (plate coordinates of the part as it stands on the plate): a point
+ * there, at the height it will have on the supports; with remove, the automatic and hand-made points near it go.
+ */
+export function pickSupportPoint(x: number, y: number, z: number, remove: boolean) {
+  const s = currentResinSettings();
+  const r = (v: number) => Math.round(v * 100) / 100;
+  if (remove) {
+    patchResin({ addedPoints: s.addedPoints.filter((p) => Math.hypot(p[0] - x, p[1] - y) >= 1.5), removedPoints: [...s.removedPoints, [r(x), r(y)]] });
+    return;
+  }
+  patchResin({ addedPoints: [...s.addedPoints, [r(x), r(y), r(z + liftOf(s))]] });
+}
+/** the resin test piece (an L with a raised F: a mirrored print shows; docs/35 R-2) in the middle of the LCD */
+export function addTestPiece() {
+  const m = currentMachine();
+  if (!m) return;
+  const p = resinTestPiece(0, 0), cad = new Float32Array(p.length);
+  // plate (Z up) to CAD (Y up): the item puts it back with CAD_TO_PLATE
+  for (let i = 0; i < p.length; i += 3) { cad[i] = p[i]; cad[i + 1] = p[i + 2]; cad[i + 2] = -p[i + 1]; }
+  addPlateItems([makeItem('Resin test piece (L with F)', cad, m.size[0] / 2, m.size[1] / 2)]);
+}
 export function removeSupportsNear(x: number, y: number) { patchResin({ removedPoints: [...currentResinSettings().removedPoints, [x, y]] }); }
 /** a drain hole under the selected part (or the first part): the middle of its footprint, radius 1.5 mm */
 export function addDrainHole() {
@@ -115,7 +138,8 @@ export async function exportGoo(confirmed = false): Promise<void> {
   const problems = resinProblems(job);
   if (problems.length) return msg(problems[0], 'error');
   if (job.printer.fileFormat !== 'goo') return msg(`The ${printerName(job.printer)} takes .${job.printer.fileFormat} files; Phlippo CAD writes .goo only.`, 'error');
-  const risky = safetyAssumptions(job.printer);
+  // the FDM safety fields and the LCD fields (size, resolution, mirroring, format) that rest on an assumption (R-6)
+  const risky = [...new Set([...safetyAssumptions(job.printer), ...resinAssumptions(job.machine)])];
   if (!confirmed) {
     const what = `${isAnnounced(job.printer) ? `The ${printerName(job.printer)} is announced, not yet for sale. ` : ''}`
       + (risky.length ? `These values of the ${printerName(job.printer)} are assumptions: ${risky.join('; ')}. ` : '');

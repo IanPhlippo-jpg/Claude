@@ -124,7 +124,23 @@ await settle(page);
 await toTab();
 await page.selectOption('[data-testid="print-printer"]', 'elegoo-mars-5-ultra');
 await big('Add to Plate').click();
+await frames(page, 6);
+check('the resin mode says what is still to print: the asymmetric test piece, not the cube', /asymmetrisch proefstuk/.test(await page.locator('[data-testid="print-note"]').innerText()));
+// support points by hand: a click on the part adds one there (a red mark), Shift+click takes it away again
+const counted = () => page.locator('[data-testid="print-resin-pick"] ~ .k-muted').last().innerText();
+await page.click('[data-testid="print-resin-pick"]');
+const view = await page.locator('[data-testid="print-view"] canvas').boundingBox();
+await page.mouse.click(view.x + view.width / 2, view.y + view.height / 2);
 await frames(page, 4);
+check('a click on the part with Pick Points adds a support point', /^1 added/.test(await counted()), await counted());
+await shot('08-resin-pick-point');
+await page.keyboard.down('Shift');
+await page.mouse.click(view.x + view.width / 2, view.y + view.height / 2);
+await page.keyboard.up('Shift');
+await frames(page, 4);
+check('Shift+click takes the point away again', /^0 added · 1 removed/.test(await counted()), await counted());
+await page.click('[data-testid="print-resin-pick"]');
+await page.click('[data-testid="print-pm"] button:text-is("Clear")');
 await page.click('[data-testid="print-resin-hollow"]');
 await frames(page, 2);
 await big('Slice Plate').click();
@@ -145,6 +161,12 @@ check('a drain hole opens the cavity', !/Cavity/.test(after), after.replace(/\s+
 await page.locator('[data-testid="print-resin-layer-slider"]').fill('10');
 await frames(page, 6);
 await shot('07-resin-drain-hole-layer');
+// the release test piece of a resin printer: an L with a raised F (a mirrored print shows)
+await page.click('[data-testid="print-tab-settings"]');
+await page.click('[data-testid="print-resin-testpiece"]');
+await frames(page, 6);
+check('Add Test Piece puts the L with the F on the plate', (await page.locator('.k-print-part', { hasText: 'Resin test piece' }).count()) === 1);
+await shot('09-resin-test-piece');
 await page.click('[data-testid="print-ok"]');
 
 check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '));

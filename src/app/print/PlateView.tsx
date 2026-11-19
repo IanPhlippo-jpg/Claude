@@ -16,8 +16,9 @@ import { printerName } from '../../print/database';
 import { buildPreview, indicesPerSegment } from './previewGeometry';
 import { LINE_COLORS, LINE_LABELS, scaleColor } from './previewColors';
 import { LINE_TYPES, SEG_STRIDE, type LineType } from '../../print/types';
-import { NOT_PRINTED } from '../../print/gcode/dialects';
-import { ResinMaskView, useResinScene } from './ResinView';
+import { NOT_PRINTED, NOT_PRINTED_RESIN } from '../../print/gcode/dialects';
+import { ResinMaskView, useResinScene, useSupportMarkers } from './ResinView';
+import { pickSupportPoint } from './resinStore';
 
 interface View { theta: number; phi: number; dist: number; target: THREE.Vector3 }
 
@@ -228,6 +229,11 @@ export function PlateView() {
       el.setPointerCapture(e.pointerId);
       const st = usePrint.getState();
       if (e.button === 0) {
+        // resin support points by hand: on the part where it is clicked; Shift+click takes the points near it away
+        if (st.tool === 'supportPoint') {
+          const h = pick(e);
+          if (h) { pickSupportPoint(h.point.x, h.point.y, h.point.z - t.parts.position.z, e.shiftKey); return; }
+        }
         const hit = st.pmTab === 'preview' && st.result ? null : pick(e);
         if (hit && st.tool === 'layFlat') {
           const id = hit.object.userData.id as string;
@@ -307,6 +313,7 @@ export function PlateView() {
 
   const resin = printer?.technology === 'resin';
   useResinScene(resin ? three.current : null);
+  useSupportMarkers(resin ? three.current : null);
   const st = s.result?.stats;
   const zOf = (l: number) => s.result?.preview.layerZ[l] ?? 0;
   const hiMoves = layerMoves(s.layerHi);
@@ -368,7 +375,7 @@ export function PlateView() {
         <button className="k-tip" data-tip="Cancel" onClick={() => { cancelSession(); useStore.getState().setTab(useStore.getState().doc.kind === 'assembly' ? 'assembly' : 'features');
           }}>&#10005;</button>
       </div>
-      <div className="k-print-badge">{printer ? printerName(printer) : ''} · {NOT_PRINTED}</div>
+      <div className="k-print-badge">{printer ? printerName(printer) : ''} · {resin ? NOT_PRINTED_RESIN : NOT_PRINTED}</div>
       {s.plates.length > 1 && <div className="k-print-platetabs">{s.plates.map((p,
         i) => <button key={p.id} className={i === s.plateIndex ? 'active' : ''} onClick={() => usePrint.setState({ plateIndex: i, selected: null, result: null })}>{p.name}</button>)}</div>}
     </div>

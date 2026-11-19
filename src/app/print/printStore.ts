@@ -35,7 +35,8 @@ export interface PrintState {
   plateIndex: number;
   selected: string | null;
   past: Plate[][];
-  tool: 'select' | 'layFlat';
+  /** supportPoint: a click on a part adds a resin support point there, Shift+click removes the points near it */
+  tool: 'select' | 'layFlat' | 'supportPoint';
   pmTab: 'settings' | 'preview';
   slicing: SliceProgress | null;
   result: SliceOutput | null;
@@ -220,6 +221,13 @@ function editArranged(f: (items: PlateItem[]) => PlateItem[], p: Printer) {
 }
 
 export const selectItem = (id: string | null) => usePrint.setState({ selected: id });
+/** parts made here (the resin test piece): onto the plate, arranged with the rest */
+export function addPlateItems(added: PlateItem[]) {
+  const p = currentPrinter();
+  if (!p || !added.length) return;
+  editArranged((items) => [...items, ...added], p);
+  usePrint.setState({ selected: added[added.length - 1].id });
+}
 export const removeSelected = () => { const id = S().selected; if (id) { editPlate((items) => items.filter((i) => i.id !== id)); usePrint.setState({ selected: null }); } };
 export const moveSelected = (dx: number, dy: number) => onSelected((it) => moveBy(it, dx, dy));
 export const rotateSelected = (deg: number) => onSelected((it) => rotateZ(it, deg));
@@ -417,7 +425,7 @@ if (typeof window !== 'undefined') {
     if (st.rebuild !== prev.rebuild && !st.rebuild.pending) {
       refreshFromModel();
       // parts of the model on a plate: the slicer's finer tessellation of the exact bodies follows (docs/35 H-6)
-      if (S().plates.some((p) => p.items.some((i) => i.source?.kind === 'part' || i.source?.kind === 'body'))) requestFineMeshes(refreshFromModel);
+      if (S().plates.some((p) => p.items.some((i) => i.source))) requestFineMeshes(refreshFromModel);
     }
   });
 }

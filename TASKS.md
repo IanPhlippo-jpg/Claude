@@ -1605,7 +1605,7 @@ elease; README en docs/04 bijgewerkt
 - [x] R-6/R-7: LCD-velden in de exportbevestiging, pixelmaat-afwijking als aanname, formaatversie in de database; printernaam in de kop als aanname
 - [x] Steunpunten aanklikken in 3D (toevoegen, Shift weghalen), merktekens op het stuk
 - [x] Fijn mesh (0,07 rad) ook voor componenten van een assembly
-- [~] Negatieve test per punt, typecheck, vitest, e2e print3d + print3dResin, poorten, graphify
+- [x] Negatieve test per punt, typecheck, vitest, e2e print3d + print3dResin, poorten, graphify
 
 ## Eisen en supervisie voor de extensies Lasconstructies+, Lasersnijden/plooien en Offerte uit model (2026-11-19)
 - [x] Bestaande code lezen: weldments.ts, frameBuild.ts, sheetmetal.ts, unfold.ts, tables.ts, export2d.ts, print-extensie als voorbeeld
@@ -1633,3 +1633,11 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable-R2: hoofdstuk 10 van docs/35 lezen, meetscripts fase 2 en 3 opnieuw draaien (H-1 tot H-7)
 - [x] Fable-R2: fase 4 (.goo) naast de criteria 3.4 van docs/34 leggen, openbare GOO-spec opzoeken, Kruk.goo met een eigen lezer nalopen
 - [x] Fable-R2: hoofdstuk 11 onder docs/35 (tabel, bevindingen, oordeel per fase; geen codewijziging, geen commit)
+
+## Review Fable 5.2 van de extensies Lasconstructies+, Lasersnijden/plooien, Offerte uit model (2026-11-19)
+- [~] Fable-X: schone git archive van f9a4f8a in de scratchpad, fab-tests zelf draaien
+- [ ] Fable-X: criteria van docs/36 per fase nalopen (gehaald, deels, niet gehaald, niet te meten) met bewijs
+- [ ] Fable-X: eigen meetscripts (DXF heen en terug, DIN 6935, zaagplan tegen ondergrens, kosten, btw, mod-97, privacy-export)
+- [ ] Fable-X: PDF's, DXF's en schermafbeeldingen nalopen (ISO 7200/128, Belgische offerte, watermerk, "conform", EXC2, SW-conventies)
+- [ ] Fable-X: fouten en risico's zoeken (afronding, verouderd, formaat 5 + migratie, klantgegevens, K-factor, herkenning)
+- [ ] Fable-X: docs/37-review-fable-extensies.md schrijven (geen codewijziging, geen commit)

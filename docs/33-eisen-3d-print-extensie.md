@@ -56,7 +56,7 @@ Ian wil extensies die SOLIDWORKS niet heeft, maar wel in SOLIDWORKS-stijl. De ee
 
 ## Stand fase 4: Elegoo-harsprinters (.goo) (2026-11-19)
 
-**Nog te printen: per harsprinter een proefprint.** Niets is op een harsprinter geprint, en het `.goo`-bestand is nog niet geopend in de slicer van Elegoo. Beide blijven de stap van Ian (docs/34 3.4).
+**Nog te printen: per harsprinter het asymmetrische proefstuk (L met F; knop Add Test Piece).** Een kubus kan een gespiegelde print niet tonen (docs/35 R-2). Niets is op een harsprinter geprint, en het `.goo`-bestand is nog niet geopend in de slicer van Elegoo. Beide blijven de stap van Ian (docs/34 3.4).
 
 ### Wat er is
 - Zelfde tabblad **3D Print**; kies je een harsprinter (in de lijst gemarkeerd met "(resin)", 21 stuks uit de database), dan schakelt het paneel naar hars: Resin (harsprofiel uit `materialProfiles.json`, laaghoogte 0,02 tot 0,1 mm, anti-aliasing 1/2/4/8), Exposure (normaal, bodem, aantal bodemlagen, overgangslagen, wachttijd, lichtvermogen), Lift and Retract, Hollow (wanddikte, afvoergaten), Supports (geen, normaal, boom; drempelhoek, afstand, contactpunt, steun, optillen, vlot; punten met de hand toevoegen en weghalen). Waarden buiten de grenzen staan in rood en de slice weigert ze (`src/print/resin/profile.ts`, `LIMITS`).
@@ -81,5 +81,6 @@ Ian wil extensies die SOLIDWORKS niet heeft, maar wel in SOLIDWORKS-stijl. De ee
 - Grenzen van belichting en lift zijn MSLA-praktijk, niet per printer uit een bron.
 
 ### Open
-- Steunpunten met de hand gaan nu met getallen (X/Y/Z); klikken op het stuk in 3D volgt.
+- Steunpunten met de hand: aanklikken op het stuk (Pick Points on the Part, Shift+klik weghalen) of intypen.
+- Spiegelen per printer (`resin.mirror`) en de formaatversie zijn AANNAME tot het proefstuk geprint is.
 - Geen .ctb (besluit van Ian).

@@ -7,7 +7,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useShallow } from 'zustand/react/shallow';
 import { decodePreview } from '../../print/resin/gooReader';
-import { resinStale, useResin } from './resinStore';
+import { currentResinSettings, resinStale, useResin } from './resinStore';
+import { liftOf } from '../../print/resin/slice';
 import { usePrint } from './printStore';
 
 /** the 3D part of the resin preview: supports, raft and the lifted parts; undone when the preview closes */
@@ -90,4 +91,27 @@ export function ResinMaskView() {
       </div>
     </>
   );
+}
+
+/**
+ * The support points set by hand on the plate (red: added, grey: where points were taken away), at the height of the
+ * part as it is shown: on the plate, or lifted onto its supports in the preview.
+ */
+export function useSupportMarkers(t: { scene: THREE.Scene; render: () => void } | null) {
+  const r = useResin(useShallow((x) => ({ overrides: x.overrides, result: x.result, layerHeight: x.layerHeight, resinId: x.resinId })));
+  const preview = usePrint((x) => x.pmTab === 'preview');
+  useEffect(() => {
+    if (!t) return;
+    const s = currentResinSettings();
+    const shown = preview && r.result ? r.result.lift : 0;
+    const g = new THREE.Group();
+    const ball = new THREE.SphereGeometry(0.6, 12, 8);
+    const red = new THREE.MeshBasicMaterial({ color: 0xd9363e, depthTest: false }), grey = new THREE.MeshBasicMaterial({ color: 0x6b7280, depthTest: false });
+    for (const [x, y, z] of s.addedPoints) { const b = new THREE.Mesh(ball, red); b.position.set(x, y, z - liftOf(s) + shown); b.renderOrder = 6; g.add(b); }
+    for (const [x, y] of s.removedPoints) { const b = new THREE.Mesh(ball, grey); b.position.set(x, y, 0.3); b.renderOrder = 6; g.add(b); }
+    g.userData.supportMarkers = s.addedPoints.length;
+    t.scene.add(g);
+    t.render();
+    return () => { t.scene.remove(g); ball.dispose(); red.dispose(); grey.dispose(); t.render(); };
+  }, [t, r.overrides, r.result, preview]);
 }

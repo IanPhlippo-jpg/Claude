@@ -21,7 +21,7 @@ const resinPrinters = db.printers.filter((p) => p.technology === 'resin');
 const S4U = machineOf(db.printers.find((p) => p.id === 'elegoo-saturn-4-ultra')!)!;
 const RESIN = db.resins[0];
 /** a small LCD for exact pixel tests: 400 x 250 pixels of 0.05 mm */
-const SMALL: ResinMachine = { id: 't', name: 'Test LCD', resolution: [400, 250], size: [20, 12.5], height: 40, pitch: [0.05, 0.05], origin: 'center', status: 'released', assumptions: [] };
+const SMALL: ResinMachine = { id: 't', name: 'Test LCD', resolution: [400, 250], size: [20, 12.5], height: 40, pitch: [0.05, 0.05], origin: 'center', mirror: [false, false], status: 'released', assumptions: [] };
 const rect = (x0: number, y0: number, x1: number, y1: number) => [x0, y0, x1, y0, x1, y1, x0, y1].map((v) => Math.round(v * UNITS));
 const mesh = (positions: Float32Array, name = 'part'): PlateMesh => ({ positions, name, filament: 0 });
 const settings = (over: Partial<ResinSettings> = {}): ResinSettings => ({ ...resinSettings(RESIN, 0.05), ...over });
@@ -117,7 +117,8 @@ describe('resin: rasterizing', () => {
     const region = poly.difference(poly.union(parts), holes);
     const times: number[] = [];
     let r = rasterLayer(region, S4U);
-    for (let k = 0; k < 5; k++) { const t0 = performance.now(); r = rasterLayer(region, S4U); times.push(performance.now() - t0); }
+    // CPU time of this process (another job on the machine does not count), best of five
+    for (let k = 0; k < 5; k++) { const c0 = process.cpuUsage(); r = rasterLayer(region, S4U); const c = process.cpuUsage(c0); times.push((c.user + c.system) / 1000); }
     expect(Math.min(...times)).toBeLessThan(150);
     // the encoded layer is small: runs, not 59 million pixels
     expect(r.data.length).toBeLessThan(2_000_000);

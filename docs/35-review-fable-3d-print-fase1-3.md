@@ -629,3 +629,21 @@ Geen P1.
 **Blijft "nog te printen" of wacht op Ian**
 - FDM: de proefkubus per printer; referentiebestanden uit Bambu Studio en ElegooSlicer; nivellering per Elegoo-model; meerkleuren.
 - Hars: een `.goo` uit Elegoo's eigen slicer naast het onze leggen (bytevolgorde van de voorbeelden, spiegeling, printernaam); het bestand openen in de Elegoo-software; het asymmetrische proefstuk printen.
+
+## 12. Verwerking van herbeoordeling 2 (bouwer, 2026-11-19)
+
+Niets gecommit. Proeven in `src/print/resin/review11.test.ts`; op de code van `ee4565a` (resinbestanden, `shapes.ts` en de database teruggezet, met lege stubs voor de nieuwe functies) faalden 9 van de 10. De tiende (het proefstuk is asymmetrisch) toetst een eigenschap van het nieuwe stuk zelf.
+
+| Nr | Status | Wat er veranderd is | Proef |
+|---|---|---|---|
+| R-1 | opgelost | `resin/slice.ts`: een mesh met negatief volume wordt omgekeerd, met een melding per stuk (zoals de FDM-slicer); een slice zonder één belichte pixel wordt geweigerd | Omgekeerde kubus: 8000 mm³ ± 0,5 % en de melding; een plat driehoekje: geweigerd |
+| R-2 | opgelost | Veld `resin.mirror {x, y}` per harsprinter (alle 21: false/false, AANNAME in `assumptions`), en `resin.formatVersion` (V3.0 bij .goo, AANNAME). `toPixel` spiegelt volgens het veld, de kop zet X/Y mirror mee. Proefstuk voor hars: een L met ongelijke benen en een verhoogde F (`resinTestPiece`, knop **Add Test Piece (L with F)**); de tekst in de harsmodus is "nog te printen: asymmetrisch proefstuk (L met F) per harsprinter" (`NOT_PRINTED_RESIN`) | Spiegelen in X, Y en beide verplaatst elke pixel juist en zet de vlaggen; het gespiegelde proefstuk dekt minder dan 80 % van het origineel; elk databasestuk heeft het veld met AANNAME |
+| R-3 | opgelost | Anti-aliasing met exacte dekking: elke rand telt per pixelrij zijn oppervlak op in de cellen die hij raakt (accumulatiebuffer van een scanlijnrasteraar), alleen die cellen worden bezocht en ertussen gaat één reeks uit. Grijswaarden in de aa × aa niveaus van supersampling. Zonder anti-aliasing: een actieve randtabel met getypte arrays en insertion sort, geen allocatie per rij | Saturn 4 Ultra, 400 cirkels en een plaat met 200 gaten: AA 4 en 8 rond 63 ms (was 352 tot 500 ms), CPU-tijd beste van vijf < 150 ms; oppervlak ≤ 0,5 %; tegen een referentie met 64 subrijen hoogstens 4 van 255 verschil; alleen de toegestane niveaus |
+| R-4 | opgelost | `LIMITS` aangevuld: wachttijd 0 tot 30 s, drempelhoek, steunafstand, contactpunt, steundikte, optillen, vlot; anti-aliasing alleen 1, 2, 4 of 8; contactpunt niet dikker dan de steun. Negatief en NaN vallen buiten elk bereik | Tien foute waarden en AA 3 geweigerd, NaN geweigerd |
+| R-5 | deels | Per printer en hars bovenop de algemene tabel: belichting niet onder de helft van het harsprofiel (normaal en bodem), lift binnen de bouwhoogte, stuk + steunen + lift binnen de bouwhoogte. Grenzen per printermodel uit een bron zijn er niet (niet gepubliceerd) | Belichting 1/3 van het profiel: geweigerd; 210 mm + 5 + 6 op 220 mm: geweigerd, met 4 mm lift aanvaard |
+| R-6 | opgelost | De exportbevestiging noemt ook de LCD-velden (maat, resolutie, spiegelen, pixelmaat, formaat). Een pixelmaat uit maat ÷ resolutie die afwijkt van de bron komt als AANNAME bij de printer (Saturn S, 2, 8K) | `resinAssumptions` van de Saturn 4 Ultra en de Saturn 8K |
+| R-7 | genoteerd | Printernaam en "MSLA" in de kop blijven; of de firmware ze vergelijkt, is nog te printen of af te lezen uit een bestand van Elegoo's slicer | - |
+| Steunpunten | opgelost | **Pick Points on the Part**: klik op het stuk zet daar een punt (rode markering, ook in de preview op de opgetilde hoogte); Shift+klik haalt de punten in de buurt weg. Intypen blijft als tweede weg | e2e: klik geeft "1 added", Shift+klik "0 added · 1 removed" |
+| H-6 rest | opgelost | Ook componenten van een assembly krijgen het fijne mesh (0,07 rad) van hun part, per configuratie, zodra het er is (`fineMesh.ts`); een onderdeel met meer zichtbare bodies houdt het schermmesh | Niet automatisch getest: de e2e draait op de meshkern; op de code nagelezen |
+
+e2e: `print3dResin.mjs` 19/19, `print3d.mjs` 26/26. Foto's in `scratchpad\print-fase4b\` (08 steunpunt aangeklikt, 09 proefstuk).

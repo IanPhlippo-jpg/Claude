@@ -57,6 +57,15 @@ export const concat = (...parts: Float32Array[]): Float32Array => {
   return out;
 };
 
+/**
+ * The resin test piece (docs/35 R-2): an L with unequal legs (40 x 12 and 12 x 25 mm, 3 mm thick) and a raised F
+ * (1.5 mm) on the long leg. A mirrored print shows at once: the short leg on the right, or the F reversed.
+ */
+export function resinTestPiece(x = 0, y = 0): Float32Array {
+  return concat(box(x, y, 0, x + 40, y + 12, 3), box(x, y + 12, 0, x + 12, y + 25, 3),
+    box(x + 18, y + 2, 3, x + 20, y + 10, 4.5), box(x + 20, y + 8, 3, x + 25, y + 10, 4.5), box(x + 20, y + 5, 3, x + 23.5, y + 7, 4.5));
+}
+
 /** the 20 mm calibration cube at (x, y) on the bed */
 export const calibrationCube = (x = 0, y = 0, size = 20) => box(x, y, 0, x + size, y + size, size);
 

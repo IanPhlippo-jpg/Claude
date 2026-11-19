@@ -13,7 +13,7 @@ import { PrintIcon } from './printIcons';
 import { canWriteMultiMaterial, fdmPrinters, isAnnounced, isDiscontinued, layerHeightsFor, printerName } from '../../print/database';
 import { insideVolume, worldBounds } from '../../print/plate';
 import { type InfillPattern, type LineType, type ProcessSettings, type SeamPosition, type SupportKind } from '../../print/types';
-import { NOT_PRINTED } from '../../print/gcode/dialects';
+import { NOT_PRINTED, NOT_PRINTED_RESIN } from '../../print/gcode/dialects';
 import {
   addSlot, beginSession, cancelSession, clearBambuProfile, currentPrinter, currentProcess, deletePlate, fmtTime, importBambuProfile, isStale, moveSelectedToPlate, okSession,
   patchProcess, placeSelected, removeSelected, removeSlot, resetProcess, rotateSelected, selectedCentre, selectItem, setItemFilament, setNozzle, setPlateIndex, setPreset,
@@ -82,7 +82,7 @@ export function PrintPM() {
           : !items.length ? 'Add to Plate puts the open part on the plate.'
           : stale ? 'The plate or the settings changed: slice again.'
           : !(resin ? r.result : s.result) ? `Slice Plate makes the layers and the ${resin ? 'pixel masks' : 'G-code'}.` : 'Sliced: check the layers, then Export.'}
-        <br /><span className="k-print-untested">{NOT_PRINTED}</span>
+        <br /><span className="k-print-untested">{resin ? NOT_PRINTED_RESIN : NOT_PRINTED}</span>
       </p>
       {s.pmTab === 'settings' ? (
         <>

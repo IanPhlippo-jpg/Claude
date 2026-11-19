@@ -10,9 +10,9 @@ import { Icon } from '../../ui/icons';
 import { machineOf, settingsProblems } from '../../print/resin/profile';
 import type { ResinSettings, ResinSupportKind } from '../../print/resin/types';
 import type { Printer } from '../../print/types';
-import { fmtTime } from './printStore';
+import { fmtTime, usePrint } from './printStore';
 import {
-  addDrainHole, addSupportPoint, clearManual, currentMachine, currentResinSettings, patchResin, removeSupportsNear, resetResin, resins, resinStale, setResin, setResinLayer,
+  addDrainHole, addSupportPoint, addTestPiece, clearManual, currentMachine, currentResin, currentResinSettings, patchResin, removeSupportsNear, resetResin, resins, resinStale, setResin, setResinLayer,
   useResin,
 } from './resinStore';
 
@@ -35,8 +35,9 @@ export function ResinSections() {
   const st = useResin(useShallow((x) => ({ resinId: x.resinId, layerHeight: x.layerHeight, overrides: x.overrides })));
   const s = currentResinSettings();
   const m = currentMachine();
-  const problems = m ? settingsProblems(s, m) : [];
+  const problems = m ? settingsProblems(s, m, currentResin()) : [];
   const [pt, setPt] = useState<[number, number, number]>([0, 0, 5]);
+  const tool = usePrint((x) => x.tool);
   const num = (k: keyof ResinSettings, label: string, opts: { unit?: string; step?: number; min?: number } = {}) => (
     <Row label={label}><NumberField value={s[k] as number} unit={opts.unit} step={opts.step ?? 1} min={opts.min ?? 0}
       onChange={(v) => patchResin({ [k]: Math.max(opts.min ?? 0, v) } as Partial<ResinSettings>)} /></Row>
@@ -44,6 +45,8 @@ export function ResinSections() {
   return (
     <>
       <Section title="Resin">
+        <button className="k-btn" data-testid="print-resin-testpiece" title="An L with a raised F: a mirrored print shows at once (the release test of a resin printer)"
+          onClick={addTestPiece} style={{ marginBottom: 4 }}>Add Test Piece (L with F)</button>
         <select className="k-input" data-testid="print-resin" value={st.resinId} onChange={(e) => setResin(e.target.value)}>
           {resins().map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
         </select>
@@ -104,6 +107,9 @@ export function ResinSections() {
           </>
         )}
         <div className="k-print-subtitle">Points by hand</div>
+        <button className={`k-btn ${tool === 'supportPoint' ? 'active' : ''}`} data-testid="print-resin-pick"
+          onClick={() => usePrint.setState({ tool: tool === 'supportPoint' ? 'select' : 'supportPoint' })}>{tool === 'supportPoint' ? 'Done Picking' : 'Pick Points on the Part'}</button>
+        <div className="k-muted">{tool === 'supportPoint' ? 'Click on the part: a support point there. Shift+click: the points near it go.' : 'Or type a point:'}</div>
         <Row label="X / Y / Z">
           {[0, 1, 2].map((k) => <NumberField key={k} value={pt[k]} step={1} onChange={(v) => setPt((p) => p.map((x, j) => (j === k ? v : x)) as [number, number, number])} />)}
         </Row>
