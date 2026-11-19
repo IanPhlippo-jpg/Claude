@@ -1597,6 +1597,16 @@ elease; README en docs/04 bijgewerkt
 - [x] H-7: alleen documenteren (Clipper2 rondt snijpunten af); Centauri (zonder Carbon) in de database als hij bestaat
 - [x] Negatieve test per punt, typecheck, vitest, e2e, poorten, graphify
 
+## 3D Print fase 4: herbeoordeling 2 van Fable (docs/35 hfst. 11) (2026-11-19)
+- [x] R-1: omgekeerde normalen bij hars omkeren met melding; een slice zonder belichte pixel weigeren
+- [x] R-2: spiegelvelden X/Y per harsprinter (AANNAME), raster en kop volgen ze; asymmetrisch proefstuk (L met F) en tekst "nog te printen" voor hars
+- [x] R-3: anti-aliasing per 12K-laag < 150 ms (alleen randpixels via dekking, binnenstuk als reeks)
+- [x] R-4/R-5: alle instellingen begrensd (wachttijd, anti-aliasing, steunmaten, optillen, vlot), negatief geweigerd; ondergrens belichting uit het harsprofiel; lift + hoogte binnen de printer
+- [x] R-6/R-7: LCD-velden in de exportbevestiging, pixelmaat-afwijking als aanname, formaatversie in de database; printernaam in de kop als aanname
+- [x] Steunpunten aanklikken in 3D (toevoegen, Shift weghalen), merktekens op het stuk
+- [x] Fijn mesh (0,07 rad) ook voor componenten van een assembly
+- [~] Negatieve test per punt, typecheck, vitest, e2e print3d + print3dResin, poorten, graphify
+
 ## Eisen en supervisie voor de extensies Lasconstructies+, Lasersnijden/plooien en Offerte uit model (2026-11-19)
 - [x] Bestaande code lezen: weldments.ts, frameBuild.ts, sheetmetal.ts, unfold.ts, tables.ts, export2d.ts, print-extensie als voorbeeld
 - [x] bibliotheek/ nalopen op herbruikbare delen (prijzen, stuklijst, zaagplan, dxf, vorm, werkwijze)
@@ -1605,19 +1615,19 @@ elease; README en docs/04 bijgewerkt
 - [x] Geen codewijziging, geen installatie, geen commit
 
 ## Extensies Lasconstructies+, Lasersnijden/plooien, Offerte uit model: bouw (2026-11-19)
-- [~] F0 werkplaatskern src/fab/: instellingen per gebruiker (bron, AANNAME, datum), herkenning profiel/plaat/onbekend, kostenregel in eurocent, verouderd-vlag, BE-notatie, doc.fab + formaat + migratie
-- [ ] P1 uitslag en plaatgegevens: W4 nameten (edge flanges, gaten), uitslag met echte bogen en cirkels (W5), DIN 6935
-- [ ] P2 DXF per plaat: R12 met bulge-bogen, CIRCLE, lagen CONTOUR/GATEN/ZETLIJN_OP/ZETLIJN_NEER/TEKST, controles P-4, ZIP + lijst
-- [ ] L1 voorraad en herkenning van profielen: kg/m, staalsoort, voorraad en restanten, overschrijven
-- [ ] L2 zaagstaat en zaagplan: posities, langste zijde, FFD met restanten en ondergrens, PDF en XLSX
-- [ ] L4 + P5 kostprijs per stuk en per plaat (verbruikt/aangekocht, uitbesteed/eigen, geen stille nul)
-- [ ] O1 kostprijsmodel: Cost Manager, No cost assigned, override, reeks 1/5/20
-- [ ] O2 offerte en PDF: BE-opmaak, ONTWERP-watermerk, btw-regimes, 6 % met voorwaarden, AANNAME-bevestiging, geen netwerk
-- [ ] P3 nesting (rechthoek, onafhankelijke geldigheidscontrole, geneste DXF)
-- [ ] L3 lasnaden en lasvolgorde (auto-voorstel, ISO 2553-tekst, EXC-waarschuwing, nooit "conform")
-- [ ] P4 plooivolgorde (voorstel, perskracht, flenslengte, 2D-botsing prismatisch, plooiblad)
-- [ ] O3 offertebeheer: nummering, bevriezen, revisie, kopie zonder klantgegevens
-- [ ] Tabbladen (Frames-groep/Weld Shop, Laser & Bend, Quote), PropertyManagers, e2e, poorten, graphify, foto's, besluiten in docs/36
+- [x] F0 werkplaatskern src/fab/: instellingen per gebruiker (bron, AANNAME, datum), herkenning profiel/plaat/onbekend, kostenregel in eurocent, verouderd-vlag, BE-notatie, doc.fab + formaat + migratie
+- [x] P1 uitslag en plaatgegevens (deels: W4 nagemeten, onbetrouwbare uitslag geweigerd, geen algemene ontvouwer): W4 nameten (edge flanges, gaten), uitslag met echte bogen en cirkels (W5), DIN 6935
+- [x] P2 DXF per plaat: R12 met bulge-bogen, CIRCLE, lagen CONTOUR/GATEN/ZETLIJN_OP/ZETLIJN_NEER/TEKST, controles P-4, ZIP + lijst
+- [x] L1 voorraad en herkenning (lastafel deels: vereenvoudigd getekend) van profielen: kg/m, staalsoort, voorraad en restanten, overschrijven
+- [x] L2 zaagstaat en zaagplan: posities, langste zijde, FFD met restanten en ondergrens, PDF en XLSX
+- [x] L4 + P5 kostprijs per stuk en per plaat (verbruikt/aangekocht, uitbesteed/eigen, geen stille nul)
+- [x] O1 kostprijsmodel: Cost Manager, No cost assigned, override, reeks 1/5/20
+- [x] O2 offerte en PDF: BE-opmaak, ONTWERP-watermerk, btw-regimes, 6 % met voorwaarden, AANNAME-bevestiging, geen netwerk
+- [x] P3 nesting (rechthoek; vorm niet) (rechthoek, onafhankelijke geldigheidscontrole, geneste DXF)
+- [~] L3 lasnaden en lasvolgorde (auto-voorstel, ISO 2553-tekst, EXC-waarschuwing, nooit "conform")
+- [~] P4 plooivolgorde (voorstel, perskracht, flenslengte, 2D-botsing prismatisch, plooiblad)
+- [~] O3 offertebeheer: nummering, bevriezen, revisie, kopie zonder klantgegevens
+- [x] Tabbladen (Frames-groep/Weld Shop, Laser & Bend, Quote), PropertyManagers, e2e, poorten, graphify, foto's, besluiten in docs/36 (bundelbudget stond al voor deze bouw boven 800 kB)
 
 ## Herbeoordeling 2 + fase 4 door Fable 5.2 (2026-11-19)
 - [x] Fable-R2: hoofdstuk 10 van docs/35 lezen, meetscripts fase 2 en 3 opnieuw draaien (H-1 tot H-7)

@@ -1462,8 +1462,8 @@ export interface AppearanceProps {
 export interface Document {
   /** stable id (autosave per document, Document Recovery); files from older builds get one when opened */
   id?: string; /** the plates of the 3D Print tab (file format 4) */ print3d?: import('../../print/types').PrintDocData;
-  /** Equations ▸ Angular equation units (default degrees) */
-  equationAngleUnits?: 'deg' | 'rad';
+  /** fabrication data: overrides, weld joints, quotes (file format 5, docs/36 F0-7) */ fab?: import('../../fab/types').FabDocData;
+  /** Equations ▸ Angular equation units (default degrees) */ equationAngleUnits?: 'deg' | 'rad';
   /** Equations ▸ Link to external file: the text file the equations were read from */
   equationsFile?: string;
   /** Mass Properties ▸ Override Mass Properties: user mass and / or centre of mass */

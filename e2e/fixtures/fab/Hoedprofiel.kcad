@@ -1,0 +1,134 @@
+{
+  "format": "phlippo-cad",
+  "version": 4,
+  "app": "0.5.16",
+  "commit": "8f441fc+changes",
+  "name": "Hoedprofiel",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "s1",
+      "plane": "front",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmwn0833q1m": {
+          "x": 0,
+          "y": 0
+        },
+        "pmwn0833q1n": {
+          "x": 15,
+          "y": 0
+        },
+        "pmwn0833q1p": {
+          "x": 15,
+          "y": 0
+        },
+        "pmwn0833q1q": {
+          "x": 15,
+          "y": 40
+        },
+        "pmwn0833q1s": {
+          "x": 15,
+          "y": 40
+        },
+        "pmwn0833q1t": {
+          "x": 75,
+          "y": 40
+        },
+        "pmwn0833q1v": {
+          "x": 75,
+          "y": 40
+        },
+        "pmwn0833q1w": {
+          "x": 75,
+          "y": 0
+        },
+        "pmwn0833q1y": {
+          "x": 75,
+          "y": 0
+        },
+        "pmwn0833q1z": {
+          "x": 90,
+          "y": 0
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmwn0833q1o": {
+          "id": "lnmwn0833q1o",
+          "kind": "line",
+          "p1": "pmwn0833q1m",
+          "p2": "pmwn0833q1n",
+          "construction": false
+        },
+        "lnmwn0833q1r": {
+          "id": "lnmwn0833q1r",
+          "kind": "line",
+          "p1": "pmwn0833q1p",
+          "p2": "pmwn0833q1q",
+          "construction": false
+        },
+        "lnmwn0833q1u": {
+          "id": "lnmwn0833q1u",
+          "kind": "line",
+          "p1": "pmwn0833q1s",
+          "p2": "pmwn0833q1t",
+          "construction": false
+        },
+        "lnmwn0833q1x": {
+          "id": "lnmwn0833q1x",
+          "kind": "line",
+          "p1": "pmwn0833q1v",
+          "p2": "pmwn0833q1w",
+          "construction": false
+        },
+        "lnmwn0833q20": {
+          "id": "lnmwn0833q20",
+          "kind": "line",
+          "p1": "pmwn0833q1y",
+          "p2": "pmwn0833q1z",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmwn0833q1o",
+        "lnmwn0833q1r",
+        "lnmwn0833q1u",
+        "lnmwn0833q1x",
+        "lnmwn0833q20"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "bf",
+      "type": "baseFlange",
+      "name": "Base-Flange1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "depth": 300,
+      "midPlane": false,
+      "reverse": false
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "S235",
+    "density": 7850,
+    "color": "#888888"
+  },
+  "sheetMetal": {
+    "thickness": 3,
+    "bendRadius": 3,
+    "kFactor": 0.5
+  }
+}

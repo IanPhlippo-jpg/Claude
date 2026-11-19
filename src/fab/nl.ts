@@ -1,0 +1,35 @@
+/**
+ * The words of the workshop and customer output (docs/36 F0-8): the interface follows the app (English), every output
+ * is Dutch. One file, so French can come later as a second dictionary of the same shape.
+ */
+export const NL = {
+  zaagstaat: 'Zaagstaat',
+  zaagplan: 'Zaagplan per staaf',
+  plaatlijst: 'Plaatlijst lasersnijden',
+  legplan: 'Legplan',
+  plooiblad: 'Plooiblad',
+  lasplan: 'Lasplan',
+  zaagKop: ['Pos', 'Aantal', 'Profiel', 'Staalsoort', 'Zaaglengte', 'Hoek 1', 'Hoek 2', 'Verstek', 'Gaten', 'kg/st', 'kg totaal', 'Opmerking'],
+  plaatKop: ['Pos', 'Aantal', 'Benaming', 'Materiaal', 'Dikte', 'Lengte x Breedte', 'Oppervlak', 'Snijlengte', 'Insteken', 'Plooien', 'kg/st', 'Bestand'],
+  lasKop: ['Las', 'Stap', 'Tussen', 'Soort', 'Maat', 'Lengte', 'Proces', 'Positie', 'Niveau', 'Opmerking'],
+  plooiKop: ['Stap', 'Plooi', 'Richting', 'Hoek', 'Binnenstraal', 'V-opening', 'Aanslag', 'Kant', 'Perskracht'],
+  status: { zaag: 'Status: nog te zagen (LF1 zagen en nameten geeft de vrijgave)', laser: 'Status: nog te openen bij de lasersnijder',
+    plooi: 'Status: nog te plooien (proefstrook plooien en nameten)' },
+  lasVoorstel: 'De volgorde is een voorstel volgens vuistregels, geen berekening van krimp of vervorming.',
+  nietBotsing: 'Volgorde niet op botsing gecontroleerd (niet alle plooilijnen evenwijdig).',
+  kerf: 'De snijspleet is niet verrekend: dat doet de machine van de lasersnijder.',
+  verstek: { zelfde: 'zelfde vlak', gedraaid: 'gedraaid' },
+  restant: 'restant',
+  nieuw: 'nieuw',
+  voorraad: 'voorraad',
+  bijBestellen: (n: number) => `Bij te bestellen: ${n} staaf${n === 1 ? '' : 'en'} (er wordt niets besteld)`,
+  benutting: 'benutting',
+  rest: 'rest',
+  ondergrens: 'ondergrens',
+  blad: 'Blad',
+  rechthoek: 'rechthoeknesting (vormnesting nog niet gebouwd)',
+  toleranties: 'Algemene toleranties: EN ISO 13920-BF (lasconstructie), ISO 2768-m (bewerkte maten)',
+  thermisch: 'Thermisch snijden: EN ISO 9013 (klasse volgens de lasersnijder)',
+  pagina: (k: number, n: number) => `pagina ${k} van ${n}`,
+  kBron: (s: string) => `Uitslag met ${s}`,
+};

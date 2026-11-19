@@ -1,0 +1,238 @@
+{
+  "format": "phlippo-cad",
+  "version": 4,
+  "app": "0.5.16",
+  "commit": "8f441fc+changes",
+  "name": "PP1 Vlakke plaat",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "s1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmwn0833eg": {
+          "x": 10,
+          "y": 0
+        },
+        "pmwn0833eh": {
+          "x": 190,
+          "y": 0
+        },
+        "pmwn0833ei": {
+          "x": 200,
+          "y": 10
+        },
+        "pmwn0833ej": {
+          "x": 200,
+          "y": 90
+        },
+        "pmwn0833ek": {
+          "x": 190,
+          "y": 100
+        },
+        "pmwn0833el": {
+          "x": 10,
+          "y": 100
+        },
+        "pmwn0833em": {
+          "x": 0,
+          "y": 90
+        },
+        "pmwn0833en": {
+          "x": 0,
+          "y": 10
+        },
+        "pmwn0833ep": {
+          "x": 190,
+          "y": 10
+        },
+        "pmwn0833et": {
+          "x": 190,
+          "y": 90
+        },
+        "pmwn0833ex": {
+          "x": 10,
+          "y": 90
+        },
+        "pmwn0833e11": {
+          "x": 10,
+          "y": 10
+        },
+        "pmwn0833e14": {
+          "x": 20,
+          "y": 20
+        },
+        "pmwn0833e17": {
+          "x": 180,
+          "y": 20
+        },
+        "pmwn0833f1a": {
+          "x": 20,
+          "y": 80
+        },
+        "pmwn0833f1d": {
+          "x": 180,
+          "y": 80
+        }
+      },
+      "scalars": {
+        "smwn0833eq": 10,
+        "smwn0833eu": 10,
+        "smwn0833ey": 10,
+        "smwn0833e12": 10,
+        "smwn0833e15": 4.5,
+        "smwn0833e18": 4.5,
+        "smwn0833f1b": 4.5,
+        "smwn0833f1e": 4.5
+      },
+      "entities": {
+        "lnmwn0833eo": {
+          "id": "lnmwn0833eo",
+          "kind": "line",
+          "p1": "pmwn0833eg",
+          "p2": "pmwn0833eh",
+          "construction": false
+        },
+        "armwn0833er": {
+          "id": "armwn0833er",
+          "kind": "arc",
+          "center": "pmwn0833ep",
+          "start": "pmwn0833eh",
+          "end": "pmwn0833ei",
+          "r": "smwn0833eq",
+          "ccw": true,
+          "construction": false
+        },
+        "lnmwn0833es": {
+          "id": "lnmwn0833es",
+          "kind": "line",
+          "p1": "pmwn0833ei",
+          "p2": "pmwn0833ej",
+          "construction": false
+        },
+        "armwn0833ev": {
+          "id": "armwn0833ev",
+          "kind": "arc",
+          "center": "pmwn0833et",
+          "start": "pmwn0833ej",
+          "end": "pmwn0833ek",
+          "r": "smwn0833eu",
+          "ccw": true,
+          "construction": false
+        },
+        "lnmwn0833ew": {
+          "id": "lnmwn0833ew",
+          "kind": "line",
+          "p1": "pmwn0833ek",
+          "p2": "pmwn0833el",
+          "construction": false
+        },
+        "armwn0833ez": {
+          "id": "armwn0833ez",
+          "kind": "arc",
+          "center": "pmwn0833ex",
+          "start": "pmwn0833el",
+          "end": "pmwn0833em",
+          "r": "smwn0833ey",
+          "ccw": true,
+          "construction": false
+        },
+        "lnmwn0833e10": {
+          "id": "lnmwn0833e10",
+          "kind": "line",
+          "p1": "pmwn0833em",
+          "p2": "pmwn0833en",
+          "construction": false
+        },
+        "armwn0833e13": {
+          "id": "armwn0833e13",
+          "kind": "arc",
+          "center": "pmwn0833e11",
+          "start": "pmwn0833en",
+          "end": "pmwn0833eg",
+          "r": "smwn0833e12",
+          "ccw": true,
+          "construction": false
+        },
+        "cimwn0833e16": {
+          "id": "cimwn0833e16",
+          "kind": "circle",
+          "center": "pmwn0833e14",
+          "r": "smwn0833e15",
+          "construction": false
+        },
+        "cimwn0833f19": {
+          "id": "cimwn0833f19",
+          "kind": "circle",
+          "center": "pmwn0833e17",
+          "r": "smwn0833e18",
+          "construction": false
+        },
+        "cimwn0833f1c": {
+          "id": "cimwn0833f1c",
+          "kind": "circle",
+          "center": "pmwn0833f1a",
+          "r": "smwn0833f1b",
+          "construction": false
+        },
+        "cimwn0833f1f": {
+          "id": "cimwn0833f1f",
+          "kind": "circle",
+          "center": "pmwn0833f1d",
+          "r": "smwn0833f1e",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmwn0833eo",
+        "armwn0833er",
+        "lnmwn0833es",
+        "armwn0833ev",
+        "lnmwn0833ew",
+        "armwn0833ez",
+        "lnmwn0833e10",
+        "armwn0833e13",
+        "cimwn0833e16",
+        "cimwn0833f19",
+        "cimwn0833f1c",
+        "cimwn0833f1f"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "s1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "e1",
+      "type": "extrude",
+      "name": "Plaat",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 5,
+      "reverse": false
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "S235",
+    "density": 7850,
+    "color": "#888888"
+  }
+}

@@ -943,3 +943,41 @@ Gelezen, niet uitgevoerd. De bouwagent bevestigt of weerlegt elk punt met een te
 | B8 | Mag er voor de PDF een lettertype ingebed worden als de standaardletters `€` en accenten niet halen? | Ja, een vrij lettertype, eerst nakijken of het nodig is (W12) |
 | B9 | Nesting: volstaat rechthoeknesting voor de eerste versie, met vormnesting daarna? | Ja |
 | B10 | Voorwaarden op de offerte: levert Ian een eigen tekst, of start hij met de voorbeeldtekst? | Voorbeeldtekst, gemarkeerd als voorbeeld, na te lezen voor gebruik |
+
+### Gekozen standaard (Ian kan wijzigen)
+
+Ian sliep en wilde geen vragen; voor elk besluit is het advies van Fable genomen (bouw 2026-11-19, Opus 5.5). Alles staat als instelling en kan in Fabrication Settings of in deze tabel teruggedraaid worden.
+
+| Nr | Gekozen standaard | Waar te wijzigen |
+|---|---|---|
+| B1 | Groep "Frames+" rechts op het tabblad Frames in een part; tabblad "Weld Shop" in een assembly | `src/app/ribbon/Ribbon.tsx` (FramesFabGroup) |
+| B2 | Engels in de interface ("Laser & Bend", "Quote", "Weld Shop"), Nederlands in alle uitvoer (`src/fab/nl.ts`) | `src/fab/nl.ts` |
+| B3 | Laser en plooien "uitbesteed", zagen en lassen "eigen" | Fabrication Settings ▸ Machines |
+| B4 | Voorraad start leeg; de profielcatalogus (`src/fab/catalog.ts`) is de keuzelijst | Fabrication Settings ▸ Materials ▸ Stock and remnants |
+| B5 | DIN 6935 (K = k/2) voor de uitslag van de werkplaatsuitvoer (DXF, plooiblad); de K staat op het plooiblad. De eigen Flat-Pattern van het model en `sheetmetal.ts` zijn ongewijzigd (K van het model). Gemeten buigaftrek: nog niet gebouwd | `flatOfSheet(..., kBron)` in `src/fab/flat.ts` |
+| B6 | Uurloon € 45/u als instelling, met de uitleg over € 55 tot 70/u naast het veld, AANNAME | Fabrication Settings ▸ Rates |
+| B7 | Btw-regime "normaal" (21 %); "verlegd" en "vrijgesteld" kiesbaar | Fabrication Settings ▸ Rates |
+| B8 | Geen ingebed lettertype: Helvetica met WinAnsi haalt € ë é ï ç ° Ø (getest, O2.7) | – |
+| B9 | Rechthoeknesting in v1; vormnesting niet gebouwd | – |
+| B10 | Voorbeeldtekst voor de voorwaarden, als "Voorbeeldtekst, na te lezen voor gebruik" gemarkeerd | Fabrication Settings ▸ Quote |
+
+### Bouwstatus en bevindingen (2026-11-19)
+
+Code: `src/fab/` (kern, puur TypeScript), `src/app/fab/` (tabbladen, PropertyManager, weergaven, instellingen; elk tabblad een eigen chunk), bestandsformaat 5 alleen met `doc.fab` (`persistence.ts`), tests `src/fab/*.test.ts`, `src/qa/fabVoorbeelden.test.ts` (groep voorbeelden), e2e `e2e/fab.mjs`.
+
+| Fase | Status | Wat er is / wat niet |
+|---|---|---|
+| F0 | gedaan | instellingen met bron/AANNAME/datum, export/import JSON, herkenning profiel/plaat/gezette plaat/koop/onbekend met reden en overschrijven, kostenregel in eurocent, één afronding, BE-notatie, verouderd-vlag (export geblokkeerd), `doc.fab` + formaat 5. Herkenning op de mesh (geen B-rep nodig) |
+| P1 | deels | W4 nagemeten: een tab (gesloten schets) met edge flanges krijgt in de kern geen uitslag; een L met een edge flange valt terug op de ontwikkelde schetsketen en verliest zijn gaten. Zulke stukken krijgen `betrouwbaar: 'geen'` en geen DXF (P1.4 als weigering, geen algemene ontvouwer gebouwd). Bogen en cirkels uit de mesh teruggevonden (P1.1, P1.7 groen), DIN 6935 (P1.3), volumecontrole met K = 0,5 (P1.5) |
+| P2 | gedaan, behalve P2.7/P2.8 | R12 met bulge-bogen, CIRCLE, lagen CONTOUR/GATEN/ZETLIJN_OP/ZETLIJN_NEER/TEKST, rondreis met `readDxf`, zes negatieve controles, ZIP met plaatlijst. P2.6 rooster afzuiging: 195 contouren = laag SNIJDEN van rooster.dxf, snijlengte < 0,5 %. Niet: PP5/PP8 tegen de bibliotheek, opening in een viewer (status "nog te openen bij de lasersnijder") |
+| L1 | deels | catalogus met kg/m (holle profielen berekend, gewalste als AANNAME), voorraad/restanten, overschrijven. Lastafel: de generator tekent vereenvoudigd (koker massief, UNP met andere wanden, platen 8,5/3,5/7,5 mm); herkend waar de buitenmaat past, de rest "onbekend" met reden (zie `fabVoorbeelden.test.ts`). LF4/LF5 (taatsdeur, fitness) niet getest |
+| L2 | gedaan, behalve L2.6/L2.8 | zaagstaat (langste zijde, hoeken, spiegelstukken apart via kenmerk), zaagplan FFD/BFD met restanten, ondergrens, 200 lijsten; PDF en XLSX. Niet: tabel op het tekenblad (L2.8), orakel taatsdeur/fitness (L2.6). L2.7 heeft een kenmerk maar geen eigen test |
+| L4 + P5 | gedaan | verbruikt/aangekocht, uitbesteed/eigen machine, "geen prijs" in plaats van nul, uurloon schaalt. Niet: vergelijking met `kostprijs()` van de bibliotheek (L4.4, P5.5) |
+| O1 | gedaan, deels getest | Cost Manager (boom met No cost assigned), override met reden, reeks 1/5/20, vorige berekening. O1.2 (lastafel-assembly) niet als test |
+| O2 | gedaan | BE-opmaak, ONTWERP + invulvelden, mod-97 ondernemingsnummer en IBAN, btw per tarief op de maatstaf, 6 % alleen met drie vinkjes, verlegd/vrijgesteld, AANNAME-bevestiging bij export, geen netwerk (e2e), voorbeeld = PDF-pagina's |
+| P3 | deels | rechthoeknesting (MaxRects), onafhankelijke controle op de exacte contouren, genest DXF, legplan-PDF. Geen vormnesting (P3.4), geen worker/annuleren, geen handmatig verschuiven (P3.9) |
+| L3 | deels | automatische lasnaden uit rakende vlakken (LF1: 6), a = 0,7 x wand, lengte = omtrek, volgorderegels elk apart getest, EXC met vaste waarschuwing, nooit "conform". Geen ISO 2553-tekening (alleen tekstaanduiding), geen verslepen in de boom, Weld Bead → lasnaad (`jointFromBead`) niet bij het openen aangeroepen |
+| P4 | deels | voorstel met 2D-botsingscontrole voor prismatische stukken (alle permutaties tot 7 plooien), perskracht, flens/straal/werklengte-controles, plooiblad. Bevinding tegen P4.3: in de 2D-controle botsen de twee binnenste plooien van een hoedprofiel na elkaar; het botsingsvrije voorstel plooit de flenzen (buitenste) eerst, zoals op een kantbank gebruikelijk. Alleen basisflens-ketens; model toont geen tussenstand |
+| O3 | deels | nummering per jaar (alleen bij export), bevriezen in `doc.fab.quotes`, kopie zonder klantgegevens en prijzen. Geen revisie-UI, geen melding "model gewijzigd sinds offerte" in de boom |
+
+Niet gebouwd: Add-Ins-schakelaars (W15), mappen in de FeatureManager (Fabrication, Weld Joints), Costing-knop op Evaluate, CutListDialog-tabbladen (W9), tabellen op tekenbladen (weldCutList, weldTable, bend), Bend Table, leercurve.

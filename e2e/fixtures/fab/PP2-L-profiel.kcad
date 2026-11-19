@@ -1,0 +1,86 @@
+{
+  "format": "phlippo-cad",
+  "version": 4,
+  "app": "0.5.16",
+  "commit": "8f441fc+changes",
+  "name": "PP2 L-profiel",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "s1",
+      "plane": "front",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmwn0833g1g": {
+          "x": 0,
+          "y": 0
+        },
+        "pmwn0833h1h": {
+          "x": 100,
+          "y": 0
+        },
+        "pmwn0833h1j": {
+          "x": 100,
+          "y": 0
+        },
+        "pmwn0833h1k": {
+          "x": 100,
+          "y": 50
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmwn0833h1i": {
+          "id": "lnmwn0833h1i",
+          "kind": "line",
+          "p1": "pmwn0833g1g",
+          "p2": "pmwn0833h1h",
+          "construction": false
+        },
+        "lnmwn0833h1l": {
+          "id": "lnmwn0833h1l",
+          "kind": "line",
+          "p1": "pmwn0833h1j",
+          "p2": "pmwn0833h1k",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmwn0833h1i",
+        "lnmwn0833h1l"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "bf",
+      "type": "baseFlange",
+      "name": "Base-Flange1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "depth": 200,
+      "midPlane": false,
+      "reverse": false
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "S235",
+    "density": 7850,
+    "color": "#888888"
+  },
+  "sheetMetal": {
+    "thickness": 3,
+    "bendRadius": 3,
+    "kFactor": 0.5
+  }
+}

@@ -123,7 +123,7 @@ export type ToolId =
   | 'segment'
   | 'text';
 
-export type RibbonTab = 'sketch' | 'features' | 'surfaces' | 'sheetmetal' | 'weldments' | 'evaluate' | 'render' | 'addins' | 'assembly' | 'drawing' | 'markup' | 'mbd' | 'viewLayout' | 'annotation' | 'sheetFormat' | 'lifecycle' | 'print3d';
+export type RibbonTab = 'sketch' | 'features' | 'surfaces' | 'sheetmetal' | 'weldments' | 'evaluate' | 'render' | 'addins' | 'assembly' | 'drawing' | 'markup' | 'mbd' | 'viewLayout' | 'annotation' | 'sheetFormat' | 'lifecycle' | 'print3d' | 'weldshop' | 'laser' | 'quote';
 export type Theme = 'light' | 'dark';
 export type PanelId = 'manager' | 'relations' | 'shortcuts';
 export type ManagerTab = 'tree' | 'properties' | 'configurations' | 'autoTolerance' | 'display';

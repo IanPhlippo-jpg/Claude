@@ -15,6 +15,8 @@ export const FILE_EXTENSION = '.kcad';
  * mesh body; only the B-rep kernel reads the exact solid. The meaning of nothing stored before changed: no new format.
  */
 export const FILE_VERSION = 4;
+/** format 5: a file with fabrication data (doc.fab, docs/36 F0-7); written only then, every other file stays format 4 */
+export const FAB_FILE_VERSION = 5;
 /** the program version written into every file (vite define; 'dev' where the define is absent) */
 export const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';
 const APP_COMMIT: string = typeof __APP_COMMIT__ === 'string' ? __APP_COMMIT__ : '';
@@ -49,7 +51,7 @@ function compactPositions(this: unknown, key: string, value: unknown): unknown {
 export function serializeDocument(doc: Document, pretty = true): string {
   const { version: _v, ...rest } = doc;
   void _v;
-  const head = { format: 'phlippo-cad', version: FILE_VERSION, app: APP_VERSION, ...(APP_COMMIT ? { commit: APP_COMMIT } : {}) };
+  const head = { format: 'phlippo-cad', version: rest.fab ? FAB_FILE_VERSION : FILE_VERSION, app: APP_VERSION, ...(APP_COMMIT ? { commit: APP_COMMIT } : {}) };
   return JSON.stringify({ ...head, ...rest }, compactPositions, pretty ? 2 : undefined);
 }
 
@@ -245,6 +247,8 @@ export function validateDocument(raw: unknown, depth = 0): Document {
   }
   if (d.planes !== undefined && !isObj(d.planes)) throw new DocumentFormatError('The reference planes are damaged.');
   if (d.print3d !== undefined) validatePrint3d(d.print3d);
+  const fab = d.fab as Raw | undefined;
+  if (fab !== undefined && (!isObj(fab) || ['welds', 'quotes'].some((k) => fab[k] !== undefined && !Array.isArray(fab[k])))) throw new DocumentFormatError('The fabrication data are damaged.');
   if (d.variables !== undefined && !isObj(d.variables)) throw new DocumentFormatError('The global variables are damaged.');
   if (d.equations !== undefined && !Array.isArray(d.equations)) throw new DocumentFormatError('The equations are damaged.');
   if (d.kind === 'assembly') {
@@ -307,7 +311,7 @@ export function readDocument(text: string, appVersion = APP_VERSION): { doc: Doc
   const warnings: string[] = [];
   const by = typeof r.app === 'string' ? ` by Phlippo CAD ${r.app}` : ' by a newer Phlippo CAD';
   const unknown = 'Data this version does not know is left out, so the model may differ; save it under another name.';
-  if (v > FILE_VERSION) {
+  if (v > FAB_FILE_VERSION) {
     warnings.push(`The file was saved in format ${v}${by}; this version (${appVersion}) writes format ${FILE_VERSION}. ${unknown}`);
   }
   else if (typeof r.app === 'string' && isNewerVersion(r.app, appVersion)) {

@@ -9,6 +9,7 @@ import { openLastAtStartup } from './prefsEffects';
 const hasLastSession = () => { try { return !!localStorage.getItem('phlippo.autosave'); } catch { return false; } };
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { lazyNamed, preloadLazy } from './lazy';
+import { useFabOpen } from './fab/fabOpen';
 import { startBrepRefinement } from './brepRefine';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
@@ -75,8 +76,11 @@ const SheetFormatDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'She
 const SheetPropertiesDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'SheetPropertiesDialog');
 // the graphics area of the 3D Print tab lies over the model view (which stays mounted)
 const PlateView = lazyNamed(() => import('./print/PlateView'), 'PlateView', false);
+// the views of the fabrication tabs (saw list, plates, nest, bend sheet, cost, quote preview; docs/36)
+const FabView = lazyNamed(() => import('./fab/FabView'), 'FabView', false);
 
 export function App() {
+  const fabView = useFabOpen((s) => s.view);
   const st = useStore(useShallow((s) => ({ theme: s.theme, selectedConstraint: s.selectedConstraint, selectConstraint: s.selectConstraint, panels: s.panels, prefs: s.prefs, managerCollapsed: s.managerCollapsed, hasDocument: s.hasDocument, doc: s.doc, viewportLayout: s.viewportLayout, setPanel: s.setPanel, dialog: s.dialog, confirmDelete: s.confirmDelete, printTab: s.tab === 'print3d', motionOpen: s.motionOpen, setMotionOpen: s.setMotionOpen, ask: s.ask })));
   const [editDim, setEditDim] = useState<string | null>(null);
   const [shortcutBar, setShortcutBar] = useState(false);
@@ -157,6 +161,7 @@ export function App() {
             </div>
           )}
           {st.printTab && st.hasDocument && st.doc.kind !== 'drawing' && <PlateView />}
+          {fabView && st.hasDocument && st.doc.kind !== 'drawing' && <FabView />}
           {managerSide === 'float' && manager}
           {st.panels.shortcuts.visible && (
             <Dialog title="Keyboard Shortcuts" onClose={() => st.setPanel('shortcuts', { visible: false })}>

@@ -1,0 +1,77 @@
+/* Fabrication tabs: Property Panel rows, the views in the graphics area, the settings dialog (light and dark themes) */
+.k-fab-pm .k-fab-row { justify-content: space-between; gap: 6px; }
+.k-fab-label { flex: 0 0 auto; min-width: 96px; font-size: 12px; color: var(--text); }
+.k-fab-row > .k-input, .k-fab-row > select, .k-fab-row > textarea { flex: 1; min-width: 0; }
+.k-fab-list { border: 1px solid var(--border); background: var(--bg-panel); max-height: 360px; overflow: auto; }
+.k-fab-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 3px 4px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.k-fab-item.onbekend { background: color-mix(in srgb, #f3c33f 18%, transparent); }
+.k-fab-kind { width: 16px; text-align: center; color: #245a94; font-weight: 700; }
+.k-fab-name { font-weight: 600; color: var(--text); }
+.k-fab-what { color: var(--text-muted); }
+.k-fab-select { margin-left: auto; max-width: 140px; font-size: 11px; }
+.k-fab-reason { width: 100%; font-size: 11px; color: var(--text-muted); padding-left: 20px; }
+.k-fab-error { color: #c62828; font-size: 11px; }
+.k-fab-facts { font-size: 12px; margin: 3px 0; color: var(--text); }
+.k-fab-stale { background: color-mix(in srgb, #ef8a2b 20%, transparent); }
+.k-fab-summary { width: 100%; font-size: 12px; border-collapse: collapse; }
+.k-fab-summary td { padding: 2px; border-bottom: 1px solid var(--border); }
+.k-fab-summary td:last-child { text-align: right; white-space: nowrap; }
+.k-fab-up { color: #c62828; }
+.k-fab-down { color: #2e7d32; }
+.k-fab-view { position: absolute; left: 0; right: 0; z-index: 4; background: var(--bg-panel); border-top: 2px solid var(--border); display: flex; flex-direction: column; color: var(--text); }
+.k-fab-bottom { bottom: 0; height: 46%; }
+.k-fab-full { top: 0; bottom: 0; }
+.k-fab-viewhead { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.k-fab-viewhead .grow { flex: 1; }
+.k-fab-muted { color: var(--text-muted); font-size: 11px; }
+.k-fab-stalebadge { color: #b45309; font-weight: 600; }
+.k-fab-scroll { flex: 1; overflow: auto; padding: 4px 8px; }
+.k-fab-split { display: flex; gap: 12px; align-items: flex-start; }
+.k-fab-table { border-collapse: collapse; font-size: 12px; min-width: 60%; }
+.k-fab-table th { background: color-mix(in srgb, var(--border) 50%, transparent); text-align: left; padding: 2px 6px; position: sticky; top: 0; font-weight: 600; }
+.k-fab-table td { padding: 2px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.k-fab-table td.n { text-align: right; }
+.k-fab-unknown td { background: color-mix(in srgb, #f3c33f 16%, transparent); }
+.k-fab-group td { font-weight: 700; background: color-mix(in srgb, var(--border) 35%, transparent); }
+.k-fab-indent { padding-left: 18px !important; }
+.k-fab-src { color: var(--text-muted); font-size: 11px; max-width: 520px; overflow: hidden; text-overflow: ellipsis; }
+.k-fab-aanname { background: #f3c33f; color: #3a2d00; font-size: 10px; font-weight: 700; padding: 0 4px; border-radius: 2px; }
+.k-fab-old { background: #ef8a2b; color: #fff; font-size: 10px; padding: 0 4px; border-radius: 2px; }
+.k-fab-date { color: var(--text-muted); font-size: 11px; }
+.k-fab-bars { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.k-fab-barplan { font-size: 12px; }
+.k-fab-bar { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+.k-fab-barlabel { width: 110px; font-size: 11px; color: var(--text-muted); }
+.k-fab-bartrack { position: relative; flex: 1; max-width: 900px; height: 18px; border: 1px solid #555; display: flex; background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in srgb, var(--border) 60%, transparent) 4px 6px); }
+.k-fab-piece { background: #a9cbea; border-right: 2px solid #245a94; font-size: 10px; line-height: 16px; overflow: hidden; white-space: nowrap; padding-left: 3px; color: #10233a; }
+.k-fab-rest { position: absolute; right: 4px; font-size: 10px; line-height: 16px; color: var(--text-muted); }
+.k-fab-thumbs { display: flex; flex-wrap: wrap; gap: 6px; }
+.k-fab-thumb { width: 150px; height: 110px; border: 1px solid var(--border); background: #fff; }
+.k-fab-flat { width: 100%; height: 100%; }
+.k-fab-bendflat { width: 46%; height: 300px; border: 1px solid var(--border); background: #fff; }
+.k-fab-notes { font-size: 12px; }
+.k-fab-sheets { display: flex; flex-wrap: wrap; gap: 12px; }
+.k-fab-sheet { width: 560px; }
+.k-fab-sheettitle { font-size: 12px; margin-bottom: 2px; }
+.k-fab-sheetsvg { width: 100%; background: #fff; border: 1px solid var(--border); }
+.k-fab-pages { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; background: color-mix(in srgb, var(--border) 40%, transparent); }
+.k-fab-page { width: 520px; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25); background: #fff; }
+.k-fab-dialogback { position: absolute; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.25); display: flex; align-items: center; justify-content: center; }
+.k-fab-dialog { width: min(980px, 94%); height: min(680px, 92%); background: var(--bg-panel); border: 1px solid var(--border); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; color: var(--text); }
+.k-fab-dialoghead, .k-fab-dialogfoot { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.k-fab-dialogfoot { border-top: 1px solid var(--border); border-bottom: 0; }
+.k-fab-dialoghead .grow, .k-fab-dialogfoot .grow { flex: 1; }
+.k-fab-dialogbody { flex: 1; display: flex; min-height: 0; }
+.k-fab-pages-list { width: 150px; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 4px; }
+.k-fab-pagebtn { text-align: left; border: 0; background: none; padding: 4px 6px; font-size: 12px; color: var(--text); }
+.k-fab-pagebtn.active { background: #dbe8f6; color: #10233a; }
+.k-fab-pagebody { flex: 1; overflow: auto; padding: 8px 12px; font-size: 12px; }
+.k-fab-pagebody h4 { margin: 10px 0 4px; font-size: 12px; }
+.k-fab-srow { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.k-fab-slabel { width: 190px; flex: 0 0 auto; }
+.k-fab-snum { width: 90px; }
+.k-fab-stext { flex: 1; }
+.k-fab-sunit { width: 70px; color: var(--text-muted); font-size: 11px; }
+.k-fab-ssrc { flex: 1; color: var(--text-muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-fab-bad { border-color: #c62828 !important; }
+.k-fab-warn { background: color-mix(in srgb, #f3c33f 25%, transparent); padding: 4px 6px; }

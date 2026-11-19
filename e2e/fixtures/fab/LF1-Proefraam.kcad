@@ -1,0 +1,190 @@
+{
+  "format": "phlippo-cad",
+  "version": 4,
+  "app": "0.5.16",
+  "commit": "8f441fc+changes",
+  "name": "LF1 Proefraam",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "s1",
+      "plane": "front",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmwn0833b1": {
+          "x": 20,
+          "y": 20
+        },
+        "pmwn0833b2": {
+          "x": 980,
+          "y": 20
+        },
+        "pmwn0833b4": {
+          "x": 980,
+          "y": 20
+        },
+        "pmwn0833b5": {
+          "x": 980,
+          "y": 580
+        },
+        "pmwn0833b7": {
+          "x": 980,
+          "y": 580
+        },
+        "pmwn0833b8": {
+          "x": 20,
+          "y": 580
+        },
+        "pmwn0833ba": {
+          "x": 20,
+          "y": 580
+        },
+        "pmwn0833bb": {
+          "x": 20,
+          "y": 20
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmwn0833b3": {
+          "id": "lnmwn0833b3",
+          "kind": "line",
+          "p1": "pmwn0833b1",
+          "p2": "pmwn0833b2",
+          "construction": false
+        },
+        "lnmwn0833b6": {
+          "id": "lnmwn0833b6",
+          "kind": "line",
+          "p1": "pmwn0833b4",
+          "p2": "pmwn0833b5",
+          "construction": false
+        },
+        "lnmwn0833b9": {
+          "id": "lnmwn0833b9",
+          "kind": "line",
+          "p1": "pmwn0833b7",
+          "p2": "pmwn0833b8",
+          "construction": false
+        },
+        "lnmwn0833bc": {
+          "id": "lnmwn0833bc",
+          "kind": "line",
+          "p1": "pmwn0833ba",
+          "p2": "pmwn0833bb",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmwn0833b3",
+        "lnmwn0833b6",
+        "lnmwn0833b9",
+        "lnmwn0833bc"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    },
+    "s2": {
+      "id": "s2",
+      "name": "s2",
+      "plane": "front",
+      "points": {
+        "origin_s2": {
+          "x": 0,
+          "y": 0
+        },
+        "pmwn0833bd": {
+          "x": 500,
+          "y": 40
+        },
+        "pmwn0833be": {
+          "x": 500,
+          "y": 560
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmwn0833bf": {
+          "id": "lnmwn0833bf",
+          "kind": "line",
+          "p1": "pmwn0833bd",
+          "p2": "pmwn0833be",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmwn0833bf"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s2"
+    }
+  },
+  "features": [
+    {
+      "id": "s1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "sm1",
+      "type": "structuralMember",
+      "name": "Structural Member1",
+      "suppressed": false,
+      "sketchId": "s1",
+      "standard": "iso",
+      "profileType": "square tube",
+      "size": "40 x 40 x 3",
+      "corner": "endMiter",
+      "gap": 0,
+      "mergeArcs": false,
+      "rotation": 0,
+      "mirror": false,
+      "locate": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "s2",
+      "type": "sketch",
+      "name": "Sketch2",
+      "sketchId": "s2",
+      "suppressed": false
+    },
+    {
+      "id": "sm2",
+      "type": "structuralMember",
+      "name": "Structural Member2",
+      "suppressed": false,
+      "sketchId": "s2",
+      "standard": "iso",
+      "profileType": "square tube",
+      "size": "40 x 40 x 3",
+      "corner": "none",
+      "gap": 0,
+      "mergeArcs": false,
+      "rotation": 0,
+      "mirror": false,
+      "locate": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "S235JRH",
+    "density": 7850,
+    "color": "#888888"
+  }
+}

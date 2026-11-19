@@ -9,6 +9,7 @@ import { Icon } from '../../ui/icons';
 import { FeatureTreeBody } from './FeatureTreeBody';
 import { DockPanel } from './Dock';
 import { lazyNamed } from '../lazy';
+import { useFabOpen } from '../fab/fabOpen';
 
 // panels of assemblies, configurations, reference geometry, section and render: chunks of their own, preloaded after
 // start-up (QA 0.5.11 F174: the start-up script stays under its budget)
@@ -57,6 +58,8 @@ const MatePM = lazyNamed(() => import('./AssemblyPM'), 'MatePM', true);
 const PropertyPanelBody = lazyNamed(() => import('./PropertyPanel'), 'PropertyPanelBody', true);
 // the Property Panel of the 3D Print tab (its own chunk, loaded with the tab)
 const PrintPM = lazyNamed(() => import('../print/PrintPM'), 'PrintPM', false);
+// the Property Panel of the fabrication tabs (docs/36), its own chunk
+const FabPM = lazyNamed(() => import('../fab/FabPM'), 'FabPM', false);
 
 /**
  * The manager pane on the left: tab strip (Feature Tree,
@@ -67,6 +70,7 @@ const PrintPM = lazyNamed(() => import('../print/PrintPM'), 'PrintPM', false);
 export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
   const st = useStore(useShallow((s) => ({ curveColorEdit: s.curveColorEdit, autoToleranceEdit: s.autoToleranceEdit, managerTab: s.managerTab, commandActive: isCommandActive(s), analysis: s.analysis, hasDocument: s.hasDocument, managerCollapsed: s.managerCollapsed, setManagerCollapsed: s.setManagerCollapsed, setManagerTab: s.setManagerTab, configEdit: s.configEdit, decalEdit: s.decalEdit, offsetSurfEdit: s.offsetSurfEdit, refEdit: s.refEdit, sceneEdit: s.sceneEdit, fastenerEdit: s.fastenerEdit, motorEdit: s.motorEdit, motionEdit: s.motionEdit, sensorEdit: s.sensorEdit, sketch3dEdit: s.sketch3dEdit, patternEdit: s.patternEdit, explodeEdit: s.explodeEdit, sectionEdit: s.sectionEdit, planeEdit: s.planeEdit, drawingEdit: s.drawingEdit, doc: s.doc, selectedDrawingDimensionId: s.selectedDrawingDimensionId, selectedDrawingViewId: s.selectedDrawingViewId, mateEdit: s.mateEdit, insertingComponent: s.insertingComponent, prefs: s.prefs, printTab: s.tab === 'print3d' && s.doc.kind !== 'drawing', treeFilter: s.treeFilter, setTreeFilter: s.setTreeFilter })));
   // Show Tolerance Status is a display of the Tolerance Tree, not a command with its own Property Panel
+  const fabPM = useFabOpen((s) => s.pm) && st.doc.kind !== 'drawing';
   const showProps = !!st.autoToleranceEdit || autoShowPropertyPanel(st.managerTab, st.commandActive && st.analysis?.kind !== 'tolerance'); // General ▸ Auto-show Property Panel
 
   if (!st.hasDocument) return <div className="k-manager k-manager-empty" data-testid="manager-empty" />;
@@ -109,6 +113,8 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
     >
       {st.printTab ? (
         <div className="k-pm-host"><PrintPM /></div>
+      ) : fabPM ? (
+        <div className="k-pm-host"><FabPM /></div>
       ) : st.configEdit ? (
         <ConfigurationPM />
       ) : st.managerTab === 'configurations' ? (

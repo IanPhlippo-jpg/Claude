@@ -15,7 +15,8 @@
     "src/qa/schemaNorm.test.ts",
     "src/qa/qaRobotarm.test.ts",
     "src/qa/qaLastafel.test.ts",
-    "src/qa/tekeningenLastafel.test.ts"
+    "src/qa/tekeningenLastafel.test.ts",
+    "src/qa/fabVoorbeelden.test.ts"
   ],
   "bibliotheek": [
     "bibliotheek/tests/qaDeuren.test.ts",

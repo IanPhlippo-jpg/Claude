@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createDocument, type Document, type ImportedFeature, type PatternFeature } from './types';
 import {
-  APP_VERSION, autosave, AUTOSAVE_DELAY, cancelAutosave, DocumentFormatError, FILE_VERSION, flushAutosave, isNewerVersion, loadAutosave, parseDocument,
+  APP_VERSION, autosave, FAB_FILE_VERSION, AUTOSAVE_DELAY, cancelAutosave, DocumentFormatError, FILE_VERSION, flushAutosave, isNewerVersion, loadAutosave, parseDocument,
   readDocument, serializeDocument,
 } from './persistence';
 import { decodePositions, encodePositions } from './positionCodec';
@@ -42,10 +42,10 @@ describe('file format 3: program version, warnings (QA 0.5.14 P2-7)', () => {
   });
 
   it('a file of a newer format opens with a warning; its unknown fields are left alone, an unknown feature type is still refused', () => {
-    const raw = { ...JSON.parse(serializeDocument(createDocument('Later'))), version: FILE_VERSION + 1, app: '0.7.0', futureField: { x: 1 } };
+    const raw = { ...JSON.parse(serializeDocument(createDocument('Later'))), version: FAB_FILE_VERSION + 1, app: '0.7.0', futureField: { x: 1 } };
     const r = readDocument(JSON.stringify(raw), '0.5.15');
     expect(r.doc.name).toBe('Later');
-    expect(r.warnings[0]).toMatch(new RegExp(`format ${FILE_VERSION + 1} by Phlippo CAD 0\\.7\\.0`));
+    expect(r.warnings[0]).toMatch(new RegExp(`format ${FAB_FILE_VERSION + 1} by Phlippo CAD 0\\.7\\.0`));
     const unknownType = { ...raw, features: [{ id: 'f1', type: 'hyperLoft', name: 'HyperLoft1', suppressed: false }] };
     expect(() => readDocument(JSON.stringify(unknownType), '0.5.15')).toThrow(/unknown type/);
   });

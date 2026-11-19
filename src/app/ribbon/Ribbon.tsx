@@ -19,6 +19,10 @@ const SheetFormatTab = lazyNamed(() => import('./DrawingTabs'), 'SheetFormatTab'
 const ViewLayoutTab = lazyNamed(() => import('./DrawingTabs'), 'ViewLayoutTab', true);
 // the 3D Print extension: its tab is a chunk of its own, loaded when first shown (docs/34 6.4)
 const PrintTab = lazyNamed(() => import('../print/PrintTab'), 'PrintTab', false);
+// the fabrication extensions (docs/36): Frames+ (group on Frames, Weld Shop in an assembly), Laser & Bend, Quote
+const FramesFabGroup = lazyNamed(() => import('../fab/WeldShopTab'), 'FramesFabGroup', false);
+const LaserTab = lazyNamed(() => import('../fab/LaserTab'), 'LaserTab', false);
+const QuoteTab = lazyNamed(() => import('../fab/QuoteTab'), 'QuoteTab', false);
 
 /**
  * Command Ribbon laid out like the desktop original: a 3×3 block with the menu-bar
@@ -42,6 +46,9 @@ const ASSEMBLY_TABS: { id: RibbonTab; label: string }[] = [
   { id: 'markup', label: 'Markup' },
   { id: 'evaluate', label: 'Evaluate' },
   { id: 'print3d', label: '3D Print' },
+  { id: 'weldshop', label: 'Weld Shop' },
+  { id: 'laser', label: 'Laser & Bend' },
+  { id: 'quote', label: 'Quote' },
   { id: 'render', label: 'Render Tools' },
   { id: 'lifecycle', label: 'Share' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
@@ -55,6 +62,8 @@ const TABS: { id: RibbonTab; label: string }[] = [
   { id: 'weldments', label: 'Frames' },
   { id: 'evaluate', label: 'Evaluate' },
   { id: 'print3d', label: '3D Print' },
+  { id: 'laser', label: 'Laser & Bend' },
+  { id: 'quote', label: 'Quote' },
   { id: 'mbd', label: 'Product Dimensions' },
   { id: 'render', label: 'Render Tools' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
@@ -495,6 +504,7 @@ export function Ribbon() {
           <SmallButton label="Cut List" icon={<Icon.TreeFolder glyph="bodies" />} disabled={!st.doc.weldment} active={st.dialog === 'cutList'} onClick={() => st.setDialog(st.dialog === 'cutList' ? null : 'cutList')} />
         </div>
       </Group>
+      <FramesFabGroup />
       <Group>
         <BigButton label="3D Sketch" icon={<Icon.Sketch />} active={!!st.sketch3dEdit} onClick={st.start3DSketch} />
         <BigButton label="Extruded Boss/Base" icon={<Icon.Extrude />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('extrude', 'boss')} />
@@ -614,6 +624,9 @@ export function Ribbon() {
         <PrintTab />
       </>
     ),
+    weldshop: st.doc.kind === 'assembly' ? <>{menuBlock}<FramesFabGroup /></> : undefined,
+    laser: st.doc.kind === 'drawing' ? undefined : <>{menuBlock}<LaserTab /></>,
+    quote: st.doc.kind === 'drawing' ? undefined : <>{menuBlock}<QuoteTab /></>,
   };
 
   return (
