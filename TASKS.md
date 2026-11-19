@@ -1655,3 +1655,9 @@ elease; README en docs/04 bijgewerkt
 - [x] Bundelbudget hoofdchunk onder 800 kB (794,54 kB)
 - [~] Niet gehaald / deels waar haalbaar: ISO 2553, Costing op Evaluate, Add-Ins, vormnesting in paren, revisies gedaan; open: ontvouwer, tabellen op tekenbladen, boommappen, LF4/LF5, kostprijs-orakel (zie docs/37 hoofdstuk 8)
 - [x] Tests, e2e, poorten, foto's extensies-v2, statustabel onder docs/37
+
+## Herbeoordeling Fable 5.2 van de extensies na 43f042e (2026-11-19)
+- [x] Fable-X2: schone git archive van 43f042e, tests, build, e2e
+- [x] Fable-X2: meetscripts opnieuw (B-1 tot B-17), elke bevinding nalopen
+- [x] Fable-X2: nieuwe problemen zoeken in de wijzigingen
+- [x] Fable-X2: hoofdstuk 9 "Herbeoordeling" onder docs/37 (geen codewijziging, geen commit)

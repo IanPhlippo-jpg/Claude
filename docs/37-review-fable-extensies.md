@@ -344,3 +344,108 @@ De tests in `src/fab/review37.test.ts` en `src/app/fab/fabStore.test.ts` gebruik
 ### Oordeel volgens de bouwer (ter controle door Fable)
 
 L3, L4, P4, P5 en O1 tot O3 hebben geen open P1 of P2 meer. De offerte blijft ONTWERP tot de bedrijfsgegevens er zijn en de boekhouder de btw-regels las; de DXF blijft "nog te openen" tot P2.8; het plooiblad is nagerekend op hoed, Z en L, nog niet op een echte kantbank.
+
+## 9. Herbeoordeling (Fable 5.2, 2026-11-19, commit 43f042e)
+
+Beoordeeld op een schone `git archive` van 43f042e (`scratchpad/review-fab2`). Geen code gewijzigd, niets gecommit.
+
+### 9.1 Wat ik gedraaid heb
+
+| Stap | Resultaat |
+|---|---|
+| `vitest run src/fab src/app/fab` + `persistence3.test.ts` | 115 van 115 groen |
+| `VOORBEELDEN=1 vitest run src/qa/fabVoorbeelden.test.ts` | 6 van 6 groen |
+| `tsc -b` | schoon |
+| build met testhooks, bundel- en regelbudget | hoofdchunk 794,42 kB (budget 800), beide groen |
+| `e2e/fab.mjs` tegen die build | exit 0 |
+| eigen meetscript opnieuw geschreven en uitgebreid (`scratchpad/review-fab-x/scripts2/zzReview.test.ts`), uitvoer in `scratchpad/rlog3.txt` en `rlog4.txt` | zie 9.2 |
+| eigen e2e-script in de app (`scripts2/zzReview.mjs`) | zie 9.2 en 9.3 |
+| geleverde PDF's en DXF in `scratchpad/extensies-v2/` met de eigen lezer; beelden plooiblad, lasplan, lassymbolen bekeken | zie 9.2 |
+
+Niet gedaan: de volledige `vitest run` (1297 tests volgens de bouwer), vormnesting in paren nagemeten, de invoer voor override, tarief per regel en "New revision" in de app doorgeklikt, een DXF in een externe viewer geopend.
+
+### 9.2 De bevindingen uit hoofdstuk 3
+
+| Nr | Oordeel | Gemeten |
+|---|---|---|
+| B-1 | **opgelost** | in de app: uurloon 45 → 90 zet Cost van € 210,29 op € 305,17, niets verouderd; offerte € 480,03 incl.; bevroren record uurloon 90 met zagen 5310 cent |
+| B-2 | **opgelost** | hoed 12,12 / 49,37 / 109,61 / 146,85, breedte 158,98: tabel = plooilijnen. Ook de hoed in omgekeerde tekenrichting, Z, gespiegelde Z, 60° en 120°: telkens gelijk |
+| B-3 | **opgelost** | Z: 1 lijn op ZETLIJN_OP, 1 op ZETLIJN_NEER; hoed 2 + 2; plooiblad hoed 2 groen, 2 rood |
+| B-4 | **opgelost** | assembly in een assembly met de offerte in het part: kopie zonder klantnaam, zonder bedragen, zonder uurloon; het volle bestand is formaat 5. Pack and Go: gelezen, niet doorgeklikt |
+| B-5 | **opgelost** | reeks 5: paneel € 168,60 per stuk, offerte "één regel" € 843,00. Per groep € 843,05, in detail € 843,10 (zie N-4) |
+| B-6 | **opgelost**, op N-1 na | XLSX na PDF: zelfde nummer; Reset vraagt en houdt de teller (volgende offerte in een ander document: 2026-003); nummers uit het document tellen mee (001 en 007 → 008) |
+| B-7 | **opgelost** | "Korting: 1 x € -50,00" en "Plaatsing: 1 x € 250,00" op de offerte |
+| B-8 | **opgelost** | EXC3 na bevestigen: niveau B; stijl weg: W3 en W6 "vervallen", kostprijs 4 verbindingen en 0,72 m |
+| B-9 | **deels** | strook met gaten: plaat met platstaal als kandidaat; naam zonder wand: onbekend met 3 kandidaten; "Roestvast staal 304" → RVS 304, geen prijs, onvolledig; eiken en PLA: onbekend. Nieuw: N-3 |
+| B-10 | **opgelost** | sleutel uit het hele document (gelezen); test van de bouwer groen. Configuratie van een component niet zelf gemeten |
+| B-11 | **opgelost** | buigaftrek 5: label "model, buigaftrek 5", uitslag 145,000, plooi op 97,500; twee losse lijnen in omgekeerde volgorde: juiste keten |
+| B-12 | **opgelost** | "0 hele staven nieuw, 1 uit voorraad (… aan de ingestelde prijs) € 35,70" |
+| B-13 | **opgelost** | verlegd voor een particulier blokkeert; 6 % zonder plaatsingsregel blokkeert; de vermelding staat op de PDF en ontbreekt bij 21 %. Te verifiëren met de boekhouder |
+| B-14 | **opgelost voor de bladen, deels voor het lasplan** | titelblok op elk blad (eigenaar, documentsoort, titel, documentnummer, blad, revisie, uitgifte, toleranties); plooiblad met schaal, streep-punt, maten vanaf rand a, legenda en de zin over de beperkte botsingscontrole; lasplan met "pos 1 / pos 2", getekende symbolen en een aanzicht van kaders met ballonnen ("schets, niet op schaal") |
+| B-15 | **opgelost** | tekst als bedrag, halve cent, `vrij` als tekst, `reeks: "vijf"`, offerte zonder regels: geweigerd met reden. Een lasnaad zonder soort en proces en de inhoud van `bevroren` gaan nog door (P3) |
+| B-16 | **opgelost** | 5998: 1 staaf, ondergrens 1; 2 x 2998: 1 staaf; 3000 + 2998: 2 staven; 400 lijsten: 11 keer 1 staaf boven het optimum, nooit eronder, nooit overvol; staaflengte 6100 wordt gebruikt |
+| B-17 | **opgelost** | gelezen in `fabStore.ts`; test van de bouwer groen |
+| P3 geld | opgelost, op N-4 en N-5 na | hele centen; hoeveelheid x eenheidsprijs = bedrag op 9 van 9 regels; garantie volgt een override (€ 8,25) |
+| P3 overige | opgelost | Cancel in de instellingen zet 77 terug naar 90 (gemeten); DXF en PDF's: geen "conform", geen "?", EXC2-regel aanwezig |
+
+De lassymbolen (blad met 8 voorbeelden) heb ik naast mijn kennis van ISO 2553 systeem A gelegd, niet naast een afbeelding uit de norm: symbool op de doorgetrokken lijn voor de pijlzijde, op de streeplijn voor de tegenzijde, geen streeplijn bij tweezijdig, cirkel voor rondom, vlag voor montage, `3 x 50 (100)`, de letter a, z of s er altijd bij, staart met proces / positie / niveau. Ik zie geen fout.
+
+### 9.3 Nieuwe bevindingen
+
+**N-1 (P2). Het rode kruis van de Quote-PM wist de zojuist geëxporteerde offerte uit het document.** `src/app/fab/fabStore.ts:139-149` (`snapshot`, `cancelCommand`).
+Gemeten in de app: Quote openen, Export (Offerte-2026-001.pdf, in het document), kruis: `doc.fab.quotes` is leeg. Dezelfde offerte opnieuw exporteren geeft 2026-002. De klant heeft dan 2026-001 zonder dat het bestand dat weet (O3.2, O3.3), en één offerte heeft twee nummers.
+Waarom: Cancel zet `doc.fab` terug naar de toestand bij het openen van de PM; de bevroren offerte is daarna toegevoegd.
+Oplossing: een export is geen wijziging van het commando; bij Cancel `quotes` uit de huidige toestand houden (of het snapshot verversen na elke export).
+
+**N-2 (P2). Hetzelfde kruis wist instellingen die in de dialoog met OK bevestigd zijn.** Zelfde plaats.
+Gemeten: Quote-PM open, Company, naam "Testbedrijf", OK; kruis van de PM: de naam is weer leeg.
+Oplossing: alleen terugzetten wat de PM zelf wijzigde (marge, btw-regime, reeks); wat in Fabrication Settings met OK bevestigd is, blijft.
+
+**N-3 (P2). Een gewone platstaaf langer dan ongeveer 800 mm wordt "plaat met gaten of afgeronde hoeken".** `src/fab/recognize.ts:263`.
+Gemeten zonder gaten: 40 x 8 x 400 en 100 x 5 x 400 → platstaal (juist); 40 x 8 x 900, 40 x 8 x 2000, 50 x 6 x 800, 60 x 10 x 1200, 100 x 5 x 2000 → plaat, van de zaagstaat af en naar de laser.
+Waarom: `b.faces.some((f) => f.curved)`; de kern markeert de kleine kopvlakken van een lange staaf als gebogen (de twee vlakken van 320 mm² bij 40 x 8). Het commentaar in `geom.ts` bij `planeGroups` waarschuwt daar al voor.
+Oplossing: "gevormd" afleiden uit de contour (`plateOutline`: bogen of binnencontouren), niet uit `faces.curved`. Test met een staaf van 2000 mm.
+
+**P3**
+- N-4: paneel x reeks is alleen in "één regel" gelijk aan de offerte; per groep en in detail scheelt het centen door afronden per regel (reeks 5: € 843,00 / € 843,05 / € 843,10). Het paneel zou de som van de gekozen weergave moeten tonen.
+- N-5: garantie en verzekering zijn nu "3 x 1 % afgerond" (`src/fab/cost.ts:193`): € 6,03 waar 3 % van € 201,22 € 6,04 is. Het bedrag is aangepast om de vermenigvuldiging te laten kloppen; beter het bedrag juist en de eenheidsprijs als percentage tonen.
+- N-6: plaatmodus "nest" rekent voor één plaatje van 200 x 100 een heel blad (€ 125,60); de restplaat telt niet als voorraad (P5.2 vraagt dat). De standaardmodus (rechthoek) is niet geraakt: PP1 € 1,62 materiaal, € 0,97 snijden, € 1,25 insteken, gelijk aan de handberekening.
+- N-7: één plooi van 120° geeft "botsing in stap 1: kies een andere volgorde"; het been ligt zelf in de wig.
+- N-8: `isMetal` kent St37, brons, titaan en "1060 Alloy" niet (worden "onbekend", dus veilig); gietstaal en verenstaal worden S235; "verlegd" weigert een buitenlands btw-nummer; een offerte van 4 regels is nog 2 pagina's; `patchFab` na de opslagdialoog schrijft in het document dat dan open is.
+
+### 9.4 Criteria
+
+Telling over de 92 criteria: **63 gehaald, 17 deels, 11 niet gehaald, 1 niet nagemeten** (was 44 / 27 / 20 / 1).
+
+| Criterium | Nu | Opmerking |
+|---|---|---|
+| L2.10, L4.2, L4.5, P2.4, P4.2, P4.3, P5.1, O1.5, O1.7, O2.5, O3.4, O3.6 | gehaald | zelf gemeten (9.2) |
+| L3.3 | gehaald | acht symbolen bekeken; nog niet op de tekenbladen van de CAD |
+| L3.7, P2.9, O1.2, O1.4, O2.4, O3.5 | gehaald | code gelezen en test van de bouwer groen; invoer in de app niet doorgeklikt |
+| L2.7, L3.5, P3.4, P3.6, P5.3 | deels | zoals de bouwer meldt; P3.4 en P5.3 niet zelf gemeten |
+| P5.2 | deels | N-6 |
+| O3.1 | deels | N-1: één offerte kan twee nummers krijgen |
+| O3.2, O3.3 | deels | bevriezen en revisie bestaan; het record verdwijnt bij Cancel (N-1); melding alleen in de PM |
+| L1.2, L1.4, L1.5, P1.4, P1.6, P2.6, P4.6, O2.9 | deels | ongewijzigd |
+| L2.6, L2.8, L4.4, P2.7, P2.8, P3.3, P3.9, P4.7, P4.8, P5.5, O1.6 | niet gehaald | ongewijzigd; de bouwer meldt ze zelf als open |
+| L1.6 | niet nagemeten | |
+
+### 9.5 Oordeel per fase
+
+| Fase | Oordeel | Open |
+|---|---|---|
+| F0 | vrijgegeven | N-3 |
+| L1 voorraad en herkenning | vrijgegeven als voorstel dat Ian naleest | N-3; LF3 tot LF5 |
+| L2 zaagstaat en zaagplan | **vrijgegeven voor het proefstuk LF1**, status "nog te zagen" | L2.8 |
+| L3 lasnaden en lasvolgorde | **vrijgegeven als voorstel voor LF1**; het lasplan zegt zelf dat het een vuistregel is en dat EXC2 niet gecontroleerd wordt | aanzicht is een schets; L3.5 |
+| L4 kostprijs per stuk | **vrijgegeven** (alle prijzen blijven AANNAME tot Ian ze invult) | L4.4 |
+| P1 uitslag | vrijgegeven voor vlakke platen en ketens uit de basisflens | geen ontvouwer |
+| P2 DXF | **vrijgegeven voor vlakke platen en gezette platen uit een basisflensketen**, status "nog te openen bij de lasersnijder" | P2.8 |
+| P3 nesting | vrijgegeven als hulpmiddel voor een prijs | P3.9, worker |
+| P4 plooivolgorde | **vrijgegeven voor een proefstrook** (L, Z, hoed), status "nog te plooien"; de botsingscontrole is beperkt en het blad zegt dat | N-7, P4.7, P4.8 |
+| P5 prijs per plaat | vrijgegeven in de modus "rechthoek"; modus "nest" niet | N-6 |
+| O1 kostprijsmodel | **vrijgegeven** | N-4, N-5 |
+| O2 offerte en PDF | vrijgegeven als ONTWERP; een echte offerte pas na de bedrijfsgegevens en na de boekhouder (btw-regels, vermeldingen) | |
+| O3 offertebeheer | **niet vrijgegeven** tot N-1 en N-2 weg zijn | N-1, N-2 |
+
+Herstelvolgorde: N-1 en N-2 (één plaats, klein), N-3 (één regel plus een test), daarna de P3-lijst.
