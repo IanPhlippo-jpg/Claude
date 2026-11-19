@@ -505,3 +505,127 @@ Niets gecommit. Elke bevinding heeft een proef in `src/print/review9.test.ts` (o
 | H-6 | opgelost | Hoektolerantie terug naar 0,1 rad voor scherm en rebuild (`brep.ts`). De 3D Print-tab vraagt per rebuild één keer de exacte bodies van het part op 0,07 rad (`PRINT_ANGULAR_TOLERANCE`, nieuwe opdracht `printMesh` in de OpenCascade-worker, `src/app/print/fineMesh.ts`) en gebruikt die zodra ze er zijn. Componenten van een assembly houden nog het schermmesh | `tessellation.test.ts`: het slicermesh binnen 0,1 % op 4, 20 en 80 mm; het schermmesh heeft minder driehoeken waar de hoek bepaalt. Rebuildbudgetten niet opnieuw gemeten (zelfde tolerantie als vóór 0.5.16) |
 | H-7 | genoteerd | Clipper2 rondt snijpunten af op het rooster van 0,1 µm; bij zelfdoorsnijdende invoer kunnen twee randen van de uitkomst elkaar tot 0,08 µm kruisen. Oppervlak en herhaalde vereniging kloppen; geen gevolg voor een print. Geen wijziging | - |
 | 1.3 | aangevuld | Elegoo Centauri (zonder Carbon) in de database (52 printers), bron 3DJake; de pagina van Elegoo gaf HTTP 429 en is niet gelezen: waarden te controleren (docs/33-printers-bronnen.md) | `plate.test.ts`: 52 printers geldig |
+
+## 11. Herbeoordeling 2 + fase 4 (Fable 5.2, 2026-11-19)
+
+Beoordeeld: commit `ee4565a`. Geen code gewijzigd, niets gecommit.
+
+### 11.1 Oordeel
+
+| Fase | Oordeel |
+|---|---|
+| 1 Tabblad, database, plaat | Vrijgegeven (ongewijzigd). |
+| 2 Slicerkern en preview | **Vrijgegeven voor proefprinten.** |
+| 3 G-code en bestanden | **Vrijgegeven voor proefprinten**, binnen de grenzen hieronder. |
+| 4 Elegoo hars (.goo) | **Nog niet vrijgegeven voor proefprinten.** Het bestand klopt met de openbare specificatie; er staan vier kleine voorwaarden open (R-1 tot R-4). |
+
+**Waarvoor fase 2 en 3 vrijgegeven zijn:** de kalibratiekubus van 20 mm, één kleur, de eigen startcode, een printer met één kop. Niet vrijgegeven: meerkleuren, printers met meer koppen (worden geweigerd), geïmporteerde start- of wisselcode zonder eigen proef.
+
+**Wat Ian bij de eerste print moet weten** (staat ook in de interface en in het bestand):
+- Bij een Bambu-printer met AMS laadt de eigen startcode geen filament: eerst met de hand laden.
+- De startcode gebruikt geen afveger en geen afvoerkoker; `G29` en de nivelleerregels van Elegoo zijn niet op een printer bewezen.
+- De uitsluitzones en bewegingsgrenzen in de database zijn aannames. De eerste print dus onder toezicht, met de hand bij de stopknop.
+- Elke printer blijft "nog te printen" tot de kubus geslaagd is.
+
+### 11.2 Fase 2 en 3: H-1 tot H-7 nagemeten
+
+`npx vitest run`: 1242 van 1243 groen. De ene rode test (`src/core/document/persistence3.test.ts`, "a file of a newer format opens with a warning") komt van niet-gecommit werk van een andere agent in `persistence.ts` (bestandsformaat 5 voor `src/fab/`), niet van deze commit. `tsc -b` exit 0. De e2e is in deze ronde niet door mij gedraaid. Meetscripts opnieuw gedraaid uit `...\scratchpad\review-scripts\r2\`; de drie nieuwe bestanden in `print-fase4\fdm` met de hand en met `gc.mjs` gelezen.
+
+| Nr | Oordeel | Eigen meting |
+|---|---|---|
+| H-1 | opgelost | Kubus: 0 × `G4`, wachten 0 %; binnenwand `F3736`, buitenwand `F2281`; laagste extrusiesnelheid 64 mm/s. Pen Ø1: 6,05 s per laag, toren 6,14 s. 0 extrusieregels met een openstaande terugtrek. Het geëxporteerde bestand is byte voor byte gelijk aan mijn eigen slice (MD5 `611EDF08…73E6`) |
+| H-2 | opgelost | Twee kubussen met een zone ertussen: 0 van 2660 bewegingen door de zone (was 149) |
+| H-3 | opgelost | Rij "Wait" bestaat (`previewColors.ts`, `review9.test.ts`); bij de kubus is er geen wachttijd meer, som 100,00 % |
+| H-4 | opgelost | Gyroid 0,15 binnen de wanden over 50 lagen: gemiddeld 0,146 (−2,7 %; was −5,3 %) |
+| H-5 | opgelost | Kubus: 0 bewegingen korter dan 5 µm, geen los stompje met terugtrek |
+| H-6 | opgelost voor parts | Scherm terug op 0,1 rad; de plaat vraagt 0,07 rad op (`fineMesh.ts`). Componenten van een assembly houden het schermmesh (gemeld door de bouwer); rebuildbudgetten niet opnieuw gemeten |
+| H-7 | genoteerd | Geen wijziging nodig |
+
+Verder gemeten, ongewijzigd goed: kubus 100 % infill −2,67 %, cilinder −2,72 %, schatter tegen analyser +0,23 %, netto filament −0,072 %, vier keer dezelfde uitvoer, 25 printers met één kop binnen hun grenzen, Marlin langste regel 96, MD5 van beide pakketten gelijk. Verplaatsing in de kubus is gedaald van 37 % naar 11 % van de tijd.
+
+**Criteria fase 2 en 3 die veranderd zijn**
+
+| Nr | Criterium | Was | Nu | Bewijs |
+|---|---|---|---|---|
+| 2.15 | Infilldichtheid ±5 % | deels | gehaald | Gyroid −2,7 % |
+| 2.36 | Legenda, som 100 % | deels | gehaald | H-3 |
+| 3.1 | XY binnen het gebied, ook verplaatsingen | deels | gehaald | H-2 |
+
+Stand fase 2: 29 gehaald, 3 deels (2.24 boomsupport, 2.25 bruglengte, 2.31 preview boven een miljoen segmenten), 5 niet te meten. Stand fase 3: 22 gehaald, 3 niet te meten. De drie "deels" heb ik in 9.6 als restpunt aangemerkt, niet als voorwaarde; dat blijft zo.
+
+### 11.3 Fase 4: de specificatie nagelezen
+
+Bron: "Goo Format Spec V1.2" van Elegoo (https://github.com/elegooofficial/GOO, 11 pagina's, GPL-3.0-repo; de tekst is gelezen, niets overgenomen). Tweede bron voor wat de specificatie openlaat: de open implementatie `goo` van mslicer (https://docs.rs/crate/goo/latest/source/src/), die los van deze code geschreven is.
+
+| Aanname van de bouwer | Wat de specificatie zegt | Oordeel |
+|---|---|---|
+| Kop 195 477 bytes; het voorbeeld `0x2FAB7` wijkt af | De veldentabel (index 0 tot 61) telt op tot 195 477 = `0x2FB95`. `0x2FAB7` staat er alleen als voorbeeld ("Eg") bij het veld "Offset of LayerContent" | Bouwer heeft gelijk. De `goo`-crate gebruikt dezelfde `0x2FB95` |
+| Big-endian | Staat er niet in | Bevestigd door de `goo`-crate ("everything is big-endian") |
+| "Data size" telt 0x55, chunks en controlesom | "The size of encoded image data"; het beeld begint met 0x55 en eindigt met de controlesom | Bevestigd: de crate schrijft lengte + 2 |
+| Controlesom = complement van de 8-bitsom van de chunks | "8-bit checksum", "don't include the magic number 0x55"; de formule staat er niet | Bevestigd: de crate telt op en keert om, zonder 0x55 |
+| Looplengte: hoge bits eerst | Voorbeeld: `0011 1111`, `0x55 0x56 0x57` → lengte `0x555657F` | Klopt met `raster.ts:27-33` |
+| Voorbeeld RGB565, big-endian, rij voor rij van boven | RGB565, twee bytes per pixel; bytevolgorde en rijrichting staan er niet | Aanname blijft; alleen het printerscherm kan het bewijzen |
+| Advance mode 1 | "1: advance mode, printing use the value of Layer Definition Content" | Klopt |
+| Vertraging via "turn off time" (mode 0) | "0: choose to use Turn Off time" | Klopt |
+| Rijrichting en spiegeling van het laagbeeld | X mirror / Y mirror: "indicated if the image is mirror by Slicer"; meer niet | Aanname blijft: zie R-2 |
+| Eindreeks van 11 bytes | Staat als afbeelding in het document, niet als tekst | Gelijk aan de `goo`-crate |
+
+### 11.4 Fase 4: eigen metingen
+
+- Eigen lezer `...\scratchpad\review-scripts\gooread.mjs`, geschreven vanuit de specificatie, zonder code uit de repo. Daarmee is ook aan "een lezer door een ander dan de schrijver" voldaan.
+- `Kruk.goo` (20,5 MB, Saturn 4 Ultra, 11520 × 5120, 2266 lagen van 0,05 mm): 0 problemen. Kop eindigt op 195 477 en het offsetveld zegt 195 477; elke laag begint met 0x55, heeft de juiste controlesom en precies 58 982 400 pixels; scheidingstekens en eindreeks kloppen; bestandsgrootte = som van de delen. Volume uit de pixels 41 490,2 mm³ = kop; tijd nagerekend 22 825 s = kop. Belichting 25 → 20,5 → 16 → 11,5 → 7 → 2,5 s over de overgangslagen.
+- `m10.ts` en `m11.ts`: volume, pixel voor pixel tegen een eigen brute-force raster, 12K-tijd, geheugen, grenzen, omgekeerde normalen.
+
+**Criteria fase 4 (docs/34 3.4)**: 3 gehaald, 3 deels, 2 niet te meten.
+
+| Nr | Criterium | Status | Bewijs |
+|---|---|---|---|
+| 4.1 | Database: resolutie, pixelmaat X en Y, bouwvolume, formaat en versie, met bron | deels | 21 harsprinters, alle met resolutie, LCD-maat en minstens één bron. Pixelmaat is één getal (`xyResolutionUm`); X en Y volgen uit maat ÷ resolutie. Geen veld voor de versie van het formaat. Zie R-6 |
+| 4.2 | Volume uit pixels tegen het mesh: ≤ 0,5 % (T1, T2), ≤ 1,5 % (T3) | gehaald | Saturn 4 Ultra: +0,020 %, +0,003 %, 0,000 %. Mars 4 DLP: +0,238 %, +0,009 %, +0,002 %. Met anti-aliasing 4: 0,000 tot 0,020 % |
+| 4.3 | Heen en terug met een losse lezer, pixel voor pixel | gehaald | Eigen lezer tegen een eigen brute-force raster (L-vorm, Mars 4 DLP, 2560 × 1440): 0 pixels verschil. `resin.test.ts:169` |
+| 4.4 | Kop: elk veld op zijn plaats en lengte; bestandsgrootte; controlesommen | gehaald | 11.3 en de eigen lezer op `Kruk.goo`; `resin.test.ts:139` |
+| 4.5 | Eén 12K-laag < 150 ms; < 1 GB bij 3000 lagen | deels | Zonder anti-aliasing 30 tot 53 ms (400 cirkels). Met anti-aliasing 4: 352 tot 383 ms; 8: rond 500 ms (R-3). 3000 lagen: +50 MB, bestand 24 MB |
+| 4.6 | Belichting en heffen binnen de grenzen van de printer; negatieve proef | deels | Belichting, bodem, lift, snelheid, laaghoogte, lichtsterkte, bodemlagen, NaN: geweigerd. Wachttijd −1 s en 600 s en anti-aliasing 3: aanvaard (R-4). De grenzen zijn algemeen, niet per printer |
+| 4.7 | Ian opent het bestand in de Elegoo-software of een losse viewer | niet te meten | Stap van Ian |
+| 4.8 | Proefprint per printer | niet te meten | Nog te printen |
+
+### 11.5 Fase 4: bevindingen
+
+Geen P1.
+
+**R-1 (P2). Een mesh met de normalen naar binnen geeft een leeg bestand, zonder melding.**
+- Waar: `src/print/resin/slice.ts:78` (`poly.union` met de positieve vulregel op de contouren uit `sliceMesh`); de FDM-weg keert zo'n mesh eerst om (`slice/slicer.ts:87`, `signedVolume < 0`).
+- Bewijs (m11): kubus met omgekeerde normalen: 0,0 mm³ in 400 lagen, geen waarschuwing; kop-volume 0. Mijn eerste proefbol had dat toevallig ook.
+- Gevolg: uren belichten zonder dat er iets ontstaat. De kernel levert normaal naar buiten gerichte meshes, dus de kans is klein, maar de FDM-kant vangt het wel af.
+- Oplossing: hetzelfde omkeren als in de FDM-slicer, en een slice zonder één belichte pixel weigeren.
+
+**R-2 (P2). Spiegeling is een aanname, en de kubus kan een gespiegelde print niet aantonen.**
+- Waar: `src/print/resin/raster.ts` (rij 0 = achterrand, kolom 0 = links), `goo.ts` (X mirror en Y mirror op 0); de tekst "nog te printen: kalibratiekubus 20 mm" in de harsmodus.
+- Waarom: een MSLA-scherm wordt van onderaf belicht; of het beeld gespiegeld moet worden, staat niet in de specificatie. Is de aanname fout, dan komt elk stuk in spiegelbeeld uit de printer: een linkse kruk wordt een rechtse. Een kubus is symmetrisch en slaagt dan toch.
+- Oplossing: voor hars een asymmetrisch proefstuk als vrijgave (een plaatje met een F erin, of een L met ongelijke benen), de tekst in de harsmodus daarop aanpassen, en een veld per printer in de database voor spiegelen in X en Y, zodat het zonder codewijziging te corrigeren is.
+
+**R-3 (P2). Anti-aliasing haalt de 150 ms per 12K-laag niet.** `raster.ts`, het pad met `cov`: 352 tot 383 ms bij 4 sublijnen, rond 500 ms bij 8, op een drukke laag. Bij 2266 lagen is dat een kwartier slicen. De test meet alleen zonder anti-aliasing (`resin.test.ts:111`). Oplossing: alleen de randpixels van een span via de dekkingsbuffer, het volle binnenstuk rechtstreeks als reeks wegschrijven.
+
+**R-4 (P3). Niet elke instelling wordt begrensd.** `profile.ts:54-71` toetst `lightOffDelay`, `antiAliasing`, de maten van de supports en `liftHeight` niet. Een wachttijd van −1 s komt zo in het bestand.
+
+**R-5 (P3). De grenzen zijn algemeen.** Eén tabel `LIMITS` voor alle printers en harsen; het criterium vraagt de grenzen van de printer. Minstens de bouwhoogte en de liftweg per printer, en een ondergrens voor de belichting uit het harsprofiel.
+
+**R-6 (P3). Database.** Bij Saturn S, Saturn 2 en Saturn 8K is de LCD-maat afgerond, waardoor de berekende pixelmaat (47,83 × 47,66 en 28,52 × 28,47 µm) afwijkt van de opgegeven 48 en 28,5 µm; dat zijn `.ctb`-printers, waarvoor de export al geweigerd wordt. De bevestiging bij export noemt de LCD-velden niet als aanname (`safetyAssumptions` kent alleen de FDM-velden).
+
+**R-7 (P3). Printernaam en -type in de kop.** Er staat "Elegoo Saturn 4 Ultra" en "MSLA". Of de firmware die velden vergelijkt met haar eigen naam, is niet openbaar; nog te printen, of af te lezen uit een bestand van Elegoo's eigen slicer.
+
+**Bekende gaten, door de bouwer gemeld en bevestigd:** steunpunten worden ingetypt in plaats van aangeklikt; componenten van een assembly gebruiken het schermmesh; de rebuildbudgetten zijn niet opnieuw gemeten. Niet door mij nagemeten: uithollen, afvoergaten, eilanden en zuignappen (alleen de tests van de bouwer), en de e2e.
+
+**Opmerking bij foto 04:** Auto Orient zet de kruk rechtop (113 mm hoog, 6 uur 20) op 41 steunpunten van 0,4 mm. Of dat de lostrekkracht houdt, kan alleen een print zeggen.
+
+### 11.6 Voorwaarden en wat openblijft
+
+**Fase 4, voorwaarden voor de proefprint**
+1. R-1: omgekeerde normalen opvangen; een leeg bestand weigeren.
+2. R-2: asymmetrisch proefstuk en de tekst in de harsmodus; spiegelvelden per printer.
+3. R-3: anti-aliasing binnen 150 ms per 12K-laag, of het criterium voor anti-aliasing met reden verruimen.
+4. R-4: de ontbrekende grenzen.
+
+**Blijft "nog te printen" of wacht op Ian**
+- FDM: de proefkubus per printer; referentiebestanden uit Bambu Studio en ElegooSlicer; nivellering per Elegoo-model; meerkleuren.
+- Hars: een `.goo` uit Elegoo's eigen slicer naast het onze leggen (bytevolgorde van de voorbeelden, spiegeling, printernaam); het bestand openen in de Elegoo-software; het asymmetrische proefstuk printen.

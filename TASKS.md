@@ -1618,3 +1618,8 @@ elease; README en docs/04 bijgewerkt
 - [ ] P4 plooivolgorde (voorstel, perskracht, flenslengte, 2D-botsing prismatisch, plooiblad)
 - [ ] O3 offertebeheer: nummering, bevriezen, revisie, kopie zonder klantgegevens
 - [ ] Tabbladen (Frames-groep/Weld Shop, Laser & Bend, Quote), PropertyManagers, e2e, poorten, graphify, foto's, besluiten in docs/36
+
+## Herbeoordeling 2 + fase 4 door Fable 5.2 (2026-11-19)
+- [x] Fable-R2: hoofdstuk 10 van docs/35 lezen, meetscripts fase 2 en 3 opnieuw draaien (H-1 tot H-7)
+- [x] Fable-R2: fase 4 (.goo) naast de criteria 3.4 van docs/34 leggen, openbare GOO-spec opzoeken, Kruk.goo met een eigen lezer nalopen
+- [x] Fable-R2: hoofdstuk 11 onder docs/35 (tabel, bevindingen, oordeel per fase; geen codewijziging, geen commit)
