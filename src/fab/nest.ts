@@ -18,6 +18,17 @@ export interface NestSettings { afstand: number; rand: number; draaien: boolean;
 /** a placed piece: its box on the sheet (x, y, l, b as nested) and its rotation; tx, ty place a piece of a pair exactly */
 export interface Placed { key: string; pos: number; x: number; y: number; draai: 0 | 90 | 180 | 270; l: number; b: number; tx?: number; ty?: number }
 export interface Sheet { id: string; l: number; b: number; stukken: Placed[]; benutting: number }
+/**
+ * The part of a sheet that is used (docs/37 N-6): the strip up to the last piece plus the border, across the shorter cut.
+ * The rest is a remnant that goes back to stock, so a small plate on a big sheet never pays the whole sheet.
+ */
+export function usedSheet(sh: Sheet, rand: number): { l: number; b: number } {
+  if (!sh.stukken.length) return { l: 0, b: 0 };
+  const w = (p: Placed) => (p.draai === 90 || p.draai === 270 ? p.b : p.l), h = (p: Placed) => (p.draai === 90 || p.draai === 270 ? p.l : p.b);
+  const maxX = Math.min(sh.l, Math.max(...sh.stukken.map((p) => p.x + w(p))) + rand), maxY = Math.min(sh.b, Math.max(...sh.stukken.map((p) => p.y + h(p))) + rand);
+  return maxX * sh.b <= sh.l * maxY ? { l: maxX, b: sh.b } : { l: sh.l, b: maxY };
+}
+
 export interface Nest {
   materiaal: string; t: number; bladen: Sheet[]; fouten: { pos: number; tekst: string }[]; ondergrens: number;
   status: 'rechthoek' | 'vorm' | 'handmatig'; instellingen: NestSettings;
@@ -197,4 +208,53 @@ export function nestDxf(sheet: Sheet, flats: FlatPart[], opt: DxfOptions = DXF_D
     addPlate(w, f, { ...opt, bbox: false }, t, `P${p.pos}`, rot);
   }
   return w.toString();
+}
+
+/**
+ * P3.9 manual nesting: a placed piece moved by (dx, dy) on its sheet. The nest becomes 'handmatig'; the sheet's use stays
+ * (same pieces). Pure: returns a new nest.
+ */
+export function movePiece(n: Nest, bi: number, k: number, dx: number, dy: number): Nest {
+  const bladen = n.bladen.map((b, i) => (i !== bi ? b : { ...b, stukken: b.stukken.map((p, j) => (j !== k ? p
+    : { ...p, x: p.x + dx, y: p.y + dy, ...(p.tx !== undefined ? { tx: p.tx + dx, ty: p.ty! + dy } : {}) })) }));
+  return { ...n, bladen, status: 'handmatig' };
+}
+
+/** the pieces that lie outside the border or closer to another piece than the spacing: "bi:k" (red, export blocked) */
+export function badPieces(n: Nest, flats: FlatPart[]): Set<string> {
+  const out = new Set<string>(), s = n.instellingen;
+  n.bladen.forEach((sh, bi) => {
+    const polys = sh.stukken.map((p) => placeLoop(flats[p.pos - 1].buiten, p));
+    const box = polys.map((z) => ({ x0: Math.min(...z.map((q) => q.x)), x1: Math.max(...z.map((q) => q.x)), y0: Math.min(...z.map((q) => q.y)), y1: Math.max(...z.map((q) => q.y)) }));
+    polys.forEach((_, i) => { const A = box[i]; if (A.x0 < s.rand - 1e-6 || A.y0 < s.rand - 1e-6 || A.x1 > sh.l - s.rand + 1e-6 || A.y1 > sh.b - s.rand + 1e-6) out.add(`${bi}:${i}`); });
+    for (let i = 0; i < polys.length; i++) for (let j = i + 1; j < polys.length; j++) {
+      const A = box[i], B = box[j];
+      if (A.x0 - B.x1 >= s.afstand || B.x0 - A.x1 >= s.afstand || A.y0 - B.y1 >= s.afstand || B.y0 - A.y1 >= s.afstand) continue;
+      const over = polys[i].some((q) => pointIn(polys[j], q)) || polys[j].some((q) => pointIn(polys[i], q));
+      if (over || polyDistance(polys[i], polys[j]) < s.afstand - 1e-6) { out.add(`${bi}:${i}`); out.add(`${bi}:${j}`); }
+    }
+  });
+  return out;
+}
+
+function pointIn(poly: P2[], q: P2): boolean {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j];
+    if ((a.y > q.y) !== (b.y > q.y) && q.x < ((b.x - a.x) * (q.y - a.y)) / (b.y - a.y) + a.x) c = !c;
+  }
+  return c;
+}
+
+/** every material and thickness nested on its sheet (the Nest command; runs in a worker in the app, P3.6) */
+export function nestAll(all: FlatPart[], settings: NestSettings | null): Nest[] {
+  const groups = new Map<string, number[]>();
+  all.forEach((f, i) => { if (f.betrouwbaar !== 'geen') { const k = `${f.materiaal}|${f.t}`; (groups.get(k) ?? groups.set(k, []).get(k)!).push(i); } });
+  return [...groups.entries()].map(([k, idx]) => {
+    const [mat, t] = k.split('|');
+    const s = settings ?? defaultNestSettings(Number(t));
+    // positions keep their number: pieces of the other groups are left out by giving them no copies
+    const flats = all.map((f, i) => (idx.includes(i) ? f : { ...f, n: 0 }));
+    return nestRects(mat, Number(t), (s.draaien ? nestPiecesShape(flats, s.afstand) : nestPieces(flats)), { ...s, afstand: Math.max(s.afstand, 0) });
+  });
 }

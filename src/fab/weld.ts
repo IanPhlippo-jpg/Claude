@@ -13,6 +13,7 @@ import type { FabBody } from './bodies';
 import type { ExecutionClass, Recognition, WeldJoint } from './types';
 import { cross, dot, frameOf, hull, planeGroups, triangle, unit, type V3 } from './geom';
 import { profileById } from './catalog';
+import { lineContact, LINE_GAP } from './weldEdge';
 
 // ---- execution class (EN 1090-2, te verifiëren)
 
@@ -57,7 +58,7 @@ function box(b: FabBody) {
   return { lo, hi };
 }
 
-export interface Contact { a: string; b: string; lengte: number; punt: V3; area: number }
+export interface Contact { a: string; b: string; lengte: number; punt: V3; area: number; /** touching along an edge only (one weld along it) */ lijn?: boolean }
 
 /** bodies whose planar faces lie against each other (opposite normals, same plane, overlapping): one contact per pair */
 export function contacts(bodies: FabBody[]): Contact[] {
@@ -65,7 +66,7 @@ export function contacts(bodies: FabBody[]): Contact[] {
   const out: Contact[] = [];
   for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) {
     const A = boxes[i], B = boxes[j];
-    if ([0, 1, 2].some((k) => A.lo[k] > B.hi[k] + 0.2 || B.lo[k] > A.hi[k] + 0.2)) continue;
+    if ([0, 1, 2].some((k) => A.lo[k] > B.hi[k] + LINE_GAP || B.lo[k] > A.hi[k] + LINE_GAP)) continue;
     let best: Contact | null = null;
     for (const fa of infos[i]) for (const fb of infos[j]) {
       if (dot(fa.n, fb.n) > -0.999 || Math.abs(fa.d + fb.d) > 0.05) continue;
@@ -84,7 +85,10 @@ export function contacts(bodies: FabBody[]): Contact[] {
       const punt: V3 = [0, 1, 2].map((k) => fa.u[k] * P2c.x + fa.v[k] * P2c.y + nC[k] * along) as V3;
       if (!best || area > best.area) best = { a: bodies[i].key, b: bodies[j].key, lengte, punt, area };
     }
-    if (best) out.push(best);
+    if (best) { out.push(best); continue; }
+    // no face against face: a contact along an edge only (a shelf between beams, a corner line), docs/37 ch. 9
+    const e = lineContact(bodies[i], bodies[j]) ?? lineContact(bodies[j], bodies[i]);
+    if (e) out.push({ a: bodies[i].key, b: bodies[j].key, lengte: e.lengte, punt: e.punt, area: 0, lijn: true });
   }
   return out;
 }
@@ -94,9 +98,14 @@ export function proposeJoints(bodies: FabBody[], recs: Recognition[], exc: Execu
   const wall = (key: string) => { const r = recs.find((x) => x.key === key); const p = profileById(r?.profielId); return p ? (p.vorm === 'rond' || p.vorm === 'vierkant'
     || p.vorm === 'platstaal' ? p.t : p.t) : r?.t ?? 3; };
   const niveau = excDefaults(exc).niveau;
+  // a line contact has a concave corner on both sides: a fillet on each (two-sided). A thin plate (<= 10 mm) whose
+  // seams together run over 400 mm gets stitches of 50 mm every 200 mm, not a continuous seam (AANNAME, the workshop
+  // rule of the bibliotheek, docs/37 ch. 9)
+  const thinPlate = (key: string) => { const r = recs.find((x) => x.key === key); return !!r && r.soort === 'plaat' && (r.t ?? 99) <= 10; };
+  const stitch = (c: Contact) => (c.lijn && 2 * c.lengte > 400 && (thinPlate(c.a) || thinPlate(c.b)) ? { n: Math.max(2, Math.round(c.lengte / 200)), l: 50, e: 200 } : null);
   return contacts(bodies).map((c, k) => ({
     id: `W${k + 1}`, bodies: [c.a, c.b], soort: 'hoeklas', maat: { letter: 'a', mm: proposedThroat(Math.min(wall(c.a), wall(c.b))) },
-    lengte: Math.round(c.lengte * 10) / 10, tweezijdig: false, rondom: true, montage: false, onderbroken: null, proces: '135', positie: 'PB', niveau,
+    lengte: Math.round(c.lengte * 10) / 10, tweezijdig: !!c.lijn, rondom: !c.lijn, montage: false, onderbroken: stitch(c), proces: '135', positie: 'PB', niveau,
     stap: 0, hechten: true, bevestigd: false, punt: c.punt,
   }));
 }
@@ -195,3 +204,17 @@ export function reconcileJoints(saved: WeldJoint[], proposed: WeldJoint[], exc: 
 
 /** the joints that are costed and printed on the weld plan (a lapsed joint is not) */
 export const activeJoints = (js: WeldJoint[]) => js.filter((j) => j.status !== 'vervallen');
+
+/**
+ * L3.5: a weld step moved to place `to` of the order (dragged in the tree or the panel). Step 1 is tacking, the welds
+ * are steps 2 … in the new order; every joint becomes confirmed so a new proposal never overwrites the order.
+ * Returns null when nothing moves.
+ */
+export function reorderWelds(joints: WeldJoint[], order: string[], id: string, to: number): WeldJoint[] | null {
+  const from = order.indexOf(id);
+  if (from < 0 || to < 0 || to >= order.length || to === from) return null;
+  const ids = [...order];
+  ids.splice(from, 1);
+  ids.splice(to, 0, id);
+  return joints.map((j) => ({ ...j, bevestigd: true, stap: ids.includes(j.id) ? ids.indexOf(j.id) + 2 : j.stap }));
+}

@@ -14,7 +14,7 @@ import { CATALOG, profileById } from '../../fab/catalog';
 import { euro, mm, num } from '../../fab/format';
 import { perPiece } from '../../fab/cost';
 import { plateChecks } from '../../fab/checks';
-import { excDefaults, EXC_CHOICES } from '../../fab/weld';
+import { excDefaults, EXC_CHOICES, reorderWelds } from '../../fab/weld';
 import { weldSymbolSvg } from '../../fab/weldSymbol';
 import { weldPlanInput } from '../../fab/analyze';
 import { lineTotal, salePerPiece, setRate, vatProblems, vatTotals } from '../../fab/quote';
@@ -274,13 +274,15 @@ function WeldPanel() {
   const d = excDefaults(exc);
   const ordered = [...r.joints].filter((j) => j.status !== 'vervallen').sort((a, b) => a.stap - b.stap);
   // L3.5: moving a step renumbers the finishing steps (2 …) and keeps the order as Ian's (a new proposal never overwrites it)
-  const move = (id: string, dir: -1 | 1) => {
-    const ids = ordered.map((j) => j.id), i = ids.indexOf(id), k = i + dir;
-    if (k < 0 || k >= ids.length) return;
-    [ids[i], ids[k]] = [ids[k], ids[i]];
-    patchFab('Weld Sequence', (f) => ({ ...f, lasvolgordeHandmatig: true, welds: r.joints.map((j) => ({ ...j, bevestigd: true, stap: ids.includes(j.id) ? ids.indexOf(j.id) + 2 : j.stap })) }));
+  const move = (id: string, dir: -1 | 1) => moveTo(id, ordered.findIndex((j) => j.id === id) + dir);
+  // dragging a step onto another puts it in that place (L3.5), as dragging in the tree of SOLIDWORKS
+  const moveTo = (id: string, to: number) => {
+    const welds = reorderWelds(r.joints, ordered.map((j) => j.id), id, to);
+    if (!welds) return;
+    patchFab('Weld Sequence', (f) => ({ ...f, lasvolgordeHandmatig: true, welds }));
     recompute();
   };
+  const [drag, setDrag] = useState<string | null>(null);
   return (
     <>
       <Section title="Execution Class" defaultOpen={focus !== 'seq'}>
@@ -305,7 +307,10 @@ function WeldPanel() {
       <Section title="Weld Sequence" defaultOpen={focus === 'seq'}>
         <div className="k-fab-item"><span className="k-fab-name">1. tack all joints</span></div>
         {ordered.map((j, i) => (
-          <div key={j.id} className="k-fab-item" data-testid="fab-weld-step">
+          <div key={j.id} className={`k-fab-item k-fab-drag ${drag === j.id ? 'dragging' : ''}`} data-testid="fab-weld-step" draggable
+            onDragStart={(e) => { setDrag(j.id); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', j.id); }}
+            onDragOver={(e) => { if (drag) e.preventDefault(); }} onDragEnd={() => setDrag(null)}
+            onDrop={(e) => { e.preventDefault(); const id = drag ?? e.dataTransfer.getData('text/plain'); setDrag(null); if (id && id !== j.id) moveTo(id, i); }}>
             <span className="k-fab-name">{j.stap}. {j.id}</span><span className="k-fab-what">{names.get(j.bodies[0])} / {names.get(j.bodies[1])}</span>
             <button className="k-btn ghost" data-testid="fab-weld-up" disabled={i === 0} onClick={() => move(j.id, -1)}>▲</button>
             <button className="k-btn ghost" disabled={i === ordered.length - 1} onClick={() => move(j.id, 1)}>▼</button>
@@ -325,7 +330,8 @@ function CostPanel() {
   const marge = st.r.settings.rates.marge.waarde;
   const regime = st.r.settings.rates.btwRegime;
   // the same numbers as the quote: the sale price per piece of the series, rounded once (docs/37 B-5, P3 money)
-  const sale = salePerPiece(m, marge, reeks);
+  const grouping = useFab((s) => s.grouping);
+  const sale = salePerPiece(m, marge, reeks, grouping);
   const diff = st.prev === null ? 0 : m.totaalCent - st.prev;
   return (
     <>

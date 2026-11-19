@@ -1417,8 +1417,8 @@ export interface DrawingSheet {
   notes: DrawingNote[]; // a centre mark: a hole, a slot or linear set (c to c2) or a bolt circle (radius r)
   centerMarks: { id: Id; viewId: Id; c: [number, number]; r: number; kind?: 'slot' | 'linear' | 'circular'; c2?: [number, number]; dangling?: boolean }[];
   symbols?: DrawingSymbol[];
-  /** Tables: Bill of Materials (anchored top right), Hole Table of a view, General Table (cells) at a position */
-  tables?: { id: Id; kind: 'bom' | 'hole' | 'general'; viewId: Id; position?: [number, number]; cells?: string[][] }[];
+  /** Tables: Bill of Materials (anchored top right), Hole Table of a view, General Table (cells) at a position; Cut List and Bend Table of a view (cells from the fab analysis) */
+  tables?: { id: Id; kind: 'bom' | 'hole' | 'general' | 'cutList' | 'bendTable'; viewId: Id; position?: [number, number]; cells?: string[][] }[];
   /** Magnetic Lines: balloons attached to them are spread evenly along the line */
   magneticLines?: { id: Id; a: [number, number]; b: [number, number]; balloons: Id[] }[];
   /** Custom sheet size (mm, as given; landscape / portrait does not turn it) */

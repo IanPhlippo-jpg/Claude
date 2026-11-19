@@ -4,6 +4,8 @@
 .k-fab-row > .k-input, .k-fab-row > select, .k-fab-row > textarea { flex: 1; min-width: 0; }
 .k-fab-list { border: 1px solid var(--border); background: var(--bg-panel); max-height: 360px; overflow: auto; }
 .k-fab-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 3px 4px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.k-fab-drag { cursor: grab; }
+.k-fab-drag.dragging { opacity: 0.5; background: var(--selection, #dbeafe); }
 .k-fab-item.onbekend { background: color-mix(in srgb, #f3c33f 18%, transparent); }
 .k-fab-kind { width: 16px; text-align: center; color: #245a94; font-weight: 700; }
 .k-fab-name { font-weight: 600; color: var(--text); }
@@ -77,3 +79,8 @@
 .k-fab-warn { background: color-mix(in srgb, #f3c33f 25%, transparent); padding: 4px 6px; }
 .k-fab-symbol { display: inline-block; width: 156px; height: 44px; flex: 0 0 auto; }
 .k-fab-symbol svg { width: 156px; height: 44px; }
+.k-fab-piece { cursor: move; }
+.k-fab-folds { display: flex; flex-wrap: wrap; gap: 8px; grid-column: 1 / -1; }
+.k-fab-fold { margin: 0; width: 150px; font-size: 11px; text-align: center; }
+.k-fab-fold svg { width: 150px; height: 90px; background: #fafafa; border: 1px solid var(--border); }
+.k-fab-sheetsvg { overflow: visible; }

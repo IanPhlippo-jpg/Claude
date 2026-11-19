@@ -18,7 +18,7 @@ import { plateChecks, blocksExport } from '../../fab/checks';
 import { writeZip } from '../../core/document/zip';
 import { writeBook } from '../../fab/xlsxBook';
 import { sawListPdf, plateListPdf, nestPdf, bendSheetPdf, weldPlanPdf } from '../../fab/sheets';
-import { nestRects, nestPieces, nestPiecesShape, nestDxf, validateNest, defaultNestSettings, type Nest, type NestSettings } from '../../fab/nest';
+import { nestDxf, validateNest, nestAll, movePiece, badPieces, type Nest, type NestSettings } from '../../fab/nest';
 import { bendPlan } from '../../fab/bend';
 import { activeJoints, proposeSequence as weldSequence } from '../../fab/weld';
 import { weldPlanInput } from '../../fab/analyze';
@@ -49,6 +49,10 @@ export interface FabState {
   nestSettings: NestSettings | null;
   nests: Nest[];
   nestKey: string;
+  /** a nest runs in the worker (Cancel Nesting is on) */
+  nestBusy: boolean;
+  /** per nest the pieces that overlap or lie over the border after a manual move ("sheet:piece") */
+  nestBad: string[][];
   bendIndex: number;
   grouping: Grouping;
   settingsOpen: boolean;
@@ -62,7 +66,8 @@ export interface FabState {
 
 export const useFab = create<FabState>()(() => ({
   settings: settingsFromStorage(typeof localStorage !== 'undefined' ? safeGet(STORAGE) : null),
-  result: null, modelKey: '', view: 'none', command: null, busy: false, dxf: DXF_DEFAULTS, nestSettings: null, nests: [], nestKey: '', bendIndex: 0, grouping: 'categorie',
+  result: null, modelKey: '', view: 'none', command: null, busy: false, dxf: DXF_DEFAULTS, nestSettings: null, nests: [], nestKey: '', nestBusy: false, nestBad: [],
+  bendIndex: 0, grouping: 'categorie',
     settingsOpen: false, settingsPage: 'Company', weldFocus: 'joints',
     vorigeCent: null,
 }));
@@ -117,7 +122,7 @@ export function recompute(): FabResult | null {
     const prev = lastDocId === (doc.id ?? doc.name) ? useFab.getState().result?.cost.totaalCent ?? null : null;
     lastDocId = doc.id ?? doc.name;
     const r = analyze(doc, useFab.getState().settings, doc.fab ?? {});
-    useFab.setState({ result: r, modelKey: modelKeyOf(doc), busy: false, vorigeCent: prev, nests: [], nestKey: '' });
+    useFab.setState({ result: r, modelKey: modelKeyOf(doc), busy: false, vorigeCent: prev, nests: [], nestKey: '', nestBad: [] });
     return r;
   } catch (e) {
     useFab.setState({ busy: false });
@@ -137,15 +142,41 @@ export const closeCommand = () => { snapshot = null; useFab.setState({ command: 
 /** what a command may change, taken when it opens: Cancel puts it back (docs/37 P3: the cross undoes, the check keeps) */
 let snapshot: { fab: FabDocData | undefined; settings: FabSettings } | null = null;
 useFab.subscribe((s, prev) => { if (s.command && s.command !== prev.command) snapshot = { fab: useStore.getState().doc.fab, settings: structuredClone(useFab.getState().settings) }; });
+/**
+ * Cancel undoes only what the open command itself changed (docs/37 N-1, N-2): its own fields of doc.fab and the few
+ * settings its panel edits (margin, VAT regime, bar length, saw). An exported quote and a number taken are never
+ * undone, and settings confirmed with OK in Fabrication Settings stay (OK moves the snapshot along).
+ */
 export function cancelCommand() {
   const snap = snapshot;
   snapshot = null;
   useFab.setState({ command: null });
   if (!snap) return;
   const st = useStore.getState();
-  if (st.doc.fab !== snap.fab) st.applyDocument('Cancel', { ...st.doc, fab: snap.fab });
-  if (JSON.stringify(useFab.getState().settings) !== JSON.stringify(snap.settings)) setSettings(snap.settings);
+  if (st.doc.fab !== snap.fab) {
+    const quotes = st.doc.fab?.quotes;
+    const back: FabDocData | undefined = quotes?.length ? { ...(snap.fab ?? {}), quotes } : snap.fab;
+    st.applyDocument('Cancel', { ...st.doc, fab: back });
+  }
+  const now = useFab.getState().settings, was = snap.settings;
+  const next = revertPanelSettings(now, was);
+  if (JSON.stringify(next) !== JSON.stringify(now)) setSettings(next);
   if (useFab.getState().result) recompute();
+}
+/** the settings a command panel edits, put back to the snapshot; everything else as it is now */
+export function revertPanelSettings(now: FabSettings, was: FabSettings): FabSettings {
+  const s = structuredClone(now);
+  s.rates.marge = structuredClone(was.rates.marge);
+  s.rates.btwRegime = was.rates.btwRegime;
+  s.materials.staafLengte = was.materials.staafLengte;
+  const z = was.machines.zagen;
+  s.machines.zagen = { ...s.machines.zagen, zaagsnede: z.zaagsnede, afkorten: z.afkorten, klem: z.klem };
+  return s;
+}
+/** OK in Fabrication Settings: what is confirmed there is no longer undone by the Cancel of an open command */
+export function confirmSettings() {
+  if (snapshot) snapshot.settings = structuredClone(useFab.getState().settings);
+  useFab.setState({ settingsOpen: false });
 }
 /** open the settings dialog on a page */
 export const openSettings = (page: SettingsPage) => useFab.setState({ settingsOpen: true, settingsPage: page });
@@ -221,28 +252,54 @@ export async function exportDxf(which: number | 'all') {
   return saveFile({ name: `${base()}-laser.zip`, data: writeZip(files), mime: 'application/zip' }, 'zip', 'ZIP');
 }
 
-/** nest every material and thickness on the chosen sheet */
+/** nest every material and thickness on the chosen sheet: in a worker (Cancel Nesting stops it), else right here */
+let nestJob: { worker: Worker; id: number } | null = null;
+let nestSeq = 0;
 export function runNest() {
   const r = fresh(); if (!r) return;
-  const st = useFab.getState();
-  const groups = new Map<string, number[]>();
-  r.flats.forEach((f, i) => { if (f.betrouwbaar !== 'geen') { const k = `${f.materiaal}|${f.t}`; (groups.get(k) ?? groups.set(k, []).get(k)!).push(i); } });
-  const nests = [...groups.entries()].map(([k, idx]) => {
-    const [mat, t] = k.split('|');
-    const s = st.nestSettings ?? defaultNestSettings(Number(t));
-    // positions keep their number: pieces of the other groups are left out by giving them no copies
-    const flats = r.flats.map((f, i) => (idx.includes(i) ? f : { ...f, n: 0 }));
-    return nestRects(mat, Number(t), (s.draaien ? nestPiecesShape(flats, s.afstand) : nestPieces(flats)), { ...s, afstand: Math.max(s.afstand, 0) });
-  });
-  useFab.setState({ nests, nestKey: useFab.getState().modelKey, view: 'nest' });
-  const bad = nests.flatMap((n) => validateNest(n, r.flats, new Map(r.flats.map((f, i) => [i + 1, n.t === f.t && n.materiaal === f.materiaal && f.betrouwbaar !== 'geen' ? f.n : 0]))));
-  if (bad.length) msg(`Nest check: ${bad.join('; ')}`, 'error');
+  cancelNest(true);
+  const settings = useFab.getState().nestSettings;
+  const done = (nests: Nest[]) => {
+    nestJob = null;
+    useFab.setState({ nests, nestKey: useFab.getState().modelKey, view: 'nest', nestBusy: false, nestBad: [] });
+    const bad = nests.flatMap((n) => validateNest(n, r.flats, new Map(r.flats.map((f, i) => [i + 1, n.t === f.t && n.materiaal === f.materiaal && f.betrouwbaar !== 'geen' ? f.n : 0]))));
+    if (bad.length) msg(`Nest check: ${bad.join('; ')}`, 'error');
+  };
+  let worker: Worker | null = null;
+  try { worker = typeof Worker !== 'undefined' ? new Worker(new URL('./nestWorker.ts', import.meta.url), { type: 'module' }) : null; } catch { worker = null; }
+  if (!worker) return done(nestAll(r.flats, settings));
+  const id = ++nestSeq;
+  nestJob = { worker, id };
+  useFab.setState({ nestBusy: true });
+  worker.onmessage = (e: MessageEvent<{ id: number; nests?: Nest[]; error?: string }>) => {
+    if (!nestJob || nestJob.id !== e.data.id) return;
+    nestJob.worker.terminate();
+    if (e.data.error) { nestJob = null; useFab.setState({ nestBusy: false }); return msg(`Nesting failed: ${e.data.error}`, 'error'); }
+    done(e.data.nests ?? []);
+  };
+  worker.onerror = () => { worker!.terminate(); nestJob = null; done(nestAll(r.flats, settings)); };
+  worker.postMessage({ id, flats: r.flats, settings });
+}
+/** Cancel Nesting: stops the worker; the sheets of the last finished nest stay */
+export function cancelNest(quiet = false) {
+  if (!nestJob) return;
+  nestJob.worker.terminate();
+  nestJob = null;
+  useFab.setState({ nestBusy: false });
+  if (!quiet) msg('Nesting cancelled.');
+}
+/** P3.9: a piece dragged on the sheet; overlaps and pieces over the border turn red and block the export */
+export function moveNestPiece(ni: number, bi: number, k: number, dx: number, dy: number) {
+  const r = useFab.getState().result; if (!r) return;
+  const nests = useFab.getState().nests.map((n, i) => (i === ni ? movePiece(n, bi, k, dx, dy) : n));
+  useFab.setState({ nests, nestBad: nests.map((n) => [...badPieces(n, r.flats)]) });
 }
 
 export async function exportNest(kind: 'pdf' | 'dxf') {
   const r = exportable(); if (!r) return;
   const { nests } = useFab.getState();
   if (!nests.length) return msg('Nest the plates first.', 'warn');
+  if (useFab.getState().nestBad.some((x) => x.length)) return msg('Pieces overlap or lie over the border (red): move them first.', 'error');
   if (kind === 'pdf') return saveFile({ name: `${base()}-legplan.pdf`, data: nestPdf(nests, r.flats, meta(r)), mime: 'application/pdf' }, 'pdf', 'PDF');
   const files = nests.flatMap((n) => n.bladen.map((b, i) => ({ name: `${base()}_${n.materiaal}_${n.t}mm_blad${i + 1}.dxf`, data: new TextEncoder().encode(nestDxf(b, r.flats)) })));
   return saveFile({ name: `${base()}-bladen.zip`, data: writeZip(files), mime: 'application/zip' }, 'zip', 'ZIP');
@@ -324,6 +381,7 @@ export function exportQuote(kind: 'pdf' | 'xlsx', image?: { jpeg: Uint8Array; w:
     companyMissing(useFab.getState().settings.company).length ? 'the company data are missing: the quote is marked ONTWERP' : '',
     ...problems.map((p) => p.tekst),
   ].filter(Boolean);
+  const docId = useStore.getState().doc.id, docName = useStore.getState().doc.name;
   const go = async () => {
     const before = sameQuote(q, r);
     const used = (useStore.getState().doc.fab?.quotes ?? []).map((x) => x.nummer);
@@ -336,6 +394,8 @@ export function exportQuote(kind: 'pdf' | 'xlsx', image?: { jpeg: Uint8Array; w:
       mime: kind === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }, kind, kind.toUpperCase());
     if (!ok || before) return;
     if (next.teller) setTeller(next.teller);
+    // the save dialog waits: when another model is open by now, the record never goes into that one (docs/37 N-8)
+    if (useStore.getState().doc.id !== docId) return msg(`Quote ${done.nummer} is saved, but ${docName} is no longer open: its record was not written into another model.`, 'warn');
     patchFab(`Quote ${done.nummer}`, (fab) => ({ ...fab, quotes: [...(fab.quotes ?? []), done] }));
   };
   if (!reasons.length) return void go();

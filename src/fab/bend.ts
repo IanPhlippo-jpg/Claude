@@ -54,6 +54,8 @@ export function bendChecks(b: BendLine, flatWidth: number, t: number, r: number,
   if (b.lengte > cfg.werklengte) out.push(`Plooi ${b.id}: plooilengte ${b.lengte} mm langer dan de werklengte ${cfg.werklengte} mm`);
   const ra = airRadius(v);
   if (Math.abs(r - ra) > 0.2 * ra) out.push(`Plooi ${b.id}: binnenstraal ${dec(r)} mm in het model, de matrijs V${v.toFixed(0)} geeft ongeveer ${dec(ra)} mm`);
+  // a sharp bend needs a sharp punch and die: the standard 84 degree punch (AANNAME) does not reach (docs/37 N-7)
+  if (180 - b.hoek < 84) out.push(`Plooi ${b.id}: binnenhoek ${dec(180 - b.hoek)} graden, vraagt een spitse stempel en matrijs (30 graden), geen standaard 84 graden`);
   return out;
 }
 
@@ -71,16 +73,17 @@ export function collides(bends: BendLine[], flatWidth: number, done: Set<number>
   const walk = (side: 1 | -1): { x: number; y: number }[] => {
     const pts: { x: number; y: number }[] = [];
     let x = 0, y = 0, ang = side > 0 ? half : Math.PI - half;
-    let k = ci, pos = sorted[ci].s;
+    let k = ci, pos = sorted[ci].s, bent = false;
     for (;;) {
       const nk = k + side;
       const end = nk >= 0 && nk < sorted.length ? sorted[nk].s : side > 0 ? flatWidth : 0;
       const L = Math.abs(end - pos);
-      for (let d = 1; d <= L; d += 1) pts.push({ x: x + d * Math.cos(ang), y: y + d * Math.sin(ang) });
+      // the legs of the bend itself lie along the punch flanks: that is the tool, no collision (docs/37 N-7)
+      if (bent) for (let d = 1; d <= L; d += 1) pts.push({ x: x + d * Math.cos(ang), y: y + d * Math.sin(ang) });
       x += L * Math.cos(ang); y += L * Math.sin(ang);
       if (nk < 0 || nk >= sorted.length) break;
       const b = sorted[nk];
-      if (done.has(b.id)) ang += side * (b.richting === 'op' ? 1 : -1) * sigma * (b.hoek * Math.PI) / 180;
+      if (done.has(b.id)) { ang += side * (b.richting === 'op' ? 1 : -1) * sigma * (b.hoek * Math.PI) / 180; bent = true; }
       k = nk; pos = b.s;
     }
     return pts;

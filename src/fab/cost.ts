@@ -11,7 +11,8 @@ import type { SawLine } from './sawList';
 import type { BarPlan } from './barNest';
 import type { FlatPart } from './flat';
 import { profileById, materialKey } from './catalog';
-import { toCent } from './format';
+import { usedSheet } from './nest';
+import { euro, toCent } from './format';
 import { num } from './format';
 
 export interface CostInput {
@@ -125,10 +126,15 @@ export function costModel(inp0: CostInput): CostModel {
     const nest = S.rates.plaatModus === 'nest' ? inp.nests?.find((x) => x.materiaal === f.materiaal && Math.abs(x.t - f.t) < 1e-6 && x.bladen.length) : undefined;
     if (nest) {
       const groupArea = inp.flats.filter((x) => x.materiaal === f.materiaal && Math.abs(x.t - f.t) < 1e-6 && x.betrouwbaar !== 'geen').reduce((t, x) => t + x.n * x.oppervlak, 0);
-      const sheetKg = nest.bladen.reduce((t, b) => t + (b.l * b.b * f.t * f.dichtheid) / 1e9, 0);
+      // the used part of each sheet: the remnant of the last sheet goes back to stock and is not charged (docs/37 N-6)
+      const used = nest.bladen.map((b) => usedSheet(b, nest.instellingen.rand));
+      const sheetKg = used.reduce((t, u) => t + (u.l * u.b * f.t * f.dichtheid) / 1e9, 0);
       const share = groupArea ? (f.n * f.oppervlak) / groupArea : 0;
+      const last = nest.bladen[nest.bladen.length - 1], lu = used[used.length - 1];
+      const [rl, rb] = lu.l < last.l ? [last.l - lu.l, last.b] : [last.l, last.b - lu.b];
+      const rest = rl * rb > 1 ? `; restplaat ${num(rl, 0, false)} x ${num(rb, 0, false)} terug naar voorraad` : '';
       regels.push(line(`plaat:${f.key}`, 'plaat', `${pos} ${f.naam}: plaat ${mk} ${num(f.t, f.t % 1 ? 1 : 0)} mm, ${num(share * 100, 0)} % van ${nest.bladen.length} geneste` +
-        ` bla${nest.bladen.length === 1 ? 'd' : 'den'} (aandeel van het blad)`,
+        ` bla${nest.bladen.length === 1 ? 'd' : 'den'} (aandeel van het gebruikte deel${rest})`,
         share * sheetKg, 'kg', kg ? kg.waarde : null, kg ? [kg] : [], keys));
     } else {
       regels.push(line(`plaat:${f.key}`, 'plaat',
@@ -190,8 +196,10 @@ export function costModel(inp0: CostInput): CostModel {
     regels.push(line('verpakking', 'overhead', 'Verpakking', 1, 'st', F.verpakking.waarde, [F.verpakking], [], true));
     // the percentages follow Ian's overrides of the other lines (docs/37 P3)
     const sub = regels.reduce((t, l) => t + (inp.overrides?.[l.id]?.bedragCent ?? l.bedragCent), 0) / 100;
-    regels.push(line('garantie', 'overhead', `Garantie ${num(F.garantiePct.waarde, 1)} %`, F.garantiePct.waarde, '%', sub / 100, [F.garantiePct], []));
-    regels.push(line('verzekering', 'overhead', `Verzekering ${num(F.verzekeringPct.waarde, 1)} %`, F.verzekeringPct.waarde, '%', sub / 100, [F.verzekeringPct], []));
+    // the amount is the percentage of the subtotal, rounded once (docs/37 N-5); the percentage is in the text
+    const pct = (id: string, naam: string, p: typeof F.garantiePct) =>
+      line(id, 'overhead', `${naam} ${num(p.waarde, p.waarde % 1 ? 1 : 0)} % van ${euro(toCent(sub))}`, 1, 'post', (sub * p.waarde) / 100, [p], []);
+    regels.push(pct('garantie', 'Garantie', F.garantiePct), pct('verzekering', 'Verzekering', F.verzekeringPct));
   }
   for (const [i, v] of (inp.vrij ?? []).entries()) regels.push({ ...line(`vrij:${i}`, 'vrij', v.omschrijving, 1, 'st', v.bedragCent / 100, [{ waarde: v.bedragCent, eenheid: '€',
     bron: 'vrije regel van de gebruiker', aanname: false, datum: '' }], []), prijsDatum: undefined });

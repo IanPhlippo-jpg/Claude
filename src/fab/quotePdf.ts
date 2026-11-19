@@ -66,7 +66,7 @@ export function quoteDoc(q: Quote, o: QuotePdfOptions): PdfDoc {
   const rowH = (r: (typeof rows)[number]) => 4.6 * r.lines.length + 1.2;
   const totals = vatTotals(q.regels, q.btwRegime);
   const totalsH = 14 + 5 * Math.max(1, totals.perTarief.length * 2) + (q.btwRegime === 'normaal' ? 0 : 10);
-  const BOTTOM = 262;
+  const BOTTOM = 268; // the draft line sits at 274, the footer at 280
   // page 1 head
   const pages: PdfPage[] = [];
   const newPage = () => { const p = doc.page(); pages.push(p); return p; };
@@ -92,7 +92,7 @@ export function quoteDoc(q: Quote, o: QuotePdfOptions): PdfDoc {
   y += 4;
   if (q.configuratie) { p.text(L, y + 2, `Configuratie: ${q.configuratie}`, { size: 8, color: GREY }); y += 4; }
   if (o.image) {
-    const w = 60, h = (60 * o.image.h) / o.image.w;
+    const w = 50, h = (50 * o.image.h) / o.image.w;
     p.jpeg(o.image.jpeg, o.image.w, o.image.h, R - w, y, w, h);
     y += h + 4;
   }
@@ -117,40 +117,48 @@ export function quoteDoc(q: Quote, o: QuotePdfOptions): PdfDoc {
     y += rowH(r);
     p.line(L, y - 3.4, R, y - 3.4, { w: 0.1, color: [0.85, 0.85, 0.85] });
   });
-  if (y + totalsH > BOTTOM) { p = newPage(); y = 30; }
-  // totals
+  // totals on the right and "voor akkoord" beside them on the left, so a short quote stays on one page (docs/37 N-8)
+  if (y + Math.max(totalsH, 32) > BOTTOM) { p = newPage(); y = 30; }
   y += 3;
-  const tl = 120;
+  const yTot = y, tl = 120;
+  p.rect(L, yTot - 2, 85, 26, { stroke: [0.6, 0.6, 0.6], w: 0.2 });
+  p.text(L + 3, yTot + 3, 'Voor akkoord (naam, datum, handtekening)', { bold: true, size: 8.5 });
   const tot = (label: string, v: string, bold = false) => { p.text(tl, y, label, { size: 9, bold }); p.text(R, y, v, { size: 9, bold, align: 'right' }); y += 5; };
   tot('Subtotaal excl. btw', euro(totals.exclCent));
   if (q.btwRegime === 'normaal') {
     for (const t of totals.perTarief) { tot(`Maatstaf ${t.tarief} %`, euro(t.maatstafCent)); tot(`Btw ${t.tarief} %`, euro(t.btwCent)); }
     p.line(tl, y - 3.5, R, y - 3.5, { w: 0.3 });
     tot('Totaal incl. btw', euro(totals.inclCent), true);
-    if (totals.perTarief.some((x) => x.tarief === 6)) { y += 1; for (const t of wrapAt(SIX_NOTE, 8.5, R - L)) { p.text(L, y, t, { size: 8 }); y += 4; } }
   } else {
     p.line(tl, y - 3.5, R, y - 3.5, { w: 0.3 });
     tot('Totaal', euro(totals.inclCent), true);
-    y += 1;
-    for (const t of wrapAt(q.btwRegime === 'verlegd' ? `Btw verlegd. ${o.verlegdTekst}` : o.vrijgesteldTekst, 9, R - L)) { p.text(L, y, t, { size: 8.5 }); y += 4.4; }
   }
-  // conditions block
-  const block = (title: string, text: string) => {
-    const lines = text.split('\n').flatMap((t) => wrapAt(t, 8.5, R - L));
-    if (y + 6 + 4.2 * lines.length > BOTTOM) { p = newPage(); y = 30; }
-    y += 3;
-    p.text(L, y, title, { bold: true, size: 9 });
-    y += 4.6;
-    for (const t of lines) { p.text(L, y, t, { size: 8.5 }); y += 4.2; }
-  };
-  block('Leveringstermijn', q.levertermijn);
-  block('Betaling', q.betaling);
-  block('Geldigheid', `Deze offerte is geldig tot ${date(q.geldigTot)}.`);
-  block('Voorwaarden', q.voorwaarden);
-  if (y + 32 > BOTTOM) { p = newPage(); y = 30; }
-  y += 6;
-  p.rect(L, y, 85, 26, { stroke: [0.6, 0.6, 0.6], w: 0.2 });
-  p.text(L + 3, y + 5, 'Voor akkoord (naam, datum, handtekening)', { bold: true, size: 8.5 });
+  y = Math.max(y, yTot + 27);
+  const note = q.btwRegime === 'normaal' ? (totals.perTarief.some((x) => x.tarief === 6) ? SIX_NOTE : '')
+    : q.btwRegime === 'verlegd' ? `Btw verlegd. ${o.verlegdTekst}` : o.vrijgesteldTekst;
+  if (note) { y += 1; for (const t of wrapAt(note, 8.5, R - L)) { p.text(L, y, t, { size: 8 }); y += 4; } }
+  // lead time, payment and validity side by side; the terms in small print under them
+  const colW = (R - L - 8) / 3;
+  const three: [string, string][] = [['Leveringstermijn', q.levertermijn], ['Betaling', q.betaling], ['Geldigheid', `Deze offerte is geldig tot ${date(q.geldigTot)}.`]];
+  const wrapped = three.map(([, t]) => t.split('\n').flatMap((x) => wrapAt(x, 8, colW)));
+  const threeH = 8 + 3.8 * Math.max(...wrapped.map((w) => w.length));
+  if (y + threeH > BOTTOM) { p = newPage(); y = 30; }
+  y += 4;
+  three.forEach(([title], k) => {
+    const x = L + k * (colW + 4);
+    p.text(x, y, title, { bold: true, size: 8.5 });
+    wrapped[k].forEach((t, j) => p.text(x, y + 4.4 + 3.8 * j, t, { size: 8 }));
+  });
+  y += threeH;
+  const terms = q.voorwaarden.split('\n').flatMap((t) => wrapAt(t, 7.5, R - L));
+  if (y + 5 + 3.4 * Math.min(terms.length, 4) > BOTTOM) { p = newPage(); y = 30; }
+  p.text(L, y, 'Voorwaarden', { bold: true, size: 8.5 });
+  y += 4.2;
+  for (const t of terms) {
+    if (y > BOTTOM) { p = newPage(); y = 30; }
+    p.text(L, y, t, { size: 7.5 });
+    y += 3.4;
+  }
   // every page: footer, page number, draft mark
   pages.forEach((pg, k) => {
     pg.line(L, 280, R, 280, { w: 0.2, color: [0.6, 0.6, 0.6] });

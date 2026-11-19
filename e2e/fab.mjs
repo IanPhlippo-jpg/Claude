@@ -153,6 +153,28 @@ check('all plates as ZIP', zip.name.endsWith('laser.zip') && zip.bytes[0] === 0x
 await big('Nest').click();
 await page.waitForSelector('[data-testid="fab-view-nest"] svg');
 await shot('13-nest-sheet');
+// docs/37 ch. 9 P3.6: the nest ran in the worker and Cancel Nesting is off again; P3.9: a piece dragged over the border
+// turns red and blocks the export, dragged back it is fine
+const cancelOff = await page.locator('.k-cm-small:has(span:text-is("Cancel Nesting"))').first().evaluate((el) => el.classList.contains('disabled') || el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true');
+check('P3.6: after nesting Cancel Nesting is off again', cancelOff);
+const piece = page.locator('[data-testid="fab-nest-piece"]').first();
+const pb = await piece.boundingBox();
+await page.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2);
+await page.mouse.down();
+await page.mouse.move(pb.x + pb.width / 2 - pb.width * 0.6, pb.y + pb.height / 2, { steps: 5 });
+await page.mouse.up();
+await frames(page, 3);
+check('P3.9: a piece dragged over the border of the sheet is red', (await page.locator('[data-testid="fab-nest-piece-bad"]').count()) === 1);
+await shot('13b-nest-piece-moved-red');
+const bad = page.locator('[data-testid="fab-nest-piece-bad"]').first(), bb = await bad.boundingBox();
+// a piece over the edge stays visible (red); dragged well inside the sheet
+await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2);
+await page.mouse.down();
+await page.mouse.move(bb.x + bb.width / 2 + pb.width * 1.5, bb.y + bb.height / 2, { steps: 5 });
+await page.mouse.up();
+await frames(page, 3);
+await shot('13c-nest-piece-moved-back');
+check('P3.9: dragged back inside the sheet it is fine again', (await page.locator('[data-testid="fab-nest-piece-bad"]').count()) === 0);
 
 // ---- PP2 L profile and the hat profile: bend sequence
 await open('e2e/fixtures/fab/PP2-L-profiel.kcad');
@@ -167,6 +189,7 @@ await tab('Laser & Bend');
 await big('Bend Sequence').click();
 await page.waitForSelector('[data-testid="fab-bend-step"]', { timeout: 60000 });
 check('hat profile: 4 bend steps', (await page.locator('[data-testid="fab-bend-step"]').count()) === 4);
+check('P4.7: the hat shows the flat and its state after each of the 4 steps', (await page.locator('[data-testid="fab-bend-state"]').count()) === 5);
 await shot('15-bend-sequence-hat');
 
 // ---- the door handle: nothing but "No cost assigned", no error

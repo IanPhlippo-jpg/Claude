@@ -36,8 +36,97 @@ function cilinderY(naam, mat, x, z, r, y0, y1) {
 }
 function blokZ(naam, mat, x0, y0, x1, y1, z0, z1) { return plaatDeel(naam, mat, [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], z0, z1); }
 
-/** de samenstelling van een ontwerp (deuren.ontwerp) */
-export function samenstelling(o, naam) {
+// ---------------------------------------------------------------- werkplaatsmodel (optie werkplaats; de standaarduitvoer blijft gelijk)
+const KOOP = { 'fab.soort': 'koop' };
+const r3 = (v) => Math.round(v * 1000) / 1000;
+/** de wanddikte van een koker uit zijn staafsleutel ('koker40x40x2' -> 2), anders null (massief of koopprofiel) */
+const wandVan = (staaf) => { const m = /^koker\d+x\d+x(\d+(?:\.\d+)?)$/.exec(staaf ?? ''); return m ? Number(m[1]) : null; };
+/** een boss als eigen lichaam in een onderdeel met meer lichamen (een gelaste groep); geeft het id van de feature */
+function lichaam(ond, plane, teken, diepte, naam) {
+  ond.schets(plane, teken);
+  ond.extrude('boss', diepte, { naam });
+  const f = ond.features[ond.features.length - 1];
+  f.merge = false;
+  return f.id;
+}
+/** een staafdeel in een gelaste groep: een koker hol (de holte alleen in dit lichaam, open aan beide uiteinden), de rest vol */
+function staafIn(ond, d, w, t, wand, dx, dy, B, H, naam) {
+  if (!d.a) {
+    const r1 = d.r + w / 2, r0 = d.r - w / 2, c = [d.c[0] + dx, d.c[1] + dy], gm = (d.g0 + d.g1) / 2;
+    const P = (r, g) => [c[0] + r * Math.cos((g * Math.PI) / 180), c[1] + r * Math.sin((g * Math.PI) / 180)];
+    lichaam(ond, zv(-t / 2, `Plane ${naam}`), (s) => s.pad([P(r1, d.g0), { boog: c, naar: P(r1, gm), ccw: true }, { boog: c, naar: P(r1, d.g1), ccw: true }, P(r0, d.g1),
+      { boog: c, naar: P(r0, gm), ccw: false }, { boog: c, naar: P(r0, d.g0), ccw: false }, P(r1, d.g0)]), t, naam);
+    return;
+  }
+  const id = lichaam(ond, zv(-t / 2, `Plane ${naam}`), (s) => s.lus(veelhoek(d, w, B, H).map(([x, y]) => [r3(x + dx), r3(y + dy)])), t, naam);
+  if (!wand) return;
+  // de holte rond de hartlijn, een zichtbreedte voorbij elk uiteinde; Feature Scope = dit lichaam, zodat het verstek van de buur heel blijft
+  const ex = d.b[0] - d.a[0], ey = d.b[1] - d.a[1], l = Math.hypot(ex, ey), u = [ex / l, ey / l], nv = [-u[1], u[0]], h = w / 2 - wand;
+  const A = [d.a[0] + dx - u[0] * w, d.a[1] + dy - u[1] * w], E = [d.b[0] + dx + u[0] * w, d.b[1] + dy + u[1] * w];
+  ond.schets(zv(-t / 2 + wand, `Plane ${naam} holte`), (s) => s.lus([[A[0] + nv[0] * h, A[1] + nv[1] * h], [E[0] + nv[0] * h, E[1] + nv[1] * h], [E[0] - nv[0] * h, E[1] - nv[1] * h],
+    [A[0] - nv[0] * h, A[1] - nv[1] * h]].map(([x, y]) => [r3(x), r3(y)])));
+  ond.extrude('cut', t - 2 * wand, { naam: `${naam} holte` });
+  ond.features[ond.features.length - 1].scope = [`${id}#0`];
+}
+/** een rechte lat met doorsnede `sec` ([[n, z], ...]: n dwars naar het glas toe, z in de diepte) langs a -> b */
+function latIn(ond, naam, a, b, binnen, sec) {
+  const l = Math.hypot(b[0] - a[0], b[1] - a[1]), u = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+  const pl = vlak(`l${++tel}`, `Plane ${naam}`, [a[0], a[1], 0], [u[0], u[1], 0], 'reference');
+  lichaam(ond, pl, (s) => s.lusW(sec.map(([q, z]) => [a[0] + binnen[0] * q, a[1] + binnen[1] * q, z])), l, naam);
+}
+/** de glaslatten van een ruit (lat 15 x 4 voor, gelast; hoeklijn 15 x 15 x 3 achter, geschroefd): een stuk per zijde op de binnenrand */
+function glaslatten(o, v, p, voor, achter, k) {
+  const gz = (o.glasDikte ?? 8.8) / 2, op = (q) => Math.abs(q[0] - k) < 0.01 || Math.abs(q[0] - (v.B - k)) < 0.01 || Math.abs(q[1] - k) < 0.01
+    || Math.abs(q[1] - (v.H - k)) < 0.01;
+  const mx = p.reduce((s, q) => s + q[0], 0) / p.length, my = p.reduce((s, q) => s + q[1], 0) / p.length;
+  p.forEach((a, i) => {
+    const b = p[(i + 1) % p.length], l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (!op(a) || !op(b) || l < 20 || (Math.abs(a[0] - b[0]) > 0.01 && Math.abs(a[1] - b[1]) > 0.01)) return;
+    const u = [(b[0] - a[0]) / l, (b[1] - a[1]) / l], nn = [-u[1], u[0]], s = (mx - a[0]) * nn[0] + (my - a[1]) * nn[1] > 0 ? 1 : -1, binnen = [nn[0] * s, nn[1] * s];
+    const A = [a[0] + v.x, a[1] + v.y], B = [b[0] + v.x, b[1] + v.y];
+    latIn(voor, `Glaslat voor ${Math.round(l)}`, A, B, binnen, [[0, gz], [4, gz], [4, gz + 15], [0, gz + 15]]);
+    latIn(achter, `Glaslat achter ${Math.round(l)}`, A, B, binnen, [[0, -gz - 15], [3, -gz - 15], [3, -gz - 3], [15, -gz - 3], [15, -gz], [0, -gz]]);
+  });
+}
+/**
+ * het werkplaatsmodel (docs/36 LF4 en OA2): het kozijn en elke vleugel als één gelast onderdeel met een lichaam per
+ * staaf (kokers hol met de wand uit hun staaf), de glaslatten voor gelast in de vleugel en de hoeklijnen achter als
+ * eigen (geschroefd) onderdeel; glas en taatsbeslag koopdelen (eigenschap fab.soort = koop); greep zoals in het model.
+ */
+function werkplaats(o, naam) {
+  const basis = samenstelling(o, naam), sys = o.sys, comps = [];
+  let n = 0;
+  const at = (nm, doc) => comps.push(component(`c${++n}`, `${nm}<1>`, doc, [0, 0, 0]));
+  const maat = (soort) => (soort === 'roede' || soort === 'boog' ? sys.roede : soort === 'kozijn' || soort === 'boogkozijn' ? sys.kozijn : sys.kader);
+  const groep = (ond, delen, dx, dy, B, H, wat) => delen.forEach((d, i) => {
+    const m = maat(d.soort);
+    staafIn(ond, d, m.zicht, m.diepte, d.soort === 'kader' || d.soort === 'kozijn' ? wandVan(m.staaf) : null, dx, dy, B, H, `${wat} ${d.soort} ${i + 1}`);
+  });
+  const kz = new Onderdeel('Kozijn', STAAL);
+  groep(kz, o.kozijn.delen, 0, 0, o.kozijn.B, o.kozijn.H, 'Kozijn');
+  at('Kozijn', kz.doc());
+  for (const [wat, lijst] of [['Vleugel', o.vleugels], ['Vast', o.vast]]) for (const [i, v] of lijst.entries()) {
+    const nm = `${wat}${lijst.length > 1 ? ` ${i + 1}` : ''}`, ond = new Onderdeel(nm, STAAL), achter = new Onderdeel(`${nm} glaslatten achter`, STAAL);
+    groep(ond, v.delen, v.x, v.y, v.B, v.H, nm);
+    for (const [j, p] of (v.panelen ?? []).entries()) lichaam(ond, zv(-1.5, `Plane ${nm} paneel ${j + 1}`), (s) => s.lus(p.map(([x, y]) => [r3(x + v.x), r3(y + v.y)])), 3, `Paneel ${j + 1}`);
+    if (sys.glaslat.achter && !sys.koop) for (const p of v.ruiten) glaslatten(o, v, p, ond, achter, wat === 'Vleugel' ? sys.kader.zicht : 0);
+    at(nm, ond.doc());
+    if (achter.features.length) at(`${nm} glaslatten achter`, achter.doc());
+  }
+  for (const c of basis.components) {
+    if (/^(Kozijn|Vleugel|Vast|Paneel) /.test(c.name)) continue;
+    comps.push({ ...c, id: `c${++n}`, part: /^(Glas|Taatspot|Taatsas|Bovenpen)/.test(c.name) ? { ...c.part, properties: KOOP } : c.part });
+  }
+  return { ...basis, components: comps, transparentBodies: comps.filter((c) => /^Glas/.test(c.name)).map((c) => c.id) };
+}
+
+/**
+ * de samenstelling van een ontwerp (deuren.ontwerp). opts.werkplaats (de werkplaatsextensies, docs/36 LF4 en OA2): de
+ * kokers hol met hun wanddikte uit de staaf, de glaslatten voor en achter als staven, en glas en taatsbeslag als
+ * koopdelen (eigenschap fab.soort = koop). Zonder de optie is de uitvoer ongewijzigd.
+ */
+export function samenstelling(o, naam, opts = {}) {
+  if (opts.werkplaats) return werkplaats(o, naam);
   const comps = [], sys = o.sys, glasIds = [];
   let n = 0;
   const at = (nm, doc) => comps.push(component(`c${++n}`, `${nm}<1>`, doc, [0, 0, 0]));

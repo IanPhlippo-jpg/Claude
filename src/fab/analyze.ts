@@ -7,6 +7,7 @@ import type { Document } from '../core/document/types';
 import type { RebuildResult } from '../core/features/rebuild';
 import type { FabDocData, Recognition, WeldJoint } from './types';
 import type { FabSettings } from './settings';
+import { sharpEdges } from './weldEdge';
 import { documentBodies, documentHash, type FabBody } from './bodies';
 import { recognizeAll } from './recognize';
 import { sawList, sawPlans, type SawLine } from './sawList';
@@ -99,10 +100,21 @@ export function weldPlanInput(r: Pick<FabResult, 'recs' | 'saw' | 'flats' | 'bod
   r.flats.forEach((f, i) => { if (!label.has(f.key)) label.set(f.key, `P${i + 1}`); });
   const names = new Map(r.recs.map((x) => [x.key, x.naam]));
   const naam = (k: string) => label.get(k) ?? names.get(k) ?? k;
-  const view = r.bodies.filter((b) => !b.path.length || b.path.length === 1).map((b) => {
+  const shown = r.bodies.filter((b) => !b.path.length || b.path.length === 1);
+  // the view looks along the smallest extent of the whole construction, as weldPlanPdf draws the two largest
+  const glo = [Infinity, Infinity, Infinity], ghi = [-Infinity, -Infinity, -Infinity];
+  for (const b of shown) for (let i = 0; i < b.soup.length; i += 3) for (let k = 0; k < 3; k++) { glo[k] = Math.min(glo[k], b.soup[i + k]); ghi[k] = Math.max(ghi[k], b.soup[i + k]); }
+  const depth = [0, 1, 2].sort((a, c) => (ghi[a] - glo[a]) - (ghi[c] - glo[c]))[0];
+  const along: [number, number, number] = [0, 0, 0];
+  along[depth] = 1;
+  const view = shown.map((b) => {
     const lo: [number, number, number] = [Infinity, Infinity, Infinity], hi: [number, number, number] = [-Infinity, -Infinity, -Infinity];
     for (let i = 0; i < b.soup.length; i += 3) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], b.soup[i + k]); hi[k] = Math.max(hi[k], b.soup[i + k]); }
-    return { key: b.key, lo, hi };
+    // the sharp edges of the body for a real projection of the view (docs/37 ch. 9); the longest 1500 per body (CSG seams are short)
+    const len = (e: { a: number[]; b: number[] }) => Math.hypot(e.a[0] - e.b[0], e.a[1] - e.b[1], e.a[2] - e.b[2]);
+    const randen = sharpEdges(b, along).filter((e) => len(e) > 0.5).sort((x, y) => len(y) - len(x)).slice(0, 1500)
+      .map((e) => [e.a, e.b] as [[number, number, number], [number, number, number]]);
+    return { key: b.key, lo, hi, randen };
   });
   return { naam, view };
 }

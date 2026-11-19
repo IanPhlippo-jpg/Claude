@@ -246,7 +246,8 @@ function shifted(p: PdfPage, dx: number): PdfPage {
   } as PdfPage;
 }
 
-export interface WeldView { key: string; lo: [number, number, number]; hi: [number, number, number] }
+export interface WeldView { key: string; lo: [number, number, number]; hi: [number, number, number]; /** sharp edges for the projection */ randen?: [V3w, V3w][] }
+type V3w = [number, number, number];
 
 /**
  * The weld plan (A4 landscape): a view of the construction with the numbered joints, the table with the positions of
@@ -266,14 +267,20 @@ export function weldPlanPdf(joints0: WeldJoint[], steps: WeldStep[], exc: Execut
     const [ax, ay] = [0, 1, 2].sort((a, b) => ext[b] - ext[a]).slice(0, 2).sort((a, b) => a - b);
     const k = Math.min(120 / Math.max(1, ext[ax]), 60 / Math.max(1, ext[ay]));
     const X = (v: number) => 20 + (v - lo[ax]) * k, Y = (v: number) => 30 + 62 - (v - lo[ay]) * k;
-    for (const v of view) pg.p.rect(X(v.lo[ax]), Y(v.hi[ay]), (v.hi[ax] - v.lo[ax]) * k, (v.hi[ay] - v.lo[ay]) * k, { stroke: [0.3, 0.3, 0.3], w: 0.2, fill: [0.95, 0.95, 0.95] });
+    // a projection of the edges of every body on the plane of the two largest directions (wireframe, no hidden lines
+    // removed); a body without edges as its box
+    for (const v of view) {
+      if (v.randen?.length) for (const [a, b] of v.randen) pg.p.line(X(a[ax]), Y(a[ay]), X(b[ax]), Y(b[ay]), { w: 0.15, color: [0.3, 0.3, 0.3] });
+      else pg.p.rect(X(v.lo[ax]), Y(v.hi[ay]), (v.hi[ax] - v.lo[ax]) * k, (v.hi[ay] - v.lo[ay]) * k, { stroke: [0.3, 0.3, 0.3], w: 0.2, fill: [0.95, 0.95, 0.95] });
+    }
     for (const j of joints) {
       if (!j.punt) continue;
       const cx = X(j.punt[ax]), cy = Y(j.punt[ay]);
       pg.p.circle(cx, cy, 2.6, { stroke: [0.1, 0.2, 0.6], w: 0.25, fill: [1, 1, 1] });
       pg.p.text(cx, cy + 1, String(j.stap), { size: 6.5, align: 'center', bold: true });
     }
-    pg.p.text(20, 98, 'Aanzicht met de lassen genummerd volgens de kolom Stap (schets, niet op schaal)', { size: 7, color: GREY });
+    const scale = view.some((v) => v.randen?.length) ? `projectie, schaal 1:${num(1 / k, 0)}, draadmodel` : 'schets, niet op schaal';
+    pg.p.text(20, 98, `Aanzicht met de lassen genummerd volgens de kolom Stap (${scale})`, { size: 7, color: GREY });
     yTable = 106;
   }
   const newPage = () => { pg.p = doc.page(); frame(doc, pg.p, m, NL.lasplan, status); return 30; };

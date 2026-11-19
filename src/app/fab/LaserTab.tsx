@@ -5,11 +5,11 @@
 import { useShallow } from 'zustand/react/shallow';
 import { BigButton as Big, Group, SmallButton as Small } from '../ribbon/Ribbon';
 import { FabIcon } from './fabIcons';
-import { exportBendSheet, exportDxf, exportNest, isStale, open, openSettings, runNest, useFab } from './fabStore';
+import { cancelNest, exportBendSheet, exportDxf, exportNest, isStale, open, openSettings, runNest, useFab } from './fabStore';
 import './fab.css';
 
 export function LaserTab() {
-  const st = useFab(useShallow((s) => ({ view: s.view, has: !!s.result, stale: isStale(s), nests: s.nests.length })));
+  const st = useFab(useShallow((s) => ({ view: s.view, has: !!s.result, stale: isStale(s), nests: s.nests.length, busy: s.nestBusy })));
   return (
     <>
       <Group>
@@ -26,7 +26,7 @@ export function LaserTab() {
       <Group>
         <Big label="Nest" icon={<FabIcon.Nest />} active={st.view === 'nest'} onClick={() => { open('nest', 'nest'); runNest(); }} />
         <div className="k-cm-col">
-          <Small label="Cancel Nesting" icon={<FabIcon.Cancel />} disabled onClick={() => undefined} />
+          <Small label="Cancel Nesting" icon={<FabIcon.Cancel />} disabled={!st.busy} onClick={() => cancelNest()} />
           <Small label="Nest PDF" icon={<FabIcon.Nest />} disabled={!st.nests} onClick={() => void exportNest('pdf')} />
         </div>
       </Group>

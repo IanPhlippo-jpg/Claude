@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { loopPolygon } from './checks';
 import { rebuildDocument, setRebuildBudget } from '../core/features/rebuild';
 import { edgeRef } from '../core/features/edgesets';
 import { addCircle, createSketch } from '../core/sketch/model';
 import type { Document, Feature } from '../core/document/types';
 import { partBodies } from './bodies';
 import { recognize } from './recognize';
-import { circleLoop, fitArcs, flatOfPlate, flatOfSheet, genus, loopAreaB, loopLen, plateData } from './flat';
+import { circleLoop, fitArcs, flatOfPlate, flatOfSheet, loopAreaB, loopLen, plateData } from './flat';
 import { DXF_DEFAULTS, dxfFileName, plateDxf } from './dxf';
 import { readDxf } from '../core/exchange/dxfRead';
 import { din6935K } from './bend';
@@ -75,8 +76,8 @@ describe('P1 flat parts (docs/36 4.6)', () => {
     expect(f.kBron).toMatch(/DIN 6935, K = 0\.325/);
   });
 
-  it('P1.4 / W4 measured: a tab with edge flanges has no flat pattern at all; an L with an edge flange loses its holes, so the flat is refused', () => {
-    // measurement 1: base flange from a closed sketch (tab) + two edge flanges: the core refuses the flat pattern
+  it('P1.4 the general unfolder: a tray from a tab with two edge flanges and an L with an edge flange and a hole unfold exactly', () => {
+    // the model's own Flat-Pattern unfolds only bends of the base flange (W4); these go through unfoldMesh.ts
     const d = pp3Tab();
     const r0 = rebuildDocument(d);
     const long = r0.bodies[0].edges.filter((x) => x.straight && Math.abs(x.length - 120) < 1e-3);
@@ -86,29 +87,35 @@ describe('P1 flat parts (docs/36 4.6)', () => {
     d.features.push(flange('ef1', e1), flange('ef2', e2));
     expect(rebuildDocument(d).errors).toEqual({});
     const tray = flatOfSheet(d, partBodies(d)[0], 'U', 1, 'S235', 'model');
-    expect(tray.betrouwbaar).toBe('geen');
-    expect(tray.fout).toMatch(/Base Flange made from an open sketch/);
-    // measurement 2: L sheet (open chain, bends from the base flange) with a hole: the real unfold keeps the hole
+    expect(tray.fout).toBeUndefined();
+    expect(tray.betrouwbaar).toBe('exact');
+    // across: 80 - 2 (r + t) + 2 BA + 2 (30 - (r + t)), t = r = 2, K = 0.5: BA = (pi / 2)(2 + 1)
+    const across = 80 - 8 + 2 * (Math.PI / 2) * 3 + 2 * (30 - 4);
+    // measured 133.418 against 133.425: the bends are facets of 7.5 degrees (chord against arc)
+    near(Math.max(tray.bbox.l, tray.bbox.b), across, 0.05);
+    near(Math.min(tray.bbox.l, tray.bbox.b), 120, 0.05);
+    expect(tray.plooien.map((p) => Math.round(p.hoek))).toEqual([90, 90]);
+    expect(new Set(tray.plooien.map((p) => p.richting)).size).toBe(1);
+    expect(tray.kBron).toMatch(/algemene ontvouwer/);
+    // the L with a hole and an edge flange on its free end: the hole is kept now (it was lost by the fallback)
     const l = pp2();
-    const hole = () => { l.sketches.h = addCircle(createSketch('h', 'h', 'top'), { x: 40, y: -100 }, 4)[0];
-      l.features.push({ id: 'hs', type: 'sketch', name: 'Sketch2', sketchId: 'h', suppressed: false } as unknown as Feature,
-        { id: 'hc', type: 'extrude', name: 'Gat', sketchId: 'h', suppressed: false, op: 'cut', end: 'throughAll', depth: 0, reverse: false, direction2: { end: 'throughAll', depth: 0 } } as unknown as Feature); };
-    hole();
-    expect(rebuildDocument(l).errors).toEqual({});
-    // the genus of a CSG mesh is only countable where the mesh is closed (no T junctions)
-    expect([1, null]).toContain(genus(partBodies(l)[0].soup));
-    const withHole = flatOfSheet(l, partBodies(l)[0], 'L', 1, 'S235', 'model');
-    expect(withHole.fout).toBeUndefined();
-    expect(withHole.gaten.length).toBe(1);
-    near(withHole.gaten[0].r, 4, 0.005);
-    // measurement 3: the same L plus an edge flange on its free end: the flat falls back to the developed chain and loses the hole
+    l.sketches.h = addCircle(createSketch('h', 'h', 'top'), { x: 40, y: -100 }, 4)[0];
+    l.features.push({ id: 'hs', type: 'sketch', name: 'Sketch2', sketchId: 'h', suppressed: false } as unknown as Feature,
+      { id: 'hc', type: 'extrude', name: 'Gat', sketchId: 'h', suppressed: false, op: 'cut', end: 'throughAll', depth: 0, reverse: false, direction2: { end: 'throughAll', depth: 0 } } as unknown as Feature);
     const ends = rebuildDocument(l).bodies[0].edges.filter((x) => x.straight && Math.abs(x.length - 200) < 1e-3).sort((a, b) => b.centroid.y - a.centroid.y);
     l.features.push({ ...flange('ef', ends[0]) } as Feature);
-    const r = rebuildDocument(l);
-    expect(r.errors).toEqual({});
+    expect(rebuildDocument(l).errors).toEqual({});
     const f = flatOfSheet(l, partBodies(l)[0], 'L', 1, 'S235', 'model');
-    expect(f.betrouwbaar).toBe('geen');
-    expect(f.fout).toMatch(/niet uit de basisflens/);
+    expect(f.fout).toBeUndefined();
+    expect(f.betrouwbaar).toBe('exact');
+    // the hole is kept; from the faceted CSG mesh it comes as a polygon of the facets (not as a circle): its area
+    expect(f.gaten.length + f.binnen.length).toBe(1);
+    const holeArea = f.gaten.length ? Math.PI * f.gaten[0].r ** 2 : Math.abs(loopPolygon(f.binnen[0], 16).reduce((a, p, i, z) => a + (p.x * z[(i + 1) % z.length].y - z[(i + 1) % z.length].x * p.y) / 2, 0));
+    expect(Math.abs(holeArea - Math.PI * 16) / (Math.PI * 16)).toBeLessThan(0.02);
+    expect(f.plooien.length).toBe(2);
+    // area x t of the K = 0.5 flat = the folded volume (the check inside), and the flat is longer than the L alone
+    const plain = flatOfSheet(pp2(), partBodies(pp2())[0], 'L', 1, 'S235', 'model');
+    expect(Math.max(f.bbox.l, f.bbox.b)).toBeGreaterThan(Math.max(plain.bbox.l, plain.bbox.b) - 1);
   });
 
   it('P1.5 every bent test piece: flat area x t = folded volume within 0.5 %', () => {

@@ -4,17 +4,18 @@ import { setRebuildBudget } from '../core/features/rebuild';
 import { createDocument, type Document } from '../core/document/types';
 import { addCircle, addLine, createSketch } from '../core/sketch/model';
 import { parseDocument, serializeDocument, FAB_FILE_VERSION, FILE_VERSION } from '../core/document/persistence';
-import { analyze } from './analyze';
+import { analyze, nestGroups } from './analyze';
 import { defaultSettings } from './settings';
 import { lf1, chainSheet, pp2 } from './fixtures';
 import { perPiece } from './cost';
+import { usedSheet } from './nest';
 import { lineTotal, nextNumber, nextRevision, quoteLines, salePerPiece, vatProblems, newQuote } from './quote';
 import { withoutCustomerData, hasCustomerData } from './privacy';
 import { partBodies } from './bodies';
 import { flatOfSheet } from './flat';
 import { plateDxf, DXF_DEFAULTS } from './dxf';
 import { bendPlan, chainBends, din6935K } from './bend';
-import { reconcileJoints } from './weld';
+import { reconcileJoints, reorderWelds } from './weld';
 import { barNest } from './barNest';
 import { sawList, sawPlans } from './sawList';
 import { recognizeAll } from './recognize';
@@ -37,6 +38,11 @@ describe('B-5 series pricing: the quote of a series charges the per-piece price 
     // never the full single price: set-up shared over the five
     expect(l.prijsCent).toBeLessThan(salePerPiece(m, 30, 1));
     expect(lineTotal(l)).toBe(5 * salePerPiece(m, 30, 5));
+  });
+  it('N-4: the panel shows the sum of the grouping the quote uses: panel x series = quote, to the cent, in every grouping', () => {
+    for (const g of ['een', 'categorie', 'detail'] as const) {
+      expect(5 * salePerPiece(m, 30, 5, g), g).toBe(quoteLines(m, 30, g, 'LF1', 5).reduce((t, l) => t + lineTotal(l), 0));
+    }
   });
   it('the other groupings give the same subtotal within a cent per line', () => {
     const total = (g: 'categorie' | 'detail') => quoteLines(m, 30, g, 'LF1', 5).reduce((t, l) => t + lineTotal(l), 0);
@@ -190,6 +196,28 @@ describe('B-15 doc.fab is checked when a file opens', () => {
   });
 });
 
+describe('N-8 materials and the file check', () => {
+  it('St37, bronze, titanium and a numbered aluminium alloy are metal; cast, spring and alloy steel are no S235', async () => {
+    const { isMetal } = await import('./recognize');
+    const { materialKey } = await import('./catalog');
+    for (const m of ['St37', 'St 52', 'Brons', 'Titaan', 'Titanium', '1060 Alloy', '6061 Alloy']) expect(isMetal(m), m).toBe(true);
+    for (const m of ['Eik', 'PLA', 'Rubber']) expect(isMetal(m), m).toBe(false);
+    expect(materialKey('1060 Alloy')).toBe('aluminium');
+    for (const m of ['Gietstaal', 'Verenstaal', 'Alloy Steel', 'Cast Carbon Steel']) expect(materialKey(m), m).not.toBe('S235');
+    expect(materialKey('Staal S235')).toBe('S235');
+  });
+  it('a weld joint without kind or process and a damaged frozen record are refused when the file opens', () => {
+    const file = (fab: unknown) => JSON.stringify({ ...JSON.parse(serializeDocument(lf1())), fab });
+    const a = analyze(lf1(), defaultSettings());
+    const j = a.joints[0];
+    expect(parseDocument(file({ welds: [j] })).fab?.welds?.length).toBe(1);
+    const { soort: _s, proces: _p, ...bare } = j;
+    expect(() => parseDocument(file({ welds: [bare] }))).toThrow(/fabrication data/);
+    const q = { nummer: '2026-001', datum: '2026-11-19', klant: { naam: 'a', adres: 'b' }, regels: [], bevroren: { op: 'x', hash: 'h', uurloon: 45, kostenregels: [{ id: 'zagen', omschrijving: 'z', bedragCent: 'veel', hoeveelheid: 1 }] } };
+    expect(() => parseDocument(file({ quotes: [q] }))).toThrow(/fabrication data/);
+  });
+});
+
 describe('B-16 saw plan', () => {
   const S = { zaagsnede: 4, afkorten: 0, klem: 0, staafLengte: 6000 };
   it('one piece of 5998 is one bar with lower bound 1; 2998 + 4 + 2998 = 6000 fits one bar', () => {
@@ -254,6 +282,19 @@ describe('B-9 recognition that chose silently', () => {
     const r = recognizeAll(partBodies(strip('Strook', false)))[0];
     expect(r.soort).toBe('profiel');
     expect(r.alternatief).toBe('plaat');
+  });
+  // N-3 (docs/37 ch. 9): the kernel marks the end faces of a long bar as curved; that never makes it a plate
+  for (const [w, h, t] of [[400, 40, 8], [900, 40, 8], [2000, 40, 8], [800, 50, 6], [1200, 60, 10], [2000, 100, 5]] as const) {
+    it(`N-3: plain flat bar ${h} x ${t} x ${w} stays on the saw list`, () => {
+      const r = recognizeAll(partBodies(strip('Platstaaf', false, w, h, t)))[0];
+      expect(r.soort, r.reden).toBe('profiel');
+      expect(r.alternatief).toBe('plaat');
+      expect(analyze(strip('Platstaaf', false, w, h, t), defaultSettings()).saw.length).toBe(1);
+    });
+  }
+  it('N-3: the same 2000 mm bar with two holes is still a plate', () => {
+    const r = recognizeAll(partBodies(strip('Strook', true, 2000, 100, 5)))[0];
+    expect(r.soort).toBe('plaat');
   });
   it('a solid 41 x 41 named "koker 40 x 40" picks no wall: unknown with the candidates', () => {
     const d = strip('Staaf', false, 41, 41, 1200);
@@ -322,6 +363,16 @@ describe('P3 money and small fixes', () => {
     const b = analyze(lf1(), s, { kosten: { zagen: { bedragCent: 100000, reden: 'test' } } });
     expect(b.cost.regels.find((l) => l.id === 'garantie')!.bedragCent).toBeGreaterThan(g0);
   });
+  it('N-5: warranty and insurance are the percentage of the subtotal, rounded once (not 3 x a rounded 1 %)', () => {
+    const s = defaultSettings();
+    s.finishing.garantiePct = { ...s.finishing.garantiePct, waarde: 3 };
+    const a = analyze(lf1(), s);
+    const i = a.cost.regels.findIndex((l) => l.id === 'garantie');
+    const sub = a.cost.regels.slice(0, i).reduce((t, l) => t + l.bedragCent, 0);
+    expect(a.cost.regels[i].bedragCent).toBe(Math.round((sub * 3) / 100));
+    expect(a.cost.regels[i].hoeveelheid).toBe(1);
+    expect(a.cost.regels[i].omschrijving).toMatch(/3 % van € /);
+  });
   it('the degree sign reaches the DXF text as %%d; a VZW needs no RPR', async () => {
     const { DxfWriter } = await import('./dxf');
     const w = new DxfWriter(); w.text('TEKST', { x: 0, y: 0 }, 3, 'hoek 45°');
@@ -367,14 +418,20 @@ describe('P5 price per plate', () => {
     expect(L('snijden')).toBe(Math.round(Math.round(snij * 1e4) / 1e4 * 140));
     expect(L('insteken')).toBe(5 * 25);
   });
-  it('P5.2 the share of the nested sheet: one plate of PP1 on a 1000 x 2000 sheet pays the whole sheet', async () => {
+  it('P5.2 / N-6 the share of the nested sheet: one small plate pays the used strip, the remnant goes back to stock', async () => {
     const s = defaultSettings();
     s.rates.plaatModus = 'nest';
     s.materials.platen = [{ id: 'k', materiaal: '*', t: 0, l: 2000, b: 1000, voorraad: 0, restplaat: false }];
     const a = analyze(await plate(), s);
     const l = a.cost.regels.find((x) => x.categorie === 'plaat')!;
-    expect(l.omschrijving).toMatch(/geneste blad/);
-    near(l.hoeveelheid, (2000 * 1000 * 5 * 7850) / 1e9, 1e-3);
+    expect(l.omschrijving).toMatch(/geneste blad.*restplaat \d+ x \d+ terug naar voorraad/);
+    const whole = (2000 * 1000 * 5 * 7850) / 1e9;
+    // never the whole sheet for one plate (was 78.5 kg); at least the plate itself
+    expect(l.hoeveelheid).toBeLessThan(whole / 4);
+    const f = a.flats[0];
+    expect(l.hoeveelheid).toBeGreaterThanOrEqual((f.oppervlak * 5 * 7850) / 1e9);
+    const n0 = nestGroups(a.flats, s)[0], u = usedSheet(n0.bladen[0], n0.instellingen.rand);
+    near(l.hoeveelheid, (u.l * u.b * 5 * 7850) / 1e9, 1e-3);
   });
   it('P5.3 own machine: time = cut length / speed + pierces x pierce time; no speed is "no price"', async () => {
     const s = defaultSettings();
@@ -397,5 +454,36 @@ describe('L3.7 a Weld Bead of an older file gets a joint of the same size', () =
     d.features.push({ id: 'wb1', type: 'weldBead', name: 'Weld Bead1', suppressed: false, faces: [], size: 5, intermittent: null, from: 0, to: 0 } as never);
     const j = analyze(d, defaultSettings()).joints.find((x) => x.beadFeatureId === 'wb1')!;
     expect(j.maat).toEqual({ letter: 'a', mm: 5 });
+  });
+});
+
+describe('L3.5 dragging a weld step renumbers the order and keeps it', () => {
+  it('step 4 dragged to the front becomes step 2; the rest shift; the order survives saving', () => {
+    const a = analyze(lf1(), defaultSettings(), { exc: 'EXC2' });
+    const order = [...a.joints].sort((x, y) => x.stap - y.stap).map((j) => j.id);
+    const moved = reorderWelds(a.joints, order, order[2], 0)!;
+    const after = [...moved].sort((x, y) => x.stap - y.stap).map((j) => j.id);
+    expect(after).toEqual([order[2], order[0], order[1], ...order.slice(3)]);
+    expect(moved.every((j) => j.bevestigd)).toBe(true);
+    expect(reorderWelds(a.joints, order, order[0], 0)).toBeNull();
+    const d = lf1();
+    d.fab = { exc: 'EXC2', lasvolgordeHandmatig: true, welds: moved };
+    const back = parseDocument(serializeDocument(d));
+    const b = analyze(back, defaultSettings(), back.fab);
+    expect([...b.joints].sort((x, y) => x.stap - y.stap).map((j) => j.id)).toEqual(after);
+  });
+});
+
+describe('weld plan view: a real projection (docs/37 ch. 9)', () => {
+  it('LF1: every member has its projected edges; the post is drawn 40 wide at x = 500, the view looks along the depth', async () => {
+    const { weldPlanInput } = await import('./analyze');
+    const a = analyze(lf1(), defaultSettings(), { exc: 'EXC2' });
+    const { view } = weldPlanInput(a);
+    expect(view.length).toBe(5);
+    for (const v of view) expect(v.randen.length).toBeGreaterThan(4);
+    const post = view.find((v) => v.hi[0] - v.lo[0] < 50 && v.lo[0] > 400 && v.hi[0] < 600)!;
+    const xs = post.randen.flatMap(([p, q]) => [p[0], q[0]]);
+    near(Math.max(...xs) - Math.min(...xs), 40, 0.5);
+    near((Math.max(...xs) + Math.min(...xs)) / 2, 500, 0.5);
   });
 });

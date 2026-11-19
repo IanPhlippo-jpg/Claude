@@ -449,3 +449,43 @@ Telling over de 92 criteria: **63 gehaald, 17 deels, 11 niet gehaald, 1 niet nag
 | O3 offertebeheer | **niet vrijgegeven** tot N-1 en N-2 weg zijn | N-1, N-2 |
 
 Herstelvolgorde: N-1 en N-2 (één plaats, klein), N-3 (één regel plus een test), daarna de P3-lijst.
+
+## 10. Status na hoofdstuk 9 (bouwer, 2026-11-19, niet gecommit)
+
+Gemeten op de werkmap: `tsc` (app) schoon, `vitest run` 186 bestanden / 1330 tests groen, `VOORBEELDEN=1` voor fabVoorbeelden en fabOrakel 15 van 15 groen, `e2e/fab.mjs` zonder fout (nieuw: worker, slepen naar rood en terug, 5 plooistanden), line-budget en line-length groen, hoofdchunk 796,44 kB (budget 800), de nest-worker een eigen chunk van 69 kB. Beelden in `scratchpad/extensies-v3/` (24 schermbeelden, PDF-renders). Elke nieuwe test faalt zonder de wijziging; bij N-1, N-2, N-3, N-7 en N-8 (opslagdialoog) heb ik dat nagegaan door de oude code tijdelijk terug te zetten.
+
+### Nieuwe bevindingen
+
+| Nr | Status | Wat er nu is | Test |
+|---|---|---|---|
+| N-1 | opgelost | Cancel zet `doc.fab` terug maar houdt `quotes` uit de huidige toestand; nummers zitten in een eigen teller | fabStore.test N-1 (export, Cancel, opnieuw: één nummer) |
+| N-2 | opgelost | OK in Fabrication Settings verschuift het snapshot (`confirmSettings`); Cancel van de PM zet alleen marge, btw-regime, staaflengte en zaaginstellingen terug | fabStore.test N-2 |
+| N-3 | opgelost | "gevormd" uit de contour op halve dikte (binnencontour of geen rechthoek), niet uit `faces.curved` | review37: 40x8 x 400/900/2000, 50x6x800, 60x10x1200, 100x5x2000 platstaal; 2000 met gaten plaat |
+| N-4 | opgelost | het paneel toont de som van de gekozen weergave (één regel, per groep, detail), elk afgerond als op de offerte | review37 N-4 (paneel x 5 = offerte, alle drie) |
+| N-5 | opgelost | garantie en verzekering: 1 post, bedrag = % van het subtotaal één keer afgerond, het % in de tekst | review37 N-5 |
+| N-6 | opgelost | plaatmodus "nest" rekent het gebruikte deel van elk blad (strook tot het laatste stuk + rand); de rest staat als "restplaat L x B terug naar voorraad" | review37 P5.2/N-6 |
+| N-7 | opgelost | de benen van de plooi zelf zijn geen botsing (alleen wat na een eerdere plooi komt); een binnenhoek < 84 graden geeft de melding "spitse stempel en matrijs" | nestbend N-7 |
+| N-8 | opgelost | isMetal kent St37/St52, brons, titaan, "1060 Alloy"; gietstaal, verenstaal, alloy steel, Hardox, C45, 42CrMo4 zijn geen S235; validateFab weigert een lasnaad zonder soort/proces/positie/niveau en een beschadigd bevroren record; verlegd met een EU-btw-nummer is een waarschuwing (VIES), geen weigering; een offerte van 4 regels met modelbeeld is 1 pagina (totalen naast "voor akkoord", drie korte blokken naast elkaar, voorwaarden 7,5 pt); na de opslagdialoog gaat het record niet in een ander model dat intussen open is | review37 N-8 (2), quote.test N-8 (2), fabStore.test N-8 |
+
+### Open criteria
+
+| Criterium | Nu | Opmerking |
+|---|---|---|
+| P1.4 algemene ontvouwer | gehaald voor de geteste gevallen | `unfoldMesh.ts`: huid met dikte t, regio's per vlak, uitvouwen om de kreukels, plooistroken op de neutrale vezel. Tray uit tab + 2 randflenzen: 133,418 tegen hand 133,425 (facetten); L + randflens + gat: gat behouden. Controle: oppervlak x t met K = 0,5 tegen het volume (0,5 %) en het aantal gaten uit de wandringen. Het gat komt als veelhoek van de facetten, niet als cirkel. Zomen, jogs, gebogen flenzen niet getest |
+| L2.8, P4.8 tabellen op tekenbladen | grotendeels | Annotation ▸ Tables: "Frame Cut List" en "Bend Table" (de naam "Weldment" verbiedt de uiTekst-toets); rijen = zaagstaat en plooitabel van de PDF; bewaard met de tekening. Niet: ballonnen met positienummers, verversen bij een modelwijziging (opnieuw invoegen ververst), keuze van het plooistuk |
+| L3.5 slepen | gehaald | slepen in de PM en in de FeatureManager-map "Weld Joints"; volgorde blijft na opslaan en openen |
+| FeatureManager-mappen | gehaald | "Weld Joints(n)" en "Quotes(n)" uit `doc.fab` (geen fab-code in de hoofdchunk); dubbelklik opent de view |
+| Lasplan-aanzicht | gehaald | echte projectie van de scherpe en silhouetranden van elk lichaam, schaal 1:N; draadmodel, verborgen lijnen niet weggelaten |
+| P3.6 worker + Cancel | gehaald | nesten in een Web Worker; Cancel Nesting aan zolang hij loopt, stopt hem |
+| P3.9 verschuiven | gehaald | stuk slepen op het blad; overlap of over de rand: rood, export geblokkeerd; status "moved by hand" |
+| P4.7 plooistappen | gehaald | doorsnede na elke stap, gevouwen op de neutrale vezel; oppervlak gelijk binnen 0,06 % (hoed, Z) |
+| L2.6 LF4/LF5 | gehaald | staven per profiel gelijk aan het orakel (TD-01 met holle kokers via een extra generatoroptie `werkplaats`, standaarduitvoer byte-gelijk; FR-13) |
+| L4.4 | gehaald | staal -0,5 % (zaagsnede), zagen gelijk, lassen +0,9 %: de kern vindt nu ook lijncontacten (`weldEdge.ts`, tweezijdig, hechtlassen 50 om 200 op dunne platen); 4 puntcontacten van 3 mm zijn geen naad |
+| O1.6 | deels | staal gelijk, glas/beslag/plaatsen als koop- en vrije regels; arbeid 6,89 u tegen 8,54 u: opspannen, taatsplaten, richten, coater, glazen hebben geen regel in het algemene model |
+| P2.7 | gehaald | 12 van 12 posities gelijk (de achthoek werd een cirkel: `fitArcs` controleert nu de knik) |
+| P3.3, P5.5 | gehaald | 1 blad = orakel; laser +1,2 % (met afstand 0; met de standaardafstand +8,5 %) |
+| P2.8 | niet | DXF nog niet in een externe viewer geopend |
+| O2.9 | deels | geen beeldvergelijking |
+| L1.2, L1.4, L1.5, L1.6, P1.6, P2.6, P4.6 | niet nagemeten | |
+
+Bekend en niet opgelost: lijncontacten korter dan 30 mm worden niet gelast (EN 1993-1-8, 4.5.1), ook waar Ian dat wel zou doen; de ontvouwer neemt de straal uit `doc.sheetMetal`, niet per randflens.

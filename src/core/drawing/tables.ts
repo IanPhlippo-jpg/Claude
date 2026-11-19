@@ -28,7 +28,8 @@ function fitCols(rows: string[][], min: number[]): number[] {
 export function tableGrid(sheet: DrawingSheet, t: NonNullable<DrawingSheet['tables']>[number], descProp = 'Description'): { pos: [number, number]; cols: number[]; rows: string[][]; rowH: number; w: number; h: number } | null {
   const rowH = 6;
   const done = (pos: [number, number], cols: number[], rows: string[][]) => ({ pos, cols, rows, rowH, w: cols.reduce((a, b) => a + b, 0), h: rows.length * rowH });
-  if (t.kind === 'general') {
+  // a General Table, and the Cut List / Bend Table whose cells the fab analysis wrote when they were inserted
+  if (t.kind === 'general' || t.kind === 'cutList' || t.kind === 'bendTable') {
     const rows = t.cells ?? [];
     return done(t.position ?? [30, 80], fitCols(rows, (rows[0] ?? []).map(() => 25)), rows);
   }

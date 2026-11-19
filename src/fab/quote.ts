@@ -34,12 +34,24 @@ export function vatTotals(lines: QuoteLine[], regime: VatRegime): VatTotals {
 /** a quote line amount: quantity x unit price, rounded once */
 export const lineTotal = (l: QuoteLine) => toCent((l.hoeveelheid * l.prijsCent) / 100);
 
+/** the form of a VAT number of another EU member state (country code + 2 to 13 letters or digits); BE is checked by mod 97 */
+export function foreignVat(nr: string): boolean {
+  const n = nr.toUpperCase().replace(/[\s.\-]/g, '');
+  return /^(AT|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK|XI)[0-9A-Z]{2,13}$/.test(n) && /\d{2}/.test(n);
+}
+
 /** the problems that block or warn about a quote: 6 % without the conditions, 6 % without placing */
 export function vatProblems(q: Pick<Quote, 'regels' | 'klant' | 'btwRegime'>): { blokkeert: boolean; tekst: string }[] {
   const out: { blokkeert: boolean; tekst: string }[] = [];
   // reverse charge only to a company with a valid VAT number (docs/37 B-13)
-  if (q.btwRegime === 'verlegd' && (q.klant.soort !== 'bedrijf' || !validEnterpriseNumber(q.klant.btwNummer ?? ''))) {
-    out.push({ blokkeert: true, tekst: 'Btw verlegd kan alleen voor een btw-plichtige klant met een geldig btw-nummer.' });
+  if (q.btwRegime === 'verlegd') {
+    const nr = q.klant.btwNummer ?? '';
+    // a VAT number of another EU country: its form is checked here, its validity only in VIES (docs/37 N-8)
+    if (q.klant.soort === 'bedrijf' && !validEnterpriseNumber(nr) && foreignVat(nr)) {
+      out.push({ blokkeert: false, tekst: `Buitenlands btw-nummer ${nr}: controleer het in VIES; vermelding "Btw verlegd, art. 196 Richtlijn 2006/112/EG". Na te lezen met de boekhouder.` });
+    } else if (q.klant.soort !== 'bedrijf' || !validEnterpriseNumber(nr)) {
+      out.push({ blokkeert: true, tekst: 'Btw verlegd kan alleen voor een btw-plichtige klant met een geldig btw-nummer.' });
+    }
   }
   if (q.btwRegime !== 'normaal') return out;
   const six = q.regels.filter((l) => l.btw === 6);
@@ -91,7 +103,11 @@ export function quoteLines(m: CostModel, marge: number, group: Grouping, onderwe
 }
 
 /** the sale price per piece of a series (excl. VAT, rounded to the cent): what the Cost panel shows and the quote charges */
-export const salePerPiece = (m: CostModel, marge: number, q: number) => quoteLines(m, marge, 'een', '', q).find((l) => l.hoeveelheid === Math.max(1, q))?.prijsCent ?? 0;
+export function salePerPiece(m: CostModel, marge: number, q: number, group: Grouping = 'een'): number {
+  // the sum of the lines of the grouping the quote uses, each rounded as on the quote (docs/37 N-4): panel x series = quote
+  const free = new Set(m.regels.filter((l) => l.categorie === 'vrij').map((l) => l.id));
+  return quoteLines(m, marge, group, '', q).filter((l) => !(l.uit ?? []).some((id) => free.has(id))).reduce((t, l) => t + l.prijsCent, 0);
+}
 
 /** the customer text of a cost line: the words for the workshop (afval %, verbruikt, uurloon) left out */
 export function customerText(l: CostLine): string {

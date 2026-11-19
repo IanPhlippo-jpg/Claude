@@ -108,6 +108,10 @@ const ipe = (h: number, b: number, tw: number, tf: number, kg: number): StockPro
 });
 
 export const CATALOG: StockProfile[] = [
+  // the glass laths of the pivot doors (bibliotheek/taatsdeuren/prijzen.mjs STAAF plat15x4, hoek15x15x3): small sizes
+  // outside the EN 10058 and EN 10056-1 ranges below, kept so a door drawn with its laths is recognized (docs/36 LF4)
+  plat(15, 4),
+  { ...hoek(15, 3, 0.64), norm: 'eigen', kgPerM: { ...hoek(15, 3, 0.64).kgPerM, bron: 'bibliotheek/taatsdeuren/prijzen.mjs STAAF.hoek15x15x3, niet nagekeken tegen een norm' } },
   ...[[20, 2], [25, 2], [30, 2], [30, 3], [40, 2], [40, 3], [40, 4], [50, 3], [50, 4], [50, 5], [60, 2], [60, 3], [60, 4], [60, 5], [70, 4], [70, 5], [80, 4], [80, 5], [80, 6],
     [100, 4], [100, 5], [100, 6], [100, 8], [120, 5], [120, 6], [120, 8]].map(([a, t]) => koker(a, a, t)),
   ...[[30, 20, 2], [40, 20, 2], [50, 30, 2.6], [50, 30, 3], [60, 40, 2], [60, 40, 3], [60, 40, 4], [70, 40, 5], [80, 40, 3], [80, 40, 4], [80, 40, 5], [100, 50, 4], [100, 50, 5],
@@ -146,6 +150,10 @@ export function materialKey(name: string | undefined): string {
   const n = (name ?? '').toUpperCase();
   // stainless first: "roestvast staal 304" and "roestvrij staal" are no S235 (docs/37 B-9)
   if (/ROESTVAST|ROESTVRIJ|RVS|INOX|STAINLESS|AISI|\b(304|316|430)\b|1\.4301|1\.4404|1\.4016/.test(n)) return /430|1\.4016/.test(n) ? 'RVS 430' : 'RVS 304';
+  // a steel that is no construction steel has no price of its own: never S235 (docs/37 N-8)
+  if (/GIETSTAAL|CAST STEEL|CAST CARBON|VERENSTAAL|SPRING STEEL|GEREEDSCHAPSSTAAL|TOOL STEEL|ALLOY STEEL|HARDOX|\bC45\b|42CRMO4/.test(n)) return n.split(',')[0].trim();
+  // SOLIDWORKS names aluminium alloys by number: "1060 Alloy", "6061 Alloy"
+  if (/\b[1-7]\d{3}\s*ALLOY|ALLOY\s*[1-7]\d{3}\b/.test(n)) return 'aluminium';
   if (/S690/.test(n)) return 'S690QL';
   if (/S355/.test(n)) return 'S355';
   if (/S235|STAAL|STEEL|ST37/.test(n) && !/RVS|INOX|STAINLESS|AISI/.test(n)) return /SENDZIMIR|VERZINKT|DX51/.test(n) ? 'DX51D' : 'S235';

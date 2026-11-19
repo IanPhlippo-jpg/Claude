@@ -6,6 +6,7 @@ import { featureIcon } from './featureIcon';
 import { sketchStatus, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
+import { fabFolders } from './fabTreeNodes';
 import { Icon } from '../../ui/icons';
 import { PaneIcons } from '../../ui/iconsPanes';
 import { createDocument } from '../../core/document/types';
@@ -374,6 +375,7 @@ export function FeatureTreeBody() {
           })),
         },
         sys('annotations', <Icon.TreeFolder glyph="annotation" />, 'Annotations'),
+        ...fabFolders(st.doc, st.applyDocument),
         ...(bodies.length
           ? [sys('bodies', <Icon.TreeFolder glyph="bodies" />, st.doc.sheetMetal || (st.doc.weldment && cutListsOn()) ? `Cut list(${bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').length})` : `Solid Bodies(${bodies.length})`, (st.doc.weldment && cutListsOn() ? withCutListItems : withBodyFolders)(bodies.filter((b) => !st.doc.weldment || st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').map((b): TreeNode => {
               const hiddenBody = (st.doc.hiddenBodies ?? []).includes(b.id);

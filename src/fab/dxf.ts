@@ -4,8 +4,9 @@
  * arcs as bulges, holes as CIRCLE, bend lines and text on layers of their own. A point as decimal sign, no exponent,
  * no NaN, ASCII layer names. The kerf is not taken into account: the cutter's machine does that.
  */
-import type { Bend, FlatPart, Loop } from './flat';
-import { arcPoints, segLength } from './flat';
+import type { Bend, FlatPart } from './flat';
+import type { Loop } from './loops';
+import { arcPoints, segLength } from './loops';
 import type { P2 } from './geom';
 import { machineNum } from './format';
 

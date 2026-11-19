@@ -200,3 +200,21 @@ describe('workshop sheets', () => {
     for (const t of [saw, weld, pdfText(plateListPdf(analyze(pp1(), defaultSettings()).flats, meta))]) expect(t.toLowerCase()).not.toContain('conform');
   });
 });
+
+describe('N-8 docs/37 ch. 9: small things of the quote', () => {
+  it('a quote of 4 lines with the model picture is one page, with the totals, the conditions and "voor akkoord"', () => {
+    const q = quote([L(120000), L(35000), L(8000), L(-5000)]);
+    const text = pdfText(quotePdf(q, { company: defaultSettings().company, verlegdTekst: '', vrijgesteldTekst: '', image: { jpeg: new Uint8Array([255, 216, 255, 217]), w: 800, h: 600 } }));
+    expect(text).toContain('pagina 1 van 1');
+    for (const t of ['Totaal incl. btw', 'Leveringstermijn', 'Betaling', 'Geldigheid', 'Voorwaarden', 'Voor akkoord']) expect(text).toContain(t);
+  });
+  it('reverse charge to a company with a VAT number of another EU country is a warning to check in VIES, not a refusal', () => {
+    const nl: Customer = { ...klant, soort: 'bedrijf', btwNummer: 'NL123456789B01' };
+    const p = vatProblems(quote([L(1000)], { klant: nl, btwRegime: 'verlegd' }));
+    expect(p.length).toBe(1);
+    expect(p[0].blokkeert).toBe(false);
+    expect(p[0].tekst).toMatch(/VIES/);
+    // nonsense is still refused
+    expect(vatProblems(quote([L(1000)], { klant: { ...nl, btwNummer: 'XX12' }, btwRegime: 'verlegd' }))[0].blokkeert).toBe(true);
+  });
+});

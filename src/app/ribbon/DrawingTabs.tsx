@@ -5,6 +5,7 @@ import { Icon } from '../../ui/icons';
 import { BigButton as Big, Group, SmallButton as Small } from './Ribbon';
 import { DRAWING_BLOCKS, startEmptyView } from '../drawing/DrawingExtras';
 import { startReplaceModel } from '../drawing/replaceModelCommand';
+import { insertFabTable } from '../drawing/fabTableCommand';
 
 /** View Layout tab of a drawing, by design. */
 export function ViewLayoutTab() {
@@ -84,7 +85,8 @@ export function AnnotationTab() {
           <Small label="Revision Symbol" icon={<Icon.Note />} {...sym('revision')} />
           <Small label="Revision Cloud" icon={<Icon.Spline />} {...sym('cloud')} />
         </div>
-        <Big label="Tables" icon={<Icon.Bom />} onClick={() => st.insertBomTable()} flyout={[{ label: 'Bill of Materials', icon: <Icon.Bom />, onSelect: () => st.insertBomTable() }, { label: 'Hole Table', icon: <Icon.Hole />, onSelect: () => st.insertHoleTable() }, { label: 'Revision Table', icon: <Icon.Note />, onSelect: () => st.addRevision('') }, { label: 'General Table', icon: <Icon.Bom />, onSelect: () => st.setDialog('generalTable') }]} />
+        <Big label="Tables" icon={<Icon.Bom />} onClick={() => st.insertBomTable()} flyout={[{ label: 'Bill of Materials', icon: <Icon.Bom />, onSelect: () => st.insertBomTable() }, { label: 'Hole Table', icon: <Icon.Hole />, onSelect: () => st.insertHoleTable() }, { label: 'Revision Table', icon: <Icon.Note />, onSelect: () => st.addRevision('') }, { label: 'General Table', icon: <Icon.Bom />, onSelect: () => st.setDialog('generalTable') }, { label: 'Bend Table', icon: <Icon.Flatten />, onSelect: () => void insertFabTable('bendTable') },
+          { label: 'Frame Cut List', icon: <Icon.Weldment />, onSelect: () => void insertFabTable('cutList') }]} />
       </Group>
     </>
   );

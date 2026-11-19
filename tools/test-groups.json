@@ -16,7 +16,8 @@
     "src/qa/qaRobotarm.test.ts",
     "src/qa/qaLastafel.test.ts",
     "src/qa/tekeningenLastafel.test.ts",
-    "src/qa/fabVoorbeelden.test.ts"
+    "src/qa/fabVoorbeelden.test.ts",
+    "src/qa/fabOrakel.test.ts"
   ],
   "bibliotheek": [
     "bibliotheek/tests/qaDeuren.test.ts",

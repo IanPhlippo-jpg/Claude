@@ -4,16 +4,18 @@
  * nested sheets, the bend sheet and the quote preview (the PDF pages themselves). The Fabrication Settings dialog opens
  * from here as well.
  */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '../store';
-import { bendInfo, draftQuote, isStale, recompute, useFab } from './fabStore';
+import { bendInfo, draftQuote, isStale, moveNestPiece, recompute, useFab } from './fabStore';
 import { FabSettingsDialog } from './FabSettings';
 import { profileById } from '../../fab/catalog';
 import { euro, mm, num } from '../../fab/format';
 import { angleText } from '../../fab/sawList';
 import { arcPoints, type FlatPart, type Loop } from '../../fab/flat';
-import { placeFn, placeLoop } from '../../fab/nest';
+import { placeFn, placeLoop, type Nest } from '../../fab/nest';
+import { foldStates } from '../../fab/bendStates';
+import { din6935K, type BendLine } from '../../fab/bend';
 import { COST_GROUPS } from '../../fab/cost';
 import { weldPlanInput } from '../../fab/analyze';
 import { quoteDoc } from '../../fab/quotePdf';
@@ -38,8 +40,60 @@ function FlatSvg({ f, label }: { f: FlatPart; label?: string }) {
   );
 }
 
+/** one nested sheet; a piece is dragged to another place (P3.9), overlaps turn red */
+function NestSheet({ n, ni, bi, flats, bad }: { n: Nest; ni: number; bi: number; flats: FlatPart[]; bad: string[] }) {
+  const b = n.bladen[bi];
+  const [drag, setDrag] = useState<{ k: number; x0: number; y0: number; dx: number; dy: number } | null>(null);
+  const at = (e: React.PointerEvent) => {
+    const svg = (e.currentTarget as SVGElement).ownerSVGElement ?? (e.currentTarget as SVGSVGElement);
+    const m = svg.getScreenCTM?.();
+    if (!m) return { x: e.clientX, y: e.clientY };
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return { x: q.x, y: -q.y };
+  };
+  return (
+    <div className="k-fab-sheet">
+      <div className="k-fab-sheettitle">{n.materiaal} {num(n.t, n.t % 1 ? 1 : 0)} mm · sheet {bi + 1} of {n.bladen.length} · {b.l} x {b.b} · use {num(b.benutting * 100, 0)} %
+        {n.status === 'handmatig' ? ' · moved by hand' : ''}</div>
+      <svg viewBox={`0 ${-b.b} ${b.l} ${b.b}`} className="k-fab-sheetsvg" data-testid="fab-nest-sheet">
+        <rect x={0} y={-b.b} width={b.l} height={b.b} fill="#f6f6f6" stroke="#555" strokeWidth={3} />
+        {b.stukken.map((p, k) => {
+          const f = flats[p.pos - 1], c = placeFn(p)({ x: f.bbox.l / 2, y: f.bbox.b / 2 }), red = bad.includes(`${bi}:${k}`);
+          const off = drag?.k === k ? `translate(${drag.dx} ${-drag.dy})` : undefined;
+          return <g key={k} transform={off} className="k-fab-piece" data-testid={red ? 'fab-nest-piece-bad' : 'fab-nest-piece'}
+            onPointerDown={(e) => { const q = at(e); (e.currentTarget as Element).setPointerCapture?.(e.pointerId); setDrag({ k, x0: q.x, y0: q.y, dx: 0, dy: 0 }); }}
+            onPointerMove={(e) => { if (drag?.k === k) { const q = at(e); setDrag({ ...drag, dx: q.x - drag.x0, dy: q.y - drag.y0 }); } }}
+            onPointerUp={() => { if (drag?.k === k && (drag.dx || drag.dy)) moveNestPiece(ni, bi, k, drag.dx, drag.dy); setDrag(null); }}>
+            <path d={d(placeLoop(f.buiten, p))} fill={red ? '#e5484d' : `hsl(${(p.pos * 47) % 360} 60% 72%)`} stroke={red ? '#a00' : '#333'} strokeWidth={2} />
+            <text x={c.x} y={-c.y} fontSize={Math.min(60, Math.min(p.l, p.b) / 3)} textAnchor="middle" dominantBaseline="middle">P{p.pos}</text></g>;
+        })}
+      </svg>
+    </div>
+  );
+}
+
+/** P4.7: the section of the part after each step (folded on its neutral fibre, the area of the flat in each) */
+function FoldStrip({ bends, width, t, r, order }: { bends: BendLine[]; width: number; t: number; r: number; order: number[] }) {
+  const states = useMemo(() => foldStates(bends, width, t, r, din6935K(r, t), order), [bends, width, t, r, order]);
+  const a0 = states[0]?.oppervlak ?? 1;
+  return (
+    <div className="k-fab-folds">
+      {states.map((s) => {
+        const xs = s.poly.map((p) => p.x), ys = s.poly.map((p) => p.y), pad = 4 + t;
+        const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, w = Math.max(...xs) - x0 + pad, h = Math.max(...ys) - y0 + pad;
+        return (
+          <figure key={s.stap} className="k-fab-fold" data-testid="fab-bend-state">
+            <svg viewBox={`${x0} ${-(y0 + h)} ${w} ${h}`}><path d={d(s.poly)} fill="#9ab" stroke="#234" strokeWidth={Math.max(w, h) / 200} /></svg>
+            <figcaption>{s.stap ? `after step ${s.stap}` : 'flat'} · {num((100 * (s.oppervlak - a0)) / a0, 2)} % volume</figcaption>
+          </figure>
+        );
+      })}
+    </div>
+  );
+}
+
 export function FabView() {
-  const st = useFab(useShallow((s) => ({ view: s.view, r: s.result, stale: isStale(s), nests: s.nests,
+  const st = useFab(useShallow((s) => ({ view: s.view, r: s.result, stale: isStale(s), nests: s.nests, nestBad: s.nestBad,
     settingsOpen: s.settingsOpen, bendIndex: s.bendIndex, grouping: s.grouping, settings: s.settings })));
   const doc = useStore((s) => s.doc);
   const r = st.r;
@@ -125,19 +179,8 @@ export function FabView() {
     return (<>{settings}<div className="k-fab-view k-fab-full" data-testid="fab-view-nest">{head('Nested Sheets', <span
       className="k-fab-muted"> {st.nests.some((n) => n.status === 'vorm') ? 'shape nesting (pairs)' : 'rectangle nesting'} · status: still to be opened by the laser cutter</span>)}
       <div className="k-fab-scroll k-fab-sheets">
-      {st.nests.flatMap((n) => n.bladen.map((b, i) => (
-        <div key={`${n.materiaal}${n.t}${i}`} className="k-fab-sheet">
-          <div className="k-fab-sheettitle">{n.materiaal} {num(n.t, n.t % 1 ? 1 : 0)} mm · sheet {i + 1} of {n.bladen.length} · {b.l} x {b.b} · use {num(b.benutting * 100, 0)} %</div>
-          <svg viewBox={`0 ${-b.b} ${b.l} ${b.b}`} className="k-fab-sheetsvg">
-            <rect x={0} y={-b.b} width={b.l} height={b.b} fill="#f6f6f6" stroke="#555" strokeWidth={3} />
-            {b.stukken.map((p, k) => {
-              const f = r.flats[p.pos - 1], c = placeFn(p)({ x: f.bbox.l / 2, y: f.bbox.b / 2 });
-              return <g key={k}><path d={d(placeLoop(f.buiten, p))} fill={`hsl(${(p.pos * 47) % 360} 60% 72%)`} stroke="#333" strokeWidth={2} />
-                <text x={c.x} y={-c.y} fontSize={Math.min(60, Math.min(p.l, p.b) / 3)} textAnchor="middle" dominantBaseline="middle">P{p.pos}</text></g>;
-            })}
-          </svg>
-        </div>
-      )))}
+      {st.nests.flatMap((n, ni) => n.bladen.map((_b, i) => <NestSheet key={`${n.materiaal}${n.t}${i}`} n={n} ni={ni} bi={i} flats={r.flats} bad={st.nestBad[ni] ?? []} />))}
+      {st.nestBad.some((x) => x.length) && <p className="k-fab-error" data-testid="fab-nest-bad">Red pieces overlap or lie over the border: the export is blocked until they are moved.</p>}
       {!st.nests.length && <p>No plates to nest.</p>}
     </div></div></>);
   }
@@ -152,6 +195,7 @@ export function FabView() {
         <tbody>{info.seq.steps.map((s) => { const b = info.bends.find((x) => x.id === s.plooi)!; return <tr key={s.stap}><td>{s.stap}</td><td>{s.plooi}</td>
           <td>{b.richting === 'op' ? 'up' : 'down'}{s.omkeren ? ' (turn over)' : ''}</td><td className="n">{num(b.hoek, 0)}°</td><td className="n">{num(cur!.f.plooien[0]?.r ?? 0, 1)}</td><td
             className="n">{num(s.vOpening, 0)}</td><td className="n">{num(s.aanslag, 1)}</td><td>{s.aanslagKant}</td><td className="n">{num(s.perskracht, 1)} kN</td></tr>; })}</tbody></table>}
+      {info && info.prismatic && <FoldStrip bends={info.bends} width={info.width} t={cur!.f.t} r={cur!.f.plooien[0]?.r ?? cur!.f.t} order={info.seq.steps.map((x) => x.plooi)} />}
       {info && <div className="k-fab-notes">{cur!.f.kBron && <div>Flat with {cur!.f.kBron}</div>}{!info.seq.gecontroleerd && <div>Sequence not checked for collisions.</div>}
         {info.checks.map((c, i) => <div key={i} className="k-fab-error">{c}</div>)}</div>}
     </div></div></>);

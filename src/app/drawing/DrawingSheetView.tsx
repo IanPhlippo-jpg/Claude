@@ -825,7 +825,7 @@ export function DrawingSheetView() {
   };
   const renderGeneralTable = (t: NonNullable<DrawingSheet['tables']>[number]) => {
     const g = tableGrid(sheet, t);
-    return g ? renderGrid(t.id, 'general-table', g.pos, g.rows, g.cols) : null;
+    return g ? renderGrid(t.id, t.kind === 'cutList' ? 'cut-list-table' : t.kind === 'bendTable' ? 'bend-table' : 'general-table', g.pos, g.rows, g.cols) : null;
   };
 
   /** Bill of Materials table at the top right of the sheet: ITEM NO. / PART NUMBER / DESCRIPTION / QTY. */
@@ -1109,7 +1109,7 @@ export function DrawingSheetView() {
           return <g opacity={0.6}>{renderDimension(d)}</g>;
         })()}
         {(sheet.symbols ?? []).filter(symbolShown).map((sy) => (sy.dangling ? <g key={sy.id} className="k-dangling" opacity={0.55}>{renderSymbol(sy)}</g> : renderSymbol(sy)))}
-        {(sheet.tables ?? []).map((t) => (t.kind === 'hole' ? renderHoleTable(t) : t.kind === 'general' ? renderGeneralTable(t) : renderBom(t)))}
+        {(sheet.tables ?? []).map((t) => (t.kind === 'hole' ? renderHoleTable(t) : t.kind === 'bom' ? renderBom(t) : renderGeneralTable(t)))}
         {(sheet.magneticLines ?? []).filter((ml) => st.drawingTool?.kind === 'magneticLine' || (dragAnnot && ml.balloons.includes(dragAnnot))).map((ml) => { const a = toPx(ml.a), b = toPx(ml.b); return <line key={ml.id} data-testid="magnetic-line" x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#3a7bd5" strokeWidth={0.8} strokeDasharray="6 3" />; })}
         {st.drawingTool?.kind === 'magneticLine' && st.drawingTool.a && (() => { const a = toPx(st.drawingTool.a); return <circle cx={a[0]} cy={a[1]} r={3} fill="#3a7bd5" />; })()}
         {(sheet.revisions ?? []).length > 0 && renderRevisionTable()}

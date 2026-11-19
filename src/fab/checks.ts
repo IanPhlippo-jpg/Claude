@@ -3,8 +3,9 @@
  * block the export), holes smaller than the thickness, webs between two cut-outs narrower than the thickness, holes too
  * close to a bend line (reported). Each finding names its kind, so a test can tell them apart.
  */
-import type { FlatPart, Loop } from './flat';
-import { arcPoints } from './flat';
+import type { FlatPart } from './flat';
+import type { Loop } from './loops';
+import { arcPoints } from './loops';
 import { minRect, type P2 } from './geom';
 
 export type CheckKind = 'open' | 'zelfdoorsnijding' | 'dubbel' | 'klein gat' | 'smalle steg' | 'gat bij plooi';

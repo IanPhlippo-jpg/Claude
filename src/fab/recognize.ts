@@ -67,10 +67,30 @@ export function matchProfiles(s: SectionInfo, faceted: boolean): { p: StockProfi
   return out.sort((x, y) => x.dev - y.dev);
 }
 
-/** the axis of a bar (smallest eigenvector of the normal scatter), its extent and a section analysis along it */
+/**
+ * The axis of a bar: the smallest eigenvector of the normal scatter, refined on the side faces only (normals within 6°
+ * of square to the first estimate). The end faces bias the first estimate: a solid 40 x 40 x 2395 with one end mitred
+ * 45° tilts it 0,34°, read as angles 0,3° / 45,3° (docs/36 LF4, the stored TD-01). Side normals are square to the axis.
+ */
+export function barAxis(s: Float64Array): V3 {
+  const d0 = eigenSym3(normalScatter(s)).vectors[0];
+  const m = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  let side = 0;
+  for (let i = 0; i < triCount(s); i++) {
+    const { n, area } = triangle(s, i);
+    if (Math.abs(dot(n, d0)) > 0.1) continue;
+    side += area;
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) m[r * 3 + c] += area * n[r] * n[c];
+  }
+  if (!side) return d0;
+  const d = eigenSym3(m).vectors[0];
+  // the refined axis only replaces a close first estimate (a plate or a block has no side faces to refine on)
+  return Math.abs(dot(d, d0)) > 0.99 ? (dot(d, d0) < 0 ? [-d[0], -d[1], -d[2]] : d) : d0;
+}
+
+/** the axis of a bar, its extent and a section analysis along it */
 export function barAnalysis(b: Pick<FabBody, 'soup'>) {
-  const ev = eigenSym3(normalScatter(b.soup));
-  const d = ev.vectors[0];
+  const d = barAxis(b.soup);
   const [lo, hi] = extent(b.soup, d);
   const L = hi - lo;
   const fr = [0.2, 0.35, 0.5, 0.65, 0.8].map((f) => section(b.soup, d, lo + f * L));
@@ -98,6 +118,27 @@ export function plateAnalysis(b: Pick<FabBody, 'soup' | 'faces'>): { n: V3; t: n
   const lo = levels[0], hi = levels[levels.length - 1];
   if (levels.some((w) => Math.abs(w - lo) > 0.01 && Math.abs(w - hi) > 0.01)) return { reason: 'de dikte is niet overal gelijk (trap of verdieping)' };
   return { n, t: hi - lo, lo, hi };
+}
+
+/**
+ * A plate-like body whose contour (the section at mid thickness) is more than a plain rectangle: an inner contour, a
+ * rounded or cut corner. docs/37 N-3: this is read from the contour, because the kernel marks the small end faces of a
+ * long bar as curved.
+ */
+export function contourShaped(b: Pick<FabBody, 'soup'>, pl: { n: V3; t: number; hi: number }): boolean {
+  const { u, v } = frameOf(pl.n);
+  const polys = chain(section(b.soup, pl.n, pl.hi - pl.t / 2, { u, v }).segs, 1e-4).filter((p) => p.length >= 3);
+  if (polys.length !== 1) return polys.length > 1;
+  const p = polys[0];
+  let corners = 0;
+  for (let i = 0; i < p.length; i++) {
+    const a = p[(i + p.length - 1) % p.length], c = p[i], d = p[(i + 1) % p.length];
+    const e1 = { x: c.x - a.x, y: c.y - a.y }, e2 = { x: d.x - c.x, y: d.y - c.y };
+    const l1 = Math.hypot(e1.x, e1.y), l2 = Math.hypot(e2.x, e2.y);
+    if (l1 < 1e-6 || l2 < 1e-6) continue;
+    if (Math.abs(e1.x * e2.y - e1.y * e2.x) / (l1 * l2) > 0.02) corners++;
+  }
+  return corners !== 4;
 }
 
 /** drilled holes across a bar: curved faces whose cylinder axis is not along the bar, coaxial walls counted once */
@@ -198,7 +239,8 @@ export function profileFromName(name: string): StockProfile[] {
 }
 
 /** the material of a profile or a laser plate: steel, stainless, aluminium and the like */
-export const isMetal = (m: string) => /staal|steel|\bs\d{3}|dx5\d|alu|rvs|inox|aisi|ijzer|iron|metaal|metal|messing|brass|koper|copper|zink|cortenstaal|weathering/i.test(m);
+export const isMetal = (m: string) =>
+  /staal|steel|\bs\d{3}|\bst\s?\d{2}\b|dx5\d|alu|rvs|inox|aisi|ijzer|iron|metaal|metal|messing|brass|koper|copper|zink|brons|bronze|titaa?n|cortenstaal|weathering|\b\d{4}\s*alloy|hardox/i.test(m);
 
 const kindOfProp = (p: string | undefined): FabKind | null => (p === 'koop' ? 'koop' : p === 'profiel' ? 'profiel' : p === 'plaat' ? 'plaat' : null);
 
@@ -260,7 +302,8 @@ export function recognize(b: FabBody, override?: FabOverride): Recognition & { k
         // first, otherwise flat bar first; the other one stays a choice, never a silent guess
         if (s.klasse === 'rechthoekVol') {
           const pl0 = plateAnalysis(b);
-          const shaped = holes > 0 || b.faces.some((f) => f.curved && f.area > 1);
+          // shaped from the contour, never from faces.curved: the kernel marks the end faces of a long bar as curved (N-3)
+          const shaped = holes > 0 || ('t' in pl0 && contourShaped(b, pl0));
           if ('t' in pl0 && isCommercialThickness(pl0.t) && shaped) {
             return { ...base, soort: 'plaat', reden: `plaat ${mm(pl0.t)} mm met gaten of afgeronde hoeken (ook ${best.p.naam} mogelijk)`, t: Math.round(pl0.t * 100) / 100,
               kandidaten: m.map((x) => x.p.id) };

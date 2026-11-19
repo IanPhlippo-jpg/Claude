@@ -1661,3 +1661,33 @@ elease; README en docs/04 bijgewerkt
 - [x] Fable-X2: meetscripts opnieuw (B-1 tot B-17), elke bevinding nalopen
 - [x] Fable-X2: nieuwe problemen zoeken in de wijzigingen
 - [x] Fable-X2: hoofdstuk 9 "Herbeoordeling" onder docs/37 (geen codewijziging, geen commit)
+
+## Extensies: herbeoordeling docs/37 hoofdstuk 9 verwerken (2026-11-19)
+- [x] N-1 + N-2: Cancel van de PM zet alleen de eigen PM-wijzigingen terug (geen offertes, nummers of bevestigde instellingen)
+- [x] N-3: platstaaf langer dan 800 mm blijft platstaal (vorm uit de contour, niet uit faces.curved), tests 400/900/2000
+- [x] P3: N-4 paneel = som van de gekozen weergave, N-5 garantie eenmaal, N-6 nest-modus niet een heel blad, N-7 enkele plooi 120 graden, N-8 isMetal/validateFab/verlegd buitenland
+- [x] Open criteria waar haalbaar: ontvouwer randflenzen, tabellen op tekenbladen, boommappen, 2D-aanzicht lasplan, nest-worker + Cancel, verschuiven, plooistap-model, slepen in de boom, LF4/LF5 + orakel (lijncontacten, hechtlassen)
+- [x] typecheck, vitest, e2e/fab.mjs, poorten, foto's extensies-v3, hoofdstuk 10 in docs/37
+
+## Extensies: tabellen op tekenbladen (2026-11-19)
+- [x] Tabelsoorten 'cutList' en 'bendTable' in het tekeningdocument (opgeslagen cellen, getekend als General Table)
+- [x] Nieuwe module src/app/drawing/fabTables.ts: rijen van de zaagtabel en de plooitabel uit src/fab (zelfde posities, lengtes, hoeken, aantallen, tags)
+- [x] Commando's in Annotation > Tables: "Frame Cut List" en "Bend Table", src/fab alleen dynamisch geladen
+- [x] Tekenen op het blad (DrawingSheetView), slepen, opslaan en heropenen
+- [x] Vitest: LF1 zaagtabel = zaagstaat-PDF, hoed-profiel plooitabel = plooiblad (12,12 / 49,37 / 109,61 / 146,85)
+- [x] Poorten: tsc, vitest, line-budget, line-length, uiText, bundelbudget (hoofdchunk 794,63 kB)
+
+## Extensies: orakelvergelijking (2026-11-19)
+- [x] Orakels lezen: fitness stuklijst/zaagplan/totalen/kostprijs/dxfBestanden/nesting, taatsdeuren zaagplan/kostprijs; keuze LF5 = FR-13 Kettlebellrek, PP8 = FR-04 Opklapbaar wandrek
+- [x] Taatsdeur TD-01: optie in bibliotheek/taatsdeuren/model.mjs voor holle kokers, glaslatten en koopdelen (standaarduitvoer ongewijzigd)
+- [x] Catalogus: platstaal 15 x 4 en hoeklijn 15 x 15 x 3 uit de taatsdeurbibliotheek, met negatieve test; as van een staaf met een verstek uit de zijvlakken (0,3/45,3 -> 0/45)
+- [x] Testmodel fitness: toestel uit bibliotheek/fitness als Document (holle kokers, platen met gaten, contour, driehoek)
+- [x] src/qa/fabOrakel.test.ts: L2.6 (LF4, LF5), L4.4, O1.6, P2.7, P3.3, P5.5 met verklaarde verschillen; in tools/test-groups.json
+- [x] Poorten: tsc -b, vitest src/fab src/qa, VOORBEELDEN=1 fabOrakel, line-budget, line-length, graphify update
+
+## Section View: diagonale driehoek in de doorsnede-cap (2026-11-19)
+- [x] Oorzaak zoeken: lussen van de doorsnede van de Ventilatorkuip (stap 6 bouwschema) dumpen en de cap-triangulatie nagaan
+- [x] Fix in src/core/features/section.ts (cap egaal en vlak zoals SOLIDWORKS): chainLoops met lassen binnen 1 µm, dubbele segmenten weg, open ketens aan elkaar
+- [x] Regressietest: unit-tests in section.test.ts (lekke buis, segmenten met gaten) en pixelcontrole e2e/sectioncap.mjs
+- [x] Andere modellen met doorsnede nakijken: lastafel, kabeldoos treinverlichting, deurkruk (alle drie hadden open ketens en wiggen; na de fix egaal)
+- [x] Voor/na-beelden in de scratchpad (doorsnede-fix), typecheck, vitest, e2e, graphify update

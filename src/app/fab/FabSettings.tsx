@@ -5,7 +5,7 @@
  * months is marked "check price". Export and import as JSON. Kept per user, never in the model.
  */
 import { useRef, useState, type ReactNode } from 'react';
-import { useFab, patchSettings, exportSettingsFile, importSettingsText, resetSettings, setSettings } from './fabStore';
+import { useFab, patchSettings, exportSettingsFile, importSettingsText, resetSettings, setSettings, confirmSettings } from './fabStore';
 import { companyMissing, confirmed, isOld, validEnterpriseNumber, validIban, type Company, type FabSettings } from '../../fab/settings';
 import type { Sourced } from '../../fab/types';
 import { CATALOG, profileById } from '../../fab/catalog';
@@ -190,7 +190,7 @@ export function FabSettingsDialog() {
     <div className="k-fab-dialogback" data-testid="fab-settings">
       <div className="k-fab-dialog">
         <div className="k-fab-dialoghead"><b>Fabrication Settings</b><span className="grow" /><button className="k-btn ghost" data-testid="fab-settings-close"
-          onClick={() => useFab.setState({ settingsOpen: false })}>×</button></div>
+          onClick={confirmSettings}>×</button></div>
         <div className="k-fab-dialogbody">
           <div className="k-fab-pages-list">{PAGES.map((p) => <button key={p} className={`k-fab-pagebtn ${p === page ? 'active' : ''}`} data-testid={`fab-settings-${p}`}
             onClick={() => setPage(p)}>{p}</button>)}</div>
@@ -202,7 +202,7 @@ export function FabSettingsDialog() {
           <button className="k-btn" onClick={resetSettings}>Reset</button>
           <input ref={file} type="file" accept=".json" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) importSettingsText(await f.text()); e.target.value = ''; }} />
           <span className="grow" />
-          <button className="k-btn primary" onClick={() => useFab.setState({ settingsOpen: false })}>OK</button>
+          <button className="k-btn primary" onClick={confirmSettings}>OK</button>
           <button className="k-btn" data-testid="fab-settings-cancel" onClick={cancel}>Cancel</button>
         </div>
       </div>

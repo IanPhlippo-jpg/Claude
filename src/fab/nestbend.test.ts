@@ -94,6 +94,20 @@ describe('P4 bend sequence', () => {
     expect(Math.abs(Math.min(r.steps[0].aanslag, width - r.steps[0].aanslag) - Math.min(bends[0].s, width - bends[0].s))).toBeLessThan(0.05);
   });
 
+  it('N-7 one bend of 120 degrees: no collision (its own legs are the tool), but a note for a sharp punch', () => {
+    const a = (120 * Math.PI) / 180;
+    const { bends, width } = chainBends([{ x: 0, y: 0 }, { x: 60, y: 0 }, { x: 60 + 40 * Math.cos(a), y: 40 * Math.sin(a) }], 3, 3, 0.5, 200);
+    expect(bends.length).toBe(1);
+    expect(Math.round(bends[0].hoek)).toBe(120);
+    const r = proposeSequence(bends, width, 3, 450);
+    expect(r.botsing).toEqual([]);
+    const checks = bendChecks(bends[0], width, 3, 3, { rm: 450, werklengte: 3000, maxKracht: 1000 }, bends);
+    expect(checks.join(' ')).toMatch(/spitse stempel/);
+    // a plain 90 degree bend needs no such note
+    const l = chainBends([{ x: 0, y: 0 }, { x: 60, y: 0 }, { x: 60, y: 40 }], 3, 3, 0.5, 200);
+    expect(bendChecks(l.bends[0], l.width, 3, 3, { rm: 450, werklengte: 3000, maxKracht: 1000 }, l.bends).join(' ')).not.toMatch(/spitse/);
+  });
+
   it('P4.2 Z profile (two bends opposite): the proposal turns the part over once', () => {
     const { bends, width } = chainBends([{ x: 0, y: 0 }, { x: 60, y: 0 }, { x: 60, y: 40 }, { x: 120, y: 40 }], 3, 3, 0.5, 200);
     expect(bends.map((b) => b.richting)).toEqual(['op', 'neer']);
@@ -144,5 +158,27 @@ describe('P3.4 shape nesting (pairs along the no-fit polygon)', () => {
     expect(shape.status).toBe('vorm');
     expect(validateNest(shape, flats, new Map([[1, 40]]))).toEqual([]);
     expect(shape.bladen.flatMap((b) => b.stukken).length).toBe(40);
+  });
+});
+
+describe('P4.7 the part after each bend step', () => {
+  it('hat and Z: the section after every step keeps the area of the flat (volume within 0.5 %); the last state has the angles of the part', async () => {
+    const { foldStates } = await import('./bendStates');
+    const { din6935K } = await import('./bend');
+    for (const chain of [[{ x: 0, y: 0 }, { x: 15, y: 0 }, { x: 15, y: 40 }, { x: 75, y: 40 }, { x: 75, y: 0 }, { x: 90, y: 0 }],
+      [{ x: 0, y: 0 }, { x: 60, y: 0 }, { x: 60, y: 40 }, { x: 120, y: 40 }]]) {
+      const { bends, width } = chainBends(chain, 3, 3, din6935K(3, 3), 300);
+      const seq = proposeSequence(bends, width, 3, 450);
+      const states = foldStates(bends, width, 3, 3, din6935K(3, 3), seq.steps.map((s) => s.plooi));
+      expect(states.length).toBe(bends.length + 1);
+      for (const s of states) expect(Math.abs(s.oppervlak - width * 3) / (width * 3)).toBeLessThan(0.005);
+      // the last state: the folded section spans the part (hat 90 wide, 40 high; Z 120 x 40) to a few tenths
+      const last = states[states.length - 1].poly;
+      const xs = last.map((p) => p.x), ys = last.map((p) => p.y);
+      const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
+      const W = Math.max(...chain.map((p) => p.x)), H = Math.max(...chain.map((p) => p.y));
+      expect(Math.abs(w - W)).toBeLessThan(3.5);
+      expect(Math.abs(h - H)).toBeLessThan(3.5);
+    }
   });
 });
