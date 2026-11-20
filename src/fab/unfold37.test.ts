@@ -187,22 +187,49 @@ describe('hems and jogs (docs/37 ch. 11, point 6)', () => {
     near(across(f), 80 + Math.PI * (0.5 + 0.5 * 2) + (10 - (0.5 + 2)), 0.05);
     expect(f.plooien.map((p) => [Math.round(p.hoek), p.r])).toEqual([[180, 0.5]]);
   });
-  // docs/37 ch. 13, measured: the kernel builds closed, teardrop and rolled hems as the same body (124 triangles, the
-  // same volume): a sharp 180 degree fold without a bend cylinder, so the hem layer is a third skin and a teardrop or a
-  // roll is not modelled as such; the jog is built of blocks joined at coincident faces (6 skin pieces). Unfolding that
-  // would invent a radius the model does not have: refused, with the reason
-  it('closed, teardrop and rolled hems and a jog are refused with the reason, never an exact flat', () => {
-    for (const t of ['closed', 'teardrop', 'rolled']) {
-      const f = flat(hem(t));
-      expect(f.betrouwbaar, t).toBe('geen');
-      expect(f.fout, t).toMatch(/ontvouwen: /);
-    }
+  // docs/37 ch. 15: the hems are built as in SOLIDWORKS (closed with the minimal gap, tear drop and rolled with their
+  // Angle and Radius) and unfold exactly: tab 80 across, Material Inside cuts the tab back by r + t, then the bend
+  // (BA = angle x (r + K t)) and the leg. t 2, K 0.5 (the model), the hem on a 120 edge.
+  const hemWith = (hemType: string, extra: Record<string, unknown> = {}) => {
     const d = pp3Tab();
-    d.sketches.j = addLine(createSketch('j', 'j', 'top'), { x: 0, y: 40 }, { x: 120, y: 40 })[0];
-    d.features.push(F({ id: 'js', type: 'sketch', name: 'Sketch2', sketchId: 'j', suppressed: false }), F({ id: 'jg', type: 'jog', name: 'Jog1', sketchId: 'j', suppressed: false, offset: 10,
-      flipSide: false, reverse: false }));
-    const j = flat(d);
-    expect(j.betrouwbaar).toBe('geen');
+    const e = rebuildDocument(d).bodies[0].edges.filter((x) => x.straight && Math.abs(x.length - 120) < 1e-3).sort((a, b) => b.centroid.y - a.centroid.y || a.centroid.z - b.centroid.z)[0];
+    d.features.push(F({ id: 'hm', type: 'hem', name: 'Hem1', suppressed: false, edge: edgeRef(e), hemType, length: 10, gap: 1, position: 'materialInside', flip: false, ...extra }));
+    return d;
+  };
+  const rad = (deg: number) => (deg * Math.PI) / 180;
+  it('closed hem: inner radius = the minimal gap / 2 (0.05 at t 2), 80 - (r + t) + pi (r + K t) + 10 by hand, exact', async () => {
+    const { closedHemGap } = await import('../core/features/sheetmetal');
+    const r = closedHemGap(2) / 2, f = flat(hemWith('closed'));
+    expect(f.fout).toBeUndefined();
+    expect(f.betrouwbaar).toBe('exact');
+    near(across(f), 80 - (r + 2) + Math.PI * (r + 0.5 * 2) + 10, 0.05);
+    expect(f.plooien.map((p) => [Math.round(p.hoek), Math.round(p.r * 100) / 100])).toEqual([[180, r]]);
+  });
+  it('tear drop (angle 225, radius 2): the curl and the straight leg back to the sheet, by hand, exact', async () => {
+    const { closedHemGap } = await import('../core/features/sheetmetal');
+    const r = 2, th = rad(225), t = 2;
+    // the leg runs on from the end of the curl until its lower (inner) edge is the closed-hem gap above the sheet face
+    const yIn = r + r * Math.sin(th - Math.PI / 2), leg = (yIn - closedHemGap(t)) / Math.sin(Math.PI / 4);
+    const f = flat(hemWith('tearDrop', { angle: 225, radius: 2 }));
+    expect(f.fout).toBeUndefined();
+    near(across(f), 80 - (r + t) + th * (r + 0.5 * t) + leg, 0.05);
+    expect(f.plooien.map((p) => [Math.round(p.hoek), Math.round(p.r * 10) / 10])).toEqual([[225, 2]]);
+  });
+  it('rolled (angle 270, radius 4): the curl only, by hand, exact; DIN 6935 for its radius too', async () => {
+    const r = 4, th = rad(270), t = 2;
+    const f = flat(hemWith('rolled', { angle: 270, radius: 4 }));
+    expect(f.fout).toBeUndefined();
+    near(across(f), 80 - (r + t) + th * (r + 0.5 * t), 0.05);
+    expect(f.plooien.map((p) => [Math.round(p.hoek), Math.round(p.r * 10) / 10])).toEqual([[270, 4]]);
+    const { din6935K } = await import('./bend');
+    const g = flatOfSheet(hemWith('rolled', { angle: 270, radius: 4 }), partBodies(hemWith('rolled', { angle: 270, radius: 4 }))[0], 'x', 1, 'S235', 'din6935');
+    near(across(g), 80 - (r + t) + th * (r + din6935K(r, t) * t), 0.05);
+  });
+  it('a hem file without angle or radius loads and builds with the SW defaults (225 / 1 t, 270 / 2 t)', async () => {
+    const { HEM_CURL_DEFAULT } = await import('../core/features/sheetmetal');
+    const td = flat(hemWith('tearDrop')), ro = flat(hemWith('rolled'));
+    expect([td.betrouwbaar, ro.betrouwbaar]).toEqual(['exact', 'exact']);
+    expect(Math.round(ro.plooien[0].hoek)).toBe(HEM_CURL_DEFAULT.rolled.angle);
   });
 });
 

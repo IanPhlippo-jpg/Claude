@@ -77,6 +77,17 @@ await page.locator('.k-section:has-text("Type and Size") input.k-num').first().f
 await page.locator('.k-section:has-text("Type and Size") input.k-num').first().press('Tab');
 await settle(page);
 await shot('hm2-hem-preview');
+// SW Hem types: Tear Drop and Rolled show Angle and Radius instead of Length (docs/37 ch. 15); back to Closed for the rest
+await page.click('[data-testid="hem-type-tearDrop"]');
+await settle(page);
+const curlFields = (await page.locator('[data-testid="hem-angle"]').count()) === 1 && (await page.locator('[data-testid="hem-radius"]').count()) === 1;
+await page.click('[data-testid="hem-type-rolled"]');
+await settle(page);
+const rolledAngle = await page.locator('[data-testid="hem-angle"] input').inputValue();
+await shot('hm2b-hem-rolled-pm');
+check('Hem PM: Tear Drop and Rolled with Angle and Radius (Rolled 270 by default)', curlFields && parseFloat(rolledAngle) === 270, rolledAngle);
+await page.click('[data-testid="hem-type-closed"]');
+await settle(page);
 await page.click('.k-pm-ok');
 await settle(page);
 s = await S();

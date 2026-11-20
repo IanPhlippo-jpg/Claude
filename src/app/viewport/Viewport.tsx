@@ -440,7 +440,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       const idx = st.featureEdit.featureId ? st.doc.features.findIndex((f) => f.id === st.featureEdit!.featureId) : -1;
       const bodies = idx >= 0 ? rebuildDocument(st.doc, idx).bodies : st.rebuild.bodies;
       for (const b of bodies) {
-        const r = edgeFlangeOnBody(b.geometry, b.id, d.type === 'hem' ? hemAsFlange(d) : d.profileSketchId && st.doc.sketches[d.profileSketchId] ? { ...d, profile: sketchRegions(st.doc.sketches[d.profileSketchId]) } : d, st.doc.sheetMetal ?? DEFAULT_SHEET_METAL);
+        const r = edgeFlangeOnBody(b.geometry, b.id, d.type === 'hem' ? hemAsFlange(d, (st.doc.sheetMetal ?? DEFAULT_SHEET_METAL).thickness) : d.profileSketchId && st.doc.sketches[d.profileSketchId] ? { ...d, profile: sketchRegions(st.doc.sketches[d.profileSketchId]) } : d, st.doc.sheetMetal ?? DEFAULT_SHEET_METAL);
         if (r.geometry) return r.geometry;
       }
       return null;

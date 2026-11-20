@@ -111,7 +111,7 @@ export function buildSheetMetal(f: Feature, body: Body | undefined, ctx: BuildCo
         if (!jogDone && K && exJ && ej && ej.loop) {
           try {
             const fixed = K.clipByPlane(exJ, ej.origin, ej.m);
-            const moving0 = K.clipByPlane(exJ, ej.origin, [-ej.m[0], -ej.m[1], -ej.m[2]]);
+            const moving0 = K.clipByPlane(exJ, ej.cut2 ?? ej.origin, [-ej.m[0], -ej.m[1], -ej.m[2]]);
             const moving = K.transform(moving0, ej.move);
             const z = K.extrudeLoop(ej.plane, ej.loop, 0, ej.depth);
             if (moving && z) {
@@ -142,7 +142,7 @@ export function buildSheetMetal(f: Feature, body: Body | undefined, ctx: BuildCo
     }
     const params = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
     const prof = f.type === 'edgeFlange' && f.profileSketchId ? doc.sketches[f.profileSketchId] : undefined;
-    const ff = f.type === 'hem' ? hemAsFlange(f) : prof ? { ...f, profile: sketchRegions(prof) } : f;
+    const ff = f.type === 'hem' ? hemAsFlange(f, params.thickness) : prof ? { ...f, profile: sketchRegions(prof) } : f;
     let built = false;
     for (const b of visibleBodies()) {
       const r = edgeFlangeOnBody(b.geometry, b.id, ff, params);

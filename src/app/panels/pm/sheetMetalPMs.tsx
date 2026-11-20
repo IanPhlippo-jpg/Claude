@@ -4,7 +4,7 @@ import { type ReactNode } from 'react';
 import { useStore } from '../../store';
 import { NumberField, Section, round } from '../../../ui/components';
 import { Icon } from '../../../ui/icons';
-import { DEFAULT_SHEET_METAL, GAUGE_TABLES, materialKFactor } from '../../../core/features/sheetmetal';
+import { DEFAULT_SHEET_METAL, GAUGE_TABLES, HEM_CURL_DEFAULT, materialKFactor } from '../../../core/features/sheetmetal';
 import { classifyVent, FORM_TOOL_LIBRARY } from '../../../core/features/sheetmetal4';
 import { SheetMetalPM, Header, fieldEquation } from './shared';
 import { NEXT, type PMContext } from './context';
@@ -222,6 +222,7 @@ export function jogPM(ctx: PMContext): ReactNode | typeof NEXT {
     const err = st.rebuild.errors[d.id];
     const sm = st.doc.sheetMetal ?? DEFAULT_SHEET_METAL;
     const sketches = st.doc.features.filter((f): f is import('../../../core/document/types').SketchFeature => f.type === 'sketch');
+    const ca = d.customAllowance;
     return (
       <>
         <Header title={d.name} icon={<Icon.Line />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
@@ -245,9 +246,9 @@ export function jogPM(ctx: PMContext): ReactNode | typeof NEXT {
             ? <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.offset} onChange={(v) => st.updateFeatureDraft({ offset: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>
             : <div className={`k-selbox${st.flangePick === 'vertex' ? ' k-selbox-dir' : ''}`} style={{ minHeight: 24 }} onClick={() => useStore.setState({ flangePick: 'vertex' })}>{d.vertex ? <div className="k-selbox-row">{d.vertex.label}</div> : <span className="k-muted">Click a corner of the model.</span>}</div>}
           <div className="k-pm-radios">
-            <label className="k-check"><input type="radio" name="jogoff" checked={(d.offsetType ?? 'outside') === 'outside'} onChange={() => st.updateFeatureDraft({ offsetType: 'outside' })} /> Outside offset</label>
-            <label className="k-check"><input type="radio" name="jogoff" data-testid="jog-inside" checked={d.offsetType === 'inside'} onChange={() => st.updateFeatureDraft({ offsetType: 'inside' })} /> Inside offset</label>
-            <label className="k-check"><input type="radio" name="jogoff" checked={d.offsetType === 'overall'} onChange={() => st.updateFeatureDraft({ offsetType: 'overall' })} /> Overall dimension</label>
+            <label className="k-check"><input type="radio" name="jogoff" checked={(d.offsetType ?? 'outside') === 'outside'} onChange={() => st.updateFeatureDraft({ offsetType: 'outside' })} /> Outside Offset</label>
+            <label className="k-check"><input type="radio" name="jogoff" data-testid="jog-inside" checked={d.offsetType === 'inside'} onChange={() => st.updateFeatureDraft({ offsetType: 'inside' })} /> Inside Offset</label>
+            <label className="k-check"><input type="radio" name="jogoff" checked={d.offsetType === 'overall'} onChange={() => st.updateFeatureDraft({ offsetType: 'overall' })} /> Overall Dimension</label>
           </div>
           <label className="k-check"><input type="checkbox" data-testid="jog-fixprojected" checked={d.fixProjected !== false} onChange={(e) => st.updateFeatureDraft({ fixProjected: e.target.checked })} /> Fix projected length</label>
         </Section>
@@ -260,6 +261,25 @@ export function jogPM(ctx: PMContext): ReactNode | typeof NEXT {
         </Section>
         <Section title="Jog Angle">
           <div className="k-pm-valuerow"><Icon.MateAngle size={14} /><NumberField value={d.jogAngle ?? 90} onChange={(v) => st.updateFeatureDraft({ jogAngle: Math.max(10, Math.min(90, v)) })} unit="°" step={5} /></div>
+        </Section>
+        <Section title="Custom Bend Allowance" defaultOpen={!!ca} check={!!ca}
+          onCheck={(on) => st.updateFeatureDraft({ customAllowance: on ? { type: 'kFactor', value: sm.kFactor } : undefined })}>
+          {ca && (
+            <>
+              <select className="k-input" value={ca.type}
+                onChange={(e) => {
+                  const ty = e.target.value as 'kFactor';
+                  st.updateFeatureDraft({ customAllowance: { type: ty, value: ty === 'kFactor' ? sm.kFactor : ty === 'bendTable' ? 0 : 5 } });
+                }}>
+                <option value="bendTable">Bend Table</option><option value="kFactor">K-Factor</option>
+                <option value="bendAllowance">Bend Allowance</option><option value="bendDeduction">Bend Deduction</option>
+              </select>
+              {ca.type !== 'bendTable' && <div className="k-pm-valuerow">
+                <span className="k-muted" style={{ minWidth: 18 }}>{ca.type === 'kFactor' ? 'K' : ca.type === 'bendAllowance' ? 'BA' : 'BD'}</span>
+                <NumberField value={ca.value} onChange={(v) => st.updateFeatureDraft({ customAllowance: { ...ca, value: Math.max(0, ca.type === 'kFactor' ? Math.min(1, v) : v) } })}
+                  step={ca.type === 'kFactor' ? 0.05 : 0.1} /></div>}
+            </>
+          )}
         </Section>
         {err && (
           <Section title="Rebuild Errors">
@@ -731,10 +751,19 @@ export function hemPM(ctx: PMContext): ReactNode | typeof NEXT {
         <Section title="Type and Size">
           <div className="k-pm-stylerow">
             {([['closed', 'Closed'], ['open', 'Open'], ['tearDrop', 'Tear Drop'], ['rolled', 'Rolled']] as const).map(([v, tip]) => (
-              <button key={v} className={`k-pm-stylebtn k-tip ${d.hemType === v ? 'active' : ''}`} data-tip={tip} disabled={v === 'tearDrop' || v === 'rolled'} onClick={() => st.updateFeatureDraft({ hemType: v })}><Icon.Arc size={14} /></button>
+              <button key={v} className={`k-pm-stylebtn k-tip ${d.hemType === v ? 'active' : ''}`} data-tip={tip} data-testid={`hem-type-${v}`} onClick={() => st.updateFeatureDraft({ hemType: v })}><Icon.Arc size={14} /></button>
             ))}
           </div>
-          <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.length} onChange={(v) => st.updateFeatureDraft({ length: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>
+          {/* SW: Closed and Open have Length (Open also Gap Distance); Tear Drop and Rolled have Angle and Radius */}
+          {(d.hemType === 'closed' || d.hemType === 'open') && <div className="k-pm-valuerow k-tip" data-tip="Length"><Icon.Dimension size={14} /><NumberField value={d.length}
+            onChange={(v) => st.updateFeatureDraft({ length: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>}
+          {(d.hemType === 'tearDrop' || d.hemType === 'rolled') && <>
+            <div className="k-pm-valuerow k-tip" data-tip="Angle" data-testid="hem-angle"><Icon.MateAngle size={14} /><NumberField value={d.angle ?? HEM_CURL_DEFAULT[d.hemType].angle}
+              onChange={(v) => st.updateFeatureDraft({ angle: Math.max(181, Math.min(359, v)) })} unit="°" step={5} min={181} /></div>
+            <div className="k-pm-valuerow k-tip" data-tip="Radius" data-testid="hem-radius"><span className="k-muted" style={{ minWidth: 18 }}>R</span><NumberField
+              value={d.radius ?? HEM_CURL_DEFAULT[d.hemType].radius * (st.doc.sheetMetal?.thickness ?? 1)} onChange={(v) => st.updateFeatureDraft({ radius: Math.max(0.01, v) })}
+              unit={st.doc.units} step={0.5} min={0.01} /></div>
+          </>}
           {d.hemType === 'open' && <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>Gap</span><NumberField value={d.gap} onChange={(v) => st.updateFeatureDraft({ gap: Math.max(0.01, v) })} unit={st.doc.units} step={0.5} min={0.01} /></div>}
         </Section>
         <Section title="Miter Gap" defaultOpen={(d.miterGap ?? 0) > 0}>

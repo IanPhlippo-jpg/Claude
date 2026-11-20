@@ -162,17 +162,17 @@ export interface JogFeature {
   flipSide: boolean;
   /** jog the other way (Reverse Direction) */
   reverse: boolean;
-  /** Use default radius off: this radius */
+  /** Use default radius off: this radius (Custom Bend Allowance: customAllowance of the two bends) */
   radius?: number;
   /** Jog Offset: measured to the outside or the inside face, or the overall height; Fix projected length (default on) */
-  offsetType?: 'outside' | 'inside' | 'overall';
-  fixProjected?: boolean;
+  offsetType?: 'outside' | 'inside' | 'overall'; fixProjected?: boolean;
   /** Jog Position and Jog Angle */
   position?: 'centerline' | 'materialInside' | 'materialOutside' | 'bendOutside';
   jogAngle?: number;
   /** Jog Offset end condition: Blind (the offset) or Up To Vertex (the height of a picked corner) */
   offsetEnd?: 'blind' | 'upToVertex';
   vertex?: { point: [number, number, number]; label: string };
+  customAllowance?: EdgeFlangeFeature['customAllowance'];
 }
 
 /** Sheet Metal ▸ Sketched Bend: a sketch line on the sheet; one side bends up by the angle around it. */
@@ -303,7 +303,7 @@ export interface HemFeature {
   edge: EdgeRef | null;
   hemType: HemType;
   length: number;
-  gap: number;
+  gap: number; /** Tear Drop / Rolled: the Angle and Radius of the curl (SW); missing: HEM_CURL_DEFAULT */ angle?: number; radius?: number;
   position: FlangePosition;
   flip: boolean;
   /** Miter Gap between hems that meet at a corner (half off each end) */

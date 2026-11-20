@@ -60,16 +60,17 @@ await waitSettled(page);
 let b = await B();
 check('Jog1 built: half of the tab 12 mm lower', b && Object.keys(b.errors).length === 0 && Math.abs(b.min[1] + 12) < 0.05 && b.feats.includes('Jog1'), JSON.stringify(b));
 
-// ---- Miter Flange: a profile sketch on the right plane (x = 0) at the near top edge (z = 60), then pick two top edges
+// ---- Miter Flange: a profile sketch on the front plane (z = 0) at the end edge of the fixed half (x = 100), then pick it
+// (the side edges of a jogged sheet run through the two bends as one tangent chain: not straight, so no miter edge)
 const t = await page.evaluate(() => (window.__phlippoStore.getState().doc.sheetMetal ?? { thickness: 0 }).thickness || window.__phlippoStore.getState().rebuild.bodies[0].geometry.boundingBox.max.y);
 await page.evaluate((t) => {
   const st = window.__phlippoStore.getState();
   const K = window.__phlippoKit;
-  // right plane sketch coordinates: find them from the plane definition
-  const P = K.REFERENCE_PLANE_DEFS.right;
+  // front plane sketch coordinates: find them from the plane definition
+  const P = K.REFERENCE_PLANE_DEFS.front;
   const toS = (w) => { const o = P.origin, u = P.u, v = P.v; const d = [w[0] - o[0], w[1] - o[1], w[2] - o[2]]; return { x: d[0] * u[0] + d[1] * u[1] + d[2] * u[2], y: d[0] * v[0] + d[1] * v[1] + d[2] * v[2] }; };
-  let s3 = K.createSketch('sk3', 'Sketch3', 'right');
-  s3 = K.addLine(s3, toS([0, t, 60]), toS([0, t + 20, 60]))[0];
+  let s3 = K.createSketch('sk3', 'Sketch3', 'front');
+  s3 = K.addLine(s3, toS([100, t, 0]), toS([100, t + 20, 0]))[0];
   const d = { ...st.doc, sketches: { ...st.doc.sketches, sk3: s3 }, features: [...st.doc.features, { id: 'f9', type: 'sketch', name: 'Sketch3', sketchId: 'sk3', suppressed: false }] };
   st.openDocument(d);
 }, t);
@@ -81,14 +82,14 @@ await settle(page);
 check('Miter Flange Property Panel with the profile sketch', (await page.locator('[data-testid="miter-sketch"]').inputValue()) === 'sk3');
 await page.keyboard.press('f');
 await settle(page);
-// click the two top edges of the fixed half (x 50..100): along x at z = 60 and the end x = 100 along z
-for (const w of [[75, t, 60], [100, t, 30]]) {
+// click the top end edge of the fixed half (x = 100 along z)
+for (const w of [[100, t, 30]]) {
   const q = await page.evaluate((w) => window.__phlippoProjectWorld(w[0], w[1], w[2]), w);
   await page.mouse.click(q.x, q.y);
   await settle(page);
 }
 const picked = await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft?.edges?.length ?? 0);
-check('two edges picked in the graphics area', picked === 2, String(picked));
+check('the end edge picked in the graphics area', picked === 1, String(picked));
 await shot('jm2-miter-pm');
 await page.click('.k-pm-ok');
 await waitSettled(page);

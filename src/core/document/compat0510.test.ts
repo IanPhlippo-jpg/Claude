@@ -62,7 +62,10 @@ const PARTS: Record<string, { features: string[]; want: Want }> = {
   },
   'plaatwerk.kcad': {
     features: ['sketch:Sketch1', 'baseFlange:Base-Flange1', 'edgeFlange:Edge-Flange1', 'hem:Hem1'],
-    want: { now: 8687.0574, v0510: 8687.0574, exact: 8693.5433 },
+    // docs/37 ch. 15: the closed hem now has the minimal gap of SOLIDWORKS (inner radius 0.01 -> 0.05 at t 2), so its two
+    // layers stay two sheets: +10.11 mm³ (+0.12 %, within the 0.5 % of 0.5.10). The exact value moves by the closed form of
+    // that radius change, 60 x 2 x (pi - 1) x 0.04 = +10.28: 8693.5433 -> 8703.82
+    want: { now: 8697.1654, v0510: 8687.0574, exact: 8703.82 },
   },
 };
 

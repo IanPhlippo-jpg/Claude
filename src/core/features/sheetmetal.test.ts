@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { REFERENCE_PLANE_DEFS } from './planes';
 import { csg, meshVolume } from './solid';
-import { baseFlangeGeometry, baseFlangeRegion, bendAllowance, edgeFlangeGeometry, flatLength, flatPatternGeometry, hemFlangeParams, outerSetback, roundCorners, type SheetMetalParams } from './sheetmetal';
+import { baseFlangeGeometry, baseFlangeRegion, bendAllowance, closedHemGap, edgeFlangeGeometry, flatLength, flatPatternGeometry, hemFlangeParams, outerSetback, roundCorners, type SheetMetalParams } from './sheetmetal';
 
 const P: SheetMetalParams = { thickness: 2, bendRadius: 2, kFactor: 0.5 };
 const vol = (g: THREE.BufferGeometry | null) => Math.abs(meshVolume(g!));
@@ -78,10 +78,30 @@ describe('sheet metal', () => {
     const closed = edgeFlangeGeometry({ ...base, ...hemFlangeParams({ hemType: 'closed', length: 10, gap: 0, position: 'materialInside', flip: false }) }, P);
     expect(closed.trim).toBeTruthy();
     const cut = csg(sheet(), closed.trim!, 'subtract');
-    const r = 0.01;
+    // closed: the minimal gap of SOLIDWORKS (two layers that do not merge), inner radius gap / 2
+    const r = closedHemGap(2) / 2;
     expect(vol(cut)).toBeCloseTo((40 - (r + 2)) * 2 * 60, -1);
     const merged = csg(cut, closed.geometry!, 'union');
     expect(vol(merged)).toBeCloseTo(vol(cut) + vol(closed.geometry), -1);
+  });
+
+  it('hem curls as in SOLIDWORKS: Tear Drop and Rolled sweep their Angle with their Radius; the section area is the ring sector (+ the leg)', () => {
+    const base = { a: [20, 0, -30] as [number, number, number], b: [20, 0, 30] as [number, number, number], faceNormal: [0, 1, 0] as [number, number, number], faceCentroid: [0, 0, 0] as [number, number, number], length: 10, lengthMode: 'tangentBend' as const, flip: false };
+    const sector = (deg: number, R: number) => ((deg * Math.PI) / 360) * ((R + 2) ** 2 - R ** 2);
+    const rolled = edgeFlangeGeometry({ ...base, ...hemFlangeParams({ hemType: 'rolled', length: 10, gap: 1, position: 'materialOutside', flip: false, angle: 270, radius: 4 }, 2) }, P);
+    expect(Math.abs(vol(rolled.geometry) / (sector(270, 4) * 60) - 1)).toBeLessThan(0.005);
+    rolled.geometry!.computeBoundingBox();
+    // the roll stays clear of the sheet (y >= 0) and reaches 2 (R + t) high
+    expect(rolled.geometry!.boundingBox!.min.y).toBeGreaterThan(-2.01);
+    expect(rolled.geometry!.boundingBox!.max.y).toBeCloseTo(4 + 6, 1);
+    const tear = edgeFlangeGeometry({ ...base, ...hemFlangeParams({ hemType: 'tearDrop', length: 10, gap: 1, position: 'materialOutside', flip: false, angle: 225, radius: 2 }, 2) }, P);
+    const yIn = 2 + 2 * Math.sin((135 * Math.PI) / 180), leg = (yIn - closedHemGap(2)) / Math.sin(Math.PI / 4);
+    expect(Math.abs(vol(tear.geometry) / ((sector(225, 2) + leg * 2) * 60) - 1)).toBeLessThan(0.005);
+    tear.geometry!.computeBoundingBox();
+    // the leg comes back down to the closed-hem gap above the sheet face
+    expect(tear.geometry!.boundingBox!.min.y).toBeGreaterThan(-2.01);
+    // defaults without angle or radius (an older file): SW Tear Drop 225 / 1 t, Rolled 270 / 2 t
+    expect(hemFlangeParams({ hemType: 'rolled', length: 10, gap: 1, position: 'materialOutside', flip: false }, 2)).toMatchObject({ angle: 270, radius: 4, curl: 'rolled' });
   });
 });
 

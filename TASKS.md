@@ -1717,3 +1717,20 @@ elease; README en docs/04 bijgewerkt
 - [x] Gesloten/druppel/gerold zoom en jog: oorzaak vastgelegd, blijven geweigerd
 - [x] P2.8: strenge R12-lezer als onafhankelijke controle van de DXF
 - [x] typecheck, vitest, e2e, poorten, status in docs/37
+
+## Jog met echte plooien (2026-11-20)
+- [x] Jog PropertyManager naast de SW-help leggen (Offset-maat, Fix projected length, Jog Position, Jog Angle)
+- [x] jogOnBody herbouwen: vaste kant tot raaklijn 1, Z-zone (2 plooien + middenbeen) als één extrusie, bewegende kant vanaf raaklijn 2
+- [x] Fix projected length uit: geen materiaal erbij (snede op ontwikkelde lengte); aan: projectielengte blijft
+- [x] Exact (B-rep) pad gelijk houden met de mesh (aparte snede voor de bewegende kant)
+- [x] Kerntests src/core/features/jogBends.test.ts (volume = vlak x t, twee plooicilinders r en r + t, gesloten)
+- [x] Ontvouwtests src/fab/unfoldJog.test.ts tegen handberekening (outside/inside/overall, fix aan/uit, K 0.5 en DIN 6935)
+- [x] typecheck, vitest, line-budget/line-length, e2e jogmiter/sheetmetal/sheetmetal2 op testbuild
+- [ ] Ontvouwer (coördinator): adjacency in unfoldMesh.ts op afstand tot de lijn i.p.v. voetpunt (inside offset faalt nog), unfold37-verwachting jog -> exact
+
+## Zomen en jog met echte plooien (2026-11-20)
+- [x] Gesloten zoom met de minimale spleet, druppel en gerold met Angle en Radius (kern en PM)
+- [x] Jog met twee echte plooien (hulpagent), adjacency-fix in de ontvouwer
+- [x] Ontvouwer: krul voorbij 180 graden, hoek als som van de knikken; handberekening per type
+- [x] Plaatwerk-e2e (hem, sheetmetal, sheetmetal2, jogmiter), B-rep-controles, compat0510 bijgewerkt
+- [x] O1.6 als "verklaard, Ian beslist" in docs/37, hoofdstuk 15

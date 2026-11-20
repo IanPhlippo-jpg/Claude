@@ -6,6 +6,7 @@ import { setBrepKernel, type BrepKernel } from './brepKernel';
 import { occtKernel } from '../occt/brep';
 import { edgeRef } from './edgesets';
 import { meshVolume } from './solid';
+import { closedHemGap } from './sheetmetal';
 import { shapeMismatch } from './volumeCheck';
 import { addLine, createSketch } from '../sketch/model';
 import { createDocument, type Document } from '../document/types';
@@ -94,9 +95,18 @@ describe('edge flanges and hems on both kernels against the formulas', { timeout
     }
   });
 
+  it('hem curls as in SOLIDWORKS (Tear Drop 225 / radius 2, Rolled 270 / radius 4), both kernels against the formula', () => {
+    // Tear Drop: the leg runs on until its lower edge is the closed-hem gap above the sheet face (Material Outside)
+    const yIn = 2 + 2 * Math.sin((135 * Math.PI) / 180), leg = (yIn - closedHemGap(T)) / Math.sin(Math.PI / 4);
+    check('hem tear drop', tab(), topLong, { type: 'hem', hemType: 'tearDrop', length: 10, gap: 1, angle: 225, radius: 2, position: 'materialOutside', flip: false },
+      formula(TAB, { a: 225, r: 2, leg, w: 60, setback: 0 }));
+    check('hem rolled', tab(), topLong, { type: 'hem', hemType: 'rolled', length: 10, gap: 1, angle: 270, radius: 4, position: 'materialOutside', flip: false },
+      formula(TAB, { a: 270, r: 4, leg: 0, w: 60, setback: 0 }));
+  });
+
   it('hems open and closed, Material Inside / Outside, both directions', () => {
     for (const hemType of ['closed', 'open']) for (const position of ['materialInside', 'materialOutside']) for (const flip of [false, true]) {
-      const r = hemType === 'open' ? 1 : 0.01; // open: half the gap of 2; closed: an (almost) zero radius
+      const r = hemType === 'open' ? 1 : closedHemGap(T) / 2; // open: half the gap of 2; closed: the minimal gap of SW / 2
       check(`hem ${hemType} ${position}${flip ? ' flipped' : ''}`, tab(), topLong, { type: 'hem', hemType, length: 10, gap: 2, position, flip }, formula(TAB, { a: 180, r, leg: 10, w: 60, setback: position === 'materialInside' ? r + T : 0 }));
     }
   });
@@ -107,7 +117,7 @@ describe('edge flanges and hems on both kernels against the formulas', { timeout
       check(`relief ${relief} ${position}`, tab(relief), topLong, { type: 'edgeFlange', angle: 90, length: 20, lengthMode: 'outerSharp', position, flip: false, startOffset: 5, endOffset: 8 }, formula(TAB, { a: 90, r: R, leg: 20 - ossb(90), w: 47, setback: sb, reliefs: { relief, n: 2 } }));
     }
     check('gap 3', tab(), topLong, { type: 'edgeFlange', angle: 90, length: 20, lengthMode: 'outerSharp', position: 'materialInside', flip: false, gap: 3 }, formula(TAB, { a: 90, r: R, leg: 20 - ossb(90), w: 57, setback: ossb(90) }));
-    check('hem with offsets', tab('rectangle'), topLong, { type: 'hem', hemType: 'closed', length: 10, gap: 0, position: 'materialInside', flip: false, startOffset: 5, endOffset: 5 }, formula(TAB, { a: 180, r: 0.01, leg: 10, w: 50, setback: 0.01 + T, reliefs: { relief: 'rectangle', n: 2 } }));
+    check('hem with offsets', tab('rectangle'), topLong, { type: 'hem', hemType: 'closed', length: 10, gap: 0, position: 'materialInside', flip: false, startOffset: 5, endOffset: 5 }, formula(TAB, { a: 180, r: closedHemGap(T) / 2, leg: 10, w: 50, setback: closedHemGap(T) / 2 + T, reliefs: { relief: 'rectangle', n: 2 } }));
   });
 
   it('on an L sheet: every end edge (outer and inner face, both ends) takes the face the edge lies on', () => {

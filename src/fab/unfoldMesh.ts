@@ -113,6 +113,7 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number | ((
     const convex = new Array<boolean>(regions.length).fill(false);
     const parentOf = new Array<number>(regions.length).fill(-1);
     const width = new Array<number>(regions.length).fill(0);
+    const turnOf = new Array<number>(regions.length).fill(0);
     {
       const n = rNormal[root], big = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
       const u = unit(cross(big as V3, n)), v = cross(n, u), o = verts[tris[regions[root][0]].v[0]];
@@ -152,7 +153,7 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number | ((
         const w0 = Math.max(...regions[R].flatMap((ti) => tris[ti].v.map((w) => dot(sub(verts[w], pa), f))));
         const turn = Math.acos(Math.max(-1, Math.min(1, dot(rNormal[P], nR))));
         const strip = turn > 0.03 && turn < 0.6 && (curvedR[R] ?? w0 < 2.4 * (r + t) * Math.sin(turn) + 0.01);
-        isStrip[R] = strip; convex[R] = cvx; parentOf[R] = P; width[R] = w0;
+        isStrip[R] = strip; convex[R] = cvx; parentOf[R] = P; width[R] = w0; turnOf[R] = turn;
         const sc = strip ? scaleOf(R) : 1;
         for (const ti of regions[R]) for (const w of tris[ti].v) {
           const d = sub(verts[w], pa), x = dot(d, e), y = dot(d, f) * sc;
@@ -162,7 +163,7 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number | ((
         queue.push(R);
       }
     }
-    return { pos2, placed, isStrip, convex, parentOf, width };
+    return { pos2, placed, isStrip, convex, parentOf, width, turnOf };
   };
   const first = place(() => 1);
   if (first.placed.some((x) => !x)) return { fout: 'de zijde valt in losse delen uiteen' };
@@ -176,8 +177,11 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number | ((
     let cur = R;
     while (cur >= 0 && first.isStrip[cur]) { strips.push(cur); cur = first.parentOf.findIndex((p, j) => p === cur && first.isStrip[j]); }
     const last = strips[strips.length - 1], out = first.parentOf.findIndex((p, j) => p === last && !first.isStrip[j]);
-    const nIn = rNormal[first.parentOf[R]], nOut = out >= 0 ? rNormal[out] : rNormal[last];
-    const theta = Math.acos(Math.max(-1, Math.min(1, dot(nIn, nOut))));
+    // the bend angle as the sum of the facet turns (a hem curl goes past 180 degrees, where the angle between the two
+    // flange normals stops): flange to strip delta / 2, strip to strip delta, last strip to flange delta / 2
+    let theta = strips.reduce((x, z) => x + first.turnOf[z], 0);
+    if (out >= 0) theta += Math.acos(Math.max(-1, Math.min(1, dot(rNormal[last], rNormal[out]))));
+    else theta += theta / (2 * strips.length - 1);
     const ws = strips.map((z) => first.width[z]), W = ws.reduce((x, y) => x + y, 0), n = strips.length;
     const rhoA = W / (2 * n * Math.sin(theta / (2 * n)));
     const cvx = first.convex[R], rIn = cvx ? rhoA - t : rhoA;
@@ -230,8 +234,7 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number | ((
     let flangeIn = parentOf[R];
     while (flangeIn >= 0 && isStrip[flangeIn]) flangeIn = parentOf[flangeIn];
     const last = zone[zone.length - 1], flangeOut = parentOf.findIndex((p, j) => p === last && !isStrip[j]);
-    const nIn = rNormal[flangeIn], nOut = flangeOut >= 0 ? rNormal[flangeOut] : rNormal[last];
-    const hoek = (Math.acos(Math.max(-1, Math.min(1, dot(nIn, nOut)))) * 180) / Math.PI;
+    const hoek = zones[zoneOf.get(R) ?? -1]?.hoek ?? (Math.acos(Math.max(-1, Math.min(1, dot(rNormal[flangeIn], flangeOut >= 0 ? rNormal[flangeOut] : rNormal[last])))) * 180) / Math.PI;
     const pts = zone.flatMap((z) => [...pos2[z].values()]);
     // the axis: along the crease of the first strip
     const ref = [...pos2[R].values()];
@@ -265,7 +268,7 @@ export function unfoldMesh(s: Float64Array, t: number, r: number, k: number | ((
  */
 function adjacency(tris: Tri[], verts: V3[]): number[][][] {
   const out = tris.map(() => [[], [], []] as number[][]);
-  interface E { i: number; j: number; d: V3; foot: V3; lo: number; hi: number; cell: number[] }
+  interface E { i: number; j: number; d: V3; foot: V3; lo: number; hi: number; cell: number[]; a: V3; b: V3 }
   const all: E[] = [];
   const grid = new Map<string, E[]>();
   tris.forEach((tr, i) => {
@@ -279,7 +282,7 @@ function adjacency(tris: Tri[], verts: V3[]): number[][][] {
       const foot: V3 = [a[0] - ta * d[0], a[1] - ta * d[1], a[2] - ta * d[2]];
       // cells of 0.01 in direction and 0.5 mm in foot; neighbours searched, so no rounding edge splits a line
       const cell = [...d.map((x) => Math.floor(x * 100)), ...foot.map((x) => Math.floor(x * 2))];
-      const e: E = { i, j, d, foot, lo: Math.min(ta, tb), hi: Math.max(ta, tb), cell };
+      const e: E = { i, j, d, foot, lo: Math.min(ta, tb), hi: Math.max(ta, tb), cell, a, b };
       all.push(e);
       const key = cell.join(',');
       (grid.get(key) ?? grid.set(key, []).get(key)!).push(e);
@@ -294,6 +297,9 @@ function adjacency(tris: Tri[], verts: V3[]): number[][][] {
       for (const B of list) {
         if (B.i <= A.i) continue;
         if (Math.abs(dot(A.d, B.d)) < 0.99999 || Math.hypot(A.foot[0] - B.foot[0], A.foot[1] - B.foot[1], A.foot[2] - B.foot[2]) > 2e-3) continue;
+        // the end points on the other line too: the diagonal of a long thin facet is almost parallel to its long edges
+        const off = (q: V3, L: E) => Math.hypot(...cross(sub(q, L.a), L.d));
+        if (Math.max(off(B.a, A), off(B.b, A), off(A.a, B), off(A.b, B)) > 2e-3) continue;
         if (Math.min(A.hi, B.hi) - Math.max(A.lo, B.lo) < 1e-4) continue;
         out[A.i][A.j].push(B.i);
         out[B.i][B.j].push(A.i);

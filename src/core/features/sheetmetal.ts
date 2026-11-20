@@ -241,6 +241,8 @@ export type FlangeLengthMode = 'outerSharp' | 'innerSharp' | 'tangentBend';
 export type FlangePosition = 'materialInside' | 'materialOutside' | 'bendOutside';
 
 export interface EdgeFlangeInput {
+  /** a hem curl past 180 degrees (Tear Drop: leg back to the sheet; Rolled: no leg) */
+  curl?: 'tearDrop' | 'rolled';
   /** the straight edge of the sheet (world) */
   a: [number, number, number];
   b: [number, number, number];
@@ -324,8 +326,9 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
     while (th > Math.PI) th -= Math.PI;
     input = { ...input, angle: (th * 180) / Math.PI };
   }
-  const theta = Math.max(1, Math.min(180, input.angle)) * Math.PI / 180;
-  let leg = flangeLeg(input, r, p);
+  // a hem curl (Tear Drop, Rolled) goes past 180 degrees
+  const theta = Math.max(1, Math.min(input.curl ? 359 : 180, input.angle)) * Math.PI / 180;
+  let leg = input.curl ? 0 : flangeLeg(input, r, p);
   // Edit Flange Profile: the width comes from the profile's bottom line, the leg from its top
   const prof = input.profile?.length ? input.profile : null;
   if (prof) {
@@ -348,14 +351,18 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
   // 2D profile, x = outward (v), y = normal (n); the sheet's outer surface is y = 0 (face), inner y = -t
   const C = { x: shift, y: r };
   const inner: SketchPoint[] = [], outer: SketchPoint[] = [];
-  for (let k = 0; k <= ARC_STEPS; k++) {
-    const phi = -Math.PI / 2 + (theta * k) / ARC_STEPS;
+  // a hem curl gets as many facets per degree as a 90 degree bend (the kernel marks them curved, the flat measures them)
+  const steps = input.curl ? Math.ceil((ARC_STEPS * theta) / (Math.PI / 2)) : ARC_STEPS;
+  for (let k = 0; k <= steps; k++) {
+    const phi = -Math.PI / 2 + (theta * k) / steps;
     inner.push({ x: C.x + r * Math.cos(phi), y: C.y + r * Math.sin(phi) });
     outer.push({ x: C.x + (r + t) * Math.cos(phi), y: C.y + (r + t) * Math.sin(phi) });
   }
   const phiEnd = -Math.PI / 2 + theta;
   const tangent = { x: -Math.sin(phiEnd), y: Math.cos(phiEnd) };
   const Ei = inner[inner.length - 1], Eo = outer[outer.length - 1];
+  // Tear Drop: the leg runs straight on from the curl until its lower edge is the closed-hem gap above the sheet face
+  if (input.curl === 'tearDrop' && tangent.y < -1e-6) leg = Math.max(0, (Math.min(Ei.y, Eo.y) - closedHemGap(t)) / -tangent.y);
   const poly: SketchPoint[] = [
     ...inner,
     { x: Ei.x + tangent.x * leg, y: Ei.y + tangent.y * leg },
@@ -494,9 +501,24 @@ export function flangeSetback(angleDeg: number, r: number, p: SheetMetalParams, 
 
 export type HemType = 'closed' | 'open' | 'tearDrop' | 'rolled';
 
-/** A hem as an edge flange of 180 degrees: closed = (almost) no gap, open = gap between the sheet and the hem. */
-export function hemFlangeParams(h: { hemType: HemType; length: number; gap: number; position: FlangePosition; flip: boolean }): { angle: number; length: number; lengthMode: FlangeLengthMode; position: FlangePosition; flip: boolean; radius: number } {
-  const radius = h.hemType === 'open' ? Math.max(0.01, h.gap / 2) : 0.01;
+/** the gap of a closed hem: the hem lies on the sheet with a hair between (the layers stay two sheets, as in SW) */
+export const closedHemGap = (t: number) => Math.max(0.02, 0.05 * t);
+/** the defaults of Tear Drop and Rolled when a hem has no angle or radius of its own (SW: Angle and Radius) */
+export const HEM_CURL_DEFAULT = { tearDrop: { angle: 225, radius: 1 }, rolled: { angle: 270, radius: 2 } } as const;
+
+/**
+ * A hem as an edge flange (SOLIDWORKS Hem types): Closed = 180 degrees with the minimal gap (inner radius gap / 2),
+ * Open = 180 degrees with the Gap Distance (inner radius gap / 2), Tear Drop = a curl of Angle and Radius with a straight
+ * leg back to the sheet, Rolled = a curl of Angle and Radius without a leg. `t` is the sheet thickness.
+ */
+export function hemFlangeParams(h: { hemType: HemType; length: number; gap: number; position: FlangePosition; flip: boolean; angle?: number; radius?: number }, t = 1):
+  { angle: number; length: number; lengthMode: FlangeLengthMode; position: FlangePosition; flip: boolean; radius: number; curl?: 'tearDrop' | 'rolled' } {
+  if (h.hemType === 'tearDrop' || h.hemType === 'rolled') {
+    const d = HEM_CURL_DEFAULT[h.hemType];
+    return { angle: Math.max(181, Math.min(359, h.angle ?? d.angle)), length: 0, lengthMode: 'tangentBend', position: h.position, flip: h.flip,
+      radius: Math.max(0.01, h.radius ?? d.radius * t), curl: h.hemType };
+  }
+  const radius = h.hemType === 'open' ? Math.max(0.01, h.gap / 2) : closedHemGap(t) / 2;
   return { angle: 180, length: h.length, lengthMode: 'tangentBend', position: h.position, flip: h.flip, radius };
 }
 

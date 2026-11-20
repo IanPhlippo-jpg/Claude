@@ -2,13 +2,13 @@
 // rebuild.ts (QA 0.5.12 F134). The rebuild and the viewport previews call these; sheetMetalBuild.ts applies them.
 import * as THREE from 'three';
 import type { Document, EdgeFlangeFeature, HemFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
-import type { Id } from '../sketch/types';
-import type { Region } from './regions';
+import type { Id, SketchPoint } from '../sketch/types';
+import { polyArea, type Region } from './regions';
 import { resolvePlaneDef } from './planes';
-import { clipToSurface, csg, extrudeGeometry, planarFaces, planeMatrix } from './solid';
+import { clipToSurface, csg, extrudeGeometry, mergeGeometries, planarFaces, planeMatrix } from './solid';
 import { bodyEdges, matchEdge, type BodyEdge } from './edgesets';
 import { sketchChains } from './thin';
-import { baseFlangeLoop, baseFlangeRegion, edgeFlangeGeometry, hemFlangeParams, type SheetMetalParams } from './sheetmetal';
+import { baseFlangeLoop, baseFlangeRegion, bendAllowance, edgeFlangeGeometry, hemFlangeParams, type ProfileSegment, type SheetMetalParams } from './sheetmetal';
 import { edgeEnds, sheetFaceOfEdge } from './sheetmetal4';
 
 /**
@@ -16,11 +16,12 @@ import { edgeEnds, sheetFaceOfEdge } from './sheetmetal4';
  * faces) and the flange geometry.
  */
 /** A hem as edge-flange parameters (180 degrees, tangent-bend length, radius from the gap). */
-export function hemAsFlange(h: HemFeature): Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature> {
-  return { edge: h.edge, ...hemFlangeParams(h), gap: h.miterGap, customAllowance: h.customAllowance, customRelief: h.customRelief, startOffset: h.startOffset, endOffset: h.endOffset };
+export function hemAsFlange(h: HemFeature, t = 1):
+  Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature> & { curl?: 'tearDrop' | 'rolled' } {
+  return { edge: h.edge, ...hemFlangeParams(h, t), gap: h.miterGap, customAllowance: h.customAllowance, customRelief: h.customRelief, startOffset: h.startOffset, endOffset: h.endOffset };
 }
 
-export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string, f: Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature> & { profile?: Region[] }, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; edge?: BodyEdge; trim?: THREE.BufferGeometry | null; exact?: ReturnType<typeof edgeFlangeGeometry>['exact'] } {
+export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string, f: Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature> & { profile?: Region[]; curl?: 'tearDrop' | 'rolled' }, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; edge?: BodyEdge; trim?: THREE.BufferGeometry | null; exact?: ReturnType<typeof edgeFlangeGeometry>['exact'] } {
   const params = flangeParams(params0, f);
   if (!f.edge) return { geometry: null, error: 'Select a straight edge of the sheet.' };
   const edges = bodyEdges(geometry, bodyId);
@@ -29,7 +30,7 @@ export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string,
   const face = sheetFaceOfEdge(planarFaces(geometry, bodyId), e);
   if (!face) return { geometry: null, error: 'Could not find the sheet face of the edge.' };
   const [a, b] = edgeEnds(e, f.edge.dir);
-  const r = edgeFlangeGeometry({ a: [a.x, a.y, a.z], b: [b.x, b.y, b.z], faceNormal: face.normal, faceCentroid: face.centroid, angle: f.angle, length: f.length, lengthMode: f.lengthMode, position: f.position, flip: f.flip, radius: f.radius, startOffset: f.startOffset, endOffset: f.endOffset, gap: f.gap, trimSideBends: f.trimSideBends, offset: f.offset, angleFace: f.angleFace, upToVertex: f.lengthEnd === 'upToVertex' ? f.vertex?.point : undefined, profile: f.profile }, params);
+  const r = edgeFlangeGeometry({ a: [a.x, a.y, a.z], b: [b.x, b.y, b.z], faceNormal: face.normal, faceCentroid: face.centroid, angle: f.angle, length: f.length, lengthMode: f.lengthMode, position: f.position, flip: f.flip, radius: f.radius, startOffset: f.startOffset, endOffset: f.endOffset, gap: f.gap, trimSideBends: f.trimSideBends, offset: f.offset, angleFace: f.angleFace, upToVertex: f.lengthEnd === 'upToVertex' ? f.vertex?.point : undefined, profile: f.profile, curl: f.curl }, params);
   return { ...r, edge: e };
 }
 
@@ -150,6 +151,8 @@ export function miterFlangeOnBody(doc: Document, geometry: THREE.BufferGeometry,
 /** a jog or sketched bend for the B-rep kernel: the cut plane, the move of the far side (matrix) and the exact bend region */
 export interface ExactJog {
   origin: [number, number, number];
+  /** the cut of the moving side when it differs from origin (a jog: the tangent line of its second bend) */
+  cut2?: [number, number, number];
   m: [number, number, number];
   move: number[];
   plane: PlaneDef;
@@ -167,7 +170,7 @@ export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId:
     if (d < 1e-6) return { geometry: null, error: 'The vertex lies in the sketch plane.' };
     return jogOnBody(doc, geometry, bodyId, { ...f, offsetEnd: undefined, offset: d }, params0);
   }
-  const params = f.radius !== undefined ? { ...params0, bendRadius: f.radius } : params0;
+  const params = flangeParams(f.radius !== undefined ? { ...params0, bendRadius: f.radius } : params0, { customAllowance: f.customAllowance });
   const sketch = doc.sketches[f.sketchId];
   if (!sketch) return { geometry: null, error: 'Select the sketch with the jog line.' };
   const line = sketch.entityOrder.map((id) => sketch.entities[id]).find((e) => e.kind === 'line' && !e.construction);
@@ -196,19 +199,27 @@ export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId:
   }
   let m = nf.clone().cross(l).normalize();
   if (f.flipSide) m = m.negate();
-  // Jog Offset measured to the outside face (default), the inside face, or the overall height
+  // Jog Offset (SW / docs): Outside = sketch face to the far face of the moved part (the move D), Inside = to its near
+  // face (D - t), Overall dimension = from the other face of the sheet to the far face (D + t)
   const D = Math.max(t, f.offsetType === 'inside' ? f.offset + t : f.offsetType === 'overall' ? f.offset - t : f.offset);
   const r = params.bendRadius;
-  const run = r + 2 * t + 2;
-  // Jog Position: where the bends lie against the line
-  origin.addScaledVector(m, positionShift(f.position, r, t));
-  // Jog Angle: the middle leg leans when the angle is under 90 degrees
-  const ja = Math.max(10, Math.min(90, f.jogAngle ?? 90));
-  const lean = D / Math.tan((ja * Math.PI) / 180);
-  // Z profile along the top surface (m, n): material below the chain
-  const chain = [{ x: -run, y: 0 }, { x: 0, y: 0 }, { x: lean, y: D }, { x: lean + run, y: D }];
-  const region = baseFlangeRegion(chain, params, true);
-  if (!region) return { geometry: null, error: 'The jog has no size.' };
+  // Jog Angle: the middle leg leans when the angle is under 90 degrees; an offset too small for two full bends with a
+  // straight leg between them gives two shallower bends that meet (S curve)
+  const ja = (Math.max(10, Math.min(90, f.jogAngle ?? 90)) * Math.PI) / 180;
+  const sec = jogSection(D, ja, r, t);
+  const deg = (sec.phi * 180) / Math.PI, ba = bendAllowance(deg, r, params);
+  // Jog Position: where the first bend starts (X1, along m from the line): Bend Centerline = the line in the middle of
+  // the first bend in the flat, Material Inside = the outer face of the middle leg on the line, Material Outside = its
+  // inner face on the line, Bend Outside = the bend starts at the line
+  const tan2 = Math.tan(sec.phi / 2);
+  const X1 = f.position === 'materialInside' ? -(r + t) * tan2 : f.position === 'materialOutside' ? -r * tan2 : f.position === 'bendOutside' ? 0 : -ba / 2;
+  const X2 = X1 + sec.run;
+  // Fix projected length (default on): the far part keeps its place along the sheet, material is added for the jog;
+  // off: no material is added, the far part is cut where the developed jog (two bends + leg) ends and slides back
+  const cut2 = f.fixProjected === false ? X1 + 2 * ba + sec.h : X2;
+  const along = X2 - cut2;
+  const P = (x: number) => origin.clone().addScaledVector(m, x);
+  const pFix = P(X1), pCut = P(cut2);
   // the width of the sheet along the line: the cut of the body at the line
   const loops = sliceMeshLoops(geometry, m, m.dot(origin), l, nf);
   if (!loops.length) return { geometry: null, error: 'The jog line does not cross the sheet.' };
@@ -216,24 +227,80 @@ export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId:
   for (const loop of loops) for (const p of loop) { s0 = Math.min(s0, p[0]); s1 = Math.max(s1, p[0]); }
   // right-handed frame (u = m, v = nf, n = m × nf): extrude from the end of the sheet the normal points away from
   const nn = m.clone().cross(nf).normalize();
-  const startP = origin.clone().addScaledVector(l, (nn.dot(l) > 0 ? s0 : s1) - l.dot(origin));
+  const startP = pFix.clone().addScaledVector(l, (nn.dot(l) > 0 ? s0 : s1) - l.dot(pFix));
   const pl: PlaneDef = { id: 'jog', name: 'jog', origin: [startP.x, startP.y, startP.z], u: [m.x, m.y, m.z], v: [nf.x, nf.y, nf.z], n: [nn.x, nn.y, nn.z] };
-  const zg = extrudeGeometry([region], pl, { end: 'blind', depth: s1 - s0, reverse: false }, s1 - s0 + 10, 0);
+  // the bend zone (two bends and the middle leg) as one extrusion from the tangent line of the first bend to the
+  // tangent line of the second: it only touches the fixed and the moved part in those two planes (one clean sheet)
+  const zg = extrudeGeometry([sec.region], pl, { end: 'blind', depth: s1 - s0, reverse: false }, s1 - s0 + 10, 0);
   if (!zg) return { geometry: null, error: 'Could not build the jog.' };
-  // the fixed side stays, the other side moves up by the offset
-  const behind = origin.clone().addScaledVector(m, -1);
-  const ahead = origin.clone().addScaledVector(m, 1);
-  const fixed = clipToSurface(geometry, { normal: [m.x, m.y, m.z], point: [origin.x, origin.y, origin.z] }, [behind.x, behind.y, behind.z]);
-  const moving = clipToSurface(geometry, { normal: [m.x, m.y, m.z], point: [origin.x, origin.y, origin.z] }, [ahead.x, ahead.y, ahead.z]);
-  moving.translate(nf.x * D, nf.y * D, nf.z * D);
-  // the moving side shifts with the leaning leg; Fix projected length off keeps the flat length instead
-  const along = lean + (f.fixProjected === false ? -D : 0);
-  if (Math.abs(along) > 1e-9) moving.translate(m.x * along, m.y * along, m.z * along);
-  let out = csg(fixed, zg, 'union');
-  out = csg(out, moving, 'union');
+  const fixed = clipToSurface(geometry, { normal: [m.x, m.y, m.z], point: [pFix.x, pFix.y, pFix.z] }, pFix.clone().addScaledVector(m, -1).toArray());
+  const moving = clipToSurface(geometry, { normal: [m.x, m.y, m.z], point: [pCut.x, pCut.y, pCut.z] }, pCut.clone().addScaledVector(m, 1).toArray());
   const mv = nf.clone().multiplyScalar(D).addScaledVector(m, along);
-  const exact: ExactJog = { origin: [origin.x, origin.y, origin.z], m: [m.x, m.y, m.z], move: new THREE.Matrix4().makeTranslation(mv.x, mv.y, mv.z).elements.slice(), plane: pl, loop: baseFlangeLoop(chain, params, true), depth: s1 - s0 };
+  moving.translate(mv.x, mv.y, mv.z);
+  // the three pieces meet in the two tangent planes: joined there without a boolean (a union of solids that only touch
+  // leaves slivers in the bend facets); a cut that is not the full cross-section of the bend zone falls back to the union
+  const pEnd = P(X2), a = dropCap(fixed, pFix, m), z1 = dropCap(zg, pFix, m), z2 = dropCap(z1.g, pEnd, m), b = dropCap(moving, pEnd, m);
+  const same = (x: number, y: number) => x > 1e-9 && Math.abs(x - y) <= 1e-6 * x + 1e-6;
+  const out = same(a.area, z1.area) && same(b.area, z2.area) ? mergeGeometries([a.g, z2.g, b.g]) : csg(csg(fixed, zg, 'union'), moving, 'union');
+  const exact: ExactJog = { origin: [pFix.x, pFix.y, pFix.z], cut2: [pCut.x, pCut.y, pCut.z], m: [m.x, m.y, m.z], move: new THREE.Matrix4().makeTranslation(mv.x, mv.y, mv.z).elements.slice(), plane: pl,
+    loop: sec.loop, depth: s1 - s0 };
   return { geometry: out, region: zg, exact };
+}
+
+/** a mesh without its triangles in the plane through p with normal n (the cap of a cut), and their area */
+function dropCap(g: THREE.BufferGeometry, p: THREE.Vector3, n: THREE.Vector3): { g: THREE.BufferGeometry; area: number } {
+  const ng = g.index ? g.toNonIndexed() : g, pos = ng.getAttribute('position'), keep: number[] = [];
+  const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
+  let area = 0;
+  for (let i = 0; i + 2 < pos.count; i += 3) {
+    A.fromBufferAttribute(pos, i); B.fromBufferAttribute(pos, i + 1); C.fromBufferAttribute(pos, i + 2);
+    const N = B.clone().sub(A).cross(C.clone().sub(A));
+    const inPlane = [A, B, C].every((v) => Math.abs(v.clone().sub(p).dot(n)) < 1e-5);
+    if (inPlane && Math.abs(N.dot(n)) >= 0.999 * N.length()) area += N.length() / 2;
+    else keep.push(i);
+  }
+  const out = new THREE.BufferGeometry();
+  for (const [name, at] of Object.entries(ng.attributes)) {
+    const src = at as THREE.BufferAttribute, w = src.itemSize, arr: number[] = [];
+    for (const i of keep) for (let k = 0; k < 3 * w; k++) arr.push(src.array[i * w + k]);
+    out.setAttribute(name, new THREE.Float32BufferAttribute(arr, w));
+  }
+  return { g: out, area };
+}
+
+/**
+ * The cross-section of a jog's bend zone in (x along the sheet from the tangent line of the first bend, y along the
+ * jog): two bends of angle phi (inner radius r, outer r + t) with a straight leg h between them; the top face rises
+ * by D. The first bend has its inner radius on the top face, the second its outer radius.
+ */
+export function jogSection(D: number, ja: number, r: number, t: number): { region: Region; loop: ProfileSegment[]; phi: number; h: number; run: number } {
+  let phi = ja, h = (D - (2 * r + t) * (1 - Math.cos(ja))) / Math.sin(ja);
+  if (h < 0) {
+    phi = Math.acos(Math.max(-1, 1 - D / (2 * r + t)));
+    h = 0;
+  }
+  const d = { x: Math.cos(phi), y: Math.sin(phi) }, nm = { x: Math.sin(phi), y: -Math.cos(phi) };
+  const c1 = { x: 0, y: r };
+  const p1 = { x: c1.x + r * nm.x + h * d.x, y: c1.y + r * nm.y + h * d.y };
+  const c2 = { x: p1.x + (r + t) * nm.x, y: p1.y + (r + t) * nm.y };
+  const run = c2.x;
+  const at = (c: SketchPoint, R: number, a: number) => ({ x: c.x + R * Math.cos(a), y: c.y + R * Math.sin(a) });
+  const arc = (c: SketchPoint, R: number, a0: number, a1: number) => Array.from({ length: 13 }, (_, k) => at(c, R, a0 + ((a1 - a0) * k) / 12));
+  const q = Math.PI / 2;
+  // top face: bend 1 (inner) then bend 2 (outer); bottom face back: bend 2 (inner) then bend 1 (outer)
+  const top = [...arc(c1, r, -q, -q + phi), ...arc(c2, r + t, q + phi, q)];
+  const bottom = [...arc(c2, r, q, q + phi), ...arc(c1, r + t, -q + phi, -q)];
+  const poly = [...top, ...bottom].filter((p, i, a) => i === 0 || Math.hypot(p.x - a[i - 1].x, p.y - a[i - 1].y) > 1e-9);
+  const area = polyArea(poly);
+  const seg = (c: SketchPoint, R: number, a0: number, a1: number): ProfileSegment => ({ a: at(c, R, a0), b: at(c, R, a1), m: at(c, R, (a0 + a1) / 2) });
+  const line = (a: SketchPoint, b: SketchPoint): ProfileSegment[] => (Math.hypot(b.x - a.x, b.y - a.y) > 1e-9 ? [{ a, b }] : []);
+  const loop: ProfileSegment[] = [
+    seg(c1, r, -q, -q + phi), ...line(at(c1, r, -q + phi), at(c2, r + t, q + phi)), seg(c2, r + t, q + phi, q),
+    { a: at(c2, r + t, q), b: at(c2, r, q) },
+    seg(c2, r, q, q + phi), ...line(at(c2, r, q + phi), at(c1, r + t, -q + phi)), seg(c1, r + t, -q + phi, -q),
+    { a: at(c1, r + t, -q), b: at(c1, r, -q) },
+  ];
+  return { region: { outer: area < 0 ? poly.slice().reverse() : poly, holes: [], area: Math.abs(area) }, loop, phi, h, run };
 }
 
 /**

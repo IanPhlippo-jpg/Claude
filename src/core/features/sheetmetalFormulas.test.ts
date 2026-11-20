@@ -5,7 +5,7 @@ import { addLine, createSketch } from '../sketch/model';
 import { rebuildDocument } from './rebuild';
 import { edgeRef } from './edgesets';
 import { REFERENCE_PLANE_DEFS } from './planes';
-import { baseFlangeGeometry, bendAllowance, bendDeduction, edgeFlangeGeometry, flatLength, innerSetback, outerSetback, type SheetMetalParams } from './sheetmetal';
+import { baseFlangeGeometry, bendAllowance, bendDeduction, closedHemGap, edgeFlangeGeometry, flatLength, innerSetback, outerSetback, type SheetMetalParams } from './sheetmetal';
 import { sheetMapping, unfoldGeometry } from './unfold';
 
 /**
@@ -141,7 +141,7 @@ describe('sheet metal against the standard formulas', () => {
     const closed = strip(c);
     closed.features.push({ id: 'h', type: 'hem', name: 'Hem1', suppressed: false, edge: endEdge(closed), hemType: 'closed', length: 12, gap: 0, position: 'materialInside', flip: false } as never);
     expect(rebuildDocument(closed).errors).toEqual({});
-    const r0 = 0.01; // a closed hem: an (almost) zero inner radius
+    const r0 = closedHemGap(c.T) / 2; // a closed hem: the minimal gap of SW, inner radius gap / 2
     close(flatOf(closed).x, 100 + 12 + Math.PI * (r0 + c.K * c.T) - (r0 + c.T));
     const open = strip(c);
     open.features.push({ id: 'h', type: 'hem', name: 'Hem1', suppressed: false, edge: endEdge(open), hemType: 'open', length: 12, gap: 2, position: 'materialOutside', flip: false } as never);
