@@ -144,3 +144,95 @@ describe('jog: two real bends in one clean sheet', () => {
     expect(Math.abs(Math.abs(meshVolume(g)) - hand) / hand).toBeLessThan(0.005);
   });
 });
+
+// Jog PropertyManager as SW 2025: Up To Surface / Offset From Surface, Fixed Face, Use gauge table, Override value.
+// Each case failed before (the end conditions, the fixed face and the gauge/override fields did not exist).
+const vol90 = (D: number) => (80 - 6 + (D - 6) + 2 * BA(0.5)) * 120 * t;
+const relErr = (g: THREE.BufferGeometry, hand: number) => Math.abs(Math.abs(meshVolume(g)) - hand) / hand;
+/** a planar face parallel to the sheet at world height y (as a pick stores it: normal, point, label) */
+const face = (y: number, z = -20) => ({ normal: [0, 1, 0], point: [60, y, z], label: 'Face<1>' });
+/** the z range of the moved part (the vertices below the sheet) */
+const movedZ = (g: THREE.BufferGeometry, moved = (y: number) => y < -5) => {
+  const pos = g.getAttribute('position');
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < pos.count; i++) if (moved(pos.getY(i))) { lo = Math.min(lo, pos.getZ(i)); hi = Math.max(hi, pos.getZ(i)); }
+  return [lo, hi];
+};
+
+describe('jog PropertyManager: end conditions, fixed face, gauge table, override value', () => {
+  it('Up To Surface: the far face of the moved part ends at the picked face (15 below the sketch face)', () => {
+    const g = body(jogDoc({ offsetEnd: 'upToSurface', surface: face(-15), offset: 10 }));
+    expect(isClosed(g)).toBe(true);
+    g.computeBoundingBox();
+    expect(g.boundingBox!.min.y).toBeCloseTo(-15, 4);
+    expect(relErr(g, vol90(15))).toBeLessThan(0.005);
+  });
+  it('Up To Surface with Inside Offset: the near face of the moved part ends at the face', () => {
+    const g = body(jogDoc({ offsetEnd: 'upToSurface', surface: face(-15), offsetType: 'inside' }));
+    g.computeBoundingBox();
+    expect(g.boundingBox!.min.y).toBeCloseTo(-17, 4);
+    expect(relErr(g, vol90(17))).toBeLessThan(0.005);
+  });
+  it('Offset From Surface: the offset short of the face, Reverse offset beyond it', () => {
+    for (const [rev, low] of [[false, -12], [true, -18]] as const) {
+      const g = body(jogDoc({ offsetEnd: 'offsetFromSurface', surface: face(-15), surfaceOffset: 3, reverseOffset: rev }));
+      expect(isClosed(g), `reverse ${rev}`).toBe(true);
+      g.computeBoundingBox();
+      expect(g.boundingBox!.min.y, `reverse ${rev}`).toBeCloseTo(low, 4);
+      expect(relErr(g, vol90(-low)), `reverse ${rev}`).toBeLessThan(0.005);
+    }
+  });
+  it('a face that is not parallel to the sheet, or no face, is an error', () => {
+    for (const s of [{ normal: [0, 0, 1], point: [0, -15, 0], label: 'Face<2>' }, undefined]) {
+      const res = rebuildDocument(jogDoc({ offsetEnd: 'upToSurface', surface: s }));
+      expect(res.errors.jg).toMatch(/parallel|Select a planar face/);
+    }
+  });
+  it('Fixed Face: the side of the picked point stays; it wins over flipSide; flipSide alone (old files) still works', () => {
+    // the line at z = -40, the tab from z = -80 to 0; default: the near side (z up to 0) moves, flipSide: the far side
+    const nearMoves = (g: THREE.BufferGeometry) => { const [lo, hi] = movedZ(g); return Math.abs(hi) < 1e-4 && lo > -50; };
+    const farMoves = (g: THREE.BufferGeometry) => { const [lo, hi] = movedZ(g); return Math.abs(lo + 80) < 1e-4 && hi < -30; };
+    expect(nearMoves(body(jogDoc()))).toBe(true);
+    const flipOld = body(jogDoc({ flipSide: true }));
+    expect(farMoves(flipOld)).toBe(true);
+    // fixed face picked on the near side (z = -10): the far side moves, as flipSide (same solid)
+    const near = body(jogDoc({ fixedFace: { normal: [0, -1, 0], point: [60, 0, -10], label: 'Face<3>' } }));
+    expect(farMoves(near)).toBe(true);
+    expect(Math.abs(meshVolume(near))).toBeCloseTo(Math.abs(meshVolume(flipOld)), 3);
+    // picked on the far side (z = -70) with flipSide set: the fixed face wins, the near side moves
+    const far = body(jogDoc({ flipSide: true, fixedFace: { normal: [0, -1, 0], point: [60, 0, -70], label: 'Face<3>' } }));
+    expect(nearMoves(far)).toBe(true);
+    expect(relErr(far, vol90(10))).toBeLessThan(0.005);
+    // the other face of the sheet picked on the near side does the same as the sketch face there
+    expect(farMoves(body(jogDoc({ fixedFace: { normal: [0, 1, 0], point: [60, t, -10], label: 'Face<1>' } })))).toBe(true);
+    // with Reverse Direction (the jog goes up) the picked side still stays
+    const rev = body(jogDoc({ reverse: true, fixedFace: { normal: [0, -1, 0], point: [60, 0, -10], label: 'Face<3>' } }));
+    const [lo, hi] = movedZ(rev, (y) => y > t + 5);
+    expect(lo).toBeCloseTo(-80, 4);
+    expect(hi).toBeLessThan(-30);
+  });
+  it('Use gauge table: the radius of the part (gauge) unless cleared; an old jog with its own radius keeps it', () => {
+    const radii = (jog: Record<string, unknown>, gauge: boolean) => {
+      const d = jogDoc(jog);
+      if (gauge) d.sheetMetal = { ...d.sheetMetal!, gauge: { table: 'Sample Table - Steel', gauge: 'Gauge 14' } };
+      return bendCircles(body(d)).map((c) => Math.round(c.r * 1000) / 1000).sort((a, b) => a - b);
+    };
+    expect(radii({}, true)).toEqual([2, 2, 4, 4]);
+    expect(radii({ radius: 5, useGauge: true }, true)).toEqual([2, 2, 4, 4]);
+    expect(radii({ radius: 5 }, true)).toEqual([5, 5, 7, 7]);
+    expect(radii({ radius: 5, useGauge: false }, true)).toEqual([5, 5, 7, 7]);
+    // no gauge table on the part: Use gauge table does not apply
+    expect(radii({ radius: 5, useGauge: true }, false)).toEqual([5, 5, 7, 7]);
+  });
+  it('Jog Angle with a gauge table: the 90 degree preset unless Override value (old files keep their angle)', () => {
+    const phi = Math.PI / 3, h = (10 - (2 * r + t) * (1 - Math.cos(phi))) / Math.sin(phi);
+    const v60 = (80 - ((2 * r + t) * Math.sin(phi) + h * Math.cos(phi)) + h + 2 * phi * (r + t / 2)) * 120 * t;
+    for (const [o, hand] of [[false, vol90(10)], [true, v60], [undefined, v60]] as const) {
+      const d = jogDoc({ jogAngle: 60, overrideAngle: o });
+      d.sheetMetal = { ...d.sheetMetal!, gauge: { table: 'Sample Table - Steel', gauge: 'Gauge 14' } };
+      expect(relErr(body(d), hand), `override ${o}`).toBeLessThan(0.005);
+    }
+    // no gauge table: the angle is used as typed
+    expect(relErr(body(jogDoc({ jogAngle: 60, overrideAngle: false })), v60)).toBeLessThan(0.005);
+  });
+});

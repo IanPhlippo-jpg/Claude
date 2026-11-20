@@ -82,4 +82,24 @@ describe('jog: two real bends, unfolded exactly against the hand calculation', (
     expect(f.betrouwbaar).toBe('exact');
     near(across(f), hand(10, true, 0.4, 0.4), 0.05);
   });
+  // Jog PropertyManager as SW 2025 (failed before: the end conditions and the fixed face did not exist)
+  const surface = { normal: [0, 1, 0], point: [60, -15, -20], label: 'Face<1>' };
+  const pm: [string, Record<string, unknown>, number][] = [
+    ['Up To Surface 15 below the sketch face', { offsetEnd: 'upToSurface', surface }, 15],
+    ['Up To Surface, inside offset', { offsetEnd: 'upToSurface', surface, offsetType: 'inside' }, 17],
+    ['Offset From Surface 3 short of the face', { offsetEnd: 'offsetFromSurface', surface, surfaceOffset: 3 }, 12],
+    ['Offset From Surface 3, Reverse offset', { offsetEnd: 'offsetFromSurface', surface, surfaceOffset: 3, reverseOffset: true }, 18],
+    ['Fixed Face on the other side of the line', { fixedFace: { normal: [0, -1, 0], point: [60, 0, -10], label: 'Face<3>' } }, 10],
+  ];
+  for (const [name, o, D] of pm) {
+    for (const fix of [true, false]) {
+      it(`${name}, fix projected length ${fix ? 'on' : 'off'}: ${hand(D, fix, 0.5, 0.5).toFixed(3)} by hand`, () => {
+        const f = flat(jogDoc({ ...o, fixProjected: fix }));
+        expect(f.fout).toBeUndefined();
+        expect(f.betrouwbaar).toBe('exact');
+        near(across(f), hand(D, fix, 0.5, 0.5), 0.05);
+        expect(f.plooien.map((p) => [Math.round(p.hoek), Math.round(p.r * 10) / 10])).toEqual([[90, 2], [90, 2]]);
+      });
+    }
+  }
 });

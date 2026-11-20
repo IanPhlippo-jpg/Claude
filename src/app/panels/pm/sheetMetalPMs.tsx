@@ -215,82 +215,8 @@ export function sketchedBendPM(ctx: PMContext): ReactNode | typeof NEXT {
   return NEXT;
 }
 
-export function jogPM(ctx: PMContext): ReactNode | typeof NEXT {
-  const { st } = ctx;
-  if (st.featureEdit && st.featureEdit.draft.type === 'jog') {
-    const d = st.featureEdit.draft;
-    const err = st.rebuild.errors[d.id];
-    const sm = st.doc.sheetMetal ?? DEFAULT_SHEET_METAL;
-    const sketches = st.doc.features.filter((f): f is import('../../../core/document/types').SketchFeature => f.type === 'sketch');
-    const ca = d.customAllowance;
-    return (
-      <>
-        <Header title={d.name} icon={<Icon.Line />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
-        <Section title="Selections">
-          <div className="k-field"><label>Sketch</label>
-            <select className="k-input" value={d.sketchId} onChange={(e) => st.updateFeatureDraft({ sketchId: e.target.value })} data-testid="jog-sketch">
-              <option value="">—</option>
-              {sketches.map((s) => <option key={s.sketchId} value={s.sketchId}>{s.name}</option>)}
-            </select>
-          </div>
-          <label className="k-check"><input type="checkbox" checked={d.flipSide} onChange={(e) => st.updateFeatureDraft({ flipSide: e.target.checked })} /> Fixed face on the other side</label>
-          <label className="k-check"><input type="checkbox" checked={d.radius === undefined} onChange={(e) => st.updateFeatureDraft({ radius: e.target.checked ? undefined : sm.bendRadius })} /> Use default radius</label>
-          <div className="k-pm-valuerow"><Icon.Arc size={14} /><NumberField value={d.radius ?? sm.bendRadius} onChange={(v) => d.radius === undefined ? st.setSheetMetal({ ...sm, bendRadius: Math.max(0, v) }) : st.updateFeatureDraft({ radius: Math.max(0, v) })} unit={st.doc.units} step={0.5} min={0} /></div>
-        </Section>
-        <Section title="Jog Offset">
-          <div className="k-pm-valuerow">
-            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
-            <select className="k-input" data-testid="jog-end" value={d.offsetEnd ?? 'blind'} onChange={(e) => { st.updateFeatureDraft({ offsetEnd: e.target.value as 'blind' }); useStore.setState({ flangePick: e.target.value === 'upToVertex' ? 'vertex' : null }); }}><option value="blind">Blind</option><option value="upToVertex">Up To Vertex</option></select>
-          </div>
-          {(d.offsetEnd ?? 'blind') === 'blind'
-            ? <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.offset} onChange={(v) => st.updateFeatureDraft({ offset: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>
-            : <div className={`k-selbox${st.flangePick === 'vertex' ? ' k-selbox-dir' : ''}`} style={{ minHeight: 24 }} onClick={() => useStore.setState({ flangePick: 'vertex' })}>{d.vertex ? <div className="k-selbox-row">{d.vertex.label}</div> : <span className="k-muted">Click a corner of the model.</span>}</div>}
-          <div className="k-pm-radios">
-            <label className="k-check"><input type="radio" name="jogoff" checked={(d.offsetType ?? 'outside') === 'outside'} onChange={() => st.updateFeatureDraft({ offsetType: 'outside' })} /> Outside Offset</label>
-            <label className="k-check"><input type="radio" name="jogoff" data-testid="jog-inside" checked={d.offsetType === 'inside'} onChange={() => st.updateFeatureDraft({ offsetType: 'inside' })} /> Inside Offset</label>
-            <label className="k-check"><input type="radio" name="jogoff" checked={d.offsetType === 'overall'} onChange={() => st.updateFeatureDraft({ offsetType: 'overall' })} /> Overall Dimension</label>
-          </div>
-          <label className="k-check"><input type="checkbox" data-testid="jog-fixprojected" checked={d.fixProjected !== false} onChange={(e) => st.updateFeatureDraft({ fixProjected: e.target.checked })} /> Fix projected length</label>
-        </Section>
-        <Section title="Jog Position">
-          <div className="k-pm-stylerow">
-            {([['centerline', 'Bend Centerline', '|'], ['materialInside', 'Material Inside', '⌐'], ['materialOutside', 'Material Outside', '¬'], ['bendOutside', 'Bend Outside', '⊓']] as const).map(([v, tip, g]) => (
-              <button key={v} className={`k-pm-stylebtn k-tip ${(d.position ?? 'centerline') === v ? 'active' : ''}`} data-tip={tip} data-testid={`pos-${v}`} onClick={() => st.updateFeatureDraft({ position: v })}>{g}</button>
-            ))}
-          </div>
-        </Section>
-        <Section title="Jog Angle">
-          <div className="k-pm-valuerow"><Icon.MateAngle size={14} /><NumberField value={d.jogAngle ?? 90} onChange={(v) => st.updateFeatureDraft({ jogAngle: Math.max(10, Math.min(90, v)) })} unit="°" step={5} /></div>
-        </Section>
-        <Section title="Custom Bend Allowance" defaultOpen={!!ca} check={!!ca}
-          onCheck={(on) => st.updateFeatureDraft({ customAllowance: on ? { type: 'kFactor', value: sm.kFactor } : undefined })}>
-          {ca && (
-            <>
-              <select className="k-input" value={ca.type}
-                onChange={(e) => {
-                  const ty = e.target.value as 'kFactor';
-                  st.updateFeatureDraft({ customAllowance: { type: ty, value: ty === 'kFactor' ? sm.kFactor : ty === 'bendTable' ? 0 : 5 } });
-                }}>
-                <option value="bendTable">Bend Table</option><option value="kFactor">K-Factor</option>
-                <option value="bendAllowance">Bend Allowance</option><option value="bendDeduction">Bend Deduction</option>
-              </select>
-              {ca.type !== 'bendTable' && <div className="k-pm-valuerow">
-                <span className="k-muted" style={{ minWidth: 18 }}>{ca.type === 'kFactor' ? 'K' : ca.type === 'bendAllowance' ? 'BA' : 'BD'}</span>
-                <NumberField value={ca.value} onChange={(v) => st.updateFeatureDraft({ customAllowance: { ...ca, value: Math.max(0, ca.type === 'kFactor' ? Math.min(1, v) : v) } })}
-                  step={ca.type === 'kFactor' ? 0.05 : 0.1} /></div>}
-            </>
-          )}
-        </Section>
-        {err && (
-          <Section title="Rebuild Errors">
-            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
-          </Section>
-        )}
-      </>
-    );
-  }
-  return NEXT;
-}
+// Sheet Metal ▸ Jog: its Property Manager lives in jogPM.tsx (split for the character budget)
+export { jogPM } from './jogPM';
 
 export function unfoldPM(ctx: PMContext): ReactNode | typeof NEXT {
   const { st } = ctx;

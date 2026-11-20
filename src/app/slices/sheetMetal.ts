@@ -154,7 +154,9 @@ export const sheetMetalSlice = (set: StoreSet, get: StoreGet): Pick<State, Sheet
     }
     if (!sketchId) get().pushMessage('Select the sketch with the jog line (one line on a face of the sheet).', 'warn');
     const draft: JogFeature = { id: newId('f'), type: 'jog', name: featureName(doc, 'jog'), sketchId: sketchId ?? '', suppressed: false, offset: 10, flipSide: false, reverse: false };
-    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], selectedConstraint: null, tab: 'sheetmetal', managerTab: 'tree', planePick: false });
+    // the Fixed Face box is active first, as SW
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], selectedConstraint: null, tab: 'sheetmetal', managerTab: 'tree', planePick: false,
+      flangePick: 'fixedFace' });
   },
   startEdgeFlange() {
     const { doc, rebuild, selectedEdges } = get();

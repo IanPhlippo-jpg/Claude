@@ -14,6 +14,7 @@ import { rebuildDocument } from '../core/features/rebuild';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
 import { meshVolume } from '../core/features/solid';
+import { joinedOf } from '../core/features/edgesets';
 import { CORNER, CORNER_K, PI, fillet, t3, t3Slot } from './qaModels';
 import { addArc, addLine, createSketch } from '../core/sketch/model';
 import { createDocument, type Document } from '../core/document/types';
@@ -83,13 +84,18 @@ describe('QA 0.5.11 F178: the curved edge of an exact body is one edge', { timeo
     return doc;
   }
   const SHARP = 80 * 40 * 10 - (100 - 25 * PI) * 10;
-  it('the top rim with the round is one tangent chain (line 70, round R10, line 30) on both kernels', () => {
+  it('the top rim with the round is one tangent chain of three SW edges (line 70, round R10, line 30) on both kernels', () => {
     for (const exact of [false, true]) {
       const { v, b } = build(plate(), exact);
       if (exact) expect(Math.abs(v - SHARP)).toBeLessThan(1e-3);
+      // SW: the round is one edge of its own (not 32 facets), the lines next to it are edges of their own as well
       const arcs = b.edges.filter((e) => !e.straight && Math.abs(e.centroid.y - 10) < 0.5);
       expect(arcs.length, `${exact ? 'B-rep' : 'mesh'}: ${b.edges.filter((e) => Math.abs(e.centroid.y - 10) < 0.5).map((e) => (e.straight ? 'L' : 'C') + e.length.toFixed(3)).join(' ')}`).toBe(1);
-      expect(Math.abs(arcs[0].length - (70 + 5 * PI + 30)), `${exact ? 'B-rep' : 'mesh'} ${arcs[0].length.toFixed(3)}`).toBeLessThan(0.05);
+      expect(Math.abs(arcs[0].length - 5 * PI), `${exact ? 'B-rep' : 'mesh'} ${arcs[0].length.toFixed(3)}`).toBeLessThan(0.05);
+      const chain = b.edges.filter((e) => e.chain && e.chain === arcs[0].chain);
+      expect(chain.map((e) => (e.straight ? 'L' : 'C') + Math.round(e.length)).sort()).toEqual(['C16', 'L30', 'L70']);
+      // the chain as Tangent propagation selects it
+      expect(Math.abs(joinedOf(b.edges, arcs[0]).length - (70 + 5 * PI + 30))).toBeLessThan(0.05);
     }
   });
   it('a fillet R2 on that chain removes 100 mm of corner plus the Pappus volume of the round (B-rep exact, mesh to 2 %)', () => {

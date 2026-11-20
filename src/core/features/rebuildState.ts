@@ -17,7 +17,7 @@ import { TOL } from './tolerance';
 import { bodyNamer } from './bodyIds';
 import { planarToolOf } from './rebuildTools';
 import { brepTool } from './brepTool';
-import { bodyEdges, matchEdge } from './edgesets';
+import { bodyEdges, matchEdgeChain } from './edgesets';
 import { holdLineRadius } from './round';
 
 /** thrown inside a long feature (a pattern of many instances) once the wall-clock budget of the rebuild is used up */
@@ -257,8 +257,8 @@ export function createRebuildCtx(doc: Document, K: BrepKernel | null, overBudget
     const b = visibleBodies()[0] ?? bodies[0];
     if (!b) return x;
     const edges = bodyEdges(b.geometry, b.id);
-    const hold = matchEdge(edges, x.holdLine);
-    const edge = x.edges.length ? matchEdge(edges, x.edges[0]) : null;
+    const hold = matchEdgeChain(edges, x.holdLine);
+    const edge = x.edges.length ? matchEdgeChain(edges, x.edges[0]) : null;
     const r = !hold ? 'The hold line is no longer on the body.' : !edge ? 'Select the two faces to fillet.' : holdLineRadius(edge, hold);
     if (typeof r === 'string') { holdLineErrors[x.id] = r; return x; }
     return { ...x, size: r };

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { Document, DrawingViewType } from '../document/types';
 import { circleFit, facetEdge, viewFrame } from './hlr';
 import { modelBodies } from './sheet';
+import { tangentChains } from '../features/edgesets';
 
 type P = [number, number];
 
@@ -183,7 +184,8 @@ export function viewArcs(model: Document, type: DrawingViewType): { arcs: Arc2D[
   for (const b of modelBodies(model)) {
     // edges that lie on one circle, per circle (a rim a boolean cut in two halves is one full circle)
     const rings: { c: THREE.Vector3; r: number; n: THREE.Vector3; sweep: number; pieces: { mid: P; sweep: number; c: P }[] }[] = [];
-    for (const e of b.edges) {
+    // a tangent chain as one outline (bodyEdges splits it into its SW edges: lines and arcs)
+    for (const e of tangentChains(b.edges)) {
       if (e.straight || e.points.length < 4 || facetEdge(e)) continue;
       const k = circleFit(e.points);
       if (k) {

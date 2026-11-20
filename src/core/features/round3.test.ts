@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { bodyEdges, subEdgeAt } from './edgesets';
+import { bodyEdges, edgeRef, joinedOf, roundEdges, subEdgeAt } from './edgesets';
 import { applyRound, applyTools, cornerTools, keepEdgeRadii, roundTools, tangentChain } from './round';
 import { meshVolume, planarFaces } from './solid';
 
@@ -37,17 +37,32 @@ describe('fillet options of the intended design', () => {
     expect(r).toBeCloseTo(10, 1);
     expect(applyRound(g, [e], 'fillet', r)).toBeTruthy();
   });
-  it('Tangent propagation: on, the merged slot outline is one edge; off, only the straight run that was clicked', () => {
+  it('Tangent propagation: the slot outline is four SW edges in one chain; on, the whole chain; off, only the picked edge', () => {
     const shape = new THREE.Shape();
     shape.moveTo(-20, -5); shape.lineTo(20, -5); shape.absarc(20, 0, 5, -Math.PI / 2, Math.PI / 2, false); shape.lineTo(-20, 5); shape.absarc(-20, 0, 5, Math.PI / 2, (3 * Math.PI) / 2, false);
     const g = new THREE.ExtrudeGeometry(shape, { depth: 10, bevelEnabled: false, curveSegments: 24 }).toNonIndexed();
-    const loop = bodyEdges(g, 's').find((e) => e.points.every((p) => Math.abs(p.z - 10) < 1e-6))!;
-    expect(tangentChain([loop], [loop.id])).toEqual([loop.id]);
+    const all = bodyEdges(g, 's');
+    const top = all.filter((e) => e.points.every((p) => Math.abs(p.z - 10) < 1e-6));
+    // SW: two straight edges of 40 and two half circles, one tangent chain
+    expect(top.map((e) => (e.straight ? 'L' : 'C') + e.length.toFixed(1)).sort()).toEqual(['C15.7', 'C15.7', 'L40.0', 'L40.0']);
+    expect(new Set(top.map((e) => e.chain)).size).toBe(1);
+    const line = top.find((e) => e.straight && e.centroid.y < 0)!;
+    // selection time: the tangent chain of the picked edge
+    expect(tangentChain(all, [line.id]).sort()).toEqual(top.map((e) => e.id).sort());
+    const on = roundEdges(all, { ...edgeRef(line), pick: [0, -5, 10] }, true);
+    expect(on).toHaveLength(1);
+    expect(on[0].closed).toBe(true);
+    expect(on[0].length).toBeCloseTo(80 + 10 * Math.PI, 0);
+    const off = roundEdges(all, { ...edgeRef(line), pick: [0, -5, 10] }, false);
+    expect(off.map((e) => e.id)).toEqual([line.id]);
+    // the joined loop (a reference saved before the SW edge split) still gives the run that was clicked (as subEdgeAt)
+    const loop = joinedOf(all, line);
     const run = subEdgeAt(loop, new THREE.Vector3(0, -5, 10));
     expect(run.straight).toBe(true);
     expect(run.length).toBeCloseTo(40, 3);
-    const arc = subEdgeAt(loop, new THREE.Vector3(25, 0, 10));
-    expect(arc.straight).toBe(false);
-    expect(arc.length).toBeCloseTo(Math.PI * 5, 0);
+    const old = roundEdges(all, { ...edgeRef(loop), pick: [25, 0, 10] }, false);
+    expect(old).toHaveLength(1);
+    expect(old[0].straight).toBe(false);
+    expect(old[0].length).toBeCloseTo(Math.PI * 5, 0);
   });
 });

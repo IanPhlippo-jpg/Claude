@@ -809,8 +809,8 @@ export interface State extends PlasticsActions {
   edgePick: [number, number, number] | null;
   /** Thread: the optional start face box takes the next face pick */
   threadFacePick: boolean;
-  /** Edge Flange: the angle face box or the Up To Vertex box takes the next pick */
-  flangePick: 'face' | 'vertex' | null;
+  /** Edge Flange: the angle face box or the Up To Vertex box takes the next pick; Jog: the Fixed Face or the Up To Surface box */
+  flangePick: 'face' | 'vertex' | 'fixedFace' | 'surface' | null;
   /** Extrude ▸ Direction 2: the vertex or face box takes the next pick */
   dir2Pick: 'vertex' | 'surface' | null;
   /** Shell ▸ Multi-thickness Faces box takes the next pick */

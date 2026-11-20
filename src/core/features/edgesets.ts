@@ -23,6 +23,13 @@ export interface BodyEdge {
   straight: boolean;
   length: number;
   centroid: THREE.Vector3;
+  /**
+   * the tangent chain the edge is a part of (SW: a straight edge, the arc of a bend and the next straight edge are three
+   * edges; Tangent propagation selects them together). Set when the chain has more than one edge; `chainRot`: the
+   * segment the chain was cut open at (a closed chain), so the whole chain comes back in its own order (joinedOf).
+   */
+  chain?: string;
+  chainRot?: number;
 }
 
 /**
@@ -41,6 +48,8 @@ export interface EdgeRef {
   normals?: [[number, number, number], [number, number, number]];
   /** the names of the two faces the edge joins (face tags, smallest first; F47) */
   faces?: [number, number];
+  /** where the edge was clicked (Fillet / Chamfer) */
+  pick?: [number, number, number];
 }
 
 const Q = 1e-3;
@@ -183,14 +192,101 @@ export function mergeCollinear(segs: CreaseSegment[]): CreaseSegment[] {
   return out;
 }
 
-/** Group crease segments into edges: collinear runs become straight edges, smooth turns become curves. */
+// end points of crease segments within this distance are one point (chaining snaps them)
+const SNAP = 0.05;
+const key = (p: THREE.Vector3) => `${Math.round(p.x / SNAP)},${Math.round(p.y / SNAP)},${Math.round(p.z / SNAP)}`;
+
+/** an edge from its chain of segments (in order); straight when no join turns by more than about 1.8 degrees */
+function makeEdge(id: string, chain: CreaseSegment[], closed: boolean, link?: { chain: string; chainRot: number }): BodyEdge {
+  const points = [chain[0].a, ...chain.map((s) => s.b)];
+  const length = chain.reduce((a, s) => a + s.a.distanceTo(s.b), 0);
+  const centroid = new THREE.Vector3();
+  for (const s of chain) centroid.addScaledVector(s.a.clone().add(s.b).multiplyScalar(0.5), s.a.distanceTo(s.b));
+  centroid.divideScalar(length || 1);
+  const dir = (s: CreaseSegment) => s.b.clone().sub(s.a).normalize();
+  const straight = chain.every((s, i) => i === 0 || dir(chain[i - 1]).dot(dir(s)) >= 0.9995);
+  return { id, segments: chain, points, closed, straight, length, centroid, ...(link ?? {}) };
+}
+
+/**
+ * Where a tangent chain of crease segments splits into SW edges (QA: one curved edge along a bent side, SW shows three):
+ * a straight run and an arc, two arcs of a different radius or axis. breaks[i]: a new edge starts at segment i (i = 0
+ * is the join of the last and the first segment of a closed chain). The shape decides on the mesh: collinear segments
+ * are one line piece; two pieces belong to one arc when they are about as long and turn by at most 20 degrees, unless
+ * the join turns by about half of what the next join does at about twice its radius (the tangent point of a line and
+ * an arc: the line runs along the tangent, half a facet angle off the first chord). Named faces (F47) split as well:
+ * an edge joins the same two faces along its whole length.
+ */
+function chainBreaks(chain: CreaseSegment[], closed: boolean): boolean[] {
+  const n = chain.length;
+  const brk = new Array<boolean>(n).fill(false);
+  const pair = (s: CreaseSegment) => (s.f1 && s.f2 && s.f1 !== s.f2 ? (s.f1 < s.f2 ? `${s.f1}/${s.f2}` : `${s.f2}/${s.f1}`) : null);
+  for (let i = closed ? 0 : 1; i < n; i++) {
+    const p = pair(chain[(i - 1 + n) % n]), q = pair(chain[i]);
+    if (p && q && p !== q) brk[i] = true;
+  }
+  const dir = (s: CreaseSegment) => s.b.clone().sub(s.a).normalize();
+  // line pieces: consecutive collinear segments (a boolean sliver within 1e-3 of the line counts as on it)
+  const pieces: { from: number; a: THREE.Vector3; b: THREE.Vector3 }[] = [];
+  for (let i = 0; i < n; i++) {
+    const p = pieces[pieces.length - 1], s = chain[i];
+    if (p) {
+      const d = p.b.clone().sub(p.a), L = d.length();
+      if (L > 1e-9 && d.dot(dir(s)) > 0 && (d.dot(dir(s)) / L > 0.99999 || s.b.clone().sub(p.a).cross(d).length() / L < 1e-3)) { p.b = s.b; continue; }
+    }
+    pieces.push({ from: i, a: s.a, b: s.b });
+  }
+  const m = pieces.length;
+  if (m < 2) return brk;
+  const len = pieces.map((p) => p.a.distanceTo(p.b)), pd = pieces.map((p) => p.b.clone().sub(p.a).normalize());
+  // joint k: between piece k - 1 and piece k (k = 0: the last and the first piece of a closed chain)
+  const joint = (k: number) => {
+    const a = (k - 1 + m) % m;
+    const th = Math.acos(Math.max(-1, Math.min(1, pd[a].dot(pd[k]))));
+    const ratio = Math.max(len[a], len[k]) / Math.max(1e-9, Math.min(len[a], len[k]));
+    return { th, line: th < 0.0045, arc: th > 0 && th <= (20 * Math.PI) / 180 && ratio <= 1.3, R: (len[a] + len[k]) / 4 / Math.max(1e-12, Math.sin(th / 2)) };
+  };
+  const J = Array.from({ length: m }, (_, k) => (k > 0 || closed ? joint(k) : null));
+  const at = (k: number) => (closed ? J[(k + m) % m] : k > 0 && k < m ? J[k] : null);
+  for (let k = closed ? 0 : 1; k < m; k++) {
+    const j = J[k]!;
+    const tangentPoint = [at(k - 1), at(k + 1)].some((nb) => !!nb && nb.arc && j.th < 0.75 * nb.th && j.R > 1.3 * nb.R);
+    if (!(j.line || (j.arc && !tangentPoint))) brk[pieces[k].from] = true;
+  }
+  return brk;
+}
+
+/** the runs of a chain between its breaks; a closed chain is cut open at its first break (rot: that segment) */
+function chainRuns(chain: CreaseSegment[], brk: boolean[], closed: boolean): { runs: CreaseSegment[][]; rot: number } {
+  const n = chain.length;
+  const start = closed ? brk.findIndex((b) => b) : 0;
+  if (start < 0) return { runs: [chain], rot: 0 };
+  const order = [...chain.slice(start), ...chain.slice(0, start)], bo = [...brk.slice(start), ...brk.slice(0, start)];
+  const runs: CreaseSegment[][] = [[order[0]]];
+  for (let i = 1; i < n; i++) {
+    if (bo[i]) runs.push([]);
+    runs[runs.length - 1].push(order[i]);
+  }
+  // a run shorter than 0.05 (a boolean sliver at a join) belongs to its neighbour
+  const L = (r: CreaseSegment[]) => r.reduce((a, s) => a + s.a.distanceTo(s.b), 0);
+  for (let i = 0; i < runs.length && runs.length > 1;) {
+    if (L(runs[i]) >= 0.05) { i++; continue; }
+    if (i > 0) runs[i - 1].push(...runs[i]);
+    else runs[1].unshift(...runs[0]);
+    runs.splice(i, 1);
+  }
+  return runs.length > 1 ? { runs, rot: start } : { runs: [chain], rot: 0 };
+}
+
+/**
+ * Group crease segments into edges: collinear runs become straight edges, smooth turns become curves. A tangent chain
+ * (a line, the arc of a bend, the next line) is split into its SW edges (chainBreaks); its parts carry the chain's id.
+ */
 export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg = 20, extra: CreaseSegment[] = []): BodyEdge[] {
   // extra: imprinted edges between coplanar faces (Split Line)
   let segs = mergeCollinear([...creaseSegments(g, thresholdDeg), ...extra]);
-  // slivers that booleans leave at chord junctions are dropped; chaining then snaps end points within `tol`
-  const tol = 0.05;
+  // slivers that booleans leave at chord junctions are dropped; chaining then snaps end points within SNAP
   segs = segs.filter((x) => x.a.distanceTo(x.b) >= 0.005);
-  const key = (p: THREE.Vector3) => `${Math.round(p.x / tol)},${Math.round(p.y / tol)},${Math.round(p.z / tol)}`;
   const atPoint = new Map<string, number[]>();
   segs.forEach((s, i) => {
     for (const p of [s.a, s.b]) {
@@ -210,7 +306,6 @@ export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg 
     used[i] = true;
     // walk both directions
     const chain: CreaseSegment[] = [segs[i]];
-    let straight = true;
     const extend = (forward: boolean) => {
       for (;;) {
         const last = forward ? chain[chain.length - 1] : chain[0];
@@ -236,7 +331,6 @@ export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg 
         if (j < 0 || !seg) return;
         const turn = best;
         if (turn < Math.cos((40 * Math.PI) / 180)) return; // sharp corner: a different edge
-        if (turn < 0.9995) straight = false;
         used[j] = true;
         if (forward) chain.push(seg);
         else chain.unshift(forward ? seg : { ...seg, a: seg.b, b: seg.a });
@@ -244,15 +338,47 @@ export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg 
     };
     extend(true);
     extend(false);
-    const points = [chain[0].a, ...chain.map((s) => s.b)];
-    const closed = key(points[0]) === key(points[points.length - 1]) && chain.length > 2;
-    const length = chain.reduce((a, s) => a + s.a.distanceTo(s.b), 0);
-    const centroid = new THREE.Vector3();
-    for (const s of chain) centroid.addScaledVector(s.a.clone().add(s.b).multiplyScalar(0.5), s.a.distanceTo(s.b));
-    centroid.divideScalar(length || 1);
-    edges.push({ id: `${bodyId}:e${edges.length}`, segments: chain, points, closed, straight, length, centroid });
+    const closed = key(chain[0].a) === key(chain[chain.length - 1].b) && chain.length > 2;
+    const { runs, rot } = chain.length > 1 ? chainRuns(chain, chainBreaks(chain, closed), closed) : { runs: [chain], rot: 0 };
+    const link = runs.length > 1 ? { chain: `${bodyId}:t${i}`, chainRot: rot } : undefined;
+    for (const run of runs) edges.push(makeEdge(`${bodyId}:e${edges.length}`, run, link ? false : closed, link));
   }
   return edges;
+}
+
+/**
+ * The whole tangent chain an edge is part of, as one edge (as bodyEdges gave it before the SW edge split): Tangent
+ * propagation, and the edge an old reference to a joined chain points to. An edge that is no part of a chain is itself.
+ */
+export function joinedOf(edges: BodyEdge[], e: BodyEdge): BodyEdge {
+  return e.chain ? joinParts(edges.filter((x) => x.chain === e.chain)) : e;
+}
+
+/** the parts of one chain (in order) as one edge, in the chain's own order (a closed chain was cut open at chainRot) */
+function joinParts(parts: BodyEdge[]): BodyEdge {
+  const cat = parts.flatMap((x) => x.segments);
+  const n = cat.length, rot = (parts[0].chainRot ?? 0) % Math.max(1, n);
+  const chain = rot ? [...cat.slice(n - rot), ...cat.slice(0, n - rot)] : cat;
+  return makeEdge(parts[0].chain!, chain, key(chain[0].a) === key(chain[n - 1].b) && n > 2);
+}
+
+/** The edges with each tangent chain as one edge (an outline read whole: a slot of two lines and two half circles). */
+export function tangentChains(edges: BodyEdge[]): BodyEdge[] {
+  const joined = new Map(joinedChains(edges).map((c) => [c.joined.id, c.joined]));
+  const seen = new Set<string>();
+  return edges.flatMap((e) => (!e.chain || !joined.has(e.chain) ? [e] : seen.has(e.chain) ? [] : (seen.add(e.chain), [joined.get(e.chain)!])));
+}
+
+/** the tangent chains of more than one edge: the joined edge and its parts (in order); once per list of edges */
+const chainCache = new WeakMap<BodyEdge[], { joined: BodyEdge; parts: BodyEdge[] }[]>();
+function joinedChains(edges: BodyEdge[]): { joined: BodyEdge; parts: BodyEdge[] }[] {
+  const hit = chainCache.get(edges);
+  if (hit) return hit;
+  const by = new Map<string, BodyEdge[]>();
+  for (const e of edges) if (e.chain) (by.get(e.chain) ?? by.set(e.chain, []).get(e.chain)!).push(e);
+  const out = [...by.values()].filter((p) => p.length > 1).map((parts) => ({ joined: joinParts(parts), parts }));
+  chainCache.set(edges, out);
+  return out;
 }
 
 const v3 = (v: THREE.Vector3): [number, number, number] => [round6(v.x), round6(v.y), round6(v.z)];
@@ -302,7 +428,7 @@ function sameNormals(e: BodyEdge, ref: EdgeRef): boolean {
 }
 
 /** Find the edge of a body that a reference points to (after a rebuild). */
-export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = referenceTol(ref.length)): BodyEdge | null {
+function matchEdgeIn(edges: BodyEdge[], ref: EdgeRef, tol: number): BodyEdge | null {
   let best: BodyEdge | null = null, bestD = Infinity;
   const c = new THREE.Vector3(...ref.centroid);
   // by name first (F47): the edge between the same two named faces; where they meet more than once (a pattern, a
@@ -332,6 +458,108 @@ export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = referen
 }
 
 /**
+ * What a reference points to: an edge, or a whole tangent chain (a reference saved before the SW edge split, when one
+ * curved edge ran along a line, a bend and a line): the chain answers it when it matches the reference better than any
+ * one edge does (its length nearer the stored one).
+ */
+function resolveRef(edges: BodyEdge[], ref: EdgeRef, tol: number): BodyEdge | { joined: BodyEdge; parts: BodyEdge[] } | null {
+  const d = matchEdgeIn(edges, ref, tol);
+  const off = (e: BodyEdge) => Math.abs(e.length - ref.length);
+  if (d && off(d) <= 1e-6 * Math.max(1, ref.length)) return d;
+  const chains = joinedChains(edges);
+  if (!chains.length) return d;
+  const j = matchEdgeIn(chains.map((c) => c.joined), ref, tol);
+  const c = j && chains.find((x) => x.joined.id === j.id);
+  return c && (!d || off(c.joined) < off(d)) ? c : d;
+}
+
+/** the point halfway along an edge */
+function midpointOf(e: BodyEdge): THREE.Vector3 {
+  let left = e.length / 2;
+  for (const s of e.segments) {
+    const l = s.a.distanceTo(s.b);
+    if (left <= l) return s.a.clone().lerp(s.b, l > 0 ? left / l : 0);
+    left -= l;
+  }
+  return e.points[e.points.length - 1].clone();
+}
+
+/** the edge of a list nearest to a point (distance to its polyline) */
+function nearestEdge(list: BodyEdge[], p: THREE.Vector3): BodyEdge {
+  const seg = new THREE.Line3(), q = new THREE.Vector3();
+  const dist = (e: BodyEdge) => Math.min(...e.segments.map((s) => { seg.set(s.a, s.b); seg.closestPointToPoint(p, true, q); return q.distanceTo(p); }));
+  return list.reduce((a, b) => (dist(b) < dist(a) ? b : a));
+}
+
+/** the notes of the running feature: references to a joined chain that now point to one of its edges (a guess) */
+let splitNotes: Map<EdgeRef, string> | null = null;
+
+/** Find the edge of a body that a reference points to (after a rebuild). */
+export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = referenceTol(ref.length)): BodyEdge | null {
+  const r = resolveRef(edges, ref, tol);
+  if (!r || !('parts' in r)) return r;
+  // an old reference to a joined chain, for a feature on one edge: the edge where it was clicked, else the straight
+  // edge nearest the middle of the old edge (said on the feature: the choice is a guess)
+  if (ref.pick) return nearestEdge(r.parts, new THREE.Vector3(...ref.pick));
+  const straight = r.parts.filter((e) => e.straight);
+  const e = nearestEdge(straight.length ? straight : r.parts, midpointOf(r.joined));
+  const kind = e.straight ? 'straight' : 'curved';
+  splitNotes?.set(ref, `now matches ${r.parts.length} edges after the SW edge split (a line, the bend and a line are separate edges); `
+    + `picked the ${kind} edge nearest its old midpoint (${e.length.toFixed(2)} mm long): check the selection`);
+  return e;
+}
+
+/** The edge a reference points to; an old reference to a joined tangent chain gives that chain as one edge (a path). */
+export function matchEdgeChain(edges: BodyEdge[], ref: EdgeRef, tol: number = referenceTol(ref.length)): BodyEdge | null {
+  const r = resolveRef(edges, ref, tol);
+  return r && 'parts' in r ? r.joined : r;
+}
+
+/**
+ * The edges a fillet or chamfer rounds for one reference. Tangent propagation (SW, a selection behaviour): each edge
+ * with the edges tangent to it, as one chain (the edge bodyEdges gave before the SW split, so old files keep their
+ * volume). Off: the edge itself; an old reference to a joined chain gives the edge where it was clicked (as subEdgeAt
+ * did), or the whole chain when no click was stored.
+ */
+export function roundEdges(edges: BodyEdge[], ref: EdgeRef, tangent: boolean, tol: number = referenceTol(ref.length)): BodyEdge[] {
+  const pieces = splitPieces(edges, ref);
+  const found = pieces.length > 1 ? pieces.map((e) => alongRef(e, ref)) : null;
+  if (found) return tangent ? found.map((e) => joinedOf(edges, e)) : found;
+  const r = resolveRef(edges, ref, tol);
+  if (!r) return [];
+  if ('parts' in r) return !tangent && ref.pick ? [nearestEdge(r.parts, new THREE.Vector3(...ref.pick))] : [r.joined];
+  const e = alongRef(r, ref);
+  return [tangent ? joinedOf(edges, e) : e];
+}
+
+/** roundEdges for every reference of a feature, each edge once (two picks on one tangent chain), and how many are lost */
+export function roundEdgeSets(edges: BodyEdge[], refs: EdgeRef[], tangent: boolean): { found: BodyEdge[][]; lost: number } {
+  const all = refs.map((r) => roundEdges(edges, r, tangent));
+  const seen = new Set<string>();
+  return { found: all.map((x) => x.filter((e) => !seen.has(e.id) && !!seen.add(e.id))), lost: all.filter((x) => !x.length).length };
+}
+
+/** start collecting the edge split notes of one feature (the rebuild, around each feature) */
+export function beginEdgeNotes(): void {
+  splitNotes = new Map();
+}
+
+/** the warning of the feature for its references that now point to one edge of a split chain (null: none) */
+export function endEdgeNotes(f: object): string | null {
+  const notes = splitNotes;
+  splitNotes = null;
+  if (!notes?.size) return null;
+  const x = f as { edges?: unknown; edge?: unknown; holdLine?: unknown };
+  const refs = [...(Array.isArray(x.edges) ? x.edges : []), x.edge, x.holdLine].filter(Boolean) as EdgeRef[];
+  const same = (a: EdgeRef, b: EdgeRef) => a === b || (a.length === b.length && a.centroid.every((v, i) => v === b.centroid[i]));
+  const text = [...notes].map(([ref, msg]) => {
+    const i = refs.findIndex((r) => same(r, ref));
+    return `edge reference ${i >= 0 ? i + 1 : '?'}${refs.length > 1 ? ` of ${refs.length}` : ''} ${msg}`;
+  });
+  return `Warning: ${text.join('; ')}.`;
+}
+
+/**
  * The edges a reference points to after a rebuild. A straight edge that a feature inserted before it split into pieces
  * (a slot across it) gives all of its pieces: the edges of the same kind on the same line, with the same faces, that
  * overlap the old edge (QA v0.5.1 F111: only the nearest piece was rounded). A piece may reach beyond the old edge
@@ -342,8 +570,8 @@ export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = referen
 export function matchEdges(edges: BodyEdge[], ref: EdgeRef, tol: number = referenceTol(ref.length)): BodyEdge[] {
   const pieces = splitPieces(edges, ref);
   if (pieces.length > 1) return pieces.map((e) => alongRef(e, ref));
-  const e = matchEdge(edges, ref, tol);
-  return e ? [alongRef(e, ref)] : [];
+  const r = resolveRef(edges, ref, tol);
+  return !r ? [] : 'parts' in r ? r.parts : [alongRef(r, ref)];
 }
 
 /**

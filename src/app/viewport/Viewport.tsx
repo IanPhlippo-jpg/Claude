@@ -35,7 +35,7 @@ import { patternInstancePoints } from '../../core/features/pattern';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { lastRectangle } from '../../core/sketch/lastShape';
-import { bodyEdges, matchEdge, subEdgeAt } from '../../core/features/edgesets';
+import { bodyEdges, roundEdges } from '../../core/features/edgesets';
 import { confirmUnlessHidden, pickForDraft } from './draftPicks';
 import { createRenderer } from './glSetup';
 import { roundPreviewShapes } from '../../core/features/round';
@@ -339,10 +339,10 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     const body = st.rebuild.bodies[0];
     if (!fe || !body || !isRoundFeature(fe.draft) || !fe.draft.edges.length || fe.draft.size <= 0) return null;
     const edges = bodyEdges(body.geometry, 'pv');
-    // Tangent propagation off: the run that was clicked; Partial preview: the last edge only; No preview: nothing
+    // Tangent propagation: the picked edges with their tangent chains (off: the picked edge only); Partial preview: the last edge only; No preview: nothing
     const mode = fe.draft.previewMode ?? 'full';
     if (mode === 'none') return null;
-    const all = fe.draft.edges.map((r) => { const e = matchEdge(edges, r); return e && fe.draft.type && (fe.draft as { tangentPropagation?: boolean }).tangentPropagation === false && r.pick ? subEdgeAt(e, new THREE.Vector3(...r.pick)) : e; }).filter((e): e is NonNullable<typeof e> => !!e);
+    const all = fe.draft.edges.flatMap((r) => roundEdges(edges, r, (fe.draft as { tangentPropagation?: boolean }).tangentPropagation !== false));
     const matched = mode === 'partial' ? all.slice(-1) : all;
     return matched.length ? roundPreviewShapes(matched, fe.draft.type, fe.draft.size) : null;
   }, [st.featureEdit, st.rebuild]);
@@ -1024,7 +1024,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         return;
       }
       // Composite Curve / Delete/Keep Body: the click fills the list of the feature being made
-      if (pickForDraft(() => edgeAt(info.px, info.py), () => faceAt(info.px, info.py))) return;
+      if (pickForDraft(() => edgeAt(info.px, info.py), () => (faceAt(info.px, info.py) ? bodies.pick(camera.pixelToRay(info.px, info.py)) : null))) return;
       // part mode: select an edge or a face of a body; a click on nothing clears plane / face / feature selection
       // (the Selection Filter lets only the checked kinds through)
       const edge = filterAllows('edges') ? edgeAt(info.px, info.py) : null;

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { CompositeCurveFeature, CurvePointsFeature, Document } from '../document/types';
 import type { Id } from '../sketch/types';
-import { bodyEdges, matchEdge, type BodyEdge } from './edgesets';
+import { bodyEdges, matchEdgeChain, type BodyEdge } from './edgesets';
 
 /** the bodies as they are before the feature (their edges are found when the list has none yet) */
 export type BodiesBefore = { id: string; geometry: THREE.BufferGeometry; edges?: BodyEdge[] }[];
@@ -38,7 +38,8 @@ export function compositePath(doc: Document, f: CompositeCurveFeature, bodies: B
   const pieces: THREE.Vector3[][] = [];
   const edges = f.edges.length ? edgesOf(bodies) : [];
   for (const ref of f.edges) {
-    const e = matchEdge(edges, ref);
+    // an old reference to a joined tangent chain stays the whole chain (SW edge split)
+    const e = matchEdgeChain(edges, ref);
     if (!e) return { points: null, error: 'An edge of the composite curve is no longer there.' };
     pieces.push(e.points);
   }

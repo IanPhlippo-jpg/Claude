@@ -1734,3 +1734,22 @@ elease; README en docs/04 bijgewerkt
 - [x] Ontvouwer: krul voorbij 180 graden, hoek als som van de knikken; handberekening per type
 - [x] Plaatwerk-e2e (hem, sheetmetal, sheetmetal2, jogmiter), B-rep-controles, compat0510 bijgewerkt
 - [x] O1.6 als "verklaard, Ian beslist" in docs/37, hoofdstuk 15
+
+## Randen splitsen bij raaklijnen zoals SW (2026-11-20)
+- [x] bodyEdges: lijn, plooiboog en lijn als aparte randen (splitsen bij raaklijn recht/gebogen en bij andere straal/as)
+- [x] Tangent propagation als selectiegedrag: keten uitbreiden bij fillet/chamfer (bouw en viewport-markering)
+- [x] Migratie: oude samengevoegde randreferentie naar de nieuwe stukken (alle stukken of het rechte stuk bij het middelpunt, met waarschuwing als dat dubbelzinnig is)
+- [x] Tests: aparte randen op een geplooide plaat, fillet/chamfer/edge flange/miter flange op het rechte stuk, oude referentie zelfde volume
+- [x] typecheck, volledige vitest, line-budget/line-length, compat0510 en voorbeelden
+- [x] e2e plaatwerk en fillet/chamfer op eigen testbuild (nieuw: e2e/edgesplit.mjs)
+
+## Jog-PM volledig zoals SW (2026-11-20)
+- [x] SW-help Jog PropertyManager naast de bestaande PM leggen (Fixed Face, Use gauge table, eindcondities, Override value)
+- [x] Kern: Up To Surface en Offset From Surface (offsetafstand, Reverse offset) in jogOnBody
+- [x] Kern: Fixed Face (normaal + klikpunt + label) bepaalt de vaste kant, flipSide blijft voor oude bestanden
+- [x] Kern: Use gauge table (straal uit de tabel zoals andere plooien) en Jog Angle Override value
+- [x] PM: Fixed Face-box, Use gauge table, Use default radius grijst het straalveld uit, nieuwe eindcondities, Override value (eigen module jogPM.tsx)
+- [x] Viewport/store: klik voor Fixed Face en voor het vlak van Up To Surface
+- [x] Tests: kern (hoogte, volume), ontvouwing exact, oude jogbestanden ongewijzigd
+- [x] e2e jogpm (Up To Surface via PM, Fixed Face kiezen, screenshot) + jogmiter/sheetmetal/sheetmetal2/hem op testbuild
+- [x] typecheck, vitest, line-budget/line-length, graphify update

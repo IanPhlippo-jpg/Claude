@@ -7,7 +7,7 @@ import { isReferencePlane, resolvePlaneDef } from './planes';
 import { sketchRegions, type Region } from './regions';
 import { clipToSurface, csg, extrudeGeometry, piecesTouchingPlane, planarFaces, planeMatrix, revolveGeometry, THROUGH_ALL, type PlanarFace } from './solid';
 import { MeshBVH } from 'three-mesh-bvh';
-import { bodyEdges, matchEdges, subEdgeAt, type BodyEdge } from './edgesets';
+import { beginEdgeNotes, bodyEdges, endEdgeNotes, roundEdgeSets, type BodyEdge } from './edgesets';
 import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts } from './round';
 import { splitFaces } from './splitline';
 import { brepKernel, type BrepKernel, type BrepShape } from './brepKernel';
@@ -449,12 +449,11 @@ export function regionCentre(r: Region): { x: number; y: number } {
 /** Apply a fillet/chamfer feature to a body geometry; returns the new geometry or an error. */
 export function applyRoundFeature(geometry: THREE.BufferGeometry, f: RoundFeature): { geometry: THREE.BufferGeometry | null; error?: string; /** edge references that no longer match after the rebuild (dangling) */ lost?: number; edges: BodyEdge[]; tools?: { cutters: THREE.BufferGeometry[]; adders: THREE.BufferGeometry[] } } {
   const edges = bodyEdges(geometry, 'tmp');
-  // Tangent propagation off: only the run (straight or curved) of the chain where the edge was picked
+  // Tangent propagation (on): each picked edge with the edges tangent to it; off: only the picked edge (SW edges)
   // an edge split by a feature inserted before this one is rounded in all its pieces (F111); radii follow the pieces
-  const found = f.edges.map((r) => matchEdges(edges, r).map((e) => (f.tangentPropagation === false && r.pick ? subEdgeAt(e, new THREE.Vector3(...r.pick)) : e)));
+  const { found, lost } = roundEdgeSets(edges, f.edges, f.tangentPropagation !== false);
   const matched = found.flat();
   if (!matched.length) return { geometry: null, error: 'None of the selected edges exist on the body any more (dangling references).', edges };
-  const lost = found.filter((x) => !x.length).length;
   if (f.radii?.length) f = { ...f, radii: found.flatMap((x, i) => x.map(() => f.radii![i] ?? f.size)) };
   if (f.size <= 0) return { geometry: null, error: 'The size must be larger than zero.', edges };
   try {
@@ -580,6 +579,7 @@ function runFeature(f: Feature, ctx: RebuildCtx, clock: () => number): void {
   const exactBefore = new Set(bodies.filter((b) => exactOf(b)));
   featureTools.length = 0;
   const undo = ctx.checkpoint();
+  beginEdgeNotes();
   // one feature failing never takes the whole rebuild down: it is marked and the rest goes on
   try {
     if (isSketchBased(f)) consumedSketches.add(f.sketchId);
@@ -607,6 +607,9 @@ function runFeature(f: Feature, ctx: RebuildCtx, clock: () => number): void {
     if (!errors[f.id]) errors[f.id] = `${f.name} could not be built: ${why}`;
   } finally {
     ctx.times[f.id] = (ctx.times[f.id] ?? 0) + (clock() - t0);
+    // an old reference to a joined tangent chain that now points to one of its edges (SW edge split): said, a guess
+    const split = endEdgeNotes(f);
+    if (split && !errors[f.id] && !warnings[f.id]) warnings[f.id] = split;
     // face names (F47): a body this feature rebuilt without them (a B-rep tessellation, a fillet) takes them from
     // the body before and the feature's tools
     for (const b of bodies) {

@@ -12,7 +12,7 @@ import { resolvePlaneDef } from './planes';
 import { holeTool } from './pattern';
 import { brepHoleTool } from './rebuildTools';
 import { vertexChamferTool } from './round';
-import { bodyEdges, matchEdges } from './edgesets';
+import { bodyEdges, matchEdges, roundEdgeSets } from './edgesets';
 import { brepRoundable } from './brepTool';
 
 /** Hole and Hole Wizard holes */
@@ -106,7 +106,8 @@ export function buildRound(f: RoundFeature, body: Body | undefined, ctx: Rebuild
       const ex = exactOf(b);
       if (!b || !ex) continue;
       const edges = bodyEdges(b.geometry, b.id);
-      const found = f.edges.map((ref) => matchEdges(edges, ref)), matched = found.flat();
+      // B-rep rounds are built with Tangent propagation on: each picked edge with its tangent chain (SW edges)
+      const { found, lost } = roundEdgeSets(edges, f.edges, true), matched = found.flat();
       const radii = found.flatMap((x, i) => x.map(() => f.radii?.[i] ?? f.size));
       if (!matched.length) continue;
       try {
@@ -118,10 +119,10 @@ export function buildRound(f: RoundFeature, body: Body | undefined, ctx: Rebuild
           : f.type === 'fillet' ? K.fillet(ex, matched, f.size) : K.chamfer(ex, matched, f.size);
         setExact(b, shape);
         b.featureIds.push(f.id);
-        const lost = found.filter((x) => !x.length).length;
         if (lost) errors[f.id] = `Warning: ${lost} of the ${f.edges.length} edge references could not be found after the rebuild; the feature uses the rest.`;
-        // the edge choice checked independently on the exact topology (F179): same wrong pick, same wrong bodies
-        else { const other = K.checkEdges?.(ex, found, f.edges); if (other) errors[f.id] = other; }
+        // the edge choice checked independently on the exact topology (F179): same wrong pick, same wrong bodies; the
+        // picked edges themselves, not their tangent chains
+        else { const other = K.checkEdges?.(ex, f.edges.map((ref) => matchEdges(edges, ref)), f.edges); if (other) errors[f.id] = other; }
         done = true;
       } catch {
         /* the mesh kernel below */
@@ -154,7 +155,7 @@ export function buildRound(f: RoundFeature, body: Body | undefined, ctx: Rebuild
       // a cut owns an edge when its tool passes through the edge itself: points along the edge, not its centroid
       // (the centroid of the rim of a hole is the hole's axis, and the hole was cut again through its own
       // fillet, which broke the body, QA 0.5.10 F139)
-      const samples = f.edges.flatMap((ref) => matchEdges(r.edges, ref)).map((e) => {
+      const samples = roundEdgeSets(r.edges, f.edges, true).found.flat().map((e) => {
         const n = Math.min(12, e.points.length);
         return Array.from({ length: n }, (_, i) => e.points[Math.floor((i * (e.points.length - 1)) / Math.max(1, n - 1))]);
       });

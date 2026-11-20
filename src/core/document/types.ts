@@ -158,20 +158,20 @@ export interface JogFeature {
   suppressed: boolean;
   /** Jog Offset (outside offset) */
   offset: number;
-  /** the other side of the line moves (Fixed Face on the other side) */
-  flipSide: boolean;
+  /** the other side of the line moves (old files); Fixed Face: the picked face (normal, click point) sets the side, flipSide is derived */
+  flipSide: boolean; fixedFace?: { normal: [number, number, number]; point: [number, number, number]; label: string };
   /** jog the other way (Reverse Direction) */
   reverse: boolean;
-  /** Use default radius off: this radius (Custom Bend Allowance: customAllowance of the two bends) */
-  radius?: number;
+  /** Use default radius off: this radius; Use gauge table (part with a gauge table; unset = on without a radius) */
+  radius?: number; useGauge?: boolean;
   /** Jog Offset: measured to the outside or the inside face, or the overall height; Fix projected length (default on) */
   offsetType?: 'outside' | 'inside' | 'overall'; fixProjected?: boolean;
-  /** Jog Position and Jog Angle */
+  /** Jog Position and Jog Angle (gauge table: the 90 degree preset unless Override value) */
   position?: 'centerline' | 'materialInside' | 'materialOutside' | 'bendOutside';
-  jogAngle?: number;
-  /** Jog Offset end condition: Blind (the offset) or Up To Vertex (the height of a picked corner) */
-  offsetEnd?: 'blind' | 'upToVertex';
-  vertex?: { point: [number, number, number]; label: string };
+  jogAngle?: number; overrideAngle?: boolean;
+  /** Jog Offset end condition: Blind, Up To Vertex (a corner), Up To Surface / Offset From Surface (a planar face, +- surfaceOffset) */
+  offsetEnd?: 'blind' | 'upToVertex' | 'upToSurface' | 'offsetFromSurface'; surfaceOffset?: number; reverseOffset?: boolean;
+  vertex?: { point: [number, number, number]; label: string }; surface?: { normal: [number, number, number]; point: [number, number, number]; label: string };
   customAllowance?: EdgeFlangeFeature['customAllowance'];
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { bodyEdges, creaseSegments, matchEdge, edgeRef } from './edgesets';
+import { bodyEdges, creaseSegments, matchEdge, edgeRef, tangentChains } from './edgesets';
 import { applyRound } from './round';
 import { meshVolume } from './solid';
 
@@ -48,11 +48,13 @@ describe('fillet and chamfer', () => {
     expect(removed).toBeGreaterThan(154.5 * 0.85);
     expect(removed).toBeLessThan(154.5 * 1.15);
     // the filleted body now has a smooth strip: none of its edges along the old edge; each end face's outline runs
-    // from its top edge through the round's arc into the front edge as one tangent chain (9 edges: chaining an open
-    // curve backwards stopped at the first arc facet before QA 0.5.11 T4, which left 10 or more pieces)
+    // from its top edge through the round's arc into the front edge as one tangent chain of three SW edges (line, arc,
+    // line): 13 edges, 9 chains (chaining an open curve backwards stopped at the first arc facet before QA 0.5.11 T4,
+    // which left 10 or more pieces)
     const after = bodyEdges(f, 'b');
     expect(after.some((x) => x.straight && Math.abs(x.centroid.y - 5) < 1e-3 && Math.abs(x.centroid.z - 40) < 1e-3)).toBe(false);
-    expect(after).toHaveLength(9);
+    expect(after).toHaveLength(13);
+    expect(tangentChains(after)).toHaveLength(9);
     expect(after.filter((x) => !x.straight && Math.abs(Math.abs(x.centroid.x) - 40) < 1e-6)).toHaveLength(2);
   });
 });

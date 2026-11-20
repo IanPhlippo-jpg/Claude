@@ -13,7 +13,7 @@ import { foldGeometry, sheetMapping, unfoldGeometry } from './unfold';
 import { closedCornerTool, cornerReliefTool, findFace } from './smcorners';
 import { loftedSurface, thickenSurface } from './surfaces';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
-import { type BodyEdge, bodyEdges, bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
+import { type BodyEdge, bodyEdges, bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef, matchEdgeChain } from './edgesets';
 import { sketchPath, sweepGeometry } from './sweep';
 import { applyShellFromHistory } from './shell';
 import type { Feature } from '../document/types';
@@ -455,7 +455,7 @@ export function buildSheetMetal(f: Feature, body: Body | undefined, ctx: BuildCo
       return true;
     }
     const sm = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
-    const target = visibleBodies().find((b) => f.edges.some((e) => matchEdgeRef(bodyEdgesOf(b.geometry, b.id), e))) ?? body;
+    const target = visibleBodies().find((b) => f.edges.some((e) => matchEdgeChain(bodyEdgesOf(b.geometry, b.id), e))) ?? body;
     const tool = ripTool(target.geometry, target.id, { edges: f.edges, gap: f.gap, direction: f.direction, thickness: sm.thickness });
     if ('error' in tool) {
       errors[f.id] = tool.error;
@@ -488,10 +488,11 @@ export function buildSheetMetal(f: Feature, body: Body | undefined, ctx: BuildCo
     let path: THREE.Vector3[] | null = null;
     if (f.pathSketchId && doc.sketches[f.pathSketchId]) path = sketchPath(doc.sketches[f.pathSketchId], resolvePlaneDef(doc, doc.sketches[f.pathSketchId].plane));
     else if (f.edges.length) {
-      const owner = visibleBodies().find((b) => f.edges.some((e) => matchEdgeRef(bodyEdgesOf(b.geometry, b.id), e))) ?? body;
+      // an old reference to a joined tangent chain stays the whole chain as the path (SW edge split)
+      const owner = visibleBodies().find((b) => f.edges.some((e) => matchEdgeChain(bodyEdgesOf(b.geometry, b.id), e))) ?? body;
       if (owner) {
         const all = bodyEdgesOf(owner.geometry, owner.id);
-        const picked = f.edges.map((e) => matchEdgeRef(all, e)).filter((e): e is NonNullable<typeof e> => !!e);
+        const picked = f.edges.map((e) => matchEdgeChain(all, e)).filter((e): e is NonNullable<typeof e> => !!e);
         path = chainEdges(picked);
       }
     }

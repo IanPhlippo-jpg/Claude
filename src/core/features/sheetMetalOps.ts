@@ -161,16 +161,24 @@ export interface ExactJog {
 }
 
 export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId: string, f: Pick<JogFeature, 'sketchId' | 'offset' | 'flipSide' | 'reverse'> & Partial<JogFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; region?: THREE.BufferGeometry; error?: string; exact?: ExactJog } {
-  // Up To Vertex: the offset is the height of the picked corner above the sketch (face) plane
-  if (f.offsetEnd === 'upToVertex') {
-    const sk = doc.sketches[f.sketchId];
-    if (!f.vertex || !sk) return { geometry: null, error: 'Select a vertex for Up To Vertex.' };
-    const pl = resolvePlaneDef(doc, sk.plane);
-    const d = Math.abs((f.vertex.point[0] - pl.origin[0]) * pl.n[0] + (f.vertex.point[1] - pl.origin[1]) * pl.n[1] + (f.vertex.point[2] - pl.origin[2]) * pl.n[2]);
-    if (d < 1e-6) return { geometry: null, error: 'The vertex lies in the sketch plane.' };
+  // Up To Vertex: the offset is the height of the picked corner above the sketch (face) plane; Up To Surface: the
+  // distance from the sheet face to the picked planar face (parallel to it); Offset From Surface: that distance less the
+  // offset (the jog stops short of the face), Reverse offset: plus the offset (beyond the face)
+  if (f.offsetEnd && f.offsetEnd !== 'blind') {
+    const sk = doc.sketches[f.sketchId], surf = f.offsetEnd !== 'upToVertex', pt = surf ? f.surface?.point : f.vertex?.point;
+    if (!pt || !sk) return { geometry: null, error: surf ? 'Select a planar face for the Jog Offset.' : 'Select a vertex for Up To Vertex.' };
+    const pl = resolvePlaneDef(doc, sk.plane), dot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    if (surf && Math.abs(dot(f.surface!.normal, pl.n)) < 1 - 1e-6) return { geometry: null, error: 'The face for the Jog Offset must be parallel to the sheet.' };
+    let d = Math.abs(dot([pt[0] - pl.origin[0], pt[1] - pl.origin[1], pt[2] - pl.origin[2]], pl.n));
+    if (d < 1e-6) return { geometry: null, error: surf ? 'The face lies in the sketch plane.' : 'The vertex lies in the sketch plane.' };
+    if (f.offsetEnd === 'offsetFromSurface') d += (f.reverseOffset ? 1 : -1) * (f.surfaceOffset ?? 0);
+    if (d < 1e-6) return { geometry: null, error: 'The offset from the face leaves no jog.' };
     return jogOnBody(doc, geometry, bodyId, { ...f, offsetEnd: undefined, offset: d }, params0);
   }
-  const params = flangeParams(f.radius !== undefined ? { ...params0, bendRadius: f.radius } : params0, { customAllowance: f.customAllowance });
+  // Use gauge table (a part with a gauge table; on unless the jog has its own radius): the radius of the part, set by
+  // the gauge table, as the other bends; off: Use default radius or this jog's radius
+  const radius = params0.gauge && (f.useGauge ?? f.radius === undefined) ? undefined : f.radius;
+  const params = flangeParams(radius !== undefined ? { ...params0, bendRadius: radius } : params0, { customAllowance: f.customAllowance });
   const sketch = doc.sketches[f.sketchId];
   if (!sketch) return { geometry: null, error: 'Select the sketch with the jog line.' };
   const line = sketch.entityOrder.map((id) => sketch.entities[id]).find((e) => e.kind === 'line' && !e.construction);
@@ -198,14 +206,17 @@ export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId:
     nf = nf.negate();
   }
   let m = nf.clone().cross(l).normalize();
-  if (f.flipSide) m = m.negate();
+  // Fixed Face: the side of the line the picked point lies on stays (the side along -m); flipSide for old files
+  const sFix = f.fixedFace ? new THREE.Vector3(...f.fixedFace.point).sub(origin).dot(m) : 0;
+  if (Math.abs(sFix) > 1e-6 ? sFix > 0 : f.flipSide) m = m.negate();
   // Jog Offset (SW / docs): Outside = sketch face to the far face of the moved part (the move D), Inside = to its near
   // face (D - t), Overall dimension = from the other face of the sheet to the far face (D + t)
   const D = Math.max(t, f.offsetType === 'inside' ? f.offset + t : f.offsetType === 'overall' ? f.offset - t : f.offset);
   const r = params.bendRadius;
   // Jog Angle: the middle leg leans when the angle is under 90 degrees; an offset too small for two full bends with a
   // straight leg between them gives two shallower bends that meet (S curve)
-  const ja = (Math.max(10, Math.min(90, f.jogAngle ?? 90)) * Math.PI) / 180;
+  // (a part with a gauge table: the 90 degree preset unless Override value; unset keeps the angle of old files)
+  const ja = (Math.max(10, Math.min(90, params0.gauge && f.overrideAngle === false ? 90 : f.jogAngle ?? 90)) * Math.PI) / 180;
   const sec = jogSection(D, ja, r, t);
   const deg = (sec.phi * 180) / Math.PI, ba = bendAllowance(deg, r, params);
   // Jog Position: where the first bend starts (X1, along m from the line): Bend Centerline = the line in the middle of
