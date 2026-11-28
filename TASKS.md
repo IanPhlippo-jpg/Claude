@@ -1760,4 +1760,4 @@ elease; README en docs/04 bijgewerkt
 - [x] 3 Prijzen in één document per product: kostprijs, kooponderdelen met prijs, marktvergelijking, tarieven en materiaalprijzen; downloadbaar als PDF
 - [x] 4 db/user/downloads blijven werken (bewaarde instellingen per product), klantmodus behouden
 - [x] 5 Bouwscript `maak-werkplaats.mjs`, tests (bestaande qa-tests groen + e2e op de nieuwe app), schermafbeeldingen
-- [ ] 6 Publiceren als één artifact "Werkplaats", Ian de link; oude drie artifacts blijven tot Ian beslist
+- [x] 6 Publiceren als één artifact "Werkplaats" (https://claude.ai/artifact/WPv8LMRyMaKW1d2xLM4x8F); oude drie artifacts blijven tot Ian beslist
