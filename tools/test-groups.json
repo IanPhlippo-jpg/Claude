@@ -23,6 +23,7 @@
     "bibliotheek/tests/qaDeuren.test.ts",
     "bibliotheek/tests/montageDeuren.test.ts",
     "bibliotheek/tests/qaBalustrades.test.ts",
-    "bibliotheek/tests/qaFitness.test.ts"
+    "bibliotheek/tests/qaFitness.test.ts",
+    "bibliotheek/tests/werkplaatsPrijzen.test.ts"
   ]
 }

@@ -84,6 +84,12 @@ De regels onder het dak zijn **AANNAMES**: Buildwise en de Nederlandse Bbl zegge
 
 ## Gebruiken
 
+**Sinds 2026-11-28 in de werkplaats-app** ([../werkplaats/README.md](../werkplaats/README.md)): de configurator draait samen
+met de taatsdeuren en de fitnesstoestellen in één pagina, gebouwd met `node bibliotheek/werkplaats/maak-werkplaats.mjs <map>`. De werkplaats heeft drie
+tabbladen: **Schema's** (alle tekeningen en 3D, met een inhoudsopgave), **Werkvoorbereiding** (lijsten en bladen zonder
+prijzen, werkwijze, berekening en nakijken) en **Prijzen** (één prijsdocument: `prijsdoc.mjs`, op het scherm als A4 en als PDF). De pagina
+`web/index.html` blijft de bron en werkt ook los (`maak-web.mjs`).
+
 **Configurator** (`web/index.html` met de modules in `js/`) heeft drie pagina's:
 - **Balustrade** (voor de klant):
   - de soort en de stijl, de lijn en de maten, plaats en gebruik, bevestiging, handregel, glas, RAL-kleur en structuur;
@@ -122,6 +128,7 @@ De regels onder het dak zijn **AANNAMES**: Buildwise en de Nederlandse Bbl zegge
 
 ```bash
 node bibliotheek/balustrades/maak-web.mjs <map>           # index.html + js/ (ook de gebruikte taatsdeuren-modules)
+node bibliotheek/werkplaats/maak-werkplaats.mjs <map>    # de werkplaats-app: deuren, balustrades en fitness samen
 node bibliotheek/balustrades/maak-presentatie.mjs [map]   # presentatie/uit/Balustrades.html (esbuild, three gebundeld)
 npx vitest run bibliotheek/tests/qaBalustrades.test.ts              # 490 tests, ± 6 s (ook in npm run test:bibliotheek)
 npm run typecheck

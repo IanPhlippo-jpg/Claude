@@ -356,9 +356,10 @@ export function bestelBlad(o, meta = {}, inst = {}) {
     }
   }
   // kooponderdelen rechts
-  const rijen = sl.koop.map((x) => [x.naam.slice(0, 44), `${gw(x.hoeveelheid, 2)} ${x.eenheid}`, x.winkel.slice(0, 24), `€ ${gw(koopPrijs[x.key] ?? x.prijs, 2)}`, `€ ${gw(x.bedrag, 2)}`, x.nagekeken ? '' : 'A']);
-  const [t] = tabel(240, 32, [['Kooponderdeel', 72], ['Aantal', 18, true], ['Winkel', 40], ['Prijs', 16, true], ['Bedrag', 16, true], ['', 4]], rijen.slice(0, 50), 3.7, 1.75);
-  el.push(tk(240, 29, 'Kooponderdelen (excl. btw; A = AANNAME, nakijken)', 2.5, { vet: true }), t);
+  // meta.zonderPrijs (werkplaats, tabblad Werkvoorbereiding): zonder prijs en bedrag; die staan in het prijsdocument
+  const zonder = !!meta.zonderPrijs, rijen = sl.koop.map((x) => [x.naam.slice(0, zonder ? 60 : 44), `${gw(x.hoeveelheid, 2)} ${x.eenheid}`, x.winkel.slice(0, 24), ...(zonder ? [] : [`€ ${gw(koopPrijs[x.key] ?? x.prijs, 2)}`, `€ ${gw(x.bedrag, 2)}`]), x.nagekeken ? '' : 'A']);
+  const [t] = tabel(240, 32, [['Kooponderdeel', zonder ? 104 : 72], ['Aantal', 18, true], ['Winkel', 40], ...(zonder ? [] : [['Prijs', 16, true], ['Bedrag', 16, true]]), ['', 4]], rijen.slice(0, 50), 3.7, 1.75);
+  el.push(tk(240, 29, zonder ? 'Kooponderdelen (A = AANNAME, nakijken)' : 'Kooponderdelen (excl. btw; A = AANNAME, nakijken)', 2.5, { vet: true }), t);
   el.push(titelblok(o, A3, { titel: `${naamVan(o)}: bestellijst`, nr: nr(o, 7), schaal: '-', datum: datum(meta) }));
   return svg(A3, el.join(''));
 }

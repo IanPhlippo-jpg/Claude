@@ -195,7 +195,9 @@ export function stuklijstBlad(o, meta = {}) {
   el.push(t1);
   const y = 21 + h1 + 8;
   el.push(tk(26, y, 'Kooponderdelen', 3, { vet: true }));
-  const [t2] = tabel(26, y + 3, [['Artikel', 48], ['Benaming', 190], ['Aantal', 18, 1], ['Eenheid', 26], ['Winkel', 40], ['€', 22, 1]], sl.koop.slice(0, Math.max(3, Math.floor((297 - 46 - y) / 4.3) - 1)).map((x) => [x.artikel, x.naam.slice(0, 110), x.n, x.eenheid, x.winkel, g(x.bedrag, 0)]), 4.3, 2.05);
+  // meta.zonderPrijs (werkplaats, tabblad Werkvoorbereiding): zonder de kolom €; de prijzen staan in het prijsdocument
+  const zp = !!meta.zonderPrijs;
+  const [t2] = tabel(26, y + 3, [['Artikel', 48], ['Benaming', zp ? 212 : 190], ['Aantal', 18, 1], ['Eenheid', 26], ['Winkel', 40], ...(zp ? [] : [['€', 22, 1]])], sl.koop.slice(0, Math.max(3, Math.floor((297 - 46 - y) / 4.3) - 1)).map((x) => [x.artikel, x.naam.slice(0, 110), x.n, x.eenheid, x.winkel, ...(zp ? [] : [g(x.bedrag, 0)])]), 4.3, 2.05);
   el.push(t2);
   el.push(titelblok(o, A3, { ...meta, titel: 'Stuklijst', schaal: '-', type: 'stuklijst (ISO 7573)' }));
   return svg(A3, el.join(''));
@@ -381,9 +383,11 @@ export function boringBlad(o, meta = {}) {
 // ---------------------------------------------------------------- bestellijst en zaagplan A3
 export function bestelBlad(o, meta = {}) {
   const sl = stuklijst(o), z = zaagplan(o), el = [];
-  el.push(tk(26, 17, 'Bestellijst: kooponderdelen (excl. btw)', 3, { vet: true }));
+  const zp = !!meta.zonderPrijs; // werkplaats, tabblad Werkvoorbereiding: zonder prijzen (die staan in het prijsdocument)
+  el.push(tk(26, 17, zp ? 'Bestellijst: kooponderdelen' : 'Bestellijst: kooponderdelen (excl. btw)', 3, { vet: true }));
   const totaal = sl.koop.reduce((t, x) => t + x.bedrag, 0);
-  const [t1, h1] = tabel(26, 20, [['Artikel', 46], ['Benaming', 168], ['Aantal', 16, 1], ['Eenheid', 26], ['Winkel', 36], ['€/st', 20, 1], ['€', 22, 1]], [...sl.koop.map((x) => [x.artikel, x.naam.slice(0, 100), x.n, x.eenheid, x.winkel, g(x.prijs, 2), g(x.bedrag, 0)]), ['', 'Totaal kooponderdelen', '', '', '', '', g(totaal, 0)]], 4.2, 2.05);
+  const [t1, h1] = zp ? tabel(26, 20, [['Artikel', 46], ['Benaming', 210], ['Aantal', 16, 1], ['Eenheid', 26], ['Winkel', 36]], sl.koop.map((x) => [x.artikel, x.naam.slice(0, 120), x.n, x.eenheid, x.winkel]), 4.2, 2.05)
+    : tabel(26, 20, [['Artikel', 46], ['Benaming', 168], ['Aantal', 16, 1], ['Eenheid', 26], ['Winkel', 36], ['€/st', 20, 1], ['€', 22, 1]], [...sl.koop.map((x) => [x.artikel, x.naam.slice(0, 100), x.n, x.eenheid, x.winkel, g(x.prijs, 2), g(x.bedrag, 0)]), ['', 'Totaal kooponderdelen', '', '', '', '', g(totaal, 0)]], 4.2, 2.05);
   el.push(t1);
   let y = 20 + h1 + 8;
   el.push(tk(26, y, 'Staven en profielen', 3, { vet: true }));

@@ -2,6 +2,7 @@
 // modules van de balustrades en de taatsdeuren die ze (onrechtstreeks) gebruiken, in js/balustrades/ en js/taatsdeuren/.
 // De imports '../balustrades/' en '../taatsdeuren/' worden './balustrades/' en './taatsdeuren/'.
 // Gebruik: node bibliotheek/fitness/maak-web.mjs <doelmap> [--klant [--instellingen pad.json] [--ids FS-01,FX-04]]
+// De gedeelde werkplaatsmodule (tabbladen en prijsdocument) gaat naar js/werkplaats/werkdoc.mjs.
 // --klant (N-P2-09 v7): ook een aparte klantmap <doelmap>/klant met alleen de 3D, de catalogus en vooraf berekende
 // verkoopprijzen (met de instellingen van Ian): geen prijzen.mjs, werkwijze.mjs, dossier.mjs, tekeningen.mjs, montage.mjs,
 // dxf.mjs of stuklijst.mjs, en de inkoopprijzen in onderdelen.mjs op 0.
@@ -15,7 +16,7 @@ const doel = ARG.find((a, i) => !a.startsWith('--') && !['--instellingen', '--id
 const imports = (tekst) => [...tekst.matchAll(/(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1] ?? m[2]).filter((i) => i.startsWith('.'));
 const eigen = readdirSync(HERE).filter((f) => f.endsWith('.mjs') && !f.startsWith('maak-'));
 // rij van te kopiëren bestanden: pad relatief tot bibliotheek/ ('fitness/x.mjs', 'balustrades/y.mjs', 'taatsdeuren/z.mjs')
-const rij = [...eigen.map((f) => `fitness/${f}`), 'taatsdeuren/verbinding3d.mjs'], gezien = new Set(rij);
+const rij = [...eigen.map((f) => `fitness/${f}`), 'taatsdeuren/verbinding3d.mjs', 'werkplaats/werkdoc.mjs'], gezien = new Set(rij);
 let bytes = 0;
 mkdirSync(join(doel, 'js'), { recursive: true });
 while (rij.length) {
@@ -42,6 +43,7 @@ async function klantMap() {
     'montage.mjs': 'const montageBladen = () => [];',
     'dossier.mjs': "const dossierHtml = () => '', lijstenCsv = () => '';",
     'dxf.mjs': 'const dxfBestanden = () => [];',
+    'prijsdoc.mjs': 'const prijsDocument = () => null;',
   };
   let pg = readFileSync(join(HERE, 'web/index.html'), 'utf8').replace("from './js/prijzen.mjs';", "from './js/prijzen-klant.mjs';");
   for (const [m, vervang] of Object.entries(stub)) {
@@ -53,7 +55,7 @@ async function klantMap() {
   pg = `<!doctype html><html lang="nl" data-klant="1"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body style="margin:0">\n${pg}\n</body></html>`;
   mkdirSync(join(K, 'js'), { recursive: true });
   // modules: de import-sluiting van de klantpagina
-  const start = [...pg.matchAll(/from '\.\/js\/([^']+)'|import\('\.\/js\/([^']+)'\)/g)].map((m) => { const x = m[1] ?? m[2]; return /^(taatsdeuren|balustrades)\//.test(x) ? x : `fitness/${x}`; }).filter((r) => !r.endsWith('prijzen-klant.mjs'));
+  const start = [...pg.matchAll(/from '\.\/js\/([^']+)'|import\('\.\/js\/([^']+)'\)/g)].map((m) => { const x = m[1] ?? m[2]; return /^(taatsdeuren|balustrades|werkplaats)\//.test(x) ? x : `fitness/${x}`; }).filter((r) => !r.endsWith('prijzen-klant.mjs'));
   const rij2 = [...new Set(start)], gez = new Set(rij2);
   while (rij2.length) {
     const rel = rij2.pop(), t = readFileSync(join(BIB, rel), 'utf8');

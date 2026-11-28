@@ -128,7 +128,7 @@ fieldset { border: 0; padding: 0; margin: 0 0 10px; min-width: 0 } fieldset:last
 .matlabel { display: inline-block; font: 800 13px var(--kop); font-stretch: 85%; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--acc); padding: 3px 9px; border-radius: 5px; margin-bottom: 8px }
 .blad { background: #fff; border: 1px solid var(--lijn); border-radius: 8px; overflow: auto } .blad img { display: block; width: 100%; min-width: 620px; height: auto }
 .bladen { display: grid; gap: 12px }
-.tegels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 12px 0 }
+.tegels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 12px 0 }
 .tegel { background: var(--vlak); border: 1px solid var(--lijn); padding: 10px 12px; border-radius: 8px; min-width: 0 } .tegel span { display: block; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--zacht) }
 .tegel b { font-family: var(--kop); font-stretch: 80%; font-size: 21px; font-variant-numeric: tabular-nums }
 section.deel { margin-top: 26px } section.deel > h2 { border-bottom: 2px solid var(--inkt); padding-bottom: 6px; margin-bottom: 10px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap } section.deel > h2 small { font: 500 13px var(--tekst); color: var(--zacht) }
@@ -263,31 +263,41 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
   <div class="tegels">
     <div class="tegel"><span>Lengte</span><b id="t-lengte"></b></div><div class="tegel"><span>Staanders</span><b id="t-staanders"></b></div>
     <div class="tegel"><span>Staal</span><b id="t-kg"></b></div><div class="tegel"><span>Glas</span><b id="t-glas"></b></div>
-    <div class="tegel"><span>Uren werkplaats</span><b id="t-uren"></b></div><div class="tegel"><span>Kostprijs</span><b id="t-kost"></b></div>
+    <div class="tegel"><span>Uren werkplaats</span><b id="t-uren"></b></div>
   </div>
-  <section class="deel"><h2>Berekening <small id="b-sub"></small></h2><div class="tabelvak"><table id="berekening"></table></div></section>
-  <section class="deel"><h2>Na te kijken vóór de uitvoering <small>pas als alles afgevinkt is, is het ontwerp nagekeken</small></h2><ul class="stappen" id="nakijken"></ul></section>
-  <section class="deel"><h2>Montage <small>per verbinding: draaien, uit elkaar schuiven, en het montageblad</small></h2>
-    <div class="mtabs" id="mtabs" role="group" aria-label="Verbinding"></div>
-    <div class="montage"><div>
-      <div class="m3d" id="m3d" aria-label="De verbinding in 3D"><p class="laden" id="m3dLaden">3D wordt geladen…</p></div>
-      <div class="mbedien"><span>Samen</span><input type="range" id="muit" min="0" max="100" value="100" aria-label="Uit elkaar"><span>Uit elkaar</span></div>
-      <div class="knoppen"><button class="knop" type="button" id="mspeel">Samenbouwen afspelen</button><button class="knop" type="button" id="mherstel">Zicht herstellen</button></div>
-      <ul class="mlijst" id="mlijst"></ul>
-    </div><div class="blad" id="mblad"></div></div>
-  </section>
-  <section class="deel"><h2>Overzicht <small>vooraanzicht, bovenaanzicht en doorsnede</small></h2><div class="blad" id="w-overzicht"></div></section>
-  <section class="deel"><h2>Stuk per stuk <small>klik: de tekening A4 met lengte, zaagsnede en gaten</small></h2><div class="stukknoppen" id="stukknoppen"></div></section>
-  <section class="deel"><h2>Stuklijst <small>ISO 7573</small></h2><div class="blad" id="w-stuklijst"></div></section>
-  <section class="deel"><h2>Lasdetails <small>ISO 2553</small></h2><div class="blad" id="w-lassen"></div></section>
-  <section class="deel"><h2>Boringen <small>ISO 15786</small></h2><div class="blad" id="w-boringen"></div></section>
-  <section class="deel"><h2>Bestellijst en zaagplan <small>kooponderdelen met artikel en staven van 6 m</small></h2><div class="blad" id="w-bestel"></div></section>
-  <section class="deel"><h2>Plaatsingsblad</h2><div class="blad" id="w-plaatsing"></div></section>
-  <section class="deel"><h2>Samenstelling per sectie <small>gemaat vooraanzicht met de controlematen voor de lasmal</small></h2><div id="w-secties"></div></section>
-  <section class="deel"><h2>Kostprijs</h2><div class="tabelvak"><table id="prijs"></table></div></section>
-  <section class="deel"><h2>Werkwijze</h2><ol class="stappen" id="stappen"></ol></section>
-  <section class="deel"><h2>Zaaglijst</h2><div class="tabelvak"><table id="zaag"></table></div></section>
-  <section class="deel"><h2>Ter vergelijking <small id="markt-sub"></small></h2><div class="tabelvak"><table id="markt"></table></div></section>
+  <!-- de werkplaats in drie tabbladen (2026-11-28): de schema's apart, de lijsten zonder prijzen, en alle prijzen in één document -->
+  <nav class="wtabs" role="tablist" aria-label="Werkplaats"><button type="button" role="tab" data-wtab="schemas">Schema's<small>tekeningen en 3D</small></button><button type="button" role="tab" data-wtab="voorbereiding">Werkvoorbereiding<small>berekening en lijsten</small></button><button type="button" role="tab" data-wtab="prijzen">Prijzen<small>één document</small></button></nav>
+  <div data-wpaneel="schemas" role="tabpanel">
+    <nav class="windex" aria-label="Naar een tekening"><button type="button" data-naar="s-montage">Montage</button><button type="button" data-naar="s-overzicht">Overzicht</button><button type="button" data-naar="s-stuk">Stuk per stuk</button><button type="button" data-naar="s-lassen">Lasdetails</button><button type="button" data-naar="s-boringen">Boringen</button><button type="button" data-naar="s-plaatsing">Plaatsing</button><button type="button" data-naar="s-secties">Secties</button></nav>
+    <section class="deel" id="s-montage"><h2>Montage <small>per verbinding: draaien, uit elkaar schuiven, en het montageblad</small></h2>
+      <div class="mtabs" id="mtabs" role="group" aria-label="Verbinding"></div>
+      <div class="montage"><div>
+        <div class="m3d" id="m3d" aria-label="De verbinding in 3D"><p class="laden" id="m3dLaden">3D wordt geladen…</p></div>
+        <div class="mbedien"><span>Samen</span><input type="range" id="muit" min="0" max="100" value="100" aria-label="Uit elkaar"><span>Uit elkaar</span></div>
+        <div class="knoppen"><button class="knop" type="button" id="mspeel">Samenbouwen afspelen</button><button class="knop" type="button" id="mherstel">Zicht herstellen</button></div>
+        <ul class="mlijst" id="mlijst"></ul>
+      </div><div class="blad" id="mblad"></div></div>
+    </section>
+    <section class="deel" id="s-overzicht"><h2>Overzicht <small>vooraanzicht, bovenaanzicht en doorsnede</small></h2><div class="blad" id="w-overzicht"></div></section>
+    <section class="deel" id="s-stuk"><h2>Stuk per stuk <small>klik: de tekening A4 met lengte, zaagsnede en gaten</small></h2><div class="stukknoppen" id="stukknoppen"></div></section>
+    <section class="deel" id="s-lassen"><h2>Lasdetails <small>ISO 2553</small></h2><div class="blad" id="w-lassen"></div></section>
+    <section class="deel" id="s-boringen"><h2>Boringen <small>ISO 15786</small></h2><div class="blad" id="w-boringen"></div></section>
+    <section class="deel" id="s-plaatsing"><h2>Plaatsingsblad</h2><div class="blad" id="w-plaatsing"></div></section>
+    <section class="deel" id="s-secties"><h2>Samenstelling per sectie <small>gemaat vooraanzicht met de controlematen voor de lasmal</small></h2><div id="w-secties"></div></section>
+  </div>
+  <div data-wpaneel="voorbereiding" role="tabpanel" hidden>
+    <nav class="windex" aria-label="Naar een lijst"><button type="button" data-naar="v-berekening">Berekening</button><button type="button" data-naar="v-nakijken">Nakijken</button><button type="button" data-naar="v-stuklijst">Stuklijst</button><button type="button" data-naar="v-bestel">Bestellijst en zaagplan</button><button type="button" data-naar="v-werkwijze">Werkwijze</button><button type="button" data-naar="v-zaag">Zaaglijst</button></nav>
+    <section class="deel" id="v-berekening"><h2>Berekening <small id="b-sub"></small></h2><div class="tabelvak"><table id="berekening"></table></div></section>
+    <section class="deel" id="v-nakijken"><h2>Na te kijken vóór de uitvoering <small>pas als alles afgevinkt is, is het ontwerp nagekeken</small></h2><ul class="stappen" id="nakijken"></ul></section>
+    <section class="deel" id="v-stuklijst"><h2>Stuklijst <small>ISO 7573</small></h2><div class="blad" id="w-stuklijst"></div></section>
+    <section class="deel" id="v-bestel"><h2>Bestellijst en zaagplan <small>kooponderdelen met artikel en staven van 6 m; de prijzen staan bij Prijzen</small></h2><div class="blad" id="w-bestel"></div></section>
+    <section class="deel" id="v-werkwijze"><h2>Werkwijze</h2><ol class="stappen" id="stappen"></ol></section>
+    <section class="deel" id="v-zaag"><h2>Zaaglijst</h2><div class="tabelvak"><table id="zaag"></table></div></section>
+  </div>
+  <div data-wpaneel="prijzen" role="tabpanel" hidden>
+    <div class="pknoppen"><button class="knop vol" type="button" data-dl="prijspdf">Download PDF</button><span class="status">Kostprijs, toeslagen, kooponderdelen, uren, marge, verkoopprijs, markt en de gebruikte prijzen met hun bron.</span></div>
+    <div id="prijsdoc"></div>
+  </div>
 </div></div>
 
 <!-- ============ INSTELLINGEN ============ -->
@@ -316,9 +326,13 @@ import { UREN } from './js/werkwijze.mjs';
 import { vooraanzicht, alleBladen, stukBladen } from './js/tekeningen.mjs';
 import { montageBladen } from './js/montage.mjs';
 import { dossierHtml, lijstenCsv, dossierBladen, btwFactor } from './js/dossier.mjs';
-const KLANT = document.documentElement.dataset.klant === '1'; // klant.html (P2-16): geen werkplaats, geen instellingen, geen kostprijs
+import { prijsDocument } from './js/prijsdoc.mjs';
+import { zetWerkStijl, werkTabs, prijsDocHtml, prijsDocPdf } from './js/werkplaats/werkdoc.mjs';
+const ROOT = document, HOST = document.body, CTX = { klant: document.documentElement.dataset.klant === '1' || new URLSearchParams(location.search).has('klant'), use: (n) => window.claude?.use?.(n), hash: () => location.hash.slice(1), opRoute: (f) => addEventListener('hashchange', f) }; // @wortel: in de werkplaats-app geeft mount(ROOT, HOST, CTX) deze drie (bibliotheek/werkplaats/maak-werkplaats.mjs)
+zetWerkStijl(ROOT);
+const KLANT = CTX.klant; // klant.html (P2-16): geen werkplaats, geen instellingen, geen kostprijs
 
-const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const $ = (id) => ROOT.getElementById(id), esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const eur0 = (v) => `€ ${Math.round(v).toLocaleString('nl-BE')}`;
 const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
@@ -374,17 +388,17 @@ for (const k of ['cat', 'tussenruimte', 'afstand', 'glas']) $(k).addEventListene
 $('hoog').addEventListener('change', () => { st.valhoogte = $('hoog').checked ? 12 : 3; if ($('hoog').checked && st.H < 1200) st.H = 1200; teken(); });
 $('plint').addEventListener('change', () => { st.plint = $('plint').checked; teken(); });
 $('plaatsen').addEventListener('change', () => { st.plaatsen = $('plaatsen').checked; teken(); });
-document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== b.dataset.tab; }); }));
+ROOT.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { ROOT.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', x === b)); ROOT.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== b.dataset.tab; }); }));
 
 // ---------- tekenen
 let huidig = null;
 function teken() {
   const S = SOORTEN[st.soort], sty = STIJL(st.soort, st.stijl);
-  document.body.dataset.soort = st.soort;
+  HOST.dataset.soort = st.soort;
   const o = ontwerp(st), k = o.k, B = berekening(o), C = conformiteit(o, B), kp = kostprijs(o, inst), mb = MARKTBAND[st.soort];
   Object.assign(st, { L1: k.L1, L2: k.L2, L3: k.L3, H: k.H, hoek: k.hoek, optrede: k.optrede, aantrede: k.aantrede, dakBegin: k.dakBegin, dakEind: k.dakEind }, Object.fromEntries(DAKV.map((x) => [x, k[x]])));
-  document.querySelectorAll('[data-soort]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.soort === st.soort));
-  document.querySelectorAll('[data-stijl]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.stijl === sty.id));
+  ROOT.querySelectorAll('[data-soort]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.soort === st.soort));
+  ROOT.querySelectorAll('[data-stijl]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.stijl === sty.id));
   $('b-eyebrow').textContent = `${S.kort} · ${S.stijlen.length} stijlen`; $('b-titel').textContent = S.naam; $('b-tekst').textContent = S.uitleg;
   $('b-markt').textContent = `${eur0(mb.laag)} – ${eur0(mb.hoog)}`; $('b-markt2').textContent = `zonder plaatsen; geplaatst ${eur0(mb.laagPl)} – ${eur0(mb.hoogPl)}`;
   $('nr').textContent = `${sty.id} · ${S.kort}`; $('naam').textContent = sty.naam; $('uitleg').textContent = sty.uitleg;
@@ -459,22 +473,20 @@ function tekenWerk() {
   $('w-tekst').textContent = `${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm, H ${k.H}, ${k.plaats}, ${k.bevestiging === 'zij' ? 'zijmontage' : 'bovenop de vloer'}, categorie ${NORM.lijnlast[k.cat].naam}.`;
   $('t-lengte').textContent = `${g(o.lengte / 1000, 2)} m`; $('t-staanders').textContent = o.staander ? `${o.staanders.length} x ${Math.round(o.afstand)}` : '-';
   $('t-kg').textContent = `${g(kp.gewicht)} kg`; $('t-glas').textContent = kp.glas ? `${g(kp.glas, 2)} m²` : '-';
-  $('t-uren').textContent = `${g(kp.uren - (kp.plaatsen.inbegrepen ? kp.plaatsen.uren : 0), 1)} u`; $('t-kost').textContent = eur0(kp.kostprijs);
+  $('t-uren').textContent = `${g(kp.uren - (kp.plaatsen.inbegrepen ? kp.plaatsen.uren : 0), 1)} u`;
   const C = conformiteit(o, B);
   $('b-sub').textContent = `${C.label}: groen ≤ 90 % benut, oranje 90-100 % of een aanname, rood > 100 %`;
   $('nakijken').innerHTML = C.niet.map((x) => `<li><label class="schakel"><input type="checkbox" data-nk="${esc(x.id)}"${(k.nagekeken ?? []).includes(x.id) ? ' checked' : ''}> ${esc(x.wat)}</label></li>`).join('');
   $('berekening').innerHTML = `<thead><tr><th></th><th>Controle</th><th>Berekening</th><th>Benut</th><th>Bron</th></tr></thead><tbody>${B.controles.map((c) => `<tr><td><span class="stip ${c.oordeel}" title="${c.oordeel}"></span></td><td><b>${esc(c.groep)}</b><br>${esc(c.wat)}${c.uitleg ? `<br><small>${esc(c.uitleg)}</small>` : ''}</td><td class="form">${esc(c.formule)}</td><td class="n">${c.oordeel === 'info' ? '' : `${Math.round(c.benut * 100)} %`}</td><td class="bron">${esc(c.bron)}</td></tr>`).join('')}</tbody>`;
-  const D = dossierBladen(o, meta), bl = D.bladen;
+  const D = dossierBladen(o, { ...meta, zonderPrijs: true }), bl = D.bladen; // de bladen zonder prijzen; die staan in het prijsdocument
   for (const [id, el] of [['overzicht', 'w-overzicht'], ['stuklijst', 'w-stuklijst'], ['lassen', 'w-lassen'], ['boringen', 'w-boringen'], ['bestel', 'w-bestel'], ['plaatsing', 'w-plaatsing']]) { const b = bl.find((x) => x.id === id); $(el).innerHTML = b ? beeld(b.svg, b.titel) : '<p class="status" style="padding:12px">Niet gelast: het U-profiel en het glas worden geklemd en geschroefd.</p>'; }
   $('w-secties').innerHTML = bl.filter((x) => x.id.startsWith('sectie')).map((b) => `<div class="blad" style="margin-bottom:12px">${beeld(b.svg, b.titel)}</div>`).join('') || '<p class="status" style="padding:12px">Geen gelaste secties (U-profiel).</p>';
   huidig.stukken = D.stukken; huidig.bladen = bl; huidig.montageGen = D.montage;
   $('stukknoppen').innerHTML = huidig.stukken.map((x) => `<button type="button" class="stukknop" data-pos="${x.pos}"><span class="nr">${x.pos}</span><span>${esc(x.p.naam)}<small>${x.p.n} st · ${esc(x.p.maat)}${x.p.L ? ` · ${x.p.L} mm · ${esc(x.p.zaagT)}` : ''}</small></span></button>`).join('');
-  const bron = (b) => (/^https?:/.test(b) ? `<a href="${esc(b)}" target="_blank" rel="noopener">${esc(b.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a>` : esc(b));
-  $('prijs').innerHTML = `<thead><tr><th>Wat</th><th>Deel</th><th>Bedrag</th><th>Bron</th></tr></thead><tbody>${kp.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td>${esc(CAT[r.cat])}</td><td class="n">${eur(r.bedrag)}</td><td class="bron">${bron(r.bron)}</td></tr>`).join('')}<tr><td><b>Materiaal</b></td><td></td><td class="n">${eur(kp.materiaal)}</td><td></td></tr><tr><td><b>Arbeid</b> ${g(kp.uren, 2)} u x ${eur(inst.uurloon)}</td><td></td><td class="n">${eur(kp.arbeid)}</td><td class="bron">uren uit de werkwijze (instellingen)</td></tr><tr><td><b>Kostprijs</b></td><td></td><td class="n"><b>${eur(kp.kostprijs)}</b></td><td></td></tr><tr><td>Verkoop met ${kp.marge} % marge</td><td></td><td class="n"><b>${eur(kp.verkoop)}</b></td><td class="bron">${eur(kp.perMeter)}/m · incl. ${Math.round((btwFactor(inst) - 1) * 100)} % btw ${eur(kp.verkoop * btwFactor(inst))}</td></tr>${kp.plaatsen.inbegrepen ? '' : `<tr class="apart"><td>Plaatsen, apart (${g(kp.plaatsen.uren, 1)} u)</td><td></td><td class="n">+ ${eur(kp.plaatsen.verkoop)}</td><td class="bron">als de klant het vraagt</td></tr>`}</tbody>`;
+  huidig.doc = prijsDocument(huidig, inst); // alle prijzen in één document (tabblad Prijzen)
+  $('prijsdoc').innerHTML = prijsDocHtml(huidig.doc);
   $('stappen').innerHTML = kp.stappen.map((x) => `<li${x.apart ? ' class="apart"' : ''}><b>${esc(x.titel)}</b> <span class="uur">${g(x.uren, 2)} u${x.proces ? ` · ${esc(x.proces)}` : ''}${x.apart ? ' · apart' : ''}</span><br>${esc(x.tekst)}</li>`).join('');
   $('zaag').innerHTML = `<thead><tr><th>Pos</th><th>Wat</th><th>Profiel</th><th>Lengte</th><th>Zaagsnede</th><th>n</th></tr></thead><tbody>${kp.stuklijst.posities.filter((p) => p.L).map((p) => `<tr><td class="n">${p.pos}</td><td>${esc(p.naam)}</td><td>${esc(p.maat)}</td><td class="n">${p.L}</td><td>${esc(p.zaagT)}</td><td class="n">${p.n}</td></tr>`).join('')}</tbody>`;
-  $('markt-sub').textContent = MARKTBAND[k.soort].tekst;
-  $('markt').innerHTML = `<thead><tr><th>Verkoopprijs elders</th><th>€/m excl. btw</th><th>Plaatsen</th><th>Bron</th></tr></thead><tbody>${MARKT.filter((m) => m.soort === k.soort).map((m) => `<tr><td>${esc(m.wat)}</td><td class="n">${eur0(m.prijs)}${m.prijsHoog ? ` – ${eur0(m.prijsHoog)}` : ''}</td><td>${m.montage ? 'inbegrepen' : 'niet inbegrepen'}</td><td class="bron">${bron(m.bron)}</td></tr>`).join('')}<tr><td><b>Deze balustrade</b></td><td class="n"><b>${eur0(kp.perMeterZonder)}</b></td><td>niet inbegrepen (+ ${eur0(kp.plaatsen.perMeter)}/m)</td><td class="bron">marge ${kp.marge} %</td></tr></tbody>`;
   mb = huidig.montageGen ?? montageBladen(o, meta); huidig.montage = mb;
   if (!mb.some((x) => x.id === montageId)) montageId = mb[0].id;
   $('mtabs').innerHTML = mb.map((x, i) => `<button type="button" data-m="${x.id}" aria-pressed="${x.id === montageId}">${i + 1}. ${esc(x.titel)}<small>${esc(x.sub)}</small></button>`).join('');
@@ -483,7 +495,7 @@ function tekenWerk() {
 let m3d = null, m3dBezig = null;
 function toonMontage() {
   const x = mb.find((y) => y.id === montageId); if (!x) return;
-  document.querySelectorAll('[data-m]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.m === montageId));
+  ROOT.querySelectorAll('[data-m]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.m === montageId));
   $('mblad').innerHTML = beeld(x.svg, `Montageblad: ${x.titel}`);
   $('mlijst').innerHTML = x.scène.delen.filter((d) => d.nr).map((d) => `<li><span class="nr">${d.nr}</span><i style="--k:${d.kleur}"></i><span><b>${esc(d.naam)}</b>${d.label ? ` · ${esc(d.label)}` : ''}</span></li>`).join('');
   if (m3d) m3d.toon(x.scène);
@@ -518,13 +530,13 @@ $('i-uren').innerHTML = `<thead><tr><th>Handeling</th><th>Per</th><th>Uur</th></
 $('i-glas').innerHTML = `<thead><tr><th>Glas</th><th>Webshop</th><th>Jouw prijs</th></tr></thead><tbody>${Object.entries(GLASOPBOUW).map(([k, x]) => `<tr><td>${esc(x.naam)}<br><small class="uitl">${esc(x.bron)}</small></td><td class="n">${eur(x.webshop)}</td><td class="n"><input type="number" step="0.01" min="0" data-g="${k}" id="g-${k.replace('.', '-')}"></td></tr>`).join('')}</tbody>`;
 function vulInstellingen() {
   for (const [k, , , l] of TARIEF) $(`t-${k.replace('.', '-')}`).value = l();
-  document.querySelectorAll('[data-u]').forEach((el) => { el.value = inst.uren[el.dataset.u]; });
-  document.querySelectorAll('[data-g]').forEach((el) => { el.value = inst.glasPrijs[el.dataset.g]; });
+  ROOT.querySelectorAll('[data-u]').forEach((el) => { el.value = inst.uren[el.dataset.u]; });
+  ROOT.querySelectorAll('[data-g]').forEach((el) => { el.value = inst.glasPrijs[el.dataset.g]; });
   const t = $(`toon-${inst.toon}`); if (t) t.checked = true;
 }
-document.querySelectorAll('[data-t]').forEach((el) => el.addEventListener('change', () => { TARIEF.find((x) => x[0] === el.dataset.t)[4](Math.max(0, +el.value)); bewaar(); teken(); }));
-document.querySelectorAll('[data-u]').forEach((el) => el.addEventListener('change', () => { inst.uren[el.dataset.u] = Math.max(0, +el.value); Object.assign(UREN, inst.uren); bewaar(); teken(); }));
-document.querySelectorAll('[data-g]').forEach((el) => el.addEventListener('change', () => { inst.glasPrijs[el.dataset.g] = Math.max(0, +el.value); bewaar(); teken(); }));
+ROOT.querySelectorAll('[data-t]').forEach((el) => el.addEventListener('change', () => { TARIEF.find((x) => x[0] === el.dataset.t)[4](Math.max(0, +el.value)); bewaar(); teken(); }));
+ROOT.querySelectorAll('[data-u]').forEach((el) => el.addEventListener('change', () => { inst.uren[el.dataset.u] = Math.max(0, +el.value); Object.assign(UREN, inst.uren); bewaar(); teken(); }));
+ROOT.querySelectorAll('[data-g]').forEach((el) => el.addEventListener('change', () => { inst.glasPrijs[el.dataset.g] = Math.max(0, +el.value); bewaar(); teken(); }));
 $('k-toon').addEventListener('change', (e) => { inst.toon = e.target.value; bewaar(); teken(); });
 $('terug').addEventListener('click', () => { inst = JSON.parse(JSON.stringify(STD_INST)); Object.assign(UREN, inst.uren); bewaar(); vulInstellingen(); teken(); $('i-status').textContent = 'Alles staat terug op de standaard.'; });
 let db = null, uid = null, wacht = null;
@@ -540,17 +552,18 @@ const laad = (d) => { if (!d) return; inst = { ...JSON.parse(JSON.stringify(STD_
 
 // ---------- pagina's: #balustrade, #werkplaats, #instellingen
 function toonPagina() {
-  const h = location.hash.slice(1); pagina = !KLANT && (h === 'werkplaats' || h === 'instellingen') ? h : 'balustrade';
-  document.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== pagina; });
+  const h = CTX.hash(); pagina = !KLANT && (h === 'werkplaats' || h === 'instellingen') ? h : 'balustrade';
+  ROOT.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== pagina; });
   for (const [id, p] of [['nav-bal', 'balustrade'], ['nav-werk', 'werkplaats'], ['nav-inst', 'instellingen']]) { if (p === pagina) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current'); }
   if (pagina === 'werkplaats' && werkVuil) tekenWerk();
   scrollTo(0, 0);
 }
-addEventListener('hashchange', toonPagina);
+CTX.opRoute(toonPagina);
+werkTabs(ROOT, 'balustrades');
 bouwStijlen(); vulInstellingen(); laad(lees('balustrades-instellingen', null)); teken(); toonPagina();
 (async () => {
   try {
-    const user = await window.claude?.use?.('user'); db = await window.claude?.use?.('db'); uid = user ? await user.id() : null;
+    const user = await CTX.use('user'); db = await CTX.use('db'); uid = user ? await user.id() : null;
     if (db && uid) { const s = await db.doc(`data/users/${uid}/instellingen/balustrades`).get(); if (s.exists) laad(s.data()); $('i-status').textContent = 'Je instellingen staan op je account (ook op je gsm).'; }
     else $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.';
   } catch { $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.'; }
@@ -558,7 +571,7 @@ bouwStijlen(); vulInstellingen(); laad(lees('balustrades-instellingen', null)); 
 
 // ---------- downloads (zip zonder compressie)
 let dl = null;
-const klaar = (async () => { try { dl = await window.claude?.use?.('downloads'); } catch { dl = null; } if (!dl) { document.querySelectorAll('[data-dl]').forEach((b) => { b.disabled = true; }); $('status').textContent = 'Downloaden kan niet in deze weergave (wel in de gepubliceerde pagina).'; } })();
+const klaar = (async () => { try { dl = await CTX.use('downloads'); } catch { dl = null; } if (!dl) { ROOT.querySelectorAll('[data-dl]').forEach((b) => { b.disabled = true; }); $('status').textContent = 'Downloaden kan niet in deze weergave (wel in de gepubliceerde pagina).'; } })();
 const crcT = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let q = 0; q < 8; q++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
 const crc32 = (u) => { let c = 0xffffffff; for (const x of u) c = crcT[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
 function zip(best) {
@@ -575,12 +588,13 @@ function zip(best) {
   e.setUint32(0, 0x06054b50, true); e.setUint16(8, best.length, true); e.setUint16(10, best.length, true); e.setUint32(12, gr, true); e.setUint32(16, off, true);
   return new Blob([...delen, ...cen, new Uint8Array(e.buffer)]);
 }
-document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', async () => {
+ROOT.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', async () => {
   await klaar; if (!dl || !huidig) return;
   if (werkVuil) tekenWerk();
   const { o, meta } = huidig, nm = `balustrade-${o.k.soort}-${o.k.stijl}-${Math.round(o.lengte)}`;
   let filename, data;
-  if (b.dataset.dl === 'dossier') { filename = `${nm}-dossier.html`; data = dossierHtml(o, inst, meta); }
+  if (b.dataset.dl === 'prijspdf') { filename = `${nm}-prijzen.pdf`; data = new Blob([prijsDocPdf(huidig.doc)], { type: 'application/pdf' }); }
+  else if (b.dataset.dl === 'dossier') { filename = `${nm}-dossier.html`; data = dossierHtml(o, inst, meta); }
   else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; data = lijstenCsv(o, inst); }
   else { filename = `${nm}-tekeningen.zip`; data = zip([...huidig.bladen.map((x, i) => [`${nm}-${i + 1}-${x.id}.svg`, x.svg]), ...huidig.montage.map((x, i) => [`${nm}-montage-${i + 1}-${x.id}.svg`, x.svg]), ...huidig.stukken.map((x) => [`${nm}-pos-${String(x.pos).padStart(2, '0')}.svg`, x.svg]), [`${nm}-lijsten.csv`, lijstenCsv(o, inst)]]); }
   $('status').textContent = 'Bezig…';

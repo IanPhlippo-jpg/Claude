@@ -27,7 +27,11 @@ const CSS = `
 
 /** maakt het venster in dlg (een leeg <dialog>); opts: { naar(richting), bewaar(svg, p) } -> { toon({ p, svg, o, i, n }) } */
 export function stukVenster(dlg, opts = {}) {
-  if (!document.getElementById('sv-css')) document.head.insertAdjacentHTML('beforeend', `<style id="sv-css">${CSS}</style>`);
+  // de stijl in de pagina (ook voor het afdrukken) en, in de werkplaats-app, in de schaduwboom van de configurator
+  for (const plek of new Set([document.head, dlg.getRootNode().head ?? dlg.getRootNode()])) {
+    if (plek.querySelector?.('style[data-sv-css]')) continue;
+    const st = document.createElement('style'); st.dataset.svCss = '1'; st.textContent = CSS; plek.appendChild(st);
+  }
   dlg.className = 'sv';
   dlg.innerHTML = `<div class="sv-kop"><span class="sv-groep"><button type="button" data-sv="vorige" aria-label="Vorige stuk">‹</button><button type="button" data-sv="volgende" aria-label="Volgende stuk">›</button></span>
 <h3 id="sv-titel"></h3>

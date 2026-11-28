@@ -39,11 +39,12 @@ export function bestelBlad(o, keuzes = {}, meta = {}) {
   const { profielen, totaal } = zaagplan(o, keuzes), el = [];
   el.push(`<rect x="20" y="10" width="${W - 30}" height="${H - 20}" fill="none" stroke="#111" stroke-width="0.7"/>`);
   el.push(T(26, 17, `Bestellijst (staven van de handel)${o.sys.leverancier ? ` · ${o.sys.leverancier}` : ''}`, 3, { vet: true }));
-  const rijen = profielen.map((p) => [p.artikel || '–', p.naam, `${p.n} x ${g(p.lengte / 1000, 1)} m${p.staven.some((x) => x.opMaat) ? ' (deels op maat)' : ''}`, g(p.m, 1), g(p.nodig, 1), `${Math.round(p.verlies * 100)} %`, g(p.prijsM, 2), g(p.prijs, 0)]);
-  const [tt, th] = tabel(26, 20, [['Artikel', 26], ['Profiel', 92], ['Bestellen', 42], ['m', 14, 1], ['nodig m', 18, 1], ['rest', 14, 1], ['€/m', 16, 1], ['€', 18, 1]], [...rijen, ['', 'Totaal profielen (excl. btw)', '', '', '', '', '', g(totaal, 0)]], 4.4, 2.2);
+  // meta.zonderPrijs (werkplaats, tabblad Werkvoorbereiding): dezelfde bestellijst zonder €/m en €; de prijzen staan in het prijsdocument
+  const zp = !!meta.zonderPrijs, rijen = profielen.map((p) => [p.artikel || '–', p.naam, `${p.n} x ${g(p.lengte / 1000, 1)} m${p.staven.some((x) => x.opMaat) ? ' (deels op maat)' : ''}`, g(p.m, 1), g(p.nodig, 1), `${Math.round(p.verlies * 100)} %`, ...(zp ? [] : [g(p.prijsM, 2), g(p.prijs, 0)])]);
+  const [tt, th] = tabel(26, 20, [['Artikel', 26], ['Profiel', 92], ['Bestellen', 42], ['m', 14, 1], ['nodig m', 18, 1], ['rest', 14, 1], ...(zp ? [] : [['€/m', 16, 1], ['€', 18, 1]])], zp ? rijen : [...rijen, ['', 'Totaal profielen (excl. btw)', '', '', '', '', '', g(totaal, 0)]], 4.4, 2.2);
   el.push(tt);
   let y = 20 + th + 6;
-  el.push(T(26, y, `Zaagsnede ${ZAAGSNEDE} mm per stuk; lengtes = buitenmaat van het stuk (verstek inbegrepen). Prijzen: zie de bron per profiel op de pagina Werkplaats.`, 2.1, { kleur: '#333' }));
+  el.push(T(26, y, `Zaagsnede ${ZAAGSNEDE} mm per stuk; lengtes = buitenmaat van het stuk (verstek inbegrepen).${zp ? '' : ' Prijzen: zie de bron per profiel op de pagina Werkplaats.'}`, 2.1, { kleur: '#333' }));
   y += 8;
   el.push(T(26, y, 'Zaagplan: elke balk is één staaf; de nummers zijn de posities uit de stuklijst', 3, { vet: true }));
   y += 4;

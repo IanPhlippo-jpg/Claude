@@ -93,6 +93,12 @@ van het toestel.
 
 ## Gebruiken
 
+**Sinds 2026-11-28 in de werkplaats-app** ([../werkplaats/README.md](../werkplaats/README.md)): de configurator draait samen
+met de taatsdeuren en de balustrades in één pagina, gebouwd met `node bibliotheek/werkplaats/maak-werkplaats.mjs <map>`. De werkplaats heeft drie
+tabbladen: **Schema's** (alle tekeningen en 3D, met een inhoudsopgave), **Werkvoorbereiding** (lijsten en bladen zonder
+prijzen, werkwijze, berekening) en **Prijzen** (één prijsdocument: `prijsdoc.mjs`, op het scherm als A4 en als PDF). De pagina
+`web/index.html` blijft de bron en werkt ook los (`maak-web.mjs`).
+
 **Catalogus** (`web/index.html` met de modules in `js/`) heeft vier pagina's:
 - **Catalogus:** raster met alle toestellen (miniatuur, nummer, soort, thuis- en proprijs, maten). Je kunt zoeken en
   filteren op soort, versie, vloeroppervlak en maximale prijs.
@@ -110,6 +116,7 @@ staat op het bureaublad in `Fitnesstoestellen/` met een LEESMIJ.
 
 ```bash
 node bibliotheek/fitness/maak-web.mjs <map>            # index.html + js/ (met js/balustrades en js/taatsdeuren)
+node bibliotheek/werkplaats/maak-werkplaats.mjs <map>    # de werkplaats-app: deuren, balustrades en fitness samen
 node bibliotheek/fitness/maak-presentatie.mjs [map]    # presentatie/uit/Fitnesstoestellen.html (esbuild, three gebundeld)
 npx vitest run bibliotheek/tests/qaFitness.test.ts                # 826 tests, ± 4 s (ook in npm run test:bibliotheek)
 npm run typecheck

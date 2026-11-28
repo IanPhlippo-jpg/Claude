@@ -1755,9 +1755,9 @@ elease; README en docs/04 bijgewerkt
 - [x] typecheck, vitest, line-budget/line-length, graphify update
 
 ## Werkplaats: deuren, balustrades en fitness in één app; prijzen en schema's apart (2026-11-28)
-- [ ] 1 Eén webapp `bibliotheek/werkplaats-web` met bovenaan Deuren (staal/alu) | Balustrades | Fitness; elke configurator in een eigen schaduwboom (geen botsende id's/stijlen), routes #deuren/…, #balustrades/…, #fitness/…
-- [ ] 2 Werkplaats per product in drie tabbladen: Schema's (alle tekeningen en bladen) | Werkvoorbereiding (stuklijst, zaag-/bestellijst, werkwijze, berekening, nakijken) | Prijzen
-- [ ] 3 Prijzen in één document per product: kostprijs, kooponderdelen met prijs, marktvergelijking, tarieven en materiaalprijzen; downloadbaar als PDF
-- [ ] 4 db/user/downloads blijven werken (bewaarde instellingen per product), klantmodus behouden
-- [ ] 5 Bouwscript `maak-werkplaats.mjs`, tests (bestaande qa-tests groen + e2e op de nieuwe app), schermafbeeldingen
+- [x] 1 Eén webapp `bibliotheek/werkplaats-web` met bovenaan Deuren (staal/alu) | Balustrades | Fitness; elke configurator in een eigen schaduwboom (geen botsende id's/stijlen), routes #deuren/…, #balustrades/…, #fitness/…
+- [x] 2 Werkplaats per product in drie tabbladen: Schema's (alle tekeningen en bladen) | Werkvoorbereiding (stuklijst, zaag-/bestellijst, werkwijze, berekening, nakijken) | Prijzen
+- [x] 3 Prijzen in één document per product: kostprijs, kooponderdelen met prijs, marktvergelijking, tarieven en materiaalprijzen; downloadbaar als PDF
+- [x] 4 db/user/downloads blijven werken (bewaarde instellingen per product), klantmodus behouden
+- [x] 5 Bouwscript `maak-werkplaats.mjs`, tests (bestaande qa-tests groen + e2e op de nieuwe app), schermafbeeldingen
 - [ ] 6 Publiceren als één artifact "Werkplaats", Ian de link; oude drie artifacts blijven tot Ian beslist

@@ -27,6 +27,12 @@ modules in `js/`). Sinds 2026-11-12 zijn **staal en aluminium twee aparte pagina
 - Prijs = verkoop excl. btw met een marktmeter (staal € 750-2 300, aluminium € 450-880, zonder plaatsen); plaatsen is een
   aparte keuze. Marge staal 35 %, aluminium 20 % (instelbaar).
 
+**Sinds 2026-11-28 in de werkplaats-app** ([../werkplaats/README.md](../werkplaats/README.md)): de configurator draait samen
+met de balustrades en de fitnesstoestellen in één pagina, gebouwd met `node bibliotheek/werkplaats/maak-werkplaats.mjs <map>`. De werkplaats heeft drie
+tabbladen: **Schema's** (alle tekeningen en 3D, met een inhoudsopgave), **Werkvoorbereiding** (lijsten en bladen zonder
+prijzen, werkwijze, zaag-, laser- en glaslijst) en **Prijzen** (één prijsdocument: `prijsdoc.mjs`, op het scherm als A4 en als PDF). De pagina
+`web/index.html` blijft de bron en werkt ook los (`node bibliotheek/taatsdeuren/maak-web.mjs <map>`, ook `klant.html`).
+
 De vroegere opbouw (drie pagina's):
 - **Deur** (om aan de klant te tonen):
   - kies een van de 100 stijlen (filter per soort), de maat van de opening, het profiel, het glas, het scharnier, de

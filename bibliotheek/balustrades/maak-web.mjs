@@ -23,6 +23,9 @@ while (rij.length) {
   for (const i of imports(t)) if (i.startsWith('./') && !nodig.has(i.slice(2))) { nodig.add(i.slice(2)); rij.push(i.slice(2)); }
 }
 for (const f of nodig) writeFileSync(join(doel, 'js/taatsdeuren', f), readFileSync(join(TD, f), 'utf8'));
+// de gedeelde werkplaatsmodule: de tabbladen Schema's, Werkvoorbereiding en Prijzen en het prijsdocument (scherm en PDF)
+mkdirSync(join(doel, 'js/werkplaats'), { recursive: true });
+writeFileSync(join(doel, 'js/werkplaats/werkdoc.mjs'), readFileSync(join(HERE, '../werkplaats/werkdoc.mjs'), 'utf8'));
 const html = readFileSync(join(HERE, 'web/index.html'), 'utf8');
 writeFileSync(join(doel, 'index.html'), html);
 // klantversie (P2-16, zoals de fitnesscatalogus): dezelfde pagina zonder werkplaats, instellingen en kostprijs
